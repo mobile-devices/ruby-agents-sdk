@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd web_shell/scripts
+ruby agents_mgt_cmdline_wrapper.rb $@
+

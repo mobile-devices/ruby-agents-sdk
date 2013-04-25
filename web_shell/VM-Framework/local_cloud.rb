@@ -65,27 +65,32 @@ post '/presence' do
   $main_server_logger.debug("\n\n\n\n/presence new presence")
 
   jsonData = get_json_from_request(request)
-  return if jsonData == nil
-
+  if jsonData == nil
+    response.body = 'error while parsing json'
+    return
+  end
   begin
     handle_msg_from_device('presence', jsonData)
   rescue
     $main_server_logger.error('/presence error')
-    response.status = 453
+    response.body = 'error while processing presence'
   end
+
 end
 
 post '/message' do
   $main_server_logger.debug("\n\n\n\n/message new message")
 
   jsonData = get_json_from_request(request)
-  return if jsonData == nil
-
+  if jsonData == nil
+    response.body = 'error while parsing json'
+    return
+  end
   begin
     handle_msg_from_device('message', jsonData)
   rescue
     $main_server_logger.error('/message error')
-    response.status = 453
+    response.body = 'error while processing message'
   end
 end
 
@@ -93,12 +98,14 @@ post '/track' do
   $main_server_logger.debug("\n\n\n\n/track new track")
 
   jsonData = get_json_from_request(request)
-  return if jsonData == nil
-
+  if jsonData == nil
+    response.body = 'error while parsing json'
+    return
+  end
   begin
     handle_msg_from_device('track', jsonData)
   rescue
     $main_server_logger.error('/track error')
-    response.status = 453
+    response.body = 'error while processing track'
   end
 end

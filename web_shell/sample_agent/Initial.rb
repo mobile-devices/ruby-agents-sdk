@@ -6,8 +6,13 @@ class Agent_XXProjectName
 
   ##### Framework requiries #############################################
   @agent_name = 'XXProjectName'
-  @logger = Logger.new('ruby_log_XXProjectName.log', 10, 100 * 1024 * 1024)
+  @logger = nil
   include MessageGate_XXProjectName
+
+
+  def initialize()
+    @logger = Logger.new('ruby_log_XXProjectName.log', 10, 1 * 1024 * 1024)
+  end
 
   ##### Agent requires ##################################################
 

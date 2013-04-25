@@ -2,9 +2,15 @@ GEM
   remote: http://rubygems.org/
   specs:
     hashie (2.0.3)
+    json (1.7.7)
+    logger (1.2.8)
+    thread (0.0.7)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   hashie
+  json
+  logger
+  thread

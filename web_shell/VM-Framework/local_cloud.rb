@@ -4,6 +4,8 @@ require 'json'
 require 'thread'
 require 'logger'
 
+
+
 require_relative 'ID_Generator'
 include ID_GEN
 require_relative 'message'
@@ -33,7 +35,7 @@ def get_json_from_request(request)
 end
 
 # Go !
-$main_server_logger.info("starting sinatra with #{get_run_agents().count} agents")
+$main_server_logger.info("\n\n\n\n\n+===========================================================\n| starting sinatra with #{get_run_agents().count} agents\n+===========================================================")
 
 
 #test: curl localhost:5001/dynamic_channel_request

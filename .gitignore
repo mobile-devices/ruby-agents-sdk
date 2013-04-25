@@ -1,2 +1,4 @@
 cloud_agents
 cloud_agents_generated
+*.log
+.agents_to_run

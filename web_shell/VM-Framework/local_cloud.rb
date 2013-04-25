@@ -33,9 +33,8 @@ def get_json_from_request(request)
 end
 
 # Go !
-puts "starting sinatra with #{get_run_agents().join(';')} agents"
+$main_server_logger.info("starting sinatra with #{get_run_agents().join(';')} agents")
 
-puts 'local_cloud started'
 
 #test: curl localhost:5001/dynamic_channel_request
 get '/dynamic_channel_request' do

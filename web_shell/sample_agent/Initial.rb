@@ -1,13 +1,12 @@
 #!/usr/bin/ruby -w
-
 require_relative 'Message_gate'
-
 
 # XXProjectName agent
 class Agent_XXProjectName
 
   ##### Framework requiries #############################################
   @agent_name = 'XXProjectName'
+  @logger = Logger.new('ruby_log_XXProjectName.log', 10, 100 * 1024 * 1024)
   include MessageGate_XXProjectName
 
   ##### Agent requires ##################################################

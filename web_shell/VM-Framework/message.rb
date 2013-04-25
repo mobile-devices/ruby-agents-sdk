@@ -56,7 +56,7 @@ class Message < Hashie::Mash
 
   protected
     def set_defaults!
-      self.id ||= ID_GEN.next_id(self.asset)
+      self.id ||= ID_GEN.next_id()
       self.sender ||= '@@server@@'
       if self.asset
         self.recipient ||= self.asset

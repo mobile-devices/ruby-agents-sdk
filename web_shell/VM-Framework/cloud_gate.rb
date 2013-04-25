@@ -7,9 +7,12 @@ def push_someting_to_device(something)
   end
 end
 
-def push_ack_to_device(payload_src, tmp_id_from_device, parent_id)
-
+def push_ack_to_device(payload)
   $main_server_logger.debug("push_ack_to_device: creating new ack message")
+
+  tmp_id_from_device = payload['id']
+  parent_id = ID_GEN.next_id()
+  payload['id'] = parent_id
 
   channel_str = payload_src['channel']
 
@@ -40,22 +43,20 @@ def handle_msg_from_device(type, params)
 
   meta = params['meta']
   payload = params['payload']
-  tmp_id_from_device = payload['id']
   account = meta['account']
 
   $main_server_logger.debug('handle_msg_from_device: success parse')
-
-  parent_id = ID_GEN.next_id()
-  payload['id'] = parent_id
-
-  push_ack_to_device(payload, tmp_id_from_device, parent_id)
 
   case type
   when 'presence'
     handle_presence(meta, payload, account)
   when 'tracking'
+    # Ack mesage
+    push_ack_to_device(payload)
     handle_track(meta, payload, account)
   when 'message'
+    # Ack mesage
+    push_ack_to_device(payload)
     handle_message(meta, payload, account)
   else
     $main_server_logger.error('handle_msg_from_device: type unknown')

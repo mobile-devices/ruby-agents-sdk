@@ -20,6 +20,9 @@ class Agent_XXProjectName
   # to send a message to device, use :
   #   send_message_to_device(account, asset, content)
   #   reply_message_to_device(message, account, content)
+  # to configure the dynamic channel used by this agent, go and edit config/dynamic_channel.yml
+  # if you need additional gems, edit the GemFile
+  # remember to complete the README.md
 
   #######################################################################
 

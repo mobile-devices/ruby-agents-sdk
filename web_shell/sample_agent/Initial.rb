@@ -7,13 +7,12 @@ class Agent_XXProjectName
   ##### Framework requiries #############################################
   @agent_name = 'XXProjectName'
   @logger = nil
+  @CHANNEL = 'com.mdi.services.XXProjectName'
   include MessageGate_XXProjectName
-
 
   def initialize()
     @logger = Logger.new('ruby_log_XXProjectName.log', 10, 1 * 1024 * 1024)
   end
-
   ##### Agent requires ##################################################
 
   #todo: auto require recursively all *.rb in lib folder (put this code somewhere else)

@@ -6,7 +6,6 @@ module MessageGate_XXProjectName
   #todo : to fix
   #cnf = YAML::load(File.open('./dynamic_channel.yml'))
   #CHANNEL = cnf['Channel_str']
-  @CHANNEL = 'com.mdi.services.XXProjectName'
 
   ######### Messages from devices #######################
   def handle_message(meta, payload, account)

@@ -19,12 +19,14 @@ def generate_agents()
 
   agents_to_run.each { |agent|
     agents_generated_code += "require_relative \"../../cloud_agents/#{agent}/Initial\"\n\n"
-    agents_generated_code += "\@#{agent}_initial = Agent_#{agent}.new\n"
+    agents_generated_code += "\$#{agent}_initial = Agent_#{agent}.new\n"
 
-
-    agents_generated_code_handle_presence += "  \@#{agent}_initial.handle_presence(meta, payload, account)\n"
-    agents_generated_code_handle_message += "  \@#{agent}_initial.handle_message(meta, payload, account)\n"
-    agents_generated_code_handle_track += "  \@#{agent}_initial.handle_track(meta, payload, account)\n"
+    agents_generated_code_handle_presence += "  $main_server_logger.debug(\"handle_presence: pushing presence to #{agent} ..................\")\n"
+    agents_generated_code_handle_presence += "  \$#{agent}_initial.handle_presence(meta, payload, account)\n"
+    agents_generated_code_handle_message += "  $main_server_logger.debug(\"handle_message: pushing message to #{agent} ..................\")\n"
+    agents_generated_code_handle_message += "  \$#{agent}_initial.handle_message(meta, payload, account)\n"
+    agents_generated_code_handle_track += "  $main_server_logger.debug(\"handle_track: pushing track to #{agent} ..................\")\n"
+    agents_generated_code_handle_track += "  \$#{agent}_initial.handle_track(meta, payload, account)\n"
 
     agents_Gemfile += get_agent_Gemfile_content(agent) + "\n"
   }

@@ -18,8 +18,16 @@ def generate_agents()
   agents_generated_code_handle_track = ""
 
   agents_to_run.each { |agent|
-    agents_generated_code += "require_relative \"../../cloud_agents/#{agent}/Initial\"\n\n"
+    agents_generated_code += "\nrequire_relative \"../../cloud_agents/#{agent}/Initial\"\n"
     agents_generated_code += "\$#{agent}_initial = Agent_#{agent}.new\n"
+
+    agents_generated_code += "class <<  \$#{agent}_initial\n"
+    agents_generated_code += "  define_method(:load_dynamic_channel) {\n"
+    agents_generated_code += "    cnf = YAML::load(File.open(\"../../cloud_agents/#{agent}/config/dynamic_channel.yml\"))\n"
+    agents_generated_code += "    @CHANNEL = cnf['Channel_str']\n"
+    agents_generated_code += "  }\n"
+    agents_generated_code += "end\n"
+    agents_generated_code += "$#{agent}_initial.init\n"
 
     agents_generated_code_handle_presence += "  $main_server_logger.debug(\"handle_presence: pushing presence to #{agent} ..................\")\n"
     agents_generated_code_handle_presence += "  \$#{agent}_initial.handle_presence(meta, payload, account)\n"

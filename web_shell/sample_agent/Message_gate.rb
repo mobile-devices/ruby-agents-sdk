@@ -3,9 +3,12 @@ require 'yaml'
 
 
 module MessageGate_XXProjectName
-  #todo : to fix
-  #cnf = YAML::load(File.open('./dynamic_channel.yml'))
-  #CHANNEL = cnf['Channel_str']
+
+  def load_dynamic_channel()
+    cnf = YAML::load(File.open('config/dynamic_channel.yml'))
+    @CHANNEL = cnf['Channel_str']
+  end
+
 
   ######### Messages from devices #######################
   def handle_message(meta, payload, account)

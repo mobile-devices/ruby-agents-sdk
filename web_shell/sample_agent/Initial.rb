@@ -10,7 +10,7 @@ class Agent_XXProjectName
   @CHANNEL = 'com.mdi.services.XXProjectName'
   include MessageGate_XXProjectName
 
-  def initialize()
+  def initialize() # constructor
     @logger = Logger.new('ruby_log_XXProjectName.log', 10, 1 * 1024 * 1024)
   end
   ##### Agent requires ##################################################
@@ -29,6 +29,14 @@ class Agent_XXProjectName
   # remember to complete the README.md
 
   #######################################################################
+
+  def init()
+    load_dynamic_channel
+    @logger.debug("Agent_XXProjectName init with dynamic channel = #{@CHANNEL}")
+
+    # Write your startup code here
+  end
+
 
   def new_message_from_device(meta, payload, account)
     msg = Message.new(payload)

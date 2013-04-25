@@ -73,6 +73,7 @@ post '/presence' do
   end
   begin
     handle_msg_from_device('presence', jsonData)
+    response.body = 'success'
   rescue
     $main_server_logger.error('/presence error')
     response.body = 'error while processing presence'
@@ -90,6 +91,7 @@ post '/message' do
   end
   begin
     handle_msg_from_device('message', jsonData)
+    response.body = 'success'
   rescue
     $main_server_logger.error('/message error')
     response.body = 'error while processing message'
@@ -106,6 +108,7 @@ post '/track' do
   end
   begin
     handle_msg_from_device('track', jsonData)
+    response.body = 'success'
   rescue
     $main_server_logger.error('/track error')
     response.body = 'error while processing track'

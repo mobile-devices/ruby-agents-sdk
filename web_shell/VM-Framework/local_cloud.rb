@@ -33,7 +33,7 @@ def get_json_from_request(request)
 end
 
 # Go !
-$main_server_logger.info("starting sinatra with #{get_run_agents().join(';')} agents")
+$main_server_logger.info("starting sinatra with #{get_run_agents().count} agents")
 
 
 #test: curl localhost:5001/dynamic_channel_request

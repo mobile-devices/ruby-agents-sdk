@@ -21,6 +21,8 @@ $message_to_device = []
 $mutex_message_to_device = Mutex.new()
 
 $main_server_logger = Logger.new('ruby-agents-sdk.log', 10, 1 * 1024 * 1024)
+$main_server_root_path = File.expand_path("..", __FILE__)
+
 
 def get_json_from_request(request)
   begin

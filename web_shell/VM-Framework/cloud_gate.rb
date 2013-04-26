@@ -62,5 +62,5 @@ def handle_msg_from_device(type, params)
     $main_server_logger.error('handle_msg_from_device: type unknown')
   end
 
-  $main_server_logger.debug("handle_msg_from_device: done tmpId=#{tmp_id_from_device} parrent_id=#{parent_id}")
+  $main_server_logger.debug("handle_msg_from_device: done")
 end

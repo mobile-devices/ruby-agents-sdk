@@ -26,16 +26,20 @@ class Agent_XX_PROJECT_NAME
 
   ######### Messages from devices ######################################
   def handle_message(meta, payload, account)
-    return unless payload['type'] == "message"
     return unless payload['channel'] == @CHANNEL
-    #todo: log on errors
+    if payload['type'] != 'message'
+      @logger.error("handle_message: wrong type #{payload['type']} (not 'message')")
+      return
+    end
 
     new_message_from_device(meta, payload, account)
   end
 
   def handle_presence(meta, payload, account)
-    #todo: test type, log on errors
-
+    if payload['type'] != 'connect' && payload['type'] != 'reconnect' && payload['type'] != 'disconnect'
+      @logger.error("handle_presence: wrong type '#{payload['type']}' (not 'message')")
+      return
+    end
     @logger.debug('handle_presence')
 
     new_presence_from_device(meta, payload, account)

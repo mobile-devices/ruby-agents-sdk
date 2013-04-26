@@ -30,20 +30,34 @@ def generate_agents()
   agents_generated_code += "\n"
   agents_generated_code += "def handle_presence(meta, payload, account)\n"
   agents_to_run.each { |agent|
-    agents_generated_code += "  $main_server_logger.debug(\"handle_presence: pushing presence to #{agent} ..................\")\n"
-    agents_generated_code += "  \$#{agent}_initial.handle_presence(meta, payload, account)\n"
+    agents_generated_code += "  begin\n"
+    agents_generated_code += "    $main_server_logger.debug(\"handle_presence: pushing presence to #{agent} ..................\")\n"
+    agents_generated_code += "    \$#{agent}_initial.handle_presence(meta, payload, account)\n"
+    agents_generated_code += "  rescue\n"
+    agents_generated_code += "    $main_server_logger.error('/presence error while handle_presence on agent #{agent}')\n"
+    agents_generated_code += "  end\n"
   }
   agents_generated_code += "end\n\n"
+
   agents_generated_code += "def handle_message(meta, payload, account)\n"
   agents_to_run.each { |agent|
-    agents_generated_code += "  $main_server_logger.debug(\"handle_message: pushing message to #{agent} ..................\")\n"
-    agents_generated_code += "  \$#{agent}_initial.handle_message(meta, payload, account)\n"
+    agents_generated_code += "  begin\n"
+    agents_generated_code += "    $main_server_logger.debug(\"handle_message: pushing message to #{agent} ..................\")\n"
+    agents_generated_code += "    \$#{agent}_initial.handle_message(meta, payload, account)\n"
+    agents_generated_code += "  rescue\n"
+    agents_generated_code += "    $main_server_logger.error('/message error while handle_message on agent #{agent}')\n"
+    agents_generated_code += "  end\n"
   }
   agents_generated_code += "end\n\n"
+
   agents_generated_code += "def handle_track(meta, payload, account)\n"
   agents_to_run.each { |agent|
-    agents_generated_code += "  $main_server_logger.debug(\"handle_track: pushing track to #{agent} ..................\")\n"
+    agents_generated_code += "  begin\n"
+    agents_generated_code += "    $main_server_logger.debug(\"handle_track: pushing track to #{agent} ..................\")\n"
     agents_generated_code += "  \$#{agent}_initial.handle_track(meta, payload, account)\n"
+    agents_generated_code += "  rescue\n"
+    agents_generated_code += "    $main_server_logger.error('/track error while handle_track on agent #{agent}')\n"
+    agents_generated_code += "  end\n"
   }
   agents_generated_code += "end\n"
 

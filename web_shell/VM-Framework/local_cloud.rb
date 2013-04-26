@@ -36,8 +36,7 @@ def get_json_from_request(request)
 end
 
 # Go !
-$main_server_logger.info("\n\n\n\n\n+===========================================================\n| starting sinatra with #{get_run_agents().count} agents\n+===========================================================")
-
+$main_server_logger.info("\n\n\n\n\n+===========================================================\n| starting ruby-agent-sdk-server with #{get_run_agents().count} agents\n+===========================================================")
 
 #test: curl localhost:5001/dynamic_channel_request
 get '/dynamic_channel_request' do

@@ -8,10 +8,20 @@ class Agent_XXProjectName
   @agent_name = 'XXProjectName'
   @logger = nil
   @CHANNEL = 'com.mdi.services.XXProjectName'
+  @root_dir = nil
   include MessageGate_XXProjectName
 
   def initialize() # constructor
     @logger = Logger.new('ruby_log_XXProjectName.log', 10, 1 * 1024 * 1024)
+
+    # init root dir
+    @root_dir = File.expand_path("..", __FILE__)
+    @logger.debug("Agent_XXProjectName root path is  = #{@root_dir}")
+
+    # Load dynamic channel
+    cnf = YAML::load(File.open("#{@root_dir}/config/dynamic_channel.yml"))
+    @CHANNEL = cnf['Channel_str']
+    @logger.debug("Agent_XXProjectName init with dynamic channel = \"#{@CHANNEL}\"")
   end
   ##### Agent requires ##################################################
 
@@ -29,14 +39,6 @@ class Agent_XXProjectName
   # remember to complete the README.md
 
   #######################################################################
-
-  def init()
-    load_dynamic_channel
-    @logger.debug("Agent_XXProjectName init with dynamic channel = #{@CHANNEL}")
-
-    # Write your startup code here
-  end
-
 
   def new_message_from_device(meta, payload, account)
     msg = Message.new(payload)

@@ -4,8 +4,6 @@ require 'json'
 require 'thread'
 require 'logger'
 
-
-
 require_relative 'ID_Generator'
 include ID_GEN
 require_relative 'message'

@@ -4,12 +4,6 @@ require 'yaml'
 
 module MessageGate_XXProjectName
 
-  def load_dynamic_channel()
-    cnf = YAML::load(File.open('config/dynamic_channel.yml'))
-    @CHANNEL = cnf['Channel_str']
-  end
-
-
   ######### Messages from devices #######################
   def handle_message(meta, payload, account)
     return unless payload['type'] == "message"

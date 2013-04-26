@@ -15,7 +15,7 @@ class Agent_XX_PROJECT_NAME
     @root_dir = 'XX_PROJECT_ROOT_PATH' # path of initial.rb
 
     # init root dir
-    @logger.debug("Agent_XX_PROJECT_NAME root path is  = #{@root_dir}")
+    @logger.debug("Agent_XX_PROJECT_NAME root path is = \"#{@root_dir}\"")
 
     # Load dynamic channel
     cnf = YAML::load(File.open("#{@root_dir}/config/dynamic_channel.yml"))
@@ -69,8 +69,6 @@ class Agent_XX_PROJECT_NAME
 
   ######################################################################
 
-  #/home/demomp_x/work/serv/trialVMSinatra/ruby-agents-sdk/web_shell/cloud_agents_generated
-  #/home/demomp_x/work/serv/trialVMSinatra/ruby-agents-sdk/cloud_agents
   require_relative '../../cloud_agents/XX_PROJECT_NAME/initial'
 
 end

@@ -2,6 +2,7 @@ require 'fileutils'
 require 'securerandom'
 require 'yaml'
 
+@ROOT_PATH_AGENT_MGT = File.expand_path("..", __FILE__)
 
 #########################################################################################################
 ## compile
@@ -11,40 +12,48 @@ def generate_agents()
   agents_to_run = get_run_agents
 
   agents_generated_code = ""
-  agents_Gemfile = ""
 
-  agents_generated_code_handle_presence = ""
-  agents_generated_code_handle_message = ""
-  agents_generated_code_handle_track = ""
+  template_agent_src = File.read("#{@ROOT_PATH_AGENT_MGT}/template_agent.rb_")
 
+  # template generation
   agents_to_run.each { |agent|
-    agents_generated_code += "\nrequire_relative \"../../cloud_agents/#{agent}/Initial\"\n"
-    agents_generated_code += "\$#{agent}_initial = Agent_#{agent}.new\n"
+    template_agent = template_agent_src.clone
+    template_agent.gsub!('XX_PROJECT_NAME',"#{agent}")
+    template_agent.gsub!('XX_PROJECT_ROOT_PATH',"#{@ROOT_PATH_AGENT_MGT}/../../cloud_agents/#{agent}")
+    agents_generated_code += template_agent
 
-    agents_generated_code_handle_presence += "  $main_server_logger.debug(\"handle_presence: pushing presence to #{agent} ..................\")\n"
-    agents_generated_code_handle_presence += "  \$#{agent}_initial.handle_presence(meta, payload, account)\n"
-    agents_generated_code_handle_message += "  $main_server_logger.debug(\"handle_message: pushing message to #{agent} ..................\")\n"
-    agents_generated_code_handle_message += "  \$#{agent}_initial.handle_message(meta, payload, account)\n"
-    agents_generated_code_handle_track += "  $main_server_logger.debug(\"handle_track: pushing track to #{agent} ..................\")\n"
-    agents_generated_code_handle_track += "  \$#{agent}_initial.handle_track(meta, payload, account)\n"
-
-    agents_Gemfile += get_agent_Gemfile_content(agent) + "\n"
+    agents_generated_code += "\$#{agent}_initial = Agent_#{agent}.new\n\n\n"
   }
+  agents_generated_code += "\n\n\n\n"
 
+  # forward messages to agent
   agents_generated_code += "\n"
   agents_generated_code += "def handle_presence(meta, payload, account)\n"
-  agents_generated_code += agents_generated_code_handle_presence
-  agents_generated_code += "end\n"
-  agents_generated_code += "\n"
+  agents_to_run.each { |agent|
+    agents_generated_code += "  $main_server_logger.debug(\"handle_presence: pushing presence to #{agent} ..................\")\n"
+    agents_generated_code += "  \$#{agent}_initial.handle_presence(meta, payload, account)\n"
+  }
+  agents_generated_code += "end\n\n"
   agents_generated_code += "def handle_message(meta, payload, account)\n"
-  agents_generated_code += agents_generated_code_handle_message
-  agents_generated_code += "end\n"
-  agents_generated_code += "\n"
+  agents_to_run.each { |agent|
+    agents_generated_code += "  $main_server_logger.debug(\"handle_message: pushing message to #{agent} ..................\")\n"
+    agents_generated_code += "  \$#{agent}_initial.handle_message(meta, payload, account)\n"
+  }
+  agents_generated_code += "end\n\n"
   agents_generated_code += "def handle_track(meta, payload, account)\n"
-  agents_generated_code += agents_generated_code_handle_track
+  agents_to_run.each { |agent|
+    agents_generated_code += "  $main_server_logger.debug(\"handle_track: pushing track to #{agent} ..................\")\n"
+    agents_generated_code += "  \$#{agent}_initial.handle_track(meta, payload, account)\n"
+  }
   agents_generated_code += "end\n"
 
   File.open('../cloud_agents_generated/generated.rb', 'w') { |file| file.write(agents_generated_code) }
+
+  # Gemfile
+  agents_Gemfile = ""
+  agents_to_run.each { |agent|
+    agents_Gemfile += get_agent_Gemfile_content(agent) + "\n"
+  }
   File.open('../cloud_agents_generated/GemFile', 'w') { |file| file.write(agents_Gemfile) }
 
   #  generad dyn channel list

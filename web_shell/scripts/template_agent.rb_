@@ -1,0 +1,72 @@
+#!/usr/bin/ruby -w
+require 'yaml'
+
+# XX_PROJECT_NAME agent
+class Agent_XX_PROJECT_NAME
+
+  @agent_name = 'XX_PROJECT_NAME'
+  @logger = nil
+  @CHANNEL = 'com.mdi.services.XX_PROJECT_NAME'
+  @root_dir = nil
+
+  def initialize() # constructor
+    @logger = Logger.new('../logs/agents/ruby_log_XX_PROJECT_NAME.log', 10, 1 * 1024 * 1024)
+
+    @root_dir = 'XX_PROJECT_ROOT_PATH' # path of initial.rb
+
+    # init root dir
+    @logger.debug("Agent_XX_PROJECT_NAME root path is  = #{@root_dir}")
+
+    # Load dynamic channel
+    cnf = YAML::load(File.open("#{@root_dir}/config/dynamic_channel.yml"))
+    @CHANNEL = cnf['Channel_str']
+    @logger.debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")
+  end
+
+
+  ######### Messages from devices ######################################
+  def handle_message(meta, payload, account)
+    return unless payload['type'] == "message"
+    return unless payload['channel'] == @CHANNEL
+    #todo: log on errors
+
+    new_message_from_device(meta, payload, account)
+  end
+
+  def handle_presence(meta, payload, account)
+    #todo: test type, log on errors
+
+    @logger.debug('handle_presence')
+
+    new_presence_from_device(meta, payload, account)
+  end
+
+  def handle_track(meta, payload, account)
+    #todo: test type, log on errors
+    new_track_from_device(meta, payload, account)
+  end
+
+  ########## Messages to devices #######################################
+  def send_message_to_device(account, asset, content)
+    account.messages.new({
+      asset:     asset.imei,
+      recipient: asset.imei,
+      sender:    '@@server@@',
+      channel:   @CHANNEL,
+      payload:   content.to_msgpack
+      }, as: :agent).push
+  end
+
+  def reply_message_to_device(message, account, content)
+    #idem, we build a Message then send it to rqueue
+    m = message.reply("200#{content}")
+    m.push('account' => account.name)
+  end
+
+  ######################################################################
+
+  #/home/demomp_x/work/serv/trialVMSinatra/ruby-agents-sdk/web_shell/cloud_agents_generated
+  #/home/demomp_x/work/serv/trialVMSinatra/ruby-agents-sdk/cloud_agents
+  require_relative '../../cloud_agents/XX_PROJECT_NAME/initial'
+
+end

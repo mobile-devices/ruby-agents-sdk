@@ -1,6 +1,6 @@
 #!/bin/bash
 
-commands=' start_admin start stop read_log '
+commands=' start_admin start stop read_server_log read_agents_log '
 command=$1
 params=${@:2}
 
@@ -26,9 +26,14 @@ stop() {
     ./local_cloud.sh stop
 }
 
-read_log() {
-  cd web_shell/VM-Framework
+read_server_log() {
+  cd web_shell/logs
   tail -f ruby-agents-sdk.log
+}
+
+#todo: test if multitail available, multi tail only run agent
+read_agents_log() {
+  multitail web_shell/logs/agents/ruby_log_*
 }
 
 $command $params

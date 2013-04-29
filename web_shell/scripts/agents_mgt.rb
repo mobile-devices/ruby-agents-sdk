@@ -64,11 +64,11 @@ def generate_agents()
   File.open('../cloud_agents_generated/generated.rb', 'w') { |file| file.write(agents_generated_code) }
 
   # Gemfile
-  #agents_Gemfile = ""
-  #agents_to_run.each { |agent|
-  #  agents_Gemfile += get_agent_Gemfile_content(agent) + "\n"
-  #}
-  #File.open('../cloud_agents_generated/GemFile', 'w') { |file| file.write(agents_Gemfile) }
+  agents_Gemfile = ""
+  agents_to_run.each { |agent|
+    agents_Gemfile += get_agent_Gemfile_content(agent) + "\n"
+  }
+  File.open('../cloud_agents_generated/GemFile', 'w') { |file| file.write(agents_Gemfile) }
 
   #  generad dyn channel list
   dyn_channels_str = get_agents_dyn_channel(get_available_agents())

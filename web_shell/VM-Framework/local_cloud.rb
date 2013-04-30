@@ -1,5 +1,7 @@
 #!/usr/bin/ruby -w
 require 'sinatra'
+set :bind, '0.0.0.0'
+set :port, '5001'
 require 'json'
 require 'thread'
 require 'logger'

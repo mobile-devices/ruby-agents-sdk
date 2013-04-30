@@ -10,7 +10,7 @@ class Agent_XX_PROJECT_NAME
   @root_dir = nil
 
   def initialize() # constructor
-    @logger = Logger.new('../logs/agents/ruby_log_XX_PROJECT_NAME.log', 10, 1 * 1024 * 1024)
+    @logger = Logger.new('/home/vagrant/ruby_workspace/sdk_logs/agents/ruby_log_XX_PROJECT_NAME.log', 10, 1 * 1024 * 1024)
 
     @root_dir = 'XX_PROJECT_ROOT_PATH' # path of initial.rb
 

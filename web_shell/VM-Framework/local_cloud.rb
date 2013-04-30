@@ -1,7 +1,5 @@
 #!/usr/bin/ruby -w
 require 'sinatra'
-set :bind, '10.42.2.250'
-
 require 'json'
 require 'thread'
 require 'logger'

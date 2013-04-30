@@ -5,10 +5,9 @@
 # conf dyn channel per agent
 
 require 'sinatra'
-set :bind, '192.168.33.10'
+set :bind, '10.42.2.250'
 
 require_relative '../scripts/agents_mgt'
-
 
 #=========================================================================================
 class Agent < Struct.new(:name, :running)

@@ -5,6 +5,8 @@
 # conf dyn channel per agent
 
 require 'sinatra'
+set :bind, '192.168.33.10'
+
 require_relative '../scripts/agents_mgt'
 
 

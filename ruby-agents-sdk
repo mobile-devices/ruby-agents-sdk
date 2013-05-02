@@ -19,10 +19,7 @@ start_admin() {
 }
 
 stop_admin() {
-  for id in `ps -ef | grep -i -e 'ruby local_cloud_config.rb' | awk '{ print $2 }'`; do
-    echo "killing pid $id"
-    kill -9 $id
-  done
+  killall 'ruby local_cloud_config.rb'
 }
 
 start() {

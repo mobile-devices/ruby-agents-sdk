@@ -13,7 +13,7 @@ fi
 start_admin() {
   echo "starting admin server"
   cd web_shell/VM-Framework
-  ruby local_cloud_config.rb -p 5000 &
+  ruby local_cloud_config.rb &
 }
 
 start() {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-commands=' start_admin start stop read_server_log read_agents_log '
+commands=' stop_admin start_admin start stop read_server_log read_agents_log read_admin_server_log '
 command=$1
 params=${@:2}
 
@@ -9,11 +9,20 @@ if [ "$command" = '' ] || ! [[ $commands =~ \ $command\  ]] ; then
   exit 1
 fi
 
+
 #launch admin server
 start_admin() {
   echo "starting admin server"
+  [ ! -d ruby_workspace ] && mkdir ruby_workspace
   cd web_shell/VM-Framework
-  ruby local_cloud_config.rb > /home/vagrant/ruby_workspace/sdk_logs/local_cloud_config.ruby.log &
+  ruby local_cloud_config.rb >../../logs/local_cloud_config.ruby.log 2>&1 &
+}
+
+stop_admin() {
+  for id in `ps -ef | grep -i -e 'ruby local_cloud_config.rb' | awk '{ print $2 }'`; do
+    echo "killing pid $id"
+    kill -9 $id
+  done
 }
 
 start() {
@@ -26,14 +35,17 @@ stop() {
     ./local_cloud.sh stop
 }
 
+read_admin_server_log() {
+  tail -f logs/local_cloud_config.ruby.log
+}
+
 read_server_log() {
-  cd web_shell/logs
-  tail -f ruby-agents-sdk.log
+  tail -f logs/ruby-agents-sdk.log
 }
 
 #todo: test if multitail available, multi tail only run agent
 read_agents_log() {
-  multitail web_shell/logs/agents/ruby_log_*
+  multitail logs/agents/ruby_log_*
 }
 
 $command $params

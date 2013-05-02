@@ -11,7 +11,7 @@ stop() {
 
 restart() {
   stop
-  ruby local_cloud.rb -p 5001 > local_cloud.log &
+  ruby local_cloud.rb > /home/vagrant/ruby_workspace/sdk_logs/local_cloud.ruby.log &
 }
 
 $command $params

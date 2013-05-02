@@ -13,7 +13,7 @@ fi
 start_admin() {
   echo "starting admin server"
   cd web_shell/VM-Framework
-  ruby local_cloud_config.rb &
+  ruby local_cloud_config.rb > /home/vagrant/ruby_workspace/sdk_logs/local_cloud_config.ruby.log &
 }
 
 start() {

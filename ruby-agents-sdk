@@ -23,13 +23,13 @@ stop_admin() {
 }
 
 start() {
-    cd web_shell/VM-Framework
-    ./local_cloud.sh restart
+  cd web_shell/VM-Framework
+  ./local_cloud.sh restart
 }
 
 stop() {
-    cd web_shell/VM-Framework
-    ./local_cloud.sh stop
+  cd web_shell/VM-Framework
+  ./local_cloud.sh stop
 }
 
 read_admin_server_log() {

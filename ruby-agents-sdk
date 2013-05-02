@@ -15,6 +15,8 @@ start_admin() {
   echo "starting admin server"
   [ ! -d ruby_workspace ] && mkdir ruby_workspace
   cd web_shell/VM-Framework
+  pwd
+  touch ../../logs/test_start_admin
   ruby local_cloud_config.rb >>../../logs/local_cloud_config.ruby.log 2>&1 &
 }
 

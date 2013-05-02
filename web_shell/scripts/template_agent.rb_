@@ -57,7 +57,7 @@ class Agent_XX_PROJECT_NAME
       recipient: asset.imei,
       sender:    '@@server@@',
       channel:   @CHANNEL,
-      payload:   content.to_msgpack
+      payload:   content.to_json
       }, as: :agent).push
   end
 

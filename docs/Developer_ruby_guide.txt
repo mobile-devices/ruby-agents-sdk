@@ -1,0 +1,71 @@
+
+##### General ############################################################################################
+# - You receive the message into the initial.rb, you shall include your code into some sub .rb file into the lib folder.
+# - Dev it stateless
+# - To configure the dynamic channel used by this agent, go and edit config/dynamic_channel.yml
+# - If you need additional gems, edit the GemFile and require them here
+# - Remember to complete the README.md
+# - To write some log, use the @logger object (class Logger)
+
+############################################################################################################
+
+
+##### Receive something from device ########################################################################
+
+Into the initial.rb you will find :
+
+def new_presence_from_device(meta, payload, account)
+  # Write your code here
+  @logger.debug('initial:new_presence_from_device')
+end
+
+
+def new_message_from_device(meta, payload, account)
+  msg = Message.new(payload)
+  # Write your code here
+  @logger.debug('initial:new_message_from_device')
+end
+
+
+def new_track_from_device(meta, payload, account)
+  # Write your code here
+  @logger.debug('initial:new_track_from_device')
+end
+
+
+#### Send something to device #############################################################################
+
+
+
+
+# to send a message to device, use :
+#   send_message_to_device(account, asset, content)
+#   reply_message_to_device(message, account, content)
+
+
+
+
+
+##### Data structures #################################################
+
+# meta
+
+
+# payload
+
+
+
+# account
+
+
+# asset
+
+
+
+# message
+
+
+
+
+
+#######################################################################

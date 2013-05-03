@@ -172,8 +172,12 @@ end
 #########################################################################################################
 ## Basic tools
 
+def get_sdk_version()
+  @sdk_version ||= File.read('../../version.txt')
+end
+
 def generate_new_guid()
-  SecureRandom.base64
+  get_sdk_version + ";" + SecureRandom.base64
 end
 
 def get_dirs(path)

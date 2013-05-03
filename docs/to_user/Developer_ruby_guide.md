@@ -1,5 +1,5 @@
 
-# Ruby agent sdk developer guide
+# Ruby agent sdk developer guide XXXX_VERSION
 
 The folder ruby_workspace is your workspace, you can't move it or rename it, but you can sym-link it if you want.
 

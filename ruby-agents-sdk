@@ -19,7 +19,7 @@ start_admin() {
 }
 
 stop_admin() {
-  killall 'ruby local_cloud_config.rb'
+  killall -r 'ruby local_cloud_config.rb'
 }
 
 start() {

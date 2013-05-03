@@ -26,10 +26,10 @@ The com interface run onto the 5001 port.
 #### General guide-line :
 
 * You receive the messages into the initial.rb, you shall include your code into some sub .rb file into the lib folder.
-* Do your agent stateless
+* Do your agent stateless, global variables are stricly forbidden.
 * To configure the dynamic channel used by this agent, go and edit config/dynamic_channel.yml
 * If you need additional gems, edit the GemFile and require them here
-* Remember to complete the README.md
+* Remember to complete your README.md
 * To write some log, use the @logger object (class Logger)
 
 
@@ -39,10 +39,12 @@ The com interface run onto the 5001 port.
 
 #### A1) presence : This method is called when a connection/reconnection/deconnection happen.
 
+```
 def new_presence_from_device(meta, payload, account)
   # Write your code here
   @logger.debug('initial:new_presence_from_device')
 end
+```
 
  With :
 
@@ -60,11 +62,13 @@ end
 
 #### A2) message : This method is called when a message is received from the device.
 
+```
 def new_message_from_device(meta, payload, account)
   msg = Message.new(payload)
   # Write your code here
   @logger.debug('initial:new_message_from_device')
 end
+```
 
  With :
 
@@ -86,10 +90,12 @@ end
 
 #### A3) track : This method is called when a tracking set of data is received from the device.
 
+```
 def new_track_from_device(meta, payload, account)
   # Write your code here
   @logger.debug('initial:new_track_from_device')
 end
+```
 
 "**meta**", a map with some meta data, generally none.
 

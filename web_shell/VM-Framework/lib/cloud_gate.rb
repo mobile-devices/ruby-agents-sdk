@@ -1,6 +1,6 @@
 
 def push_someting_to_device(something)
-  $main_server_logger.debug("push_someting_to_device:\n#{something}")
+  CC_SDK.logger.debug("Server: push_someting_to_device:\n#{something}")
 
   $mutex_message_to_device.synchronize do
     $message_to_device << something
@@ -8,7 +8,7 @@ def push_someting_to_device(something)
 end
 
 def push_ack_to_device(payload)
-  $main_server_logger.debug("push_ack_to_device: creating new ack message")
+  CC_SDK.logger.debug("Server: push_ack_to_device: creating new ack message")
 
   tmp_id_from_device = payload['id']
   parent_id = ID_GEN.next_id()
@@ -18,9 +18,9 @@ def push_ack_to_device(payload)
 
   channel_int = $dyn_channels[channel_str]
   if channel_str == nil || channel_int == nil
-    $main_server_logger.error("push_ack_to_device: error dyn channel #{channel_str} not found.")
+    CC_SDK.logger.error("Server: push_ack_to_device: error dyn channel #{channel_str} not found.")
   end
-  $main_server_logger.debug("push_ack_to_device: for channel #{channel_str} using number #{channel_int}")
+  CC_SDK.logger.debug("Server: push_ack_to_device: for channel #{channel_str} using number #{channel_int}")
 
   msgAck = Message.new(payload_src) #just to have a message struct, buts beurk ! todo: fix it
   ack_map = Hash.new()
@@ -32,20 +32,20 @@ def push_ack_to_device(payload)
   msgAck['payload'] = ack_map.to_json
   msgAck['type'] = 'ackmessage'
 
-  $main_server_logger.debug("push_ack_to_device: adding Ack message with tmpId=#{ack_map['tmpId']} and msgId=#{ack_map['msgId']}")
+  CC_SDK.logger.debug("Server: push_ack_to_device: adding Ack message with tmpId=#{ack_map['tmpId']} and msgId=#{ack_map['msgId']}")
 
   push_someting_to_device(msgAck)
 end
 
 
 def handle_msg_from_device(type, params)
-  $main_server_logger.debug("handle_msg_from_device: of type #{type}:\n#{params}")
+  CC_SDK.logger.debug("Server: handle_msg_from_device: of type #{type}:\n#{params}")
 
   meta = params['meta']
   payload = params['payload']
   account = meta['account']
 
-  $main_server_logger.debug('handle_msg_from_device: success parse')
+  CC_SDK.logger.debug('Server: handle_msg_from_device: success parse')
 
   case type
   when 'presence'
@@ -59,8 +59,8 @@ def handle_msg_from_device(type, params)
     push_ack_to_device(payload)
     handle_message(meta, payload, account)
   else
-    $main_server_logger.error('handle_msg_from_device: type unknown')
+    CC_SDK.logger.error('Server: handle_msg_from_device: type unknown')
   end
 
-  $main_server_logger.debug("handle_msg_from_device: done")
+  CC_SDK.logger.debug("Server: handle_msg_from_device: done")
 end

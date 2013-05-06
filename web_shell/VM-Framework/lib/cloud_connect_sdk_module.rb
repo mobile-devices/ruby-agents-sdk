@@ -14,7 +14,7 @@ module CC_SDK
   end
 
   def logger()
-    @logger ||= Logger.new('../../logs/agents.log', 10, 1 * 1024 * 1024)
+    @logger ||= Logger.new('../../logs/ruby-agent-sdk-server.log', 10, 1 * 1024 * 1024)
   end
 
 end

@@ -20,7 +20,7 @@ class Message < Hashie::Mash
       r.type = self.type
       r.thread_id = self.thread_id
       r.payload = payload unless payload.blank?
-      r.id = ID_GEN.next_id()
+      r.id = CC_SDK.indigen_next_id()
     end
   end
 
@@ -56,7 +56,7 @@ class Message < Hashie::Mash
 
   protected
     def set_defaults!
-      self.id ||= ID_GEN.next_id()
+      self.id ||= CC_SDK.indigen_next_id()
       self.sender ||= '@@server@@'
       if self.asset
         self.recipient ||= self.asset

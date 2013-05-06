@@ -6,16 +6,16 @@ require 'json'
 require 'thread'
 require 'logger'
 
-require_relative 'ID_Generator'
-include ID_GEN
-require_relative 'message'
+require_relative 'lib/cloud_connect_sdk_module'
+include CC_SDK
+require_relative 'lib/message'
 require_relative '../scripts/agents_mgt'
 
 # re-generate all agents wrapper
 generate_agents
 
 require_relative '../cloud_agents_generated/generated'
-require_relative 'cloud_gate'
+require_relative 'lib/cloud_gate'
 
 $dyn_channels = generated_get_dyn_channel
 

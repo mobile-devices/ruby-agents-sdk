@@ -1,7 +1,7 @@
-# wrapper from indigen
 
-module ID_GEN
-  def next_id()
+module CC_SDK
+  # wrapper from indigen
+  def indigen_next_id()
     #todo : if VMProd, don't gen it
     require 'time'
     @epoch ||= Time.parse("2010-01-01T00:00:00Z")
@@ -12,4 +12,9 @@ module ID_GEN
     genid = (ts + c + wid)
     genid.to_i(2)
   end
+
+  def logger()
+    @logger ||= Logger.new('../../logs/agents.log', 10, 1 * 1024 * 1024)
+  end
+
 end

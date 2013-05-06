@@ -4,31 +4,35 @@ require 'yaml'
 # XX_PROJECT_NAME agent
 class Agent_XX_PROJECT_NAME
 
-  @agent_name = 'XX_PROJECT_NAME'
-  @logger = nil
+  # Project
+  @AGENT_NAME = 'XX_PROJECT_NAME'
   @CHANNEL = 'com.mdi.services.XX_PROJECT_NAME'
   @root_dir = nil
 
+  # Redis
+  @redis = nil
+  @REDIS_HEAD = 'CCS:XX_PROJECT_NAME'
+
   def initialize() # constructor
-    @logger = Logger.new('../../logs/agents/ruby_log_XX_PROJECT_NAME.log', 10, 1 * 1024 * 1024)
-
     @root_dir = 'XX_PROJECT_ROOT_PATH' # path of initial.rb
-
     # init root dir
-    @logger.debug("Agent_XX_PROJECT_NAME root path is = \"#{@root_dir}\"")
+    log_debug("Agent_XX_PROJECT_NAME root path is = \"#{@root_dir}\"")
 
     # Load dynamic channel
     cnf = YAML::load(File.open("#{@root_dir}/config/dynamic_channel.yml"))
     @CHANNEL = cnf['Channel_str']
-    @logger.debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")
-  end
+    log_debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")
 
+    # load redis
+    #@redis = DaemonKit.config('redis') { |conf| Redis.new('localhost', '6379') }
+
+  end
 
   ######### Messages from devices ######################################
   def handle_message(meta, payload, account)
     return unless payload['channel'] == @CHANNEL
     if payload['type'] != 'message'
-      @logger.error("handle_message: wrong type #{payload['type']} (not 'message')")
+      log_error("handle_message: wrong type #{payload['type']} (not 'message')")
       return
     end
 
@@ -37,10 +41,10 @@ class Agent_XX_PROJECT_NAME
 
   def handle_presence(meta, payload, account)
     if payload['type'] != 'connect' && payload['type'] != 'reconnect' && payload['type'] != 'disconnect'
-      @logger.error("handle_presence: wrong type '#{payload['type']}' (not 'message')")
+      log_error("handle_presence: wrong type '#{payload['type']}' (not 'message')")
       return
     end
-    @logger.debug('handle_presence')
+    log_debug('handle_presence')
 
     new_presence_from_device(meta, payload, account)
   end
@@ -67,8 +71,23 @@ class Agent_XX_PROJECT_NAME
     m.push('account' => account.name)
   end
 
+  ############### Logger ###############################################
+  def log_debug(str_msg)
+    CC_SDK.logger.debug("[XX_PROJECT_NAME]: #{str_msg}")
+  end
+
+  def log_info(str_msg)
+    CC_SDK.logger.info("[XX_PROJECT_NAME]: #{str_msg}")
+  end
+
+  def log_warn(str_msg)
+    CC_SDK.logger.warn("[XX_PROJECT_NAME]: #{str_msg}")
+  end
+
+  def log_error(str_msg)
+    CC_SDK.logger.error("[XX_PROJECT_NAME]: #{str_msg}")
+  end
   ######################################################################
 
   require_relative '../../cloud_agents/XX_PROJECT_NAME/initial'
-
 end

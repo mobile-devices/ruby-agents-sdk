@@ -30,7 +30,6 @@ The com interface run onto the 5001 port.
 * To configure the dynamic channel used by this agent, go and edit config/dynamic_channel.yml
 * If you need additional gems, edit the GemFile and require them here
 * Remember to complete your README.md
-* To write some log, use the @logger object (class Logger)
 
 
 ## III) Message handling
@@ -42,7 +41,7 @@ The com interface run onto the 5001 port.
 ```
 def new_presence_from_device(meta, payload, account)
   # Write your code here
-  @logger.debug('initial:new_presence_from_device')
+  log_debug('initial:new_presence_from_device')
 end
 ```
 
@@ -66,7 +65,7 @@ end
 def new_message_from_device(meta, payload, account)
   msg = Message.new(payload)
   # Write your code here
-  @logger.debug('initial:new_message_from_device')
+  log_debug('initial:new_message_from_device')
 end
 ```
 
@@ -93,7 +92,7 @@ end
 ```
 def new_track_from_device(meta, payload, account)
   # Write your code here
-  @logger.debug('initial:new_track_from_device')
+  log_debug('initial:new_track_from_device')
 end
 ```
 

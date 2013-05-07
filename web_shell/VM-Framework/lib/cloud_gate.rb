@@ -45,7 +45,7 @@ def handle_msg_from_device(type, params)
   payload = params['payload']
   account = meta['account']
 
-  CC_SDK.logger.debug('Server: handle_msg_from_device: success parse')
+  CC_SDK.logger.debug("Server: handle_msg_from_device: success parse\n")
 
   case type
   when 'presence'
@@ -62,5 +62,5 @@ def handle_msg_from_device(type, params)
     CC_SDK.logger.error('Server: handle_msg_from_device: type unknown')
   end
 
-  CC_SDK.logger.debug("Server: handle_msg_from_device: done")
+  CC_SDK.logger.debug("Server: handle_msg_from_device: success")
 end

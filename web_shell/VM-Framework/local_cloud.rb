@@ -13,11 +13,24 @@ include CC_SDK
 require_relative 'lib/message'
 require_relative '../scripts/agents_mgt'
 
+###################################################################################################
+CC_SDK.logger.info("\n\n\n\n\n")
+
 # re-generate all agents wrapper
 generate_agents
+CC_SDK.logger.info("agents generation successful")
+
+# Go !
+agents_list_str=""
+get_run_agents().each { |agent|
+  agents_list_str+="|   . #{agent}\n"
+}
+CC_SDK.logger.info("\n\n+===========================================================\n| starting ruby-agent-sdk-server with #{get_run_agents().count} agents:\n#{agents_list_str}+===========================================================\n")
+
 
 require_relative '../cloud_agents_generated/generated'
 require_relative 'lib/cloud_gate'
+
 
 $dyn_channels = generated_get_dyn_channel
 
@@ -25,6 +38,11 @@ $message_to_device = []
 $mutex_message_to_device = Mutex.new()
 
 $main_server_root_path = File.expand_path("..", __FILE__)
+
+
+CC_SDK.logger.info("ruby-agent-sdk-server ready !\n\n")
+
+###################################################################################################
 
 
 def get_json_from_request(request)
@@ -36,15 +54,6 @@ def get_json_from_request(request)
     nil
   end
 end
-
-
-# Go !
-agents_list_str=""
-get_run_agents().each { |agent|
-  agents_list_str+="|   * #{agent}\n"
-}
-CC_SDK.logger.info("\n\n\n\n\n+===========================================================\n| starting ruby-agent-sdk-server with #{get_run_agents().count} agents:\n#{agents_list_str}\n+===========================================================")
-
 
 #test: curl localhost:5001/dynamic_channel_request
 get '/dynamic_channel_request' do

@@ -44,7 +44,6 @@ CC_SDK.logger.info("ruby-agent-sdk-server ready !\n\n")
 
 ###################################################################################################
 
-
 def get_json_from_request(request)
   begin
     request.body.rewind  # in case someone already read it
@@ -54,6 +53,15 @@ def get_json_from_request(request)
     nil
   end
 end
+
+def print_ruby_exeption(e)
+  stack=""
+  e.backtrace.each { |trace|
+    stack+="  >> #{trace}\n"
+  }
+  CC_SDK.logger.info(" exeption: #{e.inspect}\n#{stack}")
+end
+
 
 #test: curl localhost:5001/dynamic_channel_request
 get '/dynamic_channel_request' do
@@ -82,52 +90,30 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"disconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 post '/presence' do
   CC_SDK.logger.debug("\n\n\n\nServer: /presence new presence")
-
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
     return
   end
-  begin
-    handle_msg_from_device('presence', jsonData)
-    response.body = 'success'
-  rescue
-    CC_SDK.logger.error('Server: /presence error')
-    response.body = 'error while processing presence'
-  end
-
+  handle_msg_from_device('presence', jsonData)
 end
 
 post '/message' do
   CC_SDK.logger.debug("\n\n\n\nServer: /message new message")
-
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
     return
   end
-  begin
-    handle_msg_from_device('message', jsonData)
-    response.body = 'success'
-  rescue
-    CC_SDK.logger.error('Server: /message error')
-    response.body = 'error while processing message'
-  end
+  handle_msg_from_device('message', jsonData)
 end
 
 post '/track' do
   CC_SDK.logger.debug("\n\n\n\nServer: /track new track")
-
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
     return
   end
-  begin
-    handle_msg_from_device('track', jsonData)
-    response.body = 'success'
-  rescue
-    CC_SDK.logger.error('Server: /track error')
-    response.body = 'error while processing track'
-  end
+  handle_msg_from_device('track', jsonData)
 end

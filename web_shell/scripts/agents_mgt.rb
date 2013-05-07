@@ -33,8 +33,9 @@ def generate_agents()
     agents_generated_code += "  begin\n"
     agents_generated_code += "    CC_SDK.logger.debug(\"Server: handle_presence: pushing presence to #{agent} ..................\")\n"
     agents_generated_code += "    \$#{agent}_initial.handle_presence(meta, payload, account)\n"
-    agents_generated_code += "  rescue\n"
+    agents_generated_code += "  rescue => e\n"
     agents_generated_code += "    CC_SDK.logger.error('Server: /presence error while handle_presence on agent #{agent}')\n"
+    agents_generated_code += "    print_ruby_exeption(e)\n"
     agents_generated_code += "  end\n"
   }
   agents_generated_code += "end\n\n"
@@ -44,8 +45,9 @@ def generate_agents()
     agents_generated_code += "  begin\n"
     agents_generated_code += "    CC_SDK.logger.debug(\"Server: handle_message: pushing message to #{agent} ..................\")\n"
     agents_generated_code += "    \$#{agent}_initial.handle_message(meta, payload, account)\n"
-    agents_generated_code += "  rescue\n"
+    agents_generated_code += "  rescue => e\n"
     agents_generated_code += "    CC_SDK.logger.error('Server: /message error while handle_message on agent #{agent}')\n"
+    agents_generated_code += "    print_ruby_exeption(e)\n"
     agents_generated_code += "  end\n"
   }
   agents_generated_code += "end\n\n"
@@ -55,8 +57,9 @@ def generate_agents()
     agents_generated_code += "  begin\n"
     agents_generated_code += "    CC_SDK.logger.debug(\"Server: handle_track: pushing track to #{agent} ..................\")\n"
     agents_generated_code += "  \$#{agent}_initial.handle_track(meta, payload, account)\n"
-    agents_generated_code += "  rescue\n"
+    agents_generated_code += "  rescue => e\n"
     agents_generated_code += "    CC_SDK.logger.error('Server: /track error while handle_track on agent #{agent}')\n"
+    agents_generated_code += "    print_ruby_exeption(e)\n"
     agents_generated_code += "  end\n"
   }
   agents_generated_code += "end\n"

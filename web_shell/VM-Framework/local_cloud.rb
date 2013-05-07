@@ -5,6 +5,8 @@ set :port, '5001'
 require 'json'
 require 'thread'
 require 'logger'
+require 'redis'
+require 'redis-namespace'
 
 require_relative 'lib/cloud_connect_sdk_module'
 include CC_SDK

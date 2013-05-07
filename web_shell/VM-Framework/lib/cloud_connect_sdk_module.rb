@@ -1,4 +1,6 @@
 
+
+
 module CC_SDK
   # wrapper from indigen
   def indigen_next_id()
@@ -17,4 +19,8 @@ module CC_SDK
     @logger ||= Logger.new('../../logs/ruby-agent-sdk-server.log', 10, 1 * 1024 * 1024)
   end
 
+  def redis()
+    #@redis ||= Redis.new('localhost', '7879')
+    @redis ||= Redis.new(:host => 'localhost', :port =>  '7879')
+  end
 end

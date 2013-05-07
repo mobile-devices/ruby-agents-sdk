@@ -9,10 +9,6 @@ class Agent_XX_PROJECT_NAME
   @CHANNEL = 'com.mdi.services.XX_PROJECT_NAME'
   @root_dir = nil
 
-  # Redis
-  @redis = nil
-  @REDIS_HEAD = 'CCS:XX_PROJECT_NAME'
-
   def initialize() # constructor
     @root_dir = 'XX_PROJECT_ROOT_PATH' # path of initial.rb
     # init root dir
@@ -22,10 +18,6 @@ class Agent_XX_PROJECT_NAME
     cnf = YAML::load(File.open("#{@root_dir}/config/dynamic_channel.yml"))
     @CHANNEL = cnf['Channel_str']
     log_debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")
-
-    # load redis
-    #@redis = DaemonKit.config('redis') { |conf| Redis.new('localhost', '6379') }
-
   end
 
   ######### Messages from devices ######################################
@@ -87,6 +79,12 @@ class Agent_XX_PROJECT_NAME
   def log_error(str_msg)
     CC_SDK.logger.error("Agent XX_PROJECT_NAME: #{str_msg}")
   end
+
+  ############### Redis ################################################
+  def redis()
+    @redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC_SDK.redis)
+  end
+
   ######################################################################
 
   require_relative '../../cloud_agents/XX_PROJECT_NAME/initial'

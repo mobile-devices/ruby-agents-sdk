@@ -48,31 +48,40 @@ end
 
 #=========================================================================================
 get '/' do
-  agents_altered
-  @agents = agents
   erb :home
 end
+
+get '/projects' do
+  agents_altered
+  @agents = agents
+  erb :projects
+end
+
+get '/doc' do
+  erb :doc
+end
+#=========================================================================================
 
 post '/agents/:agent_name/start' do
   agent = agents.fetch(params[:agent_name])
   start_agent(agent)
-  redirect('/')
+  redirect('/projects')
 end
 
 post '/agents/:agent_name/stop' do
   agent = agents.fetch(params[:agent_name])
   stop_agent(agent)
-  redirect('/')
+  redirect('/projects')
 end
 
 post '/create_agents' do
   add_new_agent(params[:agent][:name])
-  redirect('/')
+  redirect('/projects')
 end
 
 get '/restart_server' do
   `./local_cloud.sh restart`
-  redirect('/')
+  redirect('/projects')
 end
 
 

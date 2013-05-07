@@ -1,0 +1,43 @@
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Running ?</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @agents.each do |agent_name, agent| %>
+    <tr>
+      <td><%= agent.name %></td>
+      <td><%= agent.running %></td>
+      <td>
+        <% if agent.running %>
+        <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
+          <button class="btn btn-danger">Stop</button>
+        </form>
+        <% else %>
+        <form action='<%= "/agents/#{agent_name}/start" %>' method="post">
+          <button class="btn btn-success">Start</button>
+        </form>
+        <% end %>
+      </td>
+    </tr>
+    <% end %>
+    <tr>
+      <form action="/create_agents" method="post">
+        <td><input type="text" name="agent[name]" /></td>
+        <td></td>
+        <td><button class="btn btn-info">Create</button></td>
+      </form>
+    </tr>
+    <tr>
+      <form action="/restart_server" method="get">
+        <td><button class="btn btn-primary">Apply and reboot ruby agent sdk server</button></td>
+      </form>
+    </tr>
+  </tbody>
+
+</table>

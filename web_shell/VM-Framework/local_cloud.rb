@@ -48,8 +48,9 @@ def get_json_from_request(request)
   begin
     request.body.rewind  # in case someone already read it
     JSON.parse(request.body.read)
-  rescue
-    CC_SDK.logger.error('Server: error while reading json')
+  rescue => e
+    CC_SDK.logger.error("Server: error while reading json \n #{request}")
+    print_ruby_exeption(e)
     nil
   end
 end

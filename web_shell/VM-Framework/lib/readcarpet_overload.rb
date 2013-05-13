@@ -46,7 +46,7 @@ class Redcarpet::Render::ColorHTML < Redcarpet::Render::HTML
         </section>
         <section id="toc_#{@toc.length}">
           <div class="page-header">
-            <h1 >#{text}</h1>
+            <h1 class="muted">#{text}</h1>
           </div>
           HTML
       end

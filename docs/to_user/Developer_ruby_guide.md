@@ -1,14 +1,14 @@
 
-# Ruby agent sdk developer guide XXXX_VERSION
+## Ruby agent sdk developer guide XXXX_VERSION
 
 The folder ruby_workspace is your workspace, you can't move it or rename it, but you can sym-link it if you want.
 
-## I) Project managment
+### I) Project managment
 To manage projects, go to http://localhost:5000/ with your favourite browser (you shall use the is of the VM's host instead of 'localhost' in order to access through network).
 
 On this page, you can create/start/stop project then apply and reboot VM's ruby server to apply your modifications.
 
-## II) Project structure
+### II) Project structure
  When you have created your project you will see a folder of the same name into your workspace, it's look like :
 
 * initial.rb : where your code adventure starts
@@ -23,7 +23,7 @@ To test your code, just modify your code and 'apply and reboot' onto the http://
 
 The com interface run onto the 5001 port.
 
-#### General guide-line :
+##### General guide-line :
 
 * You receive the messages into the initial.rb, you shall include your code into some sub .rb file into the lib folder.
 * Do your agent stateless, global variables are stricly forbidden.
@@ -32,15 +32,15 @@ The com interface run onto the 5001 port.
 * Remember to complete your README.md
 
 
-## III) Message handling
+### III) Message handling
 
-### A) Receive something from device (@see initial.rb)
+#### A) Receive something from device (@see initial.rb)
 
-#### A1) presence : This method is called when a connection/reconnection/deconnection happen.
+##### A1) presence : This method is called when a connection/reconnection/deconnection happen.
 
 ```
 def new_presence_from_device(meta, payload, account)
-  # Write your code here
+  ## Write your code here
   log_debug('initial:new_presence_from_device')
 end
 ```
@@ -59,12 +59,12 @@ end
 
 "**account**" (account name type String).
 
-#### A2) message : This method is called when a message is received from the device.
+##### A2) message : This method is called when a message is received from the device.
 
 ```
 def new_message_from_device(meta, payload, account)
   msg = Message.new(payload)
-  # Write your code here
+  ## Write your code here
   log_debug('initial:new_message_from_device')
 end
 ```
@@ -87,11 +87,11 @@ end
 
 "**account**" (account name type String).
 
-#### A3) track : This method is called when a tracking set of data is received from the device.
+##### A3) track : This method is called when a tracking set of data is received from the device.
 
 ```
 def new_track_from_device(meta, payload, account)
-  # Write your code here
+  ## Write your code here
   log_debug('initial:new_track_from_device')
 end
 ```
@@ -114,9 +114,9 @@ end
 "**account**" (account name type String).
 
 
-### B) Send something to device
+#### B) Send something to device
 
-#### B1) push message to device
+##### B1) push message to device
 
 Use send_message_to_device(account, asset, content)
 
@@ -128,7 +128,7 @@ With :
 
 "**content** (binary content, or string, or map)
 
-#### B2) reply a message to device
+##### B2) reply a message to device
 
 Use reply_message_to_device(message, account, content)
 

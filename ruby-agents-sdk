@@ -1,6 +1,6 @@
 #!/bin/bash
 
-commands=' stop_admin start_admin start stop read_server_log read_agents_log read_admin_server_log '
+commands=' stop_admin start_admin start stop read_log_server_config read_log_server read_log_agents '
 command=$1
 params=${@:2}
 
@@ -8,7 +8,6 @@ if [ "$command" = '' ] || ! [[ $commands =~ \ $command\  ]] ; then
   echo -e "\033[31m$0 command\033[0m\n\033[032mAvailable commands are: $commands\033[0m"
   exit 1
 fi
-
 
 #launch admin server
 start_admin() {
@@ -31,17 +30,17 @@ stop() {
   ./local_cloud.sh stop
 }
 
-read_admin_server_log() {
-  tail -f logs/local_cloud_config.ruby.log
+read_log_server_config() {
+  tail -f logs/daemon_server_config.log
 }
 
-read_server_log() {
-  tail -f logs/ruby-agents-sdk.log
+read_log_server() {
+  tail -f logs/daemon_server.log
 }
 
 #todo: test if multitail available, multi tail only run agent
-read_agents_log() {
-  multitail logs/agents/ruby_log_*
+read_log_agents() {
+  tail -f logs/ruby-agent-sdk-server.log
 }
 
 $command $params

@@ -15,7 +15,7 @@ class Agent < Struct.new(:name, :running)
 end
 
 def agents_altered()
-  $agents = nil # invalidate the list
+  $sdk_list_of_agents = nil # invalidate the list
 end
 
 def stop_agent(agent)
@@ -34,11 +34,11 @@ def add_new_agent(agent_name)
     agents_altered
   else
    'error while creating agent'
-  end
+ end
 end
 
 def agents
-  $agents ||= begin
+  $sdk_list_of_agents ||= begin
     get_available_agents.inject({}) do |agents, agent_name|
       agents[agent_name] = Agent.new(agent_name, get_run_agents.include?(agent_name))
       agents

@@ -46,6 +46,18 @@ def agents
   end
 end
 
+
+
+def logs_server
+  logs = File.read('../../logs/daemon_server.log')
+  logs.gsub!("\n","<br>")
+end
+
+def logs_agent
+  logs = File.read('../../logs/ruby-agent-sdk-server.log')
+  logs.gsub!("\n","<br>")
+end
+
 #=========================================================================================
 get '/' do
   erb :home
@@ -60,6 +72,15 @@ end
 get '/doc' do
   erb :doc
 end
+
+get '/logSdk' do
+  erb :logSdk
+end
+
+get '/logSdkAgents' do
+  erb :logSdkAgents
+end
+
 #=========================================================================================
 
 post '/agents/:agent_name/start' do

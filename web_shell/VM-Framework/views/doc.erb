@@ -1,1 +1,14 @@
-toto
+<div class="row">
+ <div class="span3 bs-docs-sidebar">
+   <%= @toc_render %>
+ </div>
+ <div class="span9">
+   <%= @html_render %>
+ </div>
+</div>
+
+<script>
+$(document).ready(function() {
+ hljs.initHighlightingOnLoad();
+});
+</script>

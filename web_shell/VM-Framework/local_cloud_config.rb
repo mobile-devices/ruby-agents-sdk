@@ -4,11 +4,13 @@
 # (run mdi_cloud) agent mgt
 # conf dyn channel per agent
 
+require 'redcarpet'
+require_relative 'lib/readcarpet_overload'
+
 require 'sinatra'
 set :bind, '0.0.0.0'
 set :port, '5000'
 require_relative '../scripts/agents_mgt'
-
 
 #=========================================================================================
 class Agent < Struct.new(:name, :running)
@@ -46,6 +48,26 @@ def agents
   end
 end
 
+def sdk_doc_md
+  $sdk_documentation ||= begin
+    files = get_files('../../docs/to_user/')
+    accepted_formats = [".md"]
+    doc = ""
+    files.each { |file|
+      next if !(accepted_formats.include? File.extname(file))
+      file_title = file.clone
+      file_title.gsub!('.md','')
+      file_title.gsub!('_',' ')
+      doc += "\n\n# #{file_title}\n"
+      doc += File.read("../../docs/to_user/#{file}")
+    }
+    # replace version in doc
+    doc.gsub!('XXXX_VERSION',"#{get_sdk_version}")
+#    doc += "<br><br><br><br>"
+  end
+end
+
+
 
 
 def logs_server
@@ -70,6 +92,10 @@ get '/projects' do
 end
 
 get '/doc' do
+  doc_render = Redcarpet::Render::ColorHTML.new(:with_toc_data => true, :filter_html  => false, :hard_wrap => true)
+  markdown = Redcarpet::Markdown.new(doc_render,:autolink => true, :space_after_headers => true)
+  @html_render = markdown.render(sdk_doc_md)
+  @toc_render =  doc_render.render_menu
   erb :doc
 end
 

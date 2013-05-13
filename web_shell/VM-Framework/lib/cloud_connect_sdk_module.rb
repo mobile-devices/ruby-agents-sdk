@@ -1,6 +1,4 @@
 
-
-
 module CC_SDK
   # wrapper from indigen
   def indigen_next_id()

@@ -38,7 +38,7 @@ class Redcarpet::Render::ColorHTML < Redcarpet::Render::HTML
         <<-HTML
         <section id="toc_#{@toc.length}">
           <div class="page-header">
-            <h1 >#{text}</h1>
+            <h1 class="muted">#{text}</h1>
           </div>
           HTML
       else
@@ -52,11 +52,11 @@ class Redcarpet::Render::ColorHTML < Redcarpet::Render::HTML
       end
     elsif header_level == 2
       <<-HTML
-      <h2>#{text}</h2>
+      <h2 class="text-info">#{text}</h2>
       HTML
     elsif header_level == 3
       <<-HTML
-      <h3>#{text}</h3>
+      <h3 class="text-info"><em>#{text}</em></h3>
       HTML
     elsif header_level == 4
       <<-HTML

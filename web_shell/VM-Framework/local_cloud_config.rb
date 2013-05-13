@@ -60,29 +60,27 @@ def sdk_doc_md
       file_title.gsub!('_',' ')
       doc += "\n\n# #{file_title}\n"
       doc += File.read("../../docs/to_user/#{file}")
+      doc += '<hr/><hr/>'
     }
     # replace version in doc
     doc.gsub!('XXXX_VERSION',"#{get_sdk_version}")
-#    doc += "<br><br><br><br>"
   end
 end
 
 
-
-
 def logs_server
   logs = File.read('../../logs/daemon_server.log')
-  logs.gsub!("\n","<br>")
+  logs.gsub!("\n","<br/>")
 end
 
 def logs_agent
   logs = File.read('../../logs/ruby-agent-sdk-server.log')
-  logs.gsub!("\n","<br>")
+  logs.gsub!("\n","<br/>")
 end
 
 #=========================================================================================
 get '/' do
-  erb :home
+  redirect('/projects')
 end
 
 get '/projects' do
@@ -93,7 +91,16 @@ end
 
 get '/doc' do
   doc_render = Redcarpet::Render::ColorHTML.new(:with_toc_data => true, :filter_html  => false, :hard_wrap => true)
-  markdown = Redcarpet::Markdown.new(doc_render,:autolink => true, :space_after_headers => true)
+  markdown = Redcarpet::Markdown.new(doc_render,
+                                          no_intra_emphasis: false,
+                                          tables: true,
+                                          fenced_code_blocks: true,
+                                          autolink: true,
+                                          strikethrough: true,
+                                          lax_html_blocks: true,
+                                          space_after_headers: true,
+                                          superscript: true)
+
   @html_render = markdown.render(sdk_doc_md)
   @toc_render =  doc_render.render_menu
   erb :doc

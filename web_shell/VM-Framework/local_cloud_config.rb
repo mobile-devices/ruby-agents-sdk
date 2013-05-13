@@ -67,15 +67,31 @@ def sdk_doc_md
   end
 end
 
+def log_server_path
+  @daemon_server_path ||= '../../logs/daemon_server.log'
+end
+
+def log_agents_path
+  @daemon_ruby_agent_sdk_server_path ||= '../../logs/ruby-agent-sdk-server.log'
+end
+
 
 def logs_server
-  logs = File.read('../../logs/daemon_server.log')
-  logs.gsub!("\n","<br/>")
+  if File.exist?(log_server_path)
+    logs = File.read(log_server_path)
+    logs.gsub!("\n","<br/>")
+  else
+    ""
+  end
 end
 
 def logs_agent
-  logs = File.read('../../logs/ruby-agent-sdk-server.log')
-  logs.gsub!("\n","<br/>")
+  if File.exist?(log_agents_path)
+    logs = File.read(log_agents_path)
+    logs.gsub!("\n","<br/>")
+  else
+    ""
+  end
 end
 
 #=========================================================================================
@@ -112,6 +128,16 @@ end
 
 get '/logSdkAgents' do
   erb :logSdkAgents
+end
+
+get '/reset_daemon_server_log' do
+  File.delete(log_server_path)
+  redirect('/logSdk')
+end
+
+get '/reset_ruby_agent_sdk_server_log' do
+  File.delete(log_agents_path)
+  redirect('/logSdkAgents')
 end
 
 #=========================================================================================

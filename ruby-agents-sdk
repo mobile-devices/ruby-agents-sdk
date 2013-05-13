@@ -1,6 +1,6 @@
 #!/bin/bash
 
-commands=' stop_admin start_admin start stop read_log_server_config read_log_server read_log_agents '
+commands=' stop_admin start_admin start stop read_log_server_config read_log_server read_log_agents restart_admin restart '
 command=$1
 params=${@:2}
 
@@ -20,6 +20,11 @@ stop_admin() {
   pkill -f 'ruby local_cloud_config.rb'
 }
 
+restart_admin() {
+  stop_admin
+  start_admin
+}
+
 start() {
   cd web_shell/VM-Framework
   ./local_cloud.sh restart
@@ -29,6 +34,12 @@ stop() {
   cd web_shell/VM-Framework
   ./local_cloud.sh stop
 }
+
+restart() {
+  stop
+  start
+}
+
 
 read_log_server_config() {
   tail -f logs/daemon_server_config.log

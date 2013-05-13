@@ -108,14 +108,14 @@ end
 get '/doc' do
   doc_render = Redcarpet::Render::ColorHTML.new(:with_toc_data => true, :filter_html  => false, :hard_wrap => true)
   markdown = Redcarpet::Markdown.new(doc_render,
-                                          no_intra_emphasis: false,
-                                          tables: true,
-                                          fenced_code_blocks: true,
-                                          autolink: true,
-                                          strikethrough: true,
-                                          lax_html_blocks: true,
-                                          space_after_headers: true,
-                                          superscript: true)
+    no_intra_emphasis: false,
+    tables: true,
+    fenced_code_blocks: true,
+    autolink: true,
+    strikethrough: true,
+    lax_html_blocks: true,
+    space_after_headers: true,
+    superscript: true)
 
   @html_render = markdown.render(sdk_doc_md)
   @toc_render =  doc_render.render_menu

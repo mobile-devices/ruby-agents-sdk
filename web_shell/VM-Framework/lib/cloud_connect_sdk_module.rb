@@ -1,9 +1,13 @@
 
 module CC_SDK
+
   # wrapper from indigen
+  require 'time'
   def indigen_next_id()
+
+    logger.debug("CC_SDK:indigen_next_id start")
+
     #todo : if VMProd, don't gen it
-    require 'time'
     @epoch ||= Time.parse("2010-01-01T00:00:00Z")
     t = Time.now - @epoch.to_i
     ts = ((t.to_f * 1000).floor.to_s(2)).rjust(42,'0')

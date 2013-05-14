@@ -48,24 +48,78 @@ def agents
   end
 end
 
+#=========================================================================================
+
+def get_folder_md(folder_path)
+  files = get_files(folder_path)
+  accepted_formats = [".md"]
+  doc = ""
+  files.each { |file|
+    next if !(accepted_formats.include? File.extname(file))
+    file_title = file.clone
+    file_title.gsub!('.md','')
+    file_title.gsub!('_',' ')
+    doc += "\n\n# #{file_title}\n"
+    doc += File.read("#{folder_path}#{file}")
+    doc += '<hr/><hr/>'
+  }
+  # replace version in doc
+  doc.gsub!('XXXX_VERSION',"#{get_sdk_version}")
+end
+
 def sdk_doc_md
   $sdk_documentation ||= begin
-    files = get_files('../../docs/to_user/')
-    accepted_formats = [".md"]
-    doc = ""
-    files.each { |file|
-      next if !(accepted_formats.include? File.extname(file))
-      file_title = file.clone
-      file_title.gsub!('.md','')
-      file_title.gsub!('_',' ')
-      doc += "\n\n# #{file_title}\n"
-      doc += File.read("../../docs/to_user/#{file}")
-      doc += '<hr/><hr/>'
-    }
-    # replace version in doc
-    doc.gsub!('XXXX_VERSION',"#{get_sdk_version}")
+    get_folder_md('../../docs/to_user/')
   end
 end
+
+def sdk_patch_note_md
+  $sdk_patch_note ||= begin
+    get_folder_md('../../docs/patch_note/')
+  end
+end
+
+def render_documentation(content)
+  @html_render = ''
+  @toc_render = ''
+  return if content == nil
+
+  doc_render = Redcarpet::Render::ColorHTML.new(:with_toc_data => true, :filter_html  => false, :hard_wrap => true)
+  markdown = Redcarpet::Markdown.new(doc_render,
+    no_intra_emphasis: false,
+    tables: true,
+    fenced_code_blocks: true,
+    autolink: true,
+    strikethrough: true,
+    lax_html_blocks: true,
+    space_after_headers: true,
+    superscript: true)
+
+  @html_render = markdown.render(content)
+  @toc_render =  doc_render.render_menu
+end
+
+#=========================================================================================
+
+def last_version_path
+  @last_version_launched_path ||= 'last_version'
+end
+
+# if the version has changed or first time, goto documentation or patch note page
+def check_version_change_to_user
+  action = 0
+  if !(File.exist?(last_version_path))
+    action = 1
+  else
+    if File.read(last_version_path) != get_sdk_version
+      action = 2
+    end
+    File.open(last_version_path, 'w') { |file| file.write(get_sdk_version) }
+  end
+  action
+end
+
+#=========================================================================================
 
 def log_server_path
   @daemon_server_path ||= '../../logs/daemon_server.log'
@@ -74,7 +128,6 @@ end
 def log_agents_path
   @daemon_ruby_agent_sdk_server_path ||= '../../logs/ruby-agent-sdk-server.log'
 end
-
 
 def logs_server
   if File.exist?(log_server_path)
@@ -106,21 +159,15 @@ get '/projects' do
 end
 
 get '/doc' do
-  doc_render = Redcarpet::Render::ColorHTML.new(:with_toc_data => true, :filter_html  => false, :hard_wrap => true)
-  markdown = Redcarpet::Markdown.new(doc_render,
-    no_intra_emphasis: false,
-    tables: true,
-    fenced_code_blocks: true,
-    autolink: true,
-    strikethrough: true,
-    lax_html_blocks: true,
-    space_after_headers: true,
-    superscript: true)
-
-  @html_render = markdown.render(sdk_doc_md)
-  @toc_render =  doc_render.render_menu
+  render_documentation(sdk_doc_md)
   erb :doc
 end
+
+get '/patch_note' do
+  render_documentation(sdk_patch_note_md)
+  erb :patch_note
+end
+
 
 get '/logSdk' do
   erb :logSdk
@@ -131,12 +178,16 @@ get '/logSdkAgents' do
 end
 
 get '/reset_daemon_server_log' do
-  File.delete(log_server_path)
+  if File.exist?(log_server_path)
+    File.delete(log_server_path)
+  end
   redirect('/logSdk')
 end
 
 get '/reset_ruby_agent_sdk_server_log' do
-  File.delete(log_agents_path)
+  if File.exist?(log_agents_path)
+    File.delete(log_agents_path)
+  end
   redirect('/logSdkAgents')
 end
 

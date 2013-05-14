@@ -28,6 +28,15 @@ def push_ack_to_device(payload)
     channel_int = $dyn_channels[channel_str]
     if channel_str == nil || channel_int == nil
       CC_SDK.logger.error("Server: push_ack_to_device: error dyn channel #{channel_str} not found.")
+
+      errorDynChannelMsg = Message.new()
+      errorDynChannelMsg['id'] = CC_SDK.indigen_next_id
+      errorDynChannelMsg['sender'] = 'sdk-server'
+      errorDynChannelMsg['asset'] = nil
+      errorDynChannelMsg['type'] = 'dynchannelsmessage'
+      errorDynChannelMsg['payload'] = { "#{channel_str}" => -1}.to_json
+      push_someting_to_device(errorDynChannelMsg)
+      return
     end
     CC_SDK.logger.debug("Server: push_ack_to_device: for channel #{channel_str} using number #{channel_int}")
 

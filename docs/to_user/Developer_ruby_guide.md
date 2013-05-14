@@ -9,7 +9,7 @@ To manage projects, go to http://localhost:5000/ with your favourite browser (yo
 On this page, you can create/start/stop project then apply and reboot VM's ruby server to apply your modifications.
 
 ## Project structure
- When you have created your project you will see a folder of the same name into your workspace, it's look like :
+ When you have created your project in the SDK Agents tab you will see a folder of the same name into your workspace, it's look like :
 
 * **initial.rb** : where your code adventure starts
 * **Gemfile** : where your put gems you need

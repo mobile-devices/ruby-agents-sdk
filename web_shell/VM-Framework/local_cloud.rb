@@ -70,8 +70,10 @@ get '/dynamic_channel_request' do
   msg.payload = $dyn_channels.clone.to_json
   msg.type = 'dynchannelsmessage'
 
-  CC_SDK.logger.debug("Server: /dynamic_channel_request has #{$dyn_channels.count} channels :\n#{msg.to_json}")
-  msg.to_json
+  wrapped = wrap_message(msg)
+
+  CC_SDK.logger.debug("Server: /dynamic_channel_request has #{$dyn_channels.count} channels :\n#{wrapped.to_json}")
+  wrapped.to_json
 end
 
 #test: curl -i localhost:5001/new_message_from_cloud

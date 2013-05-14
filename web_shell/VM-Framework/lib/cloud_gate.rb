@@ -1,9 +1,16 @@
 
+
+def wrap_message(msg)
+  meta = { 'account' => 'vm-sdk'}
+  stuff = {'meta' => meta, 'payload' => msg}
+end
+
+
 def push_someting_to_device(something)
   CC_SDK.logger.debug("Server: push_someting_to_device:\n#{something}")
 
   $mutex_message_to_device.synchronize do
-    $message_to_device << something
+    $message_to_device << wrap_message(something)
   end
 end
 

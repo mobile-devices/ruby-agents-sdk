@@ -62,7 +62,7 @@ def handle_msg_from_device(type, params)
     begin
       push_ack_to_device(payload)
     rescue => e
-      CC_SDK.logger.error("Server: handle_msg_from_device error")
+      CC_SDK.logger.error("Server: push_ack_to_device error while tracking")
       print_ruby_exeption(e)
     end
 
@@ -72,7 +72,7 @@ def handle_msg_from_device(type, params)
     begin
       push_ack_to_device(payload)
     rescue => e
-      CC_SDK.logger.error("Server: handle_msg_from_device error")
+      CC_SDK.logger.error("Server: push_ack_to_device error while message")
       print_ruby_exeption(e)
     end
 

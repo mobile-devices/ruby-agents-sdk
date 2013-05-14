@@ -59,11 +59,23 @@ def handle_msg_from_device(type, params)
     handle_presence(meta, payload, account)
   when 'tracking'
     # Ack mesage
-    push_ack_to_device(payload)
+    begin
+      push_ack_to_device(payload)
+    rescue => e
+      CC_SDK.logger.error("Server: handle_msg_from_device error")
+      print_ruby_exeption(e)
+    end
+
     handle_track(meta, payload, account)
   when 'message'
     # Ack mesage
-    push_ack_to_device(payload)
+    begin
+      push_ack_to_device(payload)
+    rescue => e
+      CC_SDK.logger.error("Server: handle_msg_from_device error")
+      print_ruby_exeption(e)
+    end
+
     handle_message(meta, payload, account)
   else
     CC_SDK.logger.error('Server: handle_msg_from_device: type unknown')

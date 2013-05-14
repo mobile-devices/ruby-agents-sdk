@@ -17,7 +17,16 @@ def push_ack_to_device(payload)
   CC_SDK.logger.debug("Server: push_ack_to_device: creating new ack message")
 
   tmp_id_from_device = payload['id']
-  parent_id = ID_GEN.indigen_next_id
+  CC_SDK.logger.debug("Server: push_ack_to_device: creating new ack message")
+
+  parent_id = 777
+  begin
+    parent_id = ID_GEN.indigen_next_id
+  rescue => e
+    CC_SDK.logger.error("Server: push_ack_to_device: error while gen ID")
+    print_ruby_exeption(e)
+  end
+
   payload['id'] = parent_id
 
   channel_str = payload_src['channel']

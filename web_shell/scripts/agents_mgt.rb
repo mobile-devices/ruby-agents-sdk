@@ -69,7 +69,7 @@ def generate_agents()
   agents_to_run.each { |agent|
     agents_Gemfile += get_agent_Gemfile_content(agent) + "\n"
   }
-  File.open('../cloud_agents_generated/GemFile', 'w') { |file| file.write(agents_Gemfile) }
+  File.open('../cloud_agents_generated/Gemfile', 'w') { |file| file.write(agents_Gemfile) }
 
   #  generad dyn channel list
   dyn_channels_str = get_agents_dyn_channel(get_available_agents())

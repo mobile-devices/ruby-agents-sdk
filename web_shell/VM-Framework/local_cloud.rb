@@ -20,6 +20,10 @@ CC_SDK.logger.info("\n\n\n\n\n")
 generate_agents
 CC_SDK.logger.info("agents generation successful")
 
+# bundle install
+`cd ../cloud_agents_generated;bundle install`
+CC_SDK.logger.info("bundle install done")
+
 # Go !
 agents_list_str=""
 get_run_agents().each { |agent|

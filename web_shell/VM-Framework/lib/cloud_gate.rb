@@ -2,7 +2,7 @@
 
 def wrap_message(msg)
   meta = { 'account' => 'vm-sdk'}
-  stuff = {'meta' => meta, 'payload' => msg}
+  {'meta' => meta, 'payload' => msg}
 end
 
 

@@ -70,7 +70,29 @@ end
 def sdk_doc_md
   $sdk_documentation ||= begin
     files = get_files('../../docs/to_user/')
-    files = files.sort
+    doc_beginner = []
+    doc_code_ex = []
+    doc_others = []
+    files.each { |file|
+      if file.include?('Beginner::')
+        doc_beginner << file
+        next
+      end
+      if file.include?('Code Example::')
+        doc_code_ex << file
+        next
+      end
+      doc_others << file
+    }
+
+    files = []
+    # first 'Beginner::'
+    files += doc_beginner.sort
+    # else other
+    files += doc_others.sort
+    # end 'Code Example::'
+    files += doc_code_ex.sort
+
     gen_md_from_file('../../docs/to_user/', files)
   end
 end
@@ -78,6 +100,7 @@ end
 def sdk_patch_note_md
   $sdk_patch_note ||= begin
     files = get_files('../../docs/patch_note/')
+    # reverse sort
     files = files.sort.reverse
     gen_md_from_file('../../docs/patch_note/', files)
   end

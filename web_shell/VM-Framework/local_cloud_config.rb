@@ -50,10 +50,9 @@ end
 
 #=========================================================================================
 
-def get_folder_md(folder_path)
-  files = get_files(folder_path)
-  accepted_formats = [".md"]
+def gen_md_from_file(folder_path, files)
   doc = ""
+  accepted_formats = [".md"]
   files.each { |file|
     next if !(accepted_formats.include? File.extname(file))
     file_title = file.clone
@@ -70,13 +69,17 @@ end
 
 def sdk_doc_md
   $sdk_documentation ||= begin
-    get_folder_md('../../docs/to_user/')
+    files = get_files('../../docs/to_user/')
+    files = files.sort
+    gen_md_from_file('../../docs/to_user/', files)
   end
 end
 
 def sdk_patch_note_md
   $sdk_patch_note ||= begin
-    get_folder_md('../../docs/patch_note/')
+    files = get_files('../../docs/patch_note/')
+    files = files.sort.reverse
+    gen_md_from_file('../../docs/patch_note/', files)
   end
 end
 
@@ -103,7 +106,7 @@ end
 #=========================================================================================
 
 def last_version_path
-  @last_version_launched_path ||= 'last_version'
+  @last_version_launched_path ||= '.last_version'
 end
 
 # if the version has changed or first time, goto documentation or patch note page
@@ -115,8 +118,8 @@ def check_version_change_to_user
     if File.read(last_version_path) != get_sdk_version
       action = 2
     end
-    File.open(last_version_path, 'w') { |file| file.write(get_sdk_version) }
   end
+  File.open(last_version_path, 'w') { |file| file.write(get_sdk_version) }
   action
 end
 
@@ -150,12 +153,14 @@ end
 
 #=========================================================================================
 get '/' do
-  redirect('/projects')
+ redirect('/projects')
 end
 
 get '/projects' do
+  @action_popup = check_version_change_to_user
   agents_altered
   @agents = agents
+  p "action popup #{@action_popup}"
   erb :projects
 end
 
@@ -168,7 +173,6 @@ get '/patch_note' do
   render_documentation(sdk_patch_note_md)
   erb :patch_note
 end
-
 
 get '/logSdk' do
   erb :logSdk

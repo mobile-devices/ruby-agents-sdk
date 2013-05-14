@@ -1,4 +1,43 @@
 
+<!-- Modal -->
+<% if @action_popup == 1 %>
+  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="myModalLabel">Welcome to sdk vm !</h3>
+    </div>
+    <div class="modal-body">
+      <p>
+This is the first time this vm is launched.<br>
+I strongly recommend you to have a look at the documentation.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <a class="btn btn-primary" href="/doc">See documentation</a>
+      <a class="btn btn-primary" href="/">No thanks</a>
+    </div>
+  </div>
+<% end %>
+<% if @action_popup == 2 %>
+  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="myModalLabel">Sdk vm update !</h3>
+    </div>
+    <div class="modal-body">
+      <p>
+The version of your sdk vm has changed !<br>
+Maybe there is valuable information for you on the patch note page.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <a class="btn btn-primary" href="/patch_note">See changes</a>
+      <a class="btn btn-primary" href="/">No thanks</a>
+    </div>
+  </div>
+<% end %>
+
+
 <form action="/restart_server" method="get">
   <button class="btn btn-primary pull-right">Apply and reboot ruby agent sdk server</button>
 </form>
@@ -41,3 +80,12 @@ note : remember to 'Apply and reboot ruby agent sdk server' after start or stop 
     </tr>
   </tbody>
 </table>
+
+
+<% if @action_popup != 0 %>
+  <script>
+  $(document).ready(function() {
+      $('#myModal').modal('show');
+  });
+  </script>
+<% end %>

@@ -108,7 +108,7 @@ post '/presence' do
 end
 
 #test:
-#curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta"=>{"account"=>"mdi21dev"}, "payload"=>{"timeout"=>120, "sender"=>"351777047016827", "id"=>-2, "channel"=>"com.mdi.psa.messagingagent.echo.0", "recorded_at"=>78364, "payload"=>"/test/echo/for/me?da=ble", "asset"=>"351777047016827", "parent_id"=>-1}}' http://localhost:5001/message
+#curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2, "channel":"com.mdi.psa.messagingagent.echo.0", "recorded_at":78364, "payload":"/test/echo/for/me?da=ble", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 post '/message' do
   CC_SDK.logger.debug("\n\n\n\nServer: /message new message")
   jsonData = get_json_from_request(request)

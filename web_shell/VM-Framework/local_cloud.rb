@@ -49,11 +49,13 @@ CC_SDK.logger.info("ruby-agent-sdk-server ready !\n\n")
 ###################################################################################################
 
 def get_json_from_request(request)
+  to_parse = ""
   begin
     request.body.rewind  # in case someone already read it
-    JSON.parse(request.body.read)
+    to_parse = request.body.read
+    JSON.parse(to_parse)
   rescue => e
-    CC_SDK.logger.error("Server: error while reading json (len=#{request.length}) \n #{request}")
+    CC_SDK.logger.error("Server: error while reading json (len=#{to_parse.length}) \n #{to_parse}")
     print_ruby_exeption(e)
     nil
   end

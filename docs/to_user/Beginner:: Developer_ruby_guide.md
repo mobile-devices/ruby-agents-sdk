@@ -85,6 +85,8 @@ end
 
 "**account**" (account name type String).
 
+note : class Message has the same structure as the payload.
+
 #### track : This method is called when a tracking set of data is received from the device.
 
     def new_track_from_device(meta, payload, account)

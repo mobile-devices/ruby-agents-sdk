@@ -65,6 +65,7 @@ def get_folder_md(folder_path)
   }
   # replace version in doc
   doc.gsub!('XXXX_VERSION',"#{get_sdk_version}")
+  doc
 end
 
 def sdk_doc_md

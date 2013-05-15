@@ -92,6 +92,7 @@ def handle_msg_from_device(type, params)
       SDK_STATS.stats['server']['err_while_send_ack'][1] += 1
       return
     end
+    SDK_STATS.stats['server']['ack_sent_to_device'][1] += 1
 
     handle_message(meta, payload, account)
   when 'track'

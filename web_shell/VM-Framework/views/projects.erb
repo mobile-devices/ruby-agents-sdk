@@ -86,7 +86,11 @@ Maybe there is valuable information for you on the patch note page.
     <tr>
       <th>Agent name</th>
       <th># Received</th>
-      <th># Error</th>
+      <th># Error while process</th>
+      <th># Reply to device</th>
+      <th># Error reply</th>
+      <th># Message to device</th>
+      <th># Error Message</th>
       <th>Action</th>
     </tr>
   </thead>
@@ -101,6 +105,20 @@ Maybe there is valuable information for you on the patch note page.
       <td>
         <%= agent.agent_stats['err_while_process'] %>
       </td>
+      <td>
+        <%= agent.agent_stats['reply_sent_to_device'] %>
+      </td>
+      <td>
+        <%= agent.agent_stats['err_on_reply'] %>
+      </td>
+      <td>
+        <%= agent.agent_stats['push_sent_to_device'] %>
+      </td>
+      <td>
+        <%= agent.agent_stats['err_on_push'] %>
+      </td>
+
+
       <td>
         <% if agent.running %>
         <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
@@ -118,6 +136,10 @@ Maybe there is valuable information for you on the patch note page.
     <tr>
       <form action="/create_agents" method="post">
         <td><input type="text" name="agent[name]" /></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
         <td></td>
         <td></td>
         <td><button class="btn btn-info">Create agent</button></td>

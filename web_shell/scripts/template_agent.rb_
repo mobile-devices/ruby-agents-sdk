@@ -62,7 +62,7 @@ class Agent_XX_PROJECT_NAME
         channel:   @CHANNEL,
         payload:   content.to_json
         }).push
-    #todo for real wrapper : mock up account as bellow :
+    #note: for real wrapper : mock up account as bellow :
     #   account.messages.new({
     #     asset:     asset.imei,
     #     recipient: asset.imei,
@@ -70,21 +70,25 @@ class Agent_XX_PROJECT_NAME
     #     channel:   @CHANNEL,
     #     payload:   content.to_json
     #     }, as: :agent).push
+      SDK_STATS.stats['agents'][@AGENT_NAME]['push_sent_to_device'] += 1
     rescue Exception => e
       CC_SDK.logger.error("Error on send_message_to_device")
       print_ruby_exeption(e)
     end
+    SDK_STATS.stats['agents'][@AGENT_NAME]['err_on_push'] += 1
   end
 
   def reply_message_to_device(message, account, content)
     #idem, we build a Message then send it to rqueue
     begin
+      #note: real wrapper will be : m.push('account' => account.name)
       m = message.reply("200#{content}")
       m.push('account' => account)
-      # real wrapper will be : m.push('account' => account.name)
+      SDK_STATS.stats['agents'][@AGENT_NAME]['reply_sent_to_device'] += 1
     rescue Exception => e
       CC_SDK.logger.error("Error on reply_message_to_device")
       print_ruby_exeption(e)
+      SDK_STATS.stats['agents'][@AGENT_NAME]['err_on_reply'] += 1
     end
   end
 

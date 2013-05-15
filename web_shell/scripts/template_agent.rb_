@@ -53,13 +53,27 @@ class Agent_XX_PROJECT_NAME
 
   ########## Messages to devices #######################################
   def send_message_to_device(account, asset, content)
-    account.messages.new({
-      asset:     asset.imei,
-      recipient: asset.imei,
-      sender:    '@@server@@',
-      channel:   @CHANNEL,
-      payload:   content.to_json
-      }, as: :agent).push
+    #todo add try catch
+    begin
+      Message.new({
+        asset:     asset,
+        recipient: asset,
+        sender:    '@@server@@',
+        channel:   @CHANNEL,
+        payload:   content.to_json
+        }).push
+    #todo for real wrapper : mock up account as bellow :
+    #   account.messages.new({
+    #     asset:     asset.imei,
+    #     recipient: asset.imei,
+    #     sender:    '@@server@@',
+    #     channel:   @CHANNEL,
+    #     payload:   content.to_json
+    #     }, as: :agent).push
+    rescue Exception => e
+      CC_SDK.logger.error("Error on send_message_to_device")
+      print_ruby_exeption(e)
+    end
   end
 
   def reply_message_to_device(message, account, content)

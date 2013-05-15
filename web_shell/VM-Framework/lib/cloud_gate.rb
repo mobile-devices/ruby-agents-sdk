@@ -26,18 +26,7 @@ def push_ack_to_device(payload)
     channel_str = payload['channel']
 
     channel_int = $dyn_channels[channel_str]
-    if channel_str == nil || channel_int == nil
-      CC_SDK.logger.error("Server: push_ack_to_device: error dyn channel #{channel_str} not found.")
 
-      errorDynChannelMsg = Message.new()
-      errorDynChannelMsg['id'] = CC_SDK.indigen_next_id
-      errorDynChannelMsg['sender'] = 'sdk-server'
-      errorDynChannelMsg['asset'] = nil
-      errorDynChannelMsg['type'] = 'dynchannelsmessage'
-      errorDynChannelMsg['payload'] = { "#{channel_str}" => -1}.to_json
-      push_something_to_device(errorDynChannelMsg)
-      return
-    end
     CC_SDK.logger.debug("Server: push_ack_to_device: for channel #{channel_str} using number #{channel_int}")
 
     msgAck = Message.new(payload) #just to have a message struct, buts beurk ! todo: fix it
@@ -60,6 +49,23 @@ def push_ack_to_device(payload)
   end
 end
 
+
+def check_channel(payload)
+  channel_str = payload['channel']
+  if channel_str.is_a? String
+   channel_int = $dyn_channels[channel_str]
+   if channel_int == nil
+    CC_SDK.logger.error("Server: check_channel: channel #{channel_str} not found. Available are:\n #{$dyn_channels}")
+     return false
+   end
+ else
+   CC_SDK.logger.error("Server: check_channel: channel is not type String : #{channel_str}")
+   return false
+ end
+  return true
+end
+
+
 def handle_msg_from_device(type, params)
   CC_SDK.logger.debug("Server: handle_msg_from_device: of type #{type}:\n#{params}")
 
@@ -73,11 +79,17 @@ def handle_msg_from_device(type, params)
   when 'presence'
     handle_presence(meta, payload, account)
   when 'tracking'
+    # check channel
+    return unless check_channel(payload)
+
     # Ack mesage
     push_ack_to_device(payload)
 
     handle_track(meta, payload, account)
   when 'message'
+    # check channel
+    return unless check_channel(payload)
+
     # Ack mesage
     push_ack_to_device(payload)
 

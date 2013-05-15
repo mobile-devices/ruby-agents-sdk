@@ -90,18 +90,22 @@ class Agent_XX_PROJECT_NAME
 
   ############### Logger ###############################################
   def log_debug(str_msg)
+        #todo test if type string
     CC_SDK.logger.debug("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_info(str_msg)
+       #todo test if type string
     CC_SDK.logger.info("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_warn(str_msg)
+       #todo test if type string
     CC_SDK.logger.warn("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_error(str_msg)
+       #todo test if type string
     CC_SDK.logger.error("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 

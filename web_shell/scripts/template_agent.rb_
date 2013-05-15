@@ -70,12 +70,12 @@ class Agent_XX_PROJECT_NAME
     #     channel:   @CHANNEL,
     #     payload:   content.to_json
     #     }, as: :agent).push
-      SDK_STATS.stats['agents'][@AGENT_NAME]['push_sent_to_device'] += 1
+      SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['push_sent_to_device'] += 1
     rescue Exception => e
       CC_SDK.logger.error("Error on send_message_to_device")
       print_ruby_exeption(e)
     end
-    SDK_STATS.stats['agents'][@AGENT_NAME]['err_on_push'] += 1
+    SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_push'] += 1
   end
 
   def reply_message_to_device(message, account, content)
@@ -84,11 +84,11 @@ class Agent_XX_PROJECT_NAME
       #note: real wrapper will be : m.push('account' => account.name)
       m = message.reply("200#{content}")
       m.push('account' => account)
-      SDK_STATS.stats['agents'][@AGENT_NAME]['reply_sent_to_device'] += 1
+      SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['reply_sent_to_device'] += 1
     rescue Exception => e
       CC_SDK.logger.error("Error on reply_message_to_device")
       print_ruby_exeption(e)
-      SDK_STATS.stats['agents'][@AGENT_NAME]['err_on_reply'] += 1
+      SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_reply'] += 1
     end
   end
 

@@ -159,6 +159,7 @@ end
 def logs_server
   if File.exist?(log_server_path)
     logs = File.read(log_server_path)
+    logs = Rack::Utils.escape_html(logs)
     logs.gsub!("\n","<br/>")
   else
     ""
@@ -168,6 +169,7 @@ end
 def logs_agent
   if File.exist?(log_agents_path)
     logs = File.read(log_agents_path)
+    logs = Rack::Utils.escape_html(logs)
     logs.gsub!("\n","<br/>")
   else
     ""

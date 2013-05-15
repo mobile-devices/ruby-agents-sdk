@@ -10,6 +10,8 @@ require 'redis-namespace'
 
 require_relative 'lib/cloud_connect_sdk_module'
 include CC_SDK
+require_relative 'lib/sdk_stats'
+include SDK_STATS
 require_relative 'lib/message'
 require_relative '../scripts/agents_mgt'
 
@@ -43,6 +45,7 @@ $mutex_message_to_device = Mutex.new()
 
 $main_server_root_path = File.expand_path("..", __FILE__)
 
+reset_stats
 
 CC_SDK.logger.info("ruby-agent-sdk-server ready !\n\n")
 
@@ -82,6 +85,7 @@ get '/dynamic_channel_request' do
   wrapped.to_json
 end
 
+
 #test: curl -i localhost:5001/new_message_from_cloud
 get '/new_message_from_cloud' do
   tmp_hash = Hash.new()
@@ -93,15 +97,23 @@ get '/new_message_from_cloud' do
   tmp_hash.to_json
 end
 
+#test : curl http://localhost:5001/sdk_stats
+get '/sdk_stats' do
+  SDK_STATS.stats.to_json
+end
+
+
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"connect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"reconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"disconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 post '/presence' do
+  SDK_STATS.stats['server']['received'][0] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /presence new presence")
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
+    SDK_STATS.stats['server']['err_parse'][0] += 1
     return
   end
   handle_msg_from_device('presence', jsonData)
@@ -110,10 +122,12 @@ end
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.psa.messagingagent.echo.0", "recorded_at":78364, "payload":"/test/echo/for/me?da=ble", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 post '/message' do
+  SDK_STATS.stats['server']['received'][1] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /message new message")
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
+    SDK_STATS.stats['server']['err_parse'][1] += 1
     return
   end
   handle_msg_from_device('message', jsonData)
@@ -121,11 +135,18 @@ post '/message' do
 end
 
 post '/track' do
+  SDK_STATS.stats['server']['received'][2] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /track new track")
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
+    SDK_STATS.stats['server']['err_parse'][2] += 1
     return
   end
   handle_msg_from_device('track', jsonData)
 end
+
+
+
+
+###################################################################################################

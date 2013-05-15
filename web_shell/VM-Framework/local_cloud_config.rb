@@ -11,9 +11,24 @@ require 'sinatra'
 set :bind, '0.0.0.0'
 set :port, '5000'
 require_relative '../scripts/agents_mgt'
+require 'json'
 
 #=========================================================================================
-class Agent < Struct.new(:name, :running)
+require 'net/http'
+
+def http_get(address)
+
+  url = URI.parse(address)
+  req = Net::HTTP::Get.new(url.path)
+  res = Net::HTTP.start(url.host, url.port) {|http|
+    http.request(req)
+  }
+  res.body
+
+end
+
+#=========================================================================================
+class Agent < Struct.new(:name, :running, :agent_stats)
 end
 
 def agents_altered()
@@ -39,13 +54,52 @@ def add_new_agent(agent_name)
  end
 end
 
+
+
 def agents
   $sdk_list_of_agents ||= begin
+    run_agents = get_run_agents
     get_available_agents.inject({}) do |agents, agent_name|
-      agents[agent_name] = Agent.new(agent_name, get_run_agents.include?(agent_name))
+      agents[agent_name] = Agent.new(agent_name, run_agents.include?(agent_name), {})
       agents
     end
   end
+end
+
+
+def update_sdk_stats
+  puts "update_sdk_stats try ..."
+  begin
+    # server stats
+    params = {}
+    jstats =  http_get("http://localhost:5001/sdk_stats")
+    puts "update_sdk_stats downloaded: \n #{jstats}"
+    stats = JSON.parse(jstats)
+
+    @sdk_server_stats = stats['server']
+    puts "sdk_server_stats: \n #{@sdk_server_stats}"
+
+    # agents
+    agents_stats =  stats['agents']
+    agents_stats.each { |k,v|
+      puts "for agent #{k} we set #{v}"
+      agents[k].agent_stats = v
+    }
+
+    puts "Agent with stats: \n #{agents}"
+  rescue Exception => e
+    stack=""
+    e.backtrace.take(20).each { |trace|
+      stack+="  >> #{trace}\n"
+    }
+    puts "update_sdk_stats ERROR: #{e.inspect}\n\n#{stack}"
+  end
+  #todo: in case of agent not updated, set as default_agent found in server
+
+end
+
+def sdk_stats
+  @sdk_server_stats ||= {}
 end
 
 #=========================================================================================
@@ -185,7 +239,11 @@ get '/projects' do
   @action_popup = check_version_change_to_user
   agents_altered
   @agents = agents
-  p "action popup #{@action_popup}"
+  p "getting stats"
+  #stats
+  update_sdk_stats
+  p "stats done"
+
   erb :projects
 end
 

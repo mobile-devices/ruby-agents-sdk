@@ -46,7 +46,9 @@ def push_ack_to_device(payload)
   rescue Exception => e
     CC_SDK.logger.error("Server: push_ack_to_device error with payload = \n#{payload}")
     print_ruby_exeption(e)
+    return false
   end
+  return true
 end
 
 
@@ -80,10 +82,16 @@ def handle_msg_from_device(type, params)
     handle_presence(meta, payload, account)
   when 'message'
     # check channel
-    return unless check_channel(payload)
+    if !(check_channel(payload))
+      SDK_STATS.stats['server']['err_dyn_channel'][1] += 1
+      return
+    end
 
     # Ack mesage
-    push_ack_to_device(payload)
+    if !(push_ack_to_device(payload))
+      SDK_STATS.stats['server']['err_while_send_ack'][1] += 1
+      return
+    end
 
     handle_message(meta, payload, account)
   when 'track'

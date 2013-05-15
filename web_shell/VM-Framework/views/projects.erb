@@ -46,19 +46,48 @@ Maybe there is valuable information for you on the patch note page.
 </form>
 <br>
 
-<b>note :</b><br/>
-Remember to <b>'Apply and reboot ruby agent sdk server'</b> after start or stop agents to be taken in concideration.<br/><br/>
+
+<div class="well row">
+ <p>
+    <b>note :</b><br/>
+    Remember to <b>'Apply and reboot ruby agent sdk server'</b> after start or stop agents to be taken in concideration.<br/><br/>
+    If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message into the  <a href="/logSdkAgents">SDK Agents Log tab</a>  (ruby-agent-sdk-server.log).<br/>
+    If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daemon_server.log).<br/>
+ </p>
+</div>
 
 
+  <br/>
+  Server stats (<b>[presence, message, track]</b>):
+  <br/>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th># Received</th>
+        <th># Error at parsing</th>
+        <th># Error on Dynamic channel</th>
+        <th># Error on ack sent to device</th>
+      </tr>
+    </thead>
 
-If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message into the  <a href="/logSdkAgents">SDK Agents Log tab</a>  (ruby-agent-sdk-server.log).<br/>
-If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daemon_server.log).<br/>
+    <tbody>
+      <tr>
+        <td><b><%= sdk_stats['received'] %></b></td>
+        <td><b><%= sdk_stats['err_parse'] %></b></td>
+        <td><b><%= sdk_stats['err_dyn_channel'] %></b></td>
+        <td><b><%= sdk_stats['err_while_send_ack'] %></b></td>
+      </tr>
+    </tbody>
+
+  </table>
 
 <br/>
 <table class="table table-bordered table-striped">
   <thead>
     <tr>
       <th>Agent name</th>
+      <th># Received</th>
+      <th># Error</th>
       <th>Action</th>
     </tr>
   </thead>
@@ -67,6 +96,12 @@ If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daem
     <% @agents.each do |agent_name, agent| %>
     <tr>
       <td><%= agent.name %></td>
+      <td>
+        <%= agent.agent_stats['received']%>
+      </td>
+      <td>
+        <%= agent.agent_stats['err_while_process'] %>
+      </td>
       <td>
         <% if agent.running %>
         <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
@@ -84,9 +119,13 @@ If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daem
     <tr>
       <form action="/create_agents" method="post">
         <td><input type="text" name="agent[name]" /></td>
+        <td></td>
+        <td></td>
         <td><button class="btn btn-info">Create agent</button></td>
       </form>
     </tr>
+
+
   </tbody>
 </table>
 

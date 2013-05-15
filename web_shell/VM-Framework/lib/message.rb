@@ -30,7 +30,7 @@ class Message < Hashie::Mash
     self.validate!
 
     # push to local
-    push_someting_to_device(self)
+    push_something_to_device(self)
 
     # push to api web (todo)
 

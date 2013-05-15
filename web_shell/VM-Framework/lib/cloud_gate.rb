@@ -5,8 +5,8 @@ def wrap_message(msg)
 end
 
 
-def push_someting_to_device(something)
-  CC_SDK.logger.debug("Server: push_someting_to_device:\n#{something}")
+def push_something_to_device(something)
+  CC_SDK.logger.debug("Server: push_something_to_device:\n#{something}")
 
   $mutex_message_to_device.synchronize do
     $message_to_device << wrap_message(something)
@@ -35,7 +35,7 @@ def push_ack_to_device(payload)
       errorDynChannelMsg['asset'] = nil
       errorDynChannelMsg['type'] = 'dynchannelsmessage'
       errorDynChannelMsg['payload'] = { "#{channel_str}" => -1}.to_json
-      push_someting_to_device(errorDynChannelMsg)
+      push_something_to_device(errorDynChannelMsg)
       return
     end
     CC_SDK.logger.debug("Server: push_ack_to_device: for channel #{channel_str} using number #{channel_int}")
@@ -52,7 +52,7 @@ def push_ack_to_device(payload)
 
     CC_SDK.logger.debug("Server: push_ack_to_device: adding Ack message with tmpId=#{ack_map['tmpId']} and msgId=#{ack_map['msgId']}")
 
-    push_someting_to_device(msgAck)
+    push_something_to_device(msgAck)
 
   rescue => e
     CC_SDK.logger.error("Server: push_ack_to_device error while tracking with payload = \n#{payload}")

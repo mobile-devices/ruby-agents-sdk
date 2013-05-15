@@ -78,14 +78,6 @@ def handle_msg_from_device(type, params)
   case type
   when 'presence'
     handle_presence(meta, payload, account)
-  when 'tracking'
-    # check channel
-    return unless check_channel(payload)
-
-    # Ack mesage
-    push_ack_to_device(payload)
-
-    handle_track(meta, payload, account)
   when 'message'
     # check channel
     return unless check_channel(payload)
@@ -94,6 +86,11 @@ def handle_msg_from_device(type, params)
     push_ack_to_device(payload)
 
     handle_message(meta, payload, account)
+  when 'track'
+    # Ack mesage
+#    push_ack_to_device(payload)
+
+    handle_track(meta, payload, account)
   else
     CC_SDK.logger.error('Server: handle_msg_from_device: type unknown')
   end

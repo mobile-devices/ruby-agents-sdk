@@ -53,15 +53,15 @@ end
 def check_channel(payload)
   channel_str = payload['channel']
   if channel_str.is_a? String
-   channel_int = $dyn_channels[channel_str]
-   if channel_int == nil
-    CC_SDK.logger.error("Server: check_channel: channel #{channel_str} not found. Available are:\n #{$dyn_channels}")
-     return false
-   end
- else
-   CC_SDK.logger.error("Server: check_channel: channel is not type String : #{channel_str}")
-   return false
- end
+    channel_int = $dyn_channels[channel_str]
+    if channel_int == nil
+      CC_SDK.logger.error("Server: check_channel: channel #{channel_str} not found. Available are:\n #{$dyn_channels}")
+      return false
+    end
+  else
+    CC_SDK.logger.error("Server: check_channel: channel is not type String : #{channel_str}")
+    return false
+  end
   return true
 end
 

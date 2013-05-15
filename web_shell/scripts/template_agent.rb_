@@ -78,8 +78,14 @@ class Agent_XX_PROJECT_NAME
 
   def reply_message_to_device(message, account, content)
     #idem, we build a Message then send it to rqueue
-    m = message.reply("200#{content}")
-    m.push('account' => account.name)
+    begin
+      m = message.reply("200#{content}")
+      m.push('account' => account)
+      # real wrapper will be : m.push('account' => account.name)
+    rescue Exception => e
+      CC_SDK.logger.error("Error on reply_message_to_device")
+      print_ruby_exeption(e)
+    end
   end
 
   ############### Logger ###############################################

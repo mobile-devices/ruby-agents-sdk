@@ -54,7 +54,7 @@ def get_json_from_request(request)
     request.body.rewind  # in case someone already read it
     to_parse = request.body.read
     JSON.parse(to_parse)
-  rescue => e
+  rescue Exception => e
     CC_SDK.logger.error("Server: error while reading json (len=#{to_parse.length}) \n #{to_parse}")
     print_ruby_exeption(e)
     nil

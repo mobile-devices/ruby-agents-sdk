@@ -44,7 +44,7 @@ def push_ack_to_device(payload)
     push_something_to_device(msgAck)
 
   rescue Exception => e
-    CC_SDK.logger.error("Server: push_ack_to_device error while tracking with payload = \n#{payload}")
+    CC_SDK.logger.error("Server: push_ack_to_device error with payload = \n#{payload}")
     print_ruby_exeption(e)
   end
 end

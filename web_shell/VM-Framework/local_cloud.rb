@@ -63,10 +63,10 @@ end
 
 def print_ruby_exeption(e)
   stack=""
-  e.backtrace.each { |trace|
+  e.backtrace.take(20).each { |trace|
     stack+="  >> #{trace}\n"
   }
-  CC_SDK.logger.info(" exeption: #{e.inspect}\n#{stack}")
+  CC_SDK.logger.error("  EXCEPTION RUBY >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 end
 
 

@@ -87,9 +87,6 @@ def handle_msg_from_device(type, params)
 
     handle_message(meta, payload, account)
   when 'track'
-    # Ack mesage
-#    push_ack_to_device(payload)
-
     handle_track(meta, payload, account)
   else
     CC_SDK.logger.error('Server: handle_msg_from_device: type unknown')

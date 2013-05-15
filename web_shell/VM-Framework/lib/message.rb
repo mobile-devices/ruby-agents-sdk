@@ -19,8 +19,8 @@ class Message < Hashie::Mash
       r.sender = self.recipient
       r.type = self.type
       r.thread_id = self.thread_id
-      r.payload = payload unless payload.blank?
-      r.id = CC_SDK.indigen_next_id()
+      r.payload = payload
+      r.id = CC_SDK.indigen_next_id
     end
   end
 

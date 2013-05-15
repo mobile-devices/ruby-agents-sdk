@@ -117,6 +117,7 @@ post '/message' do
     return
   end
   handle_msg_from_device('message', jsonData)
+  response.body = '{}'
 end
 
 post '/track' do

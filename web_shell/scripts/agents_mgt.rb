@@ -36,7 +36,7 @@ def generate_agents()
   agents_generated_code += "def handle_presence(meta, payload, account)\n"
   agents_to_run.each { |agent|
     agents_generated_code += "  begin\n"
-    agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][0] += 1\n"
+    #agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][0] += 1\n"
     agents_generated_code += "    \$#{agent}_initial.handle_presence(meta, payload, account)\n"
     agents_generated_code += "  rescue => e\n"
     agents_generated_code += "    CC_SDK.logger.error('Server: /presence error while handle_presence on agent #{agent}')\n"
@@ -50,7 +50,7 @@ def generate_agents()
   agents_generated_code += "def handle_message(meta, payload, account)\n"
   agents_to_run.each { |agent|
     agents_generated_code += "  begin\n"
-    agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][1] += 1\n"
+    #agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][1] += 1\n"
     agents_generated_code += "    \$#{agent}_initial.handle_message(meta, payload, account)\n"
     agents_generated_code += "  rescue => e\n"
     agents_generated_code += "    CC_SDK.logger.error('Server: /message error while handle_message on agent #{agent}')\n"
@@ -63,7 +63,7 @@ def generate_agents()
   agents_generated_code += "def handle_track(meta, payload, account)\n"
   agents_to_run.each { |agent|
     agents_generated_code += "  begin\n"
-    agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][2] += 1\n"
+    #agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][2] += 1\n"
     agents_generated_code += "  \$#{agent}_initial.handle_track(meta, payload, account)\n"
     agents_generated_code += "  rescue => e\n"
     agents_generated_code += "    CC_SDK.logger.error('Server: /track error while handle_track on agent #{agent}')\n"

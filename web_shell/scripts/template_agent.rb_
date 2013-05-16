@@ -38,6 +38,7 @@ class Agent_XX_PROJECT_NAME
       log_error("handle_message: wrong type #{payload['type']} (not 'message')")
       return
     end
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
     CC_SDK.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
     new_message_from_device(meta, payload, account)
   end
@@ -47,12 +48,14 @@ class Agent_XX_PROJECT_NAME
       log_error("handle_presence: wrong type '#{payload['type']}' (not 'message')")
       return
     end
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
     CC_SDK.logger.info("Server: handle_presence: pushing presence '#{payload['type']}' to agent XX_PROJECT_NAME ..................")
     new_presence_from_device(meta, payload, account)
   end
 
   def handle_track(meta, payload, account)
     #todo: test type, log on errors
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][2] += 1
     CC_SDK.logger.info("Server: handle_track: pushing track to agent XX_PROJECT_NAME ..................")
     new_track_from_device(meta, payload, account)
   end

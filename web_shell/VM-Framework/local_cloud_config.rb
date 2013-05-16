@@ -300,7 +300,40 @@ post '/create_agents' do
   redirect('/projects')
 end
 
+
+def is_reset_log_checked
+  @reset_log_checked ||= begin
+    if File.exist?('.reset_log_checked')
+      File.read('.reset_log_checked')
+    else
+      true
+    end
+  end
+end
+
+def set_reset_log_checked(val)
+  if (@previous_reset_log_checked != val)
+    File.open('.reset_log_checked', 'w') { |file| file.write(val) }
+    @previous_reset_log_checked = val
+    @reset_log_checked = val
+  end
+end
+
+
 get '/restart_server' do
+
+  if params['reset_logs'] == 'on'
+    if File.exist?(log_server_path)
+      File.delete(log_server_path)
+    end
+    if File.exist?(log_agents_path)
+      File.delete(log_agents_path)
+    end
+    set_reset_log_checked(true)
+  else
+    set_reset_log_checked(false)
+  end
+
   `./local_cloud.sh restart`
   redirect('/projects')
 end

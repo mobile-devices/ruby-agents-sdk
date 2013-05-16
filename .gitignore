@@ -1,5 +1,5 @@
 cloud_agents
 cloud_agents_generated
-*.log
+*.log*
 .agents_to_run
 *.html

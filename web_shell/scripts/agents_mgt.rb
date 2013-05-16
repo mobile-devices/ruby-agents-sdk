@@ -1,3 +1,8 @@
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
+
 require 'fileutils'
 require 'securerandom'
 require 'yaml'

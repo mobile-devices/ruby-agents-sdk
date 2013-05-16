@@ -1,3 +1,8 @@
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
+
 module SDK_STATS
 
 #stats :

@@ -1,8 +1,9 @@
-#cloud_server_config.rb
+#!/usr/bin/ruby -w
 
-#sinatra pour conf ton sdk
-# (run mdi_cloud) agent mgt
-# conf dyn channel per agent
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
 
 require 'redcarpet'
 require_relative 'lib/readcarpet_overload'

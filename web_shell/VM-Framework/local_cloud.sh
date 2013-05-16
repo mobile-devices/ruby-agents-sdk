@@ -1,4 +1,10 @@
 #!/bin/bash
+
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
+
 command=$1
 params=${@:2}
 

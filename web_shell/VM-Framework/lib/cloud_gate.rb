@@ -1,3 +1,7 @@
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
 
 def wrap_message(msg)
   meta = { 'account' => 'vm-sdk'}

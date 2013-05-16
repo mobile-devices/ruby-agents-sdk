@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
+
 commands=' stop_admin start_admin start stop read_log_server_config read_log_server read_log_agents restart_admin restart '
 command=$1
 params=${@:2}

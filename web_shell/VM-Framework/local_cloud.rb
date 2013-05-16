@@ -1,4 +1,10 @@
 #!/usr/bin/ruby -w
+
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
+
 require 'sinatra'
 set :bind, '0.0.0.0'
 set :port, '5001'

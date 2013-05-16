@@ -5,54 +5,53 @@
 
 <!-- Modal -->
 <% if @action_popup == 1 %>
-  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-      <h3 id="myModalLabel">Welcome to sdk vm !</h3>
-    </div>
-    <div class="modal-body">
-      <p>
-This is the first time this vm is launched.<br>
-I strongly recommend you to have a look at the documentation.
-      </p>
-    </div>
-    <div class="modal-footer">
-      <a class="btn btn-primary" href="/doc">See documentation</a>
-      <a class="btn btn-primary" href="/">No thanks</a>
-    </div>
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Welcome to sdk vm !</h3>
   </div>
+  <div class="modal-body">
+    <p>
+      This is the first time this vm is launched.<br>
+      I strongly recommend you to have a look at the documentation.
+    </p>
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn-primary" href="/doc">See documentation</a>
+    <a class="btn btn-primary" href="/">No thanks</a>
+  </div>
+</div>
 <% end %>
 <% if @action_popup == 2 %>
-  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-      <h3 id="myModalLabel">Sdk vm update !</h3>
-    </div>
-    <div class="modal-body">
-      <p>
-The version of your sdk vm has changed !<br>
-Maybe there is valuable information for you on the patch note page.
-      </p>
-    </div>
-    <div class="modal-footer">
-      <a class="btn btn-primary" href="/patch_note">See changes</a>
-      <a class="btn btn-primary" href="/">No thanks</a>
-    </div>
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Sdk vm update !</h3>
   </div>
+  <div class="modal-body">
+    <p>
+      The version of your sdk vm has changed !<br>
+      Maybe there is valuable information for you on the patch note page.
+    </p>
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn-primary" href="/patch_note">See changes</a>
+    <a class="btn btn-primary" href="/">No thanks</a>
+  </div>
+</div>
 <% end %>
 <!-- End Modal -->
 
 <div class="well row">
  <p>
-    <b>REMINDER :</b><br/>
-    Remember to click on bouton <b>'Apply and reboot ruby agent sdk server'</b> after start or stop agents to be taken in concideration.<br/><br/>
+  <b>REMINDER :</b><br/>
+  Remember to click on bouton <b>'Apply and reboot ruby agent sdk server'</b> after start or stop agents to be taken in concideration.<br/><br/>
 
-    <b>How to check if reboot went ok :</b><br/>
-    If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message into the  <a href="/logSdkAgents">SDK Agents Log tab</a>  (ruby-agent-sdk-server.log).<br/>
-    If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daemon_server.log).<br/>
- </p>
+  <b>How to check if reboot went ok :</b><br/>
+  If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message into the  <a href="/logSdkAgents">SDK Agents Log tab</a>  (ruby-agent-sdk-server.log).<br/>
+  If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daemon_server.log).<br/>
+</p>
 </div>
-
 
 <br/>
 Server stats (<b>[presence, message, track]</b>):
@@ -61,9 +60,9 @@ Server stats (<b>[presence, message, track]</b>):
   <thead>
     <tr>
       <th># Received</th>
-      <th># parse ERR</th>
-      <th># channel ERR</th>
-      <th># Ack ERR</th>
+      <th># parse error</th>
+      <th># channel error</th>
+      <th># Ack error</th>
       <th># Ack to device</th>
       <th># Total queued to device</th>
       <th># In queue</th>
@@ -72,13 +71,42 @@ Server stats (<b>[presence, message, track]</b>):
 
   <tbody>
     <tr>
-      <td><b><%= sdk_stats['received'] %></b></td>
-      <td><b><%= sdk_stats['err_parse'] %></b></td>
-      <td><b><%= sdk_stats['err_dyn_channel'] %></b></td>
-      <td><b><%= sdk_stats['err_while_send_ack'] %></b></td>
-      <td><b><%= sdk_stats['total_ack_queued'] %></b></td>
-      <td><b><%= sdk_stats['total_queued'] %></b></td>
-      <td><b><%= sdk_stats['in_queue'] %></b></td>
+      <td><span class="label label-error"><b><big>
+        <%= sdk_stats['received'] %>
+      </big></b></span></td>
+      <td><big>
+        <% if sdk_stats['err_parse'] == [0, 0, 0] %>
+        <%= '<span class="label label-success">' %>
+        <% else %>
+        <%= '<span class="label label-important">' %>
+        <% end %>
+        <%= sdk_stats['err_parse'] %>
+      </span></big></td>
+      <td><big>
+        <% if sdk_stats['err_dyn_channel'] == [0, 0, 0] %>
+        <%= '<span class="label label-success">' %>
+        <% else %>
+        <%= '<span class="label label-important">' %>
+        <% end %>
+        <%= sdk_stats['err_dyn_channel'] %>
+      </span></big></td>
+      <td><big>
+        <% if sdk_stats['err_while_send_ack'] == [0, 0, 0] %>
+        <%= '<span class="label label-success">' %>
+        <% else %>
+        <%= '<span class="label label-important">' %>
+        <% end %>
+        <%= sdk_stats['err_while_send_ack'] %>
+      </span></big></td>
+      <td><span class="label label-error"><b><big>
+        <%= sdk_stats['total_ack_queued'] %>
+      </big></b></span></td>
+      <td><span class="label label-error"><b><big>
+        <%= sdk_stats['total_queued'] %>
+      </big></b></span></td>
+      <td><span class="label label-error"><b><big>
+        <%= sdk_stats['in_queue'] %>
+      </big></b></span></td>
     </tr>
   </tbody>
 
@@ -102,11 +130,11 @@ Server stats (<b>[presence, message, track]</b>):
     <tr>
       <th>Agent name</th>
       <th># Received</th>
-      <th># Error while process</th>
+      <th># Ruby Error</th>
       <th># Reply to device</th>
-      <th># Error reply</th>
+      <th># Reply error</th>
       <th># Message to device</th>
-      <th># Error Message</th>
+      <th># Message error </th>
       <th>Action</th>
     </tr>
   </thead>
@@ -115,24 +143,44 @@ Server stats (<b>[presence, message, track]</b>):
     <% @agents.each do |agent_name, agent| %>
     <tr>
       <td><%= agent.name %></td>
-      <td>
+      <td><span class="label label-error"><b><big>
         <%= agent.agent_stats['received']%>
-      </td>
-      <td>
+      </big></b></span></td>
+
+      <td><big>
+        <% if agent.agent_stats['err_while_process'] == [0, 0, 0] %>
+          <%= '<span class="label label-success">' %>
+        <% else %>
+          <%= '<span class="label label-important">' %>
+        <% end %>
         <%= agent.agent_stats['err_while_process'] %>
-      </td>
-      <td>
+      </span></big></td>
+
+      <td><span class="label label-error"><b><big>
         <%= agent.agent_stats['reply_sent_to_device'] %>
-      </td>
-      <td>
+      </big></b></span></td>
+
+      <td><big class="center-label-table">
+        <% if agent.agent_stats['err_on_reply'] == 0 %>
+          <%= '<span class="label label-success">' %>
+        <% else %>
+          <%= '<span class="label label-important">' %>
+        <% end %>
         <%= agent.agent_stats['err_on_reply'] %>
-      </td>
-      <td>
+      </span></big></td>
+
+      <td><span class="label label-error"><b><big>
         <%= agent.agent_stats['push_sent_to_device'] %>
-      </td>
-      <td>
+      </big></b></span></td>
+
+      <td><big>
+        <% if agent.agent_stats['err_on_push'] == 0 %>
+          <%= '<span class="label label-success">' %>
+        <% else %>
+          <%= '<span class="label label-important">' %>
+        <% end %>
         <%= agent.agent_stats['err_on_push'] %>
-      </td>
+      </span></big></td>
 
 
       <td>
@@ -162,15 +210,14 @@ Server stats (<b>[presence, message, track]</b>):
       </form>
     </tr>
 
-
   </tbody>
 </table>
 
 
 <% if @action_popup != 0 %>
-  <script>
-  $(document).ready(function() {
-      $('#myModal').modal('show');
-  });
-  </script>
+<script>
+$(document).ready(function() {
+  $('#myModal').modal('show');
+});
+</script>
 <% end %>

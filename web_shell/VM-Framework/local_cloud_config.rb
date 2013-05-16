@@ -185,15 +185,17 @@ end
 def last_version_path
   @last_version_launched_path ||= '.last_version'
 end
-
 # if the version has changed or first time, goto documentation or patch note page
 def check_version_change_to_user
   action = 0
   if !(File.exist?(last_version_path))
     action = 1
   else
-    if File.read(last_version_path) != get_sdk_version
-      action = 2
+    current_v = File.read(last_version_path)
+    if (current_v.length > 5 && get_sdk_version.length > 5)
+      if current_v[0..5] != get_sdk_version[0..5]
+        action = 2
+      end
     end
   end
   File.open(last_version_path, 'w') { |file| file.write(get_sdk_version) }

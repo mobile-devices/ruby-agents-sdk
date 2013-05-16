@@ -319,9 +319,7 @@ def set_reset_log_checked(val)
   end
 end
 
-
 get '/restart_server' do
-
   if params['reset_logs'] == 'on'
     if File.exist?(log_server_path)
       File.delete(log_server_path)

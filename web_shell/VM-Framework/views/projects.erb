@@ -50,29 +50,35 @@ Maybe there is valuable information for you on the patch note page.
 </div>
 
 
-  <br/>
-  Server stats (<b>[presence, message, track]</b>):
-  <br/>
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th># Received</th>
-        <th># Error at parsing</th>
-        <th># Error on Dynamic channel</th>
-        <th># Error on ack sent to device</th>
-      </tr>
-    </thead>
+<br/>
+Server stats (<b>[presence, message, track]</b>):
+<br/>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th># Received</th>
+      <th># parse ERR</th>
+      <th># channel ERR</th>
+      <th># Ack ERR</th>
+      <th># Ack to device</th>
+      <th># Total queued to device</th>
+      <th># In queue</th>
+    </tr>
+  </thead>
 
-    <tbody>
-      <tr>
-        <td><b><%= sdk_stats['received'] %></b></td>
-        <td><b><%= sdk_stats['err_parse'] %></b></td>
-        <td><b><%= sdk_stats['err_dyn_channel'] %></b></td>
-        <td><b><%= sdk_stats['err_while_send_ack'] %></b></td>
-      </tr>
-    </tbody>
+  <tbody>
+    <tr>
+      <td><b><%= sdk_stats['received'] %></b></td>
+      <td><b><%= sdk_stats['err_parse'] %></b></td>
+      <td><b><%= sdk_stats['err_dyn_channel'] %></b></td>
+      <td><b><%= sdk_stats['err_while_send_ack'] %></b></td>
+      <td><b><%= sdk_stats['total_ack_queued'] %></b></td>
+      <td><b><%= sdk_stats['total_queued'] %></b></td>
+      <td><b><%= sdk_stats['in_queue'] %></b></td>
+    </tr>
+  </tbody>
 
-  </table>
+</table>
 
 <br/>
 <form action="/restart_server" method="get" class="form-inline">
@@ -84,7 +90,6 @@ Maybe there is valuable information for you on the patch note page.
  </div>
 </form>
 <br>
-
 
 
 

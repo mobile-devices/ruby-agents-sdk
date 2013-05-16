@@ -14,7 +14,10 @@ def reset_stats
       'ack_sent_to_device' => [0,0,0],
       'err_parse' => [0,0,0],
       'err_dyn_channel' => [0,0,0],
-      'err_while_send_ack' => [0,0,0]
+      'err_while_send_ack' => [0,0,0],
+      'in_queue' => 0,
+      'total_ack_queued' => 0,
+      'total_queued' => 0
       },
       'default_agent' =>  {
         'received' => [0,0,0],

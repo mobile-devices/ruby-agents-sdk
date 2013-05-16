@@ -10,7 +10,9 @@ def push_something_to_device(something)
 
   $mutex_message_to_device.synchronize do
     $message_to_device << wrap_message(something)
+    SDK_STATS.stats['server']['in_queue'] = $message_to_device.size
   end
+  SDK_STATS.stats['server']['total_queued'] += 1
 end
 
 def push_ack_to_device(payload)
@@ -42,7 +44,7 @@ def push_ack_to_device(payload)
     CC_SDK.logger.debug("Server: push_ack_to_device: adding Ack message with tmpId=#{ack_map['tmpId']} and msgId=#{ack_map['msgId']}")
 
     push_something_to_device(msgAck)
-
+    SDK_STATS.stats['server']['total_ack_queued'] += 1
   rescue Exception => e
     CC_SDK.logger.error("Server: push_ack_to_device error with payload = \n#{payload}")
     print_ruby_exeption(e)

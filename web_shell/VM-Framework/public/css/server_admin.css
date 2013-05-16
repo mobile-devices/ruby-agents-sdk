@@ -160,6 +160,20 @@
 }
 
 
+
+
+/*
+  keep scroll bar al lthe time
+*/
 html {
     overflow-y: scroll;
+}
+
+
+.center-label{
+ text-align:center!important;
+}
+
+th,td {
+ text-align:center!important;
 }

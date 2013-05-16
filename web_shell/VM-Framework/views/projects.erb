@@ -44,175 +44,178 @@
 
 <div class="well row">
  <p>
-  <b>REMINDER :</b><br/>
-  Remember to click on bouton <b>'Apply and reboot ruby agent sdk server'</b> after start or stop agents to be taken in concideration.<br/><br/>
+    <b>REMINDER :</b><br/>
+    Remember to click on bouton <b>'Apply and reboot ruby agent sdk server'</b> after start or stop agents to be taken in concideration.<br/><br/>
 
-  <b>How to check if reboot went ok :</b><br/>
-  If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message into the  <a href="/logSdkAgents">SDK Agents Log tab</a>  (ruby-agent-sdk-server.log).<br/>
-  If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daemon_server.log).<br/>
-</p>
+    <b>How to check if reboot went ok :</b><br/>
+    If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message into the  <a href="/logSdkAgents">SDK Agents Log tab</a>  (ruby-agent-sdk-server.log).<br/>
+    If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daemon_server.log).<br/>
+  </p>
 </div>
 
 <br/>
-Server stats (<b>[presence, message, track]</b>):
+
+<div class="row">
+  Server stats (<b>[presence, message, track]</b>):
+  <br/>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th># Received</th>
+        <th># parse error</th>
+        <th># channel error</th>
+        <th># Ack error</th>
+        <th># Ack to device</th>
+        <th># Total queued to device</th>
+        <th># In queue</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td><span class="label label-error"><b><big>
+          <%= sdk_stats['received'] %>
+        </big></b></span></td>
+        <td><big>
+          <% if sdk_stats['err_parse'] == [0, 0, 0] %>
+          <%= '<span class="label label-success">' %>
+          <% else %>
+          <%= '<span class="label label-important">' %>
+          <% end %>
+          <%= sdk_stats['err_parse'] %>
+        </span></big></td>
+        <td><big>
+          <% if sdk_stats['err_dyn_channel'] == [0, 0, 0] %>
+          <%= '<span class="label label-success">' %>
+          <% else %>
+          <%= '<span class="label label-important">' %>
+          <% end %>
+          <%= sdk_stats['err_dyn_channel'] %>
+        </span></big></td>
+        <td><big>
+          <% if sdk_stats['err_while_send_ack'] == [0, 0, 0] %>
+          <%= '<span class="label label-success">' %>
+          <% else %>
+          <%= '<span class="label label-important">' %>
+          <% end %>
+          <%= sdk_stats['err_while_send_ack'] %>
+        </span></big></td>
+        <td><span class="label label-error"><b><big>
+          <%= sdk_stats['total_ack_queued'] %>
+        </big></b></span></td>
+        <td><span class="label label-error"><b><big>
+          <%= sdk_stats['total_queued'] %>
+        </big></b></span></td>
+        <td><span class="label label-error"><b><big>
+          <%= sdk_stats['in_queue'] %>
+        </big></b></span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 <br/>
-<table class="table table-bordered table-striped">
-  <thead>
-    <tr>
-      <th># Received</th>
-      <th># parse error</th>
-      <th># channel error</th>
-      <th># Ack error</th>
-      <th># Ack to device</th>
-      <th># Total queued to device</th>
-      <th># In queue</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td><span class="label label-error"><b><big>
-        <%= sdk_stats['received'] %>
-      </big></b></span></td>
-      <td><big>
-        <% if sdk_stats['err_parse'] == [0, 0, 0] %>
-        <%= '<span class="label label-success">' %>
-        <% else %>
-        <%= '<span class="label label-important">' %>
-        <% end %>
-        <%= sdk_stats['err_parse'] %>
-      </span></big></td>
-      <td><big>
-        <% if sdk_stats['err_dyn_channel'] == [0, 0, 0] %>
-        <%= '<span class="label label-success">' %>
-        <% else %>
-        <%= '<span class="label label-important">' %>
-        <% end %>
-        <%= sdk_stats['err_dyn_channel'] %>
-      </span></big></td>
-      <td><big>
-        <% if sdk_stats['err_while_send_ack'] == [0, 0, 0] %>
-        <%= '<span class="label label-success">' %>
-        <% else %>
-        <%= '<span class="label label-important">' %>
-        <% end %>
-        <%= sdk_stats['err_while_send_ack'] %>
-      </span></big></td>
-      <td><span class="label label-error"><b><big>
-        <%= sdk_stats['total_ack_queued'] %>
-      </big></b></span></td>
-      <td><span class="label label-error"><b><big>
-        <%= sdk_stats['total_queued'] %>
-      </big></b></span></td>
-      <td><span class="label label-error"><b><big>
-        <%= sdk_stats['in_queue'] %>
-      </big></b></span></td>
-    </tr>
-  </tbody>
-
-</table>
-
-<br/>
-<form action="/restart_server" method="get" class="form-inline">
- <div class="pull-right">
-   <label class="checkbox">
-     <input name="reset_logs" type="checkbox" <% if is_reset_log_checked == 'true' %> checked <% end %> > Reset logs on reboot
-   </label>
-   <button class="btn btn-primary">Apply and reboot ruby agent sdk server</button>
- </div>
-</form>
-<br>
 
 
+<div class="row">
+  <form action="/restart_server" method="get" class="form-inline">
+   <div class="pull-right">
+     <label class="checkbox">
+       <input name="reset_logs" type="checkbox" <% if is_reset_log_checked == 'true' %> checked <% end %> > Reset logs on reboot
+     </label>
+     <button class="btn btn-primary">Apply and reboot ruby agent sdk server</button>
+   </div>
+  </form>
+  <br>
 
-<table class="table table-bordered table-striped">
-  <thead>
-    <tr>
-      <th>Agent name</th>
-      <th># Received</th>
-      <th># Ruby Error</th>
-      <th># Reply to device</th>
-      <th># Reply error</th>
-      <th># Message to device</th>
-      <th># Message error </th>
-      <th>Action</th>
-    </tr>
-  </thead>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Agent name</th>
+        <th># Received</th>
+        <th># Ruby Error</th>
+        <th># Reply to device</th>
+        <th># Reply error</th>
+        <th># Message to device</th>
+        <th># Message error </th>
+        <th>Action</th>
+      </tr>
+    </thead>
 
-  <tbody>
-    <% @agents.each do |agent_name, agent| %>
-    <tr>
-      <td><%= agent.name %></td>
-      <td><span class="label label-error"><b><big>
-        <%= agent.agent_stats['received']%>
-      </big></b></span></td>
+    <tbody>
+      <% @agents.each do |agent_name, agent| %>
+      <tr>
+        <td><%= agent.name %></td>
+        <td><span class="label label-error"><b><big>
+          <%= agent.agent_stats['received']%>
+        </big></b></span></td>
 
-      <td><big>
-        <% if agent.agent_stats['err_while_process'] == [0, 0, 0] %>
-          <%= '<span class="label label-success">' %>
-        <% else %>
-          <%= '<span class="label label-important">' %>
-        <% end %>
-        <%= agent.agent_stats['err_while_process'] %>
-      </span></big></td>
+        <td><big>
+          <% if agent.agent_stats['err_while_process'] == [0, 0, 0] %>
+            <%= '<span class="label label-success">' %>
+          <% else %>
+            <%= '<span class="label label-important">' %>
+          <% end %>
+          <%= agent.agent_stats['err_while_process'] %>
+        </span></big></td>
 
-      <td><span class="label label-error"><b><big>
-        <%= agent.agent_stats['reply_sent_to_device'] %>
-      </big></b></span></td>
+        <td><span class="label label-error"><b><big>
+          <%= agent.agent_stats['reply_sent_to_device'] %>
+        </big></b></span></td>
 
-      <td><big class="center-label-table">
-        <% if agent.agent_stats['err_on_reply'] == 0 %>
-          <%= '<span class="label label-success">' %>
-        <% else %>
-          <%= '<span class="label label-important">' %>
-        <% end %>
-        <%= agent.agent_stats['err_on_reply'] %>
-      </span></big></td>
+        <td><big class="center-label-table">
+          <% if agent.agent_stats['err_on_reply'] == 0 %>
+            <%= '<span class="label label-success">' %>
+          <% else %>
+            <%= '<span class="label label-important">' %>
+          <% end %>
+          <%= agent.agent_stats['err_on_reply'] %>
+        </span></big></td>
 
-      <td><span class="label label-error"><b><big>
-        <%= agent.agent_stats['push_sent_to_device'] %>
-      </big></b></span></td>
+        <td><span class="label label-error"><b><big>
+          <%= agent.agent_stats['push_sent_to_device'] %>
+        </big></b></span></td>
 
-      <td><big>
-        <% if agent.agent_stats['err_on_push'] == 0 %>
-          <%= '<span class="label label-success">' %>
-        <% else %>
-          <%= '<span class="label label-important">' %>
-        <% end %>
-        <%= agent.agent_stats['err_on_push'] %>
-      </span></big></td>
+        <td><big>
+          <% if agent.agent_stats['err_on_push'] == 0 %>
+            <%= '<span class="label label-success">' %>
+          <% else %>
+            <%= '<span class="label label-important">' %>
+          <% end %>
+          <%= agent.agent_stats['err_on_push'] %>
+        </span></big></td>
 
 
-      <td>
-        <% if agent.running %>
-        <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
-          <button class="btn btn-danger">Stop</button>
+        <td>
+          <% if agent.running %>
+          <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
+            <button class="btn btn-danger">Stop</button>
+          </form>
+          <% else %>
+          <form action='<%= "/agents/#{agent_name}/start" %>' method="post">
+            <button class="btn btn-success">Start</button>
+          </form>
+          <% end %>
+        </td>
+      </tr>
+      <% end %>
+
+      <tr>
+        <form action="/create_agents" method="post">
+          <td><input type="text" name="agent[name]" /></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td><button class="btn btn-info">Create agent</button></td>
         </form>
-        <% else %>
-        <form action='<%= "/agents/#{agent_name}/start" %>' method="post">
-          <button class="btn btn-success">Start</button>
-        </form>
-        <% end %>
-      </td>
-    </tr>
-    <% end %>
+      </tr>
 
-    <tr>
-      <form action="/create_agents" method="post">
-        <td><input type="text" name="agent[name]" /></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><button class="btn btn-info">Create agent</button></td>
-      </form>
-    </tr>
-
-  </tbody>
-</table>
-
+    </tbody>
+  </table>
+</div>
 
 <% if @action_popup != 0 %>
 <script>

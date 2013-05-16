@@ -1,5 +1,5 @@
 
-Basicly ou have a Redis object created for each agent. You have nothing to create or configure, just use it.
+Basically you have a Redis object created for each agent. You have nothing to create or configure, just use it.
 
 For instance :
 

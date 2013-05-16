@@ -1,5 +1,5 @@
 
-An echo agent is an agent that reply the message received.
+An echo agent is an agent that replies with the message received.
 
 ``` ruby
 def new_message_from_device(meta, payload, account)

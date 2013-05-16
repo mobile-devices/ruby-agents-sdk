@@ -1,9 +1,9 @@
 
 In this section we will configure your mobile device product (or Morpheus simulator) to be able to communicate with the vm.
 
-**KEEP IN MIND THAT I MIGHT NOT BE AN UP TO DATE DOCUMENTATION, PLEASE REFER TO THE DEVICE SOFTWARE DOCUMENTATION**
+**KEEP IN MIND THAT THIS DOCUMENTATION MIGHT NOT BE UP TO DATE, PLEASE REFER TO THE DEVICE SOFTWARE DOCUMENTATION**
 
-Here is some command configuration you have to run on the device's console :
+Here are some configuration commands you have to run on the device's console :
 
 s messageGate useBinaryGate 0
 s dataEmitter useBinaryGate 0

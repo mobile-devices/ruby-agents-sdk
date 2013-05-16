@@ -1,32 +1,32 @@
 
-This documentation apply to sdk vm XXXX_VERSION.
+This documentation applies to sdk vm XXXX_VERSION.
 
-The folder ruby_workspace is your workspace, you can't move it or rename it, but you can sym-link it if you want.
+The ruby_workspace folder is your workspace, you can't move it or rename it, but you can sym-link it if you want.
 
-## Project managment
-To manage projects, go to http://localhost:5000/ with your favourite browser (you shall use the is of the VM's host instead of 'localhost' in order to access through network).
+## Project management
+To manage projects, go to http://localhost:5000/ with your favourite browser (you should use the ip of the VM's host instead of 'localhost' in order to access it through the network).
 
-On this page, you can create/start/stop project then apply and reboot VM's ruby server to apply your modifications.
+On this page, you can create/start/stop a project then apply and reboot the VM's ruby server to apply your modifications.
 
 ## Project structure
- When you have created your project in the SDK Agents tab you will see a folder of the same name into your workspace, it's look like :
+ When you have created your project in the SDK Agents tab you will see a folder with the same name in your workspace, it looks like :
 
 * **initial.rb** : where your code adventure starts
-* **Gemfile** : where your put gems you need
-* **README.md** : where you explain what you do because documentation is mendatory
+* **Gemfile** : where you put gems you need
+* **README.md** : where you explain what you do because documentation is mandatory
 * **config/** : folder where you put your configuration
-* **cron_tasks/** : folder where you will put your cron task needed for your agent.
+* **cron_tasks/** : folder where you put the cron task needed for your agent.
 
-You will also find into your workspace a sdk_logs where you find your agent's logs and also servers logs.
+You will also find ib your workspace an sdk_logs with you find your agent's logs and also server's logs.
 
-To test your code, just modify your code and 'apply and reboot' onto the **http://localhost:5000/** web page.
+To test your code, just modify your code and 'apply and reboot' on the **http://localhost:5000/** web page.
 
-The com interface run onto the 5001 port.
+The com interface runs on port 5001.
 
-##### General guide-line :
+##### General guide-lines :
 
-* You receive the messages into the initial.rb, you shall include your code into some sub .rb file into the lib folder.
-* Do your agent stateless, global variables are stricly forbidden.
+* You receive the messages in the initial.rb, you shall include your code in a sub .rb file in the lib folder.
+* Do your agent stateless, global variables are strictly forbidden.
 * To configure the dynamic channel used by this agent, go and edit config/dynamic_channel.yml
 * If you need additional gems, edit the Gemfile and require them here
 * Remember to complete your README.md
@@ -34,7 +34,7 @@ The com interface run onto the 5001 port.
 
 ## Message handling
 
-### Receive something from device (@see initial.rb)
+### Receive something from a device (@see initial.rb)
 
 #### presence : This method is called when a connection/reconnection/deconnection happen.
 
@@ -51,11 +51,11 @@ end
 
 "**payload**", a map with :
 
-* asset   : imei of device
+* asset   : imei of the device
 * time    : timestamp of the event
 * bs      : binary server source
-* type    : 'connect' or 'reconnect' or 'disconect'
-* reason  : reason from device
+* type    : 'connect' or 'reconnect' or 'disconnect'
+* reason  : reason for the event
 
 "**account**" (account name type String).
 

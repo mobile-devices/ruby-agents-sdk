@@ -307,6 +307,7 @@ def is_reset_log_checked
     if File.exist?('.reset_log_checked')
       File.read('.reset_log_checked')
     else
+      set_reset_log_checked(true)
       true
     end
   end

@@ -15,6 +15,7 @@ stop() {
 
 restart() {
   stop
+  sync;sync;sync
   ruby local_cloud.rb >>../../logs/daemon_server.log 2>&1 &
 }
 

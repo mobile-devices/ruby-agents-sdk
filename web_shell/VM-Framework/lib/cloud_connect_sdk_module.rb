@@ -3,7 +3,7 @@
 # Mobile Devices 2013
 #########################################################
 
-module CC_SDK
+module CloudConnectSDK
   # wrapper from indigen
   require 'time'
   def indigen_next_id()
@@ -27,3 +27,5 @@ module CC_SDK
     @redis ||= Redis.new(:host => 'localhost', :port =>  '7879')
   end
 end
+
+CC_SDK = CloudConnectSDK

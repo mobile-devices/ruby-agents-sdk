@@ -3,3 +3,5 @@ cloud_agents_generated
 *.log*
 .agents_to_run
 *.html
+.last_version
+.reset_log_checked

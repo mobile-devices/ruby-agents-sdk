@@ -82,6 +82,13 @@ def generate_agents()
   }
   File.open('../cloud_agents_generated/Gemfile', 'w') { |file| file.write(agents_Gemfile) }
 
+  # check config exist
+  agents_to_run.each { |agent|
+    if !(File.exist?("#{@ROOT_PATH_AGENT_MGT}/../../cloud_agents/#{agent}/config/#{agent}.yml.example"))
+      restore_default_config(agent)
+    end
+  }
+
   #  generad dyn channel list
   dyn_channels_str = get_agents_dyn_channel(get_available_agents())
   dyn_channels = Hash.new()
@@ -133,6 +140,14 @@ def create_new_agent(name)
   return true
 end
 
+def restore_default_config(name)
+  puts "restore_default_config for agent #{name}"
+  project_path = "../../cloud_agents/#{name}"
+  FileUtils.cp('../sample_agent/config/config.yml.example', "#{project_path}/config/#{name}.yml.example")
+  match_and_replace_in_folder("#{project_path}/config","XXProjectName", name)
+end
+
+
 def add_agent_to_run_list(name)
  return false unless is_agent_valid(name)
  run_list = get_run_agents
@@ -164,9 +179,7 @@ end
 
 def get_agent_dyn_channel(name)
   return "" unless File.directory?("../../cloud_agents/#{name}")
-
   cnf = nil
-
   if File.exist?("../../cloud_agents/#{name}/config/#{name}.yml")
     cnf = YAML::load(File.open("../../cloud_agents/#{name}/config/#{name}.yml"))['development']
   elsif File.exist?("../../cloud_agents/#{name}/config/#{name}.yml.example")

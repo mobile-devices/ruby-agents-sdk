@@ -26,8 +26,10 @@ class Agent_XX_PROJECT_NAME
     log_debug("Agent_XX_PROJECT_NAME root path is = \"#{@root_dir}\"")
 
     # Load dynamic channel
-    cnf = YAML::load(File.open("#{@root_dir}/config/dynamic_channel.yml"))
-    @CHANNEL = cnf['Channel_str']
+    @CHANNEL = config['Dynamic_channel_str']
+    if @CHANNEL == nil
+      @CHANNEL = 'com.mdi.services.XX_PROJECT_NAME'
+    end
     log_debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")
   end
 
@@ -103,22 +105,18 @@ class Agent_XX_PROJECT_NAME
 
   ############### Logger ###############################################
   def log_debug(str_msg)
-        #todo test if type string
     CC_SDK.logger.debug("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_info(str_msg)
-       #todo test if type string
     CC_SDK.logger.info("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_warn(str_msg)
-       #todo test if type string
     CC_SDK.logger.warn("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_error(str_msg)
-       #todo test if type string
     CC_SDK.logger.error("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
@@ -127,9 +125,25 @@ class Agent_XX_PROJECT_NAME
     @redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC_SDK.redis)
   end
 
+  ############### Config ###############################################
+  #note: real wrapper wille have a .yml for each agent in a same folder
+  def config()
+    @config ||= begin
+      if File.exist?("#{@root_dir}/config/XX_PROJECT_NAME.yml")
+        @config = YAML::load(File.open("#{@root_dir}/config/XX_PROJECT_NAME.yml"))['development']
+      elsif File.exist?("#{@root_dir}/config/XX_PROJECT_NAME.yml.example")
+        @config = YAML::load(File.open("#{@root_dir}/config/XX_PROJECT_NAME.yml.example"))['development']
+      else
+        log_warn("NO CONFIG FILE FOUND")
+        @config = Hash.new
+      end
+    rescue Exception => e
+      log_error("ERROR while loading configuration")
+      print_ruby_exeption(e)
+    end
+  end
+
   ######################################################################
-
-
 
   require_relative '../../cloud_agents/XX_PROJECT_NAME/initial'
 

@@ -124,9 +124,11 @@ def create_new_agent(name)
   #copy sample project
   FileUtils.cp_r(Dir['../sample_agent/*'],"#{project_path}")
 
+  #rename config file
+  FileUtils.mv("#{project_path}/config/config.yml.example", "#{project_path}/config/#{name}.yml.example")
+
   # Match and replace name project stuff in content
   match_and_replace_in_folder(project_path,"XXProjectName",name)
-
 
   return true
 end
@@ -162,14 +164,15 @@ end
 
 def get_agent_dyn_channel(name)
   return "" unless File.directory?("../../cloud_agents/#{name}")
-  cnf = YAML::load(File.open("../../cloud_agents/#{name}/config/dynamic_channel.yml"))
-  cnf['Channel_str']
-end
 
-def set_agent_dyn_channel(name, dyn_channel)
-  cnf = Hash.new()
-  cnf['Channel_str'] = dyn_channel
-  File.open("../../cloud_agents/#{name}/config/dynamic_channel.yml", 'w+') {|f| f.write(cnf.to_yaml) }
+  cnf = nil
+
+  if File.exist?("../../cloud_agents/#{name}/config/#{name}.yml")
+    cnf = YAML::load(File.open("../../cloud_agents/#{name}/config/#{name}.yml"))['development']
+  elsif File.exist?("../../cloud_agents/#{name}/config/#{name}.yml.example")
+    cnf = YAML::load(File.open("../../cloud_agents/#{name}/config/#{name}.yml.example"))['development']
+  end
+  cnf['Dynamic_channel_str']
 end
 
 
@@ -177,6 +180,7 @@ def get_agents_dyn_channel(array)
   dyn_channel = Hash.new()
   array.each { |agent_name|
     dyn_channel[agent_name] = get_agent_dyn_channel(agent_name)
+    puts "get_agents_dyn_channel USING #{dyn_channel[agent_name]}"
   }
   dyn_channel
 end

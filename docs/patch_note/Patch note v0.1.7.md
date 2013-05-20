@@ -1,0 +1,1 @@
+* dynamic_channel_file is remove, now using a config.yml.example config file.

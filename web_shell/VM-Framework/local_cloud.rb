@@ -14,6 +14,8 @@ require 'logger'
 require 'redis'
 require 'redis-namespace'
 
+require 'active_support/all'
+
 require_relative 'lib/cloud_connect_sdk_module'
 include CC_SDK
 require_relative 'lib/sdk_stats'

@@ -9,3 +9,4 @@ gem 'thin'
 gem 'redis'
 gem 'redis-namespace'
 gem 'redcarpet'
+gem 'activesupport', :require => "active_support/all"

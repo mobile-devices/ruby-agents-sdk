@@ -239,6 +239,8 @@ get '/' do
 end
 
 get '/projects' do
+  @active_tab='projects'
+
   @action_popup = check_version_change_to_user
   agents_altered
   @agents = agents
@@ -251,20 +253,28 @@ get '/projects' do
 end
 
 get '/doc' do
+  @active_tab='doc'
+
   render_documentation(sdk_doc_md)
   erb :doc
 end
 
 get '/patch_note' do
+  @active_tab='patch_note'
+
   render_documentation(sdk_patch_note_md)
   erb :patch_note
 end
 
 get '/logSdk' do
+  @active_tab='logSdk'
+
   erb :logSdk
 end
 
 get '/logSdkAgents' do
+  @active_tab='logSdkAgents'
+
   erb :logSdkAgents
 end
 

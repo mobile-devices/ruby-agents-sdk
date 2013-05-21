@@ -42,18 +42,19 @@
               <a href="#">SDK Server <%= get_sdk_version %></a>
             </li>
             <li class="">
+            <li class="<% if @active_tab=='projects'%><%= 'active' %><% end %>">
               <a href="./projects"><i class="icon-th-large icon-white"></i> SDK Agents</a>
             </li>
-            <li class="">
+            <li class="<% if @active_tab=='doc'%><%= 'active' %><% end %>">
               <a href="./doc"><i class="icon-book icon-white"></i> Documentation</a>
             </li>
-            <li class="">
+            <li class="<% if @active_tab=='patch_note'%><%= 'active' %><% end %>">
               <a href="./patch_note"><i class="icon-book icon-white"></i> Patch notes</a>
             </li>
-            <li class="">
+            <li class="<% if @active_tab=='logSdk'%><%= 'active' %><% end %>">
               <a href="./logSdk#endlog"><i class="icon-wrench icon-white"></i> SDK Server Log</a>
             </li>
-            <li class="">
+            <li class="<% if @active_tab=='logSdkAgents'%><%= 'active' %><% end %>">
               <a href="./logSdkAgents#endlog"><i class="icon-wrench icon-white"></i> SDK Agents Log</a>
             </li>
           </ul>

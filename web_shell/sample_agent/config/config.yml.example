@@ -1,0 +1,5 @@
+default: &DEFAULT
+  Dynamic_channel_str: com.mdi.services.XXProjectName
+
+
+development: *DEFAULT

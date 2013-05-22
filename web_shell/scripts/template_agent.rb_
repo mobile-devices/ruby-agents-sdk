@@ -122,12 +122,12 @@ class Agent_XX_PROJECT_NAME
   #note: real wrapper wille have a .yml for each agent in a same folder
   def config()
     @config ||= begin
-      if File.exist?("#{@root_dir}/config/XX_PROJECT_NAME.yml")
-        @config = YAML::load(File.open("#{@root_dir}/config/XX_PROJECT_NAME.yml"))['development']
-      elsif File.exist?("#{@root_dir}/config/XX_PROJECT_NAME.yml.example")
-        @config = YAML::load(File.open("#{@root_dir}/config/XX_PROJECT_NAME.yml.example"))['development']
+      if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
+        @config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
+      elsif File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml.example")
+        @config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml.example"))['development']
       else
-        log_warn("NO CONFIG FILE FOUND")
+        log_warn("NO CONFIG FILE FOUND in #{root_path}/config")
         @config = Hash.new
       end
     rescue Exception => e

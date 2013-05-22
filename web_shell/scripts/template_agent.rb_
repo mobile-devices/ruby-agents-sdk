@@ -14,12 +14,9 @@ class Agent_XX_PROJECT_NAME
   # Project
   @AGENT_NAME = 'XX_PROJECT_NAME'
   @CHANNEL = 'com.mdi.services.XX_PROJECT_NAME'
-  @root_dir = nil
 
   def initialize() # constructor
-    @root_dir = 'XX_PROJECT_ROOT_PATH' # path of initial.rb
-    # init root dir
-    log_debug("Agent_XX_PROJECT_NAME root path is = \"#{@root_dir}\"")
+    log_debug("Agent_XX_PROJECT_NAME root path is = \"#{root_path}\"")
 
     # Load dynamic channel
     @CHANNEL = config['Dynamic_channel_str']
@@ -137,6 +134,12 @@ class Agent_XX_PROJECT_NAME
       log_error("ERROR while loading configuration")
       print_ruby_exeption(e)
     end
+  end
+
+  ############### Path ################################################
+
+  def root_path()
+    'XX_PROJECT_ROOT_PATH'
   end
 
   ######################################################################

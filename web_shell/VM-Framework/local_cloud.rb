@@ -53,7 +53,7 @@ $mutex_message_to_device = Mutex.new()
 
 $main_server_root_path = File.expand_path("..", __FILE__)
 
-reset_stats
+SDK_STATS.reset_stats
 
 CC_SDK.logger.info("ruby-agent-sdk-server ready !\n\n")
 

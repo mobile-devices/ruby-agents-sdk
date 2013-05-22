@@ -15,7 +15,6 @@ On this page, you can create/start/stop a project then apply and reboot the VM's
 * **Gemfile** : where you put gems you need
 * **README.md** : where you explain what you do because documentation is mandatory
 * **config/** : folder where you put your configuration
-* **cron_tasks/** : folder where you put the cron task needed for your agent.
 
 You will also find ib your workspace an sdk_logs with you find your agent's logs and also server's logs.
 

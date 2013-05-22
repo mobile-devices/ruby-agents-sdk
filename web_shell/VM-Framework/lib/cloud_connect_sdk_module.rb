@@ -19,7 +19,12 @@ module CloudConnectSDK
   end
 
   def logger()
-    @logger ||= Logger.new('../../logs/ruby-agent-sdk-server.log', 10, 1 * 1024 * 1024)
+    @logger ||= begin
+      @logger = Logger.new('../../logs/ruby-agent-sdk-server.log', 10, 1 * 1024 * 1024)
+      @logger.datetime_format = "%Y-%m-%d %H:%M:%S"
+      @logger.formatter = Logger::Formatter.new
+      @logger
+    end
   end
 
   def redis()

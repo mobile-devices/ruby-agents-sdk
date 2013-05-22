@@ -17,7 +17,7 @@
     </p>
   </div>
   <div class="modal-footer">
-    <a class="btn btn-primary" href="/doc">See documentation</a>
+    <a id="myModal_btn" class="btn btn-primary" href="/doc">See documentation</a>
     <a class="btn btn-primary" href="/">No thanks</a>
   </div>
 </div>
@@ -35,11 +35,28 @@
     </p>
   </div>
   <div class="modal-footer">
-    <a class="btn btn-primary" href="/patch_note">See changes</a>
+    <a id="myModal_btn" class="btn btn-primary" href="/patch_note">See changes</a>
     <a class="btn btn-primary" href="/">No thanks</a>
   </div>
 </div>
 <% end %>
+<% if @error_popup_msg != nil %>
+  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header alert-error">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="myModalLabel">Error</h3>
+    </div>
+    <div class="modal-body">
+      <p>
+        <%= @error_popup_msg %>
+      </p>
+    </div>
+    <div class="modal-footer">
+      <a id="myModal_btn" class="btn btn-primary" href="/">Ok</a>
+    </div>
+  </div>
+<% end %>
+
 <!-- End Modal -->
 
 <div class="well row">
@@ -217,10 +234,16 @@
   </table>
 </div>
 
-<% if @action_popup != 0 %>
+<% if @action_popup != 0 || @error_popup_msg != ""%>
 <script>
 $(document).ready(function() {
-  $('#myModal').modal('show');
+  var modal = $('#myModal').modal('show');
+  //$('#myModal_btn').focus();
+
+  modal.on('shown', function () {
+     $('#myModal_btn').focus();
+  })
+
 });
 </script>
 <% end %>

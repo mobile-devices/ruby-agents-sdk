@@ -14,6 +14,11 @@ set :port, '5000'
 require_relative '../scripts/agents_mgt'
 require 'json'
 
+require 'rack/flash'
+
+enable :sessions
+use Rack::Flash
+
 #=========================================================================================
 require 'net/http'
 
@@ -47,14 +52,15 @@ def start_agent(agent)
 end
 
 def add_new_agent(agent_name)
-  p "add_new_agent #{agent_name}"
+  puts "add_new_agent #{agent_name}"
   if create_new_agent(agent_name)
     agents_altered
+    puts "Agent #{agent_name} successfully created."
   else
-   'error while creating agent'
+    puts "Agent #{agent_name} already exists."
+    flash[:popup_error] = "Agent #{agent_name} already exists."
  end
 end
-
 
 
 def agents
@@ -244,10 +250,10 @@ get '/projects' do
   @action_popup = check_version_change_to_user
   agents_altered
   @agents = agents
-  p "getting stats"
-  #stats
+  # stats
   update_sdk_stats
-  p "stats done"
+  # popup error
+  @error_popup_msg = flash[:popup_error]
 
   erb :projects
 end
@@ -308,6 +314,7 @@ end
 
 post '/create_agents' do
   add_new_agent(params[:agent][:name])
+
   redirect('/projects')
 end
 
@@ -348,5 +355,3 @@ get '/restart_server' do
   redirect('/projects')
 end
 
-
-#=========================================================================================

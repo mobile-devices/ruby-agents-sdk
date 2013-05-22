@@ -6,14 +6,10 @@
 #########################################################
 
 require 'yaml'
-
 require_relative '../../cloud_agents/XX_PROJECT_NAME/initial'
 
 # XX_PROJECT_NAME agent
 class Agent_XX_PROJECT_NAME
-
-  include Initial_agent_XX_PROJECT_NAME
-
 
   # Project
   @AGENT_NAME = 'XX_PROJECT_NAME'
@@ -145,6 +141,6 @@ class Agent_XX_PROJECT_NAME
 
   ######################################################################
 
-  require_relative '../../cloud_agents/XX_PROJECT_NAME/initial'
+  include Initial_agent_XX_PROJECT_NAME
 
 end

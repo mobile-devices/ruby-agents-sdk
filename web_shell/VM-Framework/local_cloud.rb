@@ -10,9 +10,6 @@ set :bind, '0.0.0.0'
 set :port, '5001'
 require 'json'
 require 'thread'
-require 'logger'
-require 'redis'
-require 'redis-namespace'
 
 require 'active_support/all'
 

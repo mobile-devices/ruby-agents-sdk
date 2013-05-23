@@ -3,6 +3,11 @@
 # Mobile Devices 2013
 #########################################################
 
+require 'logger'
+require 'redis'
+require 'redis-namespace'
+
+
 module CloudConnectSDK
   # wrapper from indigen
   require 'time'

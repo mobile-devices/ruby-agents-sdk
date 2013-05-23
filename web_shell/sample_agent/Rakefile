@@ -1,0 +1,5 @@
+require_relative '../../web_shell/cloud_agents_generated/generated'
+
+### insert your rake code below :
+
+# you can use the $XX_PROJECT_NAME_initial object to call your method.

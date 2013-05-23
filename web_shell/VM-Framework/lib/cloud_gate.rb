@@ -45,7 +45,7 @@ def push_ack_to_device(payload)
     msgAck['payload'] = ack_map.to_json
     msgAck['type'] = 'ackmessage'
 
-    CC_SDK.logger.debug("Server: push_ack_to_device: adding Ack message with tmpId=#{ack_map['tmpId']} and msgId=#{ack_map['msgId']}")
+    CC_SDK.logger.info("Server: push_ack_to_device: adding Ack message with tmpId=#{ack_map['tmpId']} and msgId=#{ack_map['msgId']}")
 
     push_something_to_device(msgAck)
     SDK_STATS.stats['server']['total_ack_queued'] += 1
@@ -75,7 +75,7 @@ end
 
 
 def handle_msg_from_device(type, params)
-  CC_SDK.logger.debug("Server: handle_msg_from_device: of type #{type}:\n#{params}")
+  CC_SDK.logger.info("Server: handle_msg_from_device: of type #{type}:\n#{params}")
 
   meta = params['meta']
   payload = params['payload']
@@ -107,5 +107,5 @@ def handle_msg_from_device(type, params)
     CC_SDK.logger.error('Server: handle_msg_from_device: type unknown')
   end
 
-  CC_SDK.logger.debug("Server: handle_msg_from_device: success")
+  CC_SDK.logger.info("Server: handle_msg_from_device: success")
 end

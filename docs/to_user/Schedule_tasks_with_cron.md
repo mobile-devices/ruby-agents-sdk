@@ -49,12 +49,6 @@ require_relative '../../../web_shell/agents_generator/cloud_agents_generated/gen
 $tracking_agent_initial.do_stuff_from_my_module
 ```
 
-to test the task, you can run :
-
-``` bash
-ruby cron_tasks/my_tasks.rb
-```
-
 ### Cron configuration using whenever
 
 Finally I use the whenever file to configure cron, namely config/schedule.rb:

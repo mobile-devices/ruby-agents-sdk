@@ -11,10 +11,13 @@ On this page, you can create/start/stop a project then apply and reboot the VM's
 ## Project structure
  When you have created your project in the SDK Agents tab you will see a folder with the same name in your workspace, it looks like :
 
-* **initial.rb** : where your code adventure starts
-* **Gemfile** : where you put gems you need
-* **README.md** : where you explain what you do because documentation is mandatory
-* **config/** : folder where you put your configuration
+* **initial.rb** : where your code adventure starts.
+* **Gemfile** : where you put gems you need.
+* **README.md** : where you explain what you do because documentation is mandatory.
+* **config/** : folder where you put your configuration.
+* **config/schedule.rb** : whenever file to create cron rules for scripts created in cron_tasks folder.
+* **cron_tasks/** : folder where you create your cron tasks script files.
+* **modules/** : folder where you create your ruby modules.
 
 You will also find ib your workspace an sdk_logs with you find your agent's logs and also server's logs.
 

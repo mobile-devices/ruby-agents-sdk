@@ -25,7 +25,15 @@ module CloudConnectSDK
 
   def logger()
     @logger ||= begin
-      @logger = Logger.new('../../logs/ruby-agent-sdk-server.log', 10, 1 * 1024 * 1024)
+      if File.directory? '../../logs/'
+        log_path = '../../logs/ruby-agent-sdk-server.log'
+      elsif $daemon_cron_name != nil
+        log_path = "./cron_#{$daemon_cron_name}.log"
+      else
+        log_path = './daemon_ruby.log'
+      end
+
+      @logger = Logger.new(log_path, 10, 1 * 1024 * 1024)
       @logger.datetime_format = "%Y-%m-%d %H:%M:%S"
       @logger.formatter = Logger::Formatter.new
       @logger

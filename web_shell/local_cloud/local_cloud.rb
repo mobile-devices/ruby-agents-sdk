@@ -49,6 +49,9 @@ CC_SDK.logger.info("agents generation successful")
 `cd ../agents_generator/cloud_agents_generated;bundle install`
 CC_SDK.logger.info("bundle install done")
 
+## Generate cron tasks ############################################################################
+
+
 
 
 

@@ -121,7 +121,14 @@ module AgentsGenerator
   end
 
 
-
+  def generated_get_agents_whenever_content()
+    agents_to_run = get_run_agents
+    agents_whenever=''
+    agents_to_run.each { |agent|
+      agents_whenever += get_agent_whenever_content(agent) + "\n"
+    }
+    agents_whenever
+  end
 
   #########################################################################################################
   ## agent mgt
@@ -249,6 +256,11 @@ module AgentsGenerator
   def get_agent_Gemfile_content(name)
     return "" unless File.exists?("#{workspace_path}/#{name}/Gemfile")
     File.read("#{workspace_path}/#{name}/Gemfile")
+  end
+
+  def get_agent_whenever_content(name)
+    return "" unless File.exists?("#{workspace_path}/#{name}/config/schedule.rb")
+    File.read("#{workspace_path}/#{name}/config/schedule.rb")
   end
 
   def set_run_agents(agents)

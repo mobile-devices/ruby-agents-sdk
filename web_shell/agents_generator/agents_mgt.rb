@@ -15,7 +15,7 @@ module AgentsGenerator
   end
 
   def workspace_path()
-    @ROOT_PATH_WORKSPACE ||= "#{source_path}/../../cloud_agents"
+    @ROOT_PATH_WORKSPACE ||= File.expand_path("..","#{source_path}/../../cloud_agents")
   end
 
 

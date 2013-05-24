@@ -33,9 +33,10 @@ module CloudConnectSDK
   end
 
   def redis()
-    #@redis ||= Redis.new('localhost', '7879')
     @redis ||= Redis.new(:host => 'localhost', :port =>  '7879')
   end
+
+
 end
 
 CC_SDK = CloudConnectSDK

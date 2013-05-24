@@ -11,46 +11,68 @@ set :port, '5001'
 require 'json'
 require 'thread'
 
+$main_server_root_path = File.expand_path("..", __FILE__)
+
+## FAKE CLOUD LIB #################################################################################
+
 require 'active_support/all'
 
-require_relative 'lib/cloud_connect_sdk_module'
+require_relative 'fake_cloud_lib/cloud_connect_sdk_module'
 include CC_SDK
-require_relative 'lib/sdk_stats'
-include SDK_STATS
-require_relative 'lib/message'
-require_relative '../scripts/agents_mgt'
 
-###################################################################################################
+require_relative 'fake_cloud_lib/message'
+require_relative 'fake_cloud_lib/cloud_gate'
+
+
+## API ############################################################################################
+require_relative 'API/sdk_stats'
+include SDK_STATS
+
+#### Agent generation #############################################################################
+require_relative '../agents_generator/agents_mgt'
+include GEN
+
 CC_SDK.logger.info("\n\n\n\n\n")
 
 # re-generate all agents wrapper
-generate_agents
+GEN.generate_agents
+
 CC_SDK.logger.info("agents generation successful")
 
+## bundle install #################################################################################
+
+# merge Gemfile (into generate_agents)
+
+
 # bundle install
-`cd ../cloud_agents_generated;bundle install`
+
+`cd ../agents_generator/cloud_agents_generated;bundle install`
 CC_SDK.logger.info("bundle install done")
 
-# Go !
+
+
+
+#### Init server ##################################################################################
+
+# include main
+require_relative '../agents_generator/cloud_agents_generated/generated'
+
+# dynamic channel
+$dyn_channels = GEN.generated_get_dyn_channel
+
+# message queue to device
+$message_to_device = []
+$mutex_message_to_device = Mutex.new()
+
+# reset starts
+SDK_STATS.reset_stats
+
 agents_list_str=""
 get_run_agents().each { |agent|
   agents_list_str+="|   . #{agent}\n"
 }
 CC_SDK.logger.info("\n\n+===========================================================\n| starting ruby-agent-sdk-server with #{get_run_agents().count} agents:\n#{agents_list_str}+===========================================================\n")
 
-
-require_relative '../cloud_agents_generated/generated'
-require_relative 'lib/cloud_gate'
-
-
-$dyn_channels = generated_get_dyn_channel
-
-$message_to_device = []
-$mutex_message_to_device = Mutex.new()
-
-$main_server_root_path = File.expand_path("..", __FILE__)
-
-SDK_STATS.reset_stats
 
 CC_SDK.logger.info("ruby-agent-sdk-server ready !\n\n")
 
@@ -68,15 +90,6 @@ def get_json_from_request(request)
     nil
   end
 end
-
-def print_ruby_exeption(e)
-  stack=""
-  e.backtrace.take(20).each { |trace|
-    stack+="  >> #{trace}\n"
-  }
-  CC_SDK.logger.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-end
-
 
 #test: curl localhost:5001/dynamic_channel_request
 get '/dynamic_channel_request' do
@@ -155,7 +168,3 @@ post '/track' do
   handle_msg_from_device('track', jsonData)
 end
 
-
-
-
-###################################################################################################

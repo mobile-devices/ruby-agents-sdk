@@ -1,3 +1,4 @@
+require_relative '../../../web_shell/cloud_agents_generated/whenever_helper'
 # Use this file to easily define all of your cron jobs.
 #
 # It's helpful, but not entirely necessary to understand cron before proceeding.

@@ -1,5 +1,3 @@
-#!/usr/bin/ruby -w
-
 #########################################################
 # Xavier Demompion : xavier.demompion@mobile-devices.fr
 # Mobile Devices 2013
@@ -7,14 +5,17 @@
 
 require 'yaml'
 
-if (require_relative '../VM-Framework/lib/cloud_connect_sdk_module')
+# Framework to be standalone
+require 'active_support/all'
+if (require_relative '../../local_cloud/fake_cloud_lib/cloud_connect_sdk_module')
   include CC_SDK
 end
-if (require_relative '../VM-Framework/lib/sdk_stats')
+if (require_relative '../../local_cloud/API/sdk_stats')
   include SDK_STATS
 end
 
-require_relative '../../cloud_agents/XX_PROJECT_NAME/initial'
+# User code
+require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
 
 # XX_PROJECT_NAME agent
 class Agent_XX_PROJECT_NAME
@@ -123,7 +124,7 @@ class Agent_XX_PROJECT_NAME
 
   ############### Redis ################################################
   def redis()
-    @redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC_SDK.redis)
+    @redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CCS.redis)
   end
 
   ############### Config ###############################################

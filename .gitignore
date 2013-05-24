@@ -1,7 +1,8 @@
 cloud_agents
 cloud_agents_generated
 *.log*
-.agents_to_run
 *.html
+
+.agents_to_run
 .last_version
 .reset_log_checked

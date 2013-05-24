@@ -1,0 +1,8 @@
+source 'http://rubygems.org'
+
+gem 'sinatra'
+gem 'json'
+gem 'thin'
+gem 'redcarpet'
+gem 'rack-flash3'
+gem 'whenever', :require => false

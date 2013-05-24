@@ -17,7 +17,7 @@ fi
 #launch admin server
 start_admin() {
   echo "starting admin server"
-  cd web_shell/VM-Framework
+  cd web_shell/local_cloud_config
   ruby local_cloud_config.rb >>../../logs/daemon_server_config.log 2>&1 &
 }
 
@@ -31,12 +31,12 @@ restart_admin() {
 }
 
 start() {
-  cd web_shell/VM-Framework
+  cd web_shell/local_cloud
   ./local_cloud.sh restart
 }
 
 stop() {
-  cd web_shell/VM-Framework
+  cd web_shell/local_cloud
   ./local_cloud.sh stop
 }
 
@@ -44,7 +44,6 @@ restart() {
   stop
   start
 }
-
 
 read_log_server_config() {
   tail -f logs/daemon_server_config.log

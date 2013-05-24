@@ -1,16 +1,12 @@
 source 'http://rubygems.org'
 
 gem 'sinatra'
-gem 'hashie'
 gem 'json'
 gem 'thread'
 gem 'logger'
+gem 'hashie'
 gem 'thin'
 gem 'redis'
 gem 'redis-namespace'
-gem 'redcarpet'
 gem 'activesupport', :require => "active_support/all"
 gem 'i18n'
-gem 'rack-flash3'
-gem 'whenever', :require => false
-gem 'rake'

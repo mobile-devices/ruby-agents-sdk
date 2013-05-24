@@ -262,7 +262,7 @@ module AgentsGenerator
   def get_agent_whenever_content(name)
     return "" unless File.exists?("#{workspace_path}/#{name}/config/schedule.rb")
 
-    content = "#{workspace_path}/#{name}/cron_tasks\n"
+    content = "cron_tasks_folder=#{workspace_path}/#{name}/cron_tasks\n"
     content += File.read("#{workspace_path}/#{name}/config/schedule.rb")
   end
 

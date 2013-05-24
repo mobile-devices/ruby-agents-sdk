@@ -10,3 +10,4 @@ gem 'redis'
 gem 'redis-namespace'
 gem 'activesupport', :require => "active_support/all"
 gem 'i18n'
+gem 'whenever', :require => false

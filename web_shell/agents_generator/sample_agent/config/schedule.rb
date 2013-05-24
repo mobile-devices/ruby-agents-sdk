@@ -1,4 +1,3 @@
-cron_tasks_folder = File.dirname(File.expand_path("..", __FILE__)) + '/../cron_tasks'
 
 # Use this file to easily define all of your cron jobs.
 #

@@ -124,6 +124,7 @@ module AgentsGenerator
   def generated_get_agents_whenever_content()
     agents_to_run = get_run_agents
     agents_whenever=''
+
     agents_to_run.each { |agent|
       agents_whenever += get_agent_whenever_content(agent) + "\n"
     }
@@ -260,7 +261,9 @@ module AgentsGenerator
 
   def get_agent_whenever_content(name)
     return "" unless File.exists?("#{workspace_path}/#{name}/config/schedule.rb")
-    File.read("#{workspace_path}/#{name}/config/schedule.rb")
+
+    content = "#{workspace_path}/#{name}/cron_tasks\n"
+    content += File.read("#{workspace_path}/#{name}/config/schedule.rb")
   end
 
   def set_run_agents(agents)

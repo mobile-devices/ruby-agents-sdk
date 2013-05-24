@@ -52,7 +52,8 @@ CC_SDK.logger.info("bundle install done")
 ## Generate cron tasks ############################################################################
 
 crons = GEN.generated_get_agents_whenever_content
-File.open("#{$main_server_root_path }/config/schedule.rb", 'w') { |file| file.write(crons) }
+File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
+`bundle exec whenever -w`
 
 #### Init server ##################################################################################
 

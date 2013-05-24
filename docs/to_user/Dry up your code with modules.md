@@ -20,7 +20,7 @@ initial.rb :
 require_relative 'modules/my_agent_module'
 
 module Initial_agent_tracking_agent
-  include My_agent_module
+  include MyAgentModule
 
   def new_presence_from_device(meta, payload, account)
   end

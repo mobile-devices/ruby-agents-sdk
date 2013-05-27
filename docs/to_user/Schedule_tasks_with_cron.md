@@ -42,7 +42,7 @@ Then I create a file script that will be called by cron, namely cron\_tasks/my\_
 
 ``` ruby
 #!/usr/bin/ruby -w
-$daemon_cron_name = __FILE__
+$daemon_cron_name = File.basename(__FILE__,'.rb')
 require_relative '../../../web_shell/agents_generator/cloud_agents_generated/generated'
 
 # the object $tracking_agent_initial will allow me to access my code :

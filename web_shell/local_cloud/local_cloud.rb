@@ -53,7 +53,10 @@ CC_SDK.logger.info("bundle install done")
 
 crons = GEN.generated_get_agents_whenever_content
 File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
-`bundle exec whenever -w`
+
+if File.directory? '/home/vagrant'
+  `bundle exec whenever -w`
+end
 
 #### Init server ##################################################################################
 

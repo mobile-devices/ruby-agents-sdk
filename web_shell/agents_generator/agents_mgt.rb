@@ -27,7 +27,7 @@ module AgentsGenerator
 
 
     puts "generate_agents of #{agents_to_run.join(', ')}"
-    p 'generate_agents'
+
 
     agents_generated_code = ""
 
@@ -49,10 +49,9 @@ module AgentsGenerator
     agents_generated_code += "def handle_presence(meta, payload, account)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      #agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][0] += 1\n"
       agents_generated_code += "    \$#{agent}_initial.handle_presence(meta, payload, account)\n"
       agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC_SDK.logger.error('Server: /presence error while handle_presence on agent #{agent}')\n"
+      agents_generated_code += "    CC_SDK.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][0] += 1\n"
       agents_generated_code += "  end\n"
@@ -63,10 +62,9 @@ module AgentsGenerator
     agents_generated_code += "def handle_message(meta, payload, account)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      #agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][1] += 1\n"
       agents_generated_code += "    \$#{agent}_initial.handle_message(meta, payload, account)\n"
       agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC_SDK.logger.error('Server: /message error while handle_message on agent #{agent}')\n"
+      agents_generated_code += "    CC_SDK.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][1] += 1\n"
       agents_generated_code += "  end\n"
@@ -76,15 +74,27 @@ module AgentsGenerator
     agents_generated_code += "def handle_track(meta, payload, account)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      #agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['received'][2] += 1\n"
       agents_generated_code += "  \$#{agent}_initial.handle_track(meta, payload, account)\n"
       agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC_SDK.logger.error('Server: /track error while handle_track on agent #{agent}')\n"
+      agents_generated_code += "    CC_SDK.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][2] += 1\n"
       agents_generated_code += "  end\n"
     }
-    agents_generated_code += "end\n"
+    agents_generated_code += "end\n\n"
+
+    agents_generated_code += "def remote_call_to_server(agent, order, params)\n"
+    agents_to_run.each { |agent|
+      agents_generated_code += "  begin\n"
+      agents_generated_code += "  \$#{agent}_initial.remote_call(order, params)\n"
+      agents_generated_code += "  rescue => e\n"
+      agents_generated_code += "    CC_SDK.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order}\")\n"
+      agents_generated_code += "    print_ruby_exeption(e)\n"
+      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_remote_call'] += 1\n"
+      agents_generated_code += "  end\n"
+    }
+    agents_generated_code += "end\n\n"
+
 
     File.open("#{source_path}/cloud_agents_generated/generated.rb", 'w') { |file| file.write(agents_generated_code) }
 
@@ -113,6 +123,8 @@ module AgentsGenerator
     end
 
     File.open("#{source_path}/cloud_agents_generated/dyn_channels.yml", 'w+') { |file| file.write(dyn_channels.to_yaml) }
+
+    p 'generate_agents done'
   end
 
   def generated_get_dyn_channel()
@@ -260,9 +272,52 @@ module AgentsGenerator
 
   def get_agent_whenever_content(name)
     return "" unless File.exists?("#{workspace_path}/#{name}/config/schedule.rb")
+    content = ''
+    #content += "cron_tasks_folder=\'#{workspace_path}/#{name}/cron_tasks\'\n"
+    content += "job_type :execute_order, \'curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d \\\'{\"agent\":\"#{name}\", \"order\":\":task\", \"params\":\":params\"}\\\' http://localhost:5001/remote_call\'\n"
 
-    content = "cron_tasks_folder=\'#{workspace_path}/#{name}/cron_tasks\'\n"
     content += File.read("#{workspace_path}/#{name}/config/schedule.rb")
+  end
+
+  def get_agents_cron_tasks(running_agents)
+    @agents_cron_tasks ||= begin
+      # init map
+      final_map = {}
+      running_agents.each { |agent|
+        final_map[agent] = []
+      }
+      # run whenever
+      `bundle exec whenever > /tmp/whenever_cron`
+      cron_content = File.read('/tmp/whenever_cron')
+
+      # let's parse the cron_content to find cron commands for each running agent
+      cron_content.each_line { |line|
+        #puts "get_agents_cron_tasks line: #{line}"
+        if line.include?('/bin/bash -l -c \'curl')
+          assigned_agent = ""
+          running_agents.each { |agent|
+            if line.include?(agent)
+              assigned_agent = agent
+            end
+          }
+          next unless assigned_agent != ""
+          begin
+            #extract {}
+            in_par_cmd = line.split('{').second.split('}').first
+            #puts "found #{in_par_cmd}"
+            final_map[assigned_agent] << in_par_cmd
+          rescue Exception => e
+            puts "get_agents_cron_tasks error on line #{line}"
+          end
+        end
+      }
+      puts "get_agents_cron_tasks: #{final_map}"
+      p 'get_agents_cron_tasks done'
+    rescue => e
+      p 'get_agents_cron_tasks fail'
+      print_ruby_exeption(e)
+    end
+    final_map
   end
 
   def set_run_agents(agents)

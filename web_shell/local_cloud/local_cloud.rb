@@ -28,9 +28,15 @@ require_relative 'fake_cloud_lib/cloud_gate'
 require_relative 'API/sdk_stats'
 include SDK_STATS
 
+require_relative 'API/cloud_connect_services'
+
 #### Agent generation #############################################################################
 require_relative '../agents_generator/agents_mgt'
 include GEN
+# agent running
+def agents_running()
+  @agents_running_456 ||= get_run_agents()
+end
 
 CC_SDK.logger.info("\n\n\n\n\n")
 
@@ -44,6 +50,7 @@ CC_SDK.logger.info("agents generation successful")
 # merge Gemfile (into generate_agents)
 
 
+
 # bundle install
 `cd ../agents_generator/cloud_agents_generated;bundle install`
 CC_SDK.logger.info("bundle install done")
@@ -53,9 +60,7 @@ CC_SDK.logger.info("bundle install done")
 crons = GEN.generated_get_agents_whenever_content
 File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
 
-if File.directory? '/home/vagrant'
-  `bundle exec whenever -w`
-end
+GEN.get_agents_cron_tasks(agents_running)
 
 #### Init server ##################################################################################
 
@@ -72,8 +77,10 @@ $mutex_message_to_device = Mutex.new()
 # reset starts
 SDK_STATS.reset_stats
 
+
+
 agents_list_str=""
-get_run_agents().each { |agent|
+agents_running.each { |agent|
   agents_list_str+="|   . #{agent}\n"
 }
 CC_SDK.logger.info("\n\n+===========================================================\n| starting ruby-agent-sdk-server with #{get_run_agents().count} agents:\n#{agents_list_str}+===========================================================\n")
@@ -173,3 +180,32 @@ post '/track' do
   handle_msg_from_device('track', jsonData)
 end
 
+
+#test:
+#curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"agent":"agps_agent", "order":"refresh_agps_files"}' http://localhost:5001/remote_call
+post '/remote_call' do
+  SDK_STATS.stats['server']['remote_call'] += 1
+  CC_SDK.logger.debug("\n\n\n\nServer: /remote_call new order")
+  jsonData = get_json_from_request(request)
+  if jsonData == nil
+    response.body = 'error while parsing json'
+    SDK_STATS.stats['server']['err_parse_remote_call'] += 1
+    return
+  end
+  if jsonData['agent'] == nil || jsonData['order'] == nil
+    CC_SDK.logger.debug("Server: remote_call missing order or agent in:\n #{jsonData}")
+    response.body = 'error while parsing json, order not found'
+    SDK_STATS.stats['server']['err_parse_remote_call'] += 1
+    return
+  end
+  if !(agents_running.include?(jsonData['agent']))
+    CC_SDK.logger.debug("Server: agent #{jsonData['agent']} is not running on this bay")
+    response.body = 'service unavailable'
+    SDK_STATS.stats['server']['remote_call_unused'] += 1
+    return
+  end
+
+  CC_SDK.logger.debug("Server: remote_call on '#{jsonData['agent']}' agent with order '#{jsonData['order']}'.")
+
+  remote_call_to_server(jsonData['agent'], jsonData['order'], jsonData)
+end

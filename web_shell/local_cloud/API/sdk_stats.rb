@@ -22,7 +22,10 @@ module SDK_STATS
         'err_while_send_ack' => [0,0,0],
         'in_queue' => 0,
         'total_ack_queued' => 0,
-        'total_queued' => 0
+        'total_queued' => 0,
+        'remote_call' => 0,
+        'err_parse_remote_call' => 0,
+        'remote_call_unused' => 0
         },
         'default_agent' =>  {
           'received' => [0,0,0],
@@ -30,7 +33,9 @@ module SDK_STATS
           'reply_sent_to_device' => 0,
           'err_on_reply' => 0,
           'push_sent_to_device' => 0,
-          'err_on_push' => 0
+          'err_on_push' => 0,
+          'remote_call' => 0,
+          'err_remote_call' => 0
           },
         'agents' => {}
       }
@@ -42,7 +47,9 @@ module SDK_STATS
         'reply_sent_to_device' => 0,
         'err_on_reply' => 0,
         'push_sent_to_device' => 0,
-        'err_on_push' => 0
+        'err_on_push' => 0,
+        'remote_call' => 0,
+        'err_remote_call' => 0
         }
       }
   end

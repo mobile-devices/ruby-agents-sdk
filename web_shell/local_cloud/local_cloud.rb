@@ -45,7 +45,6 @@ CC_SDK.logger.info("agents generation successful")
 
 
 # bundle install
-
 `cd ../agents_generator/cloud_agents_generated;bundle install`
 CC_SDK.logger.info("bundle install done")
 

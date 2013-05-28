@@ -119,4 +119,3 @@ get '/restart_server' do
   `cd ../local_cloud; ./local_cloud.sh restart`
   redirect('/projects')
 end
-

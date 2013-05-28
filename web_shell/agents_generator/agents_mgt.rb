@@ -18,7 +18,6 @@ module AgentsGenerator
     @ROOT_PATH_WORKSPACE ||= "#{source_path}/../../cloud_agents"
   end
 
-
   #########################################################################################################
   ## compile
 

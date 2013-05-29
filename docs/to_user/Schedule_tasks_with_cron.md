@@ -1,84 +1,34 @@
-In this example, we want to call 'do\_stuff\_from\_my\_module' method into the module MyAgentModule every day at 1 am.
+
+In the [Beginner documentation](http://10.42.2.206:5000/doc#toc_1) you saw you can manage scheduled orders.
+
+Here we will see how to trigger thoses orders.
+
+In this example we will send an order 'refresh' to the agent every day at 1am.
 
 
-### Example project setup
-
-modules/MyAgentModule.rb :
-
-``` ruby
-module MyAgentModule
-  def do_stuff_from_my_module()
-    # do stuff
-  end
-
-end
-```
-
-initial.rb :
+We use **whenever** to configure cron, by editing config/schedule.rb:
 
 ``` ruby
-require_relative 'modules/my_agent_module'
-
-module Initial_agent_tracking_agent
-  include MyAgentModule
-
-  def new_presence_from_device(meta, payload, account)
-  end
-
-  def new_message_from_device(meta, payload, account)
-    msg = Message.new(payload)
-  end
-
-  def new_track_from_device(meta, payload, account)
-
-  end
-
-end
-```
-
-### Task creation
-
-Then I create a file script that will be called by cron, namely cron\_tasks/my\_tasks.rb:
-
-``` ruby
-#!/usr/bin/ruby -w
-$daemon_cron_name = File.basename(__FILE__,'.rb')
-require_relative '../../../web_shell/agents_generator/cloud_agents_generated/generated'
-
-# the object $tracking_agent_initial will allow me to access my code :
-$tracking_agent_initial.do_stuff_from_my_module
-```
-
-### Cron configuration using whenever
-
-Finally I use the whenever file to configure cron, namely config/schedule.rb:
-
-``` ruby
-cron_tasks_folder = File.dirname(File.expand_path(__FILE__)) + '/../cron_tasks'
-
-# Use this file to easily define all of your cron jobs.
-#
-# It's helpful, but not entirely necessary to understand cron before proceeding.
-# http://en.wikipedia.org/wiki/Cron
+# Here you define your rules to schedule order to be sent to your agent
 
 # Example:
-#
+
 # every 2.hours do
-#   command "ruby #{cron_tasks_folder}/my_ruby_task.rb"
-# end
-#
-# every 1.day, :at => '4:30 am' do
-#   command "ruby #{cron_tasks_folder}/my_ruby_task.rb"
+#   execute_order "66"
 # end
 
-# Learn more: http://github.com/javan/whenever
+# every 1.day, :at => '4:30 am' do
+#   execute_order "refresh", :params => "parameters"
+# end
+
+# You MUST use the command 'execute_order', other whenever basics command like runner rake or command will be rejected.
+
+# Learn more about whenever: http://github.com/javan/whenever
 
 every 1.day, :at => '1:00 am' do
-  command "ruby #{cron_tasks_folder}/my_tasks.rb"
+  execute_order "refresh"
 end
 
 ```
 
-@see [whenever documentation](https://github.com/javan/whenever) to see configuration you can make
-
-ps : you can only use 'command' and not 'rake' or 'runner' for whenever, because you don't have an easy accès of the sdk's Gemfile.
+@see [whenever documentation](https://github.com/javan/whenever) to see time configuration you can make.

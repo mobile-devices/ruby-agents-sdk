@@ -16,7 +16,6 @@ On this page, you can create/start/stop a project then apply and reboot the VM's
 * **README.md** : where you explain what you do because documentation is mandatory.
 * **config/** : folder where you put your configuration.
 * **config/schedule.rb** : whenever file to create cron rules for scripts created in cron_tasks folder.
-* **cron_tasks/** : folder where you create your cron tasks script files.
 * **modules/** : folder where you create your ruby modules.
 
 You will also find ib your workspace an sdk_logs with you find your agent's logs and also server's logs.
@@ -63,11 +62,13 @@ end
 
 #### message : This method is called when a message is received from the device.
 
-    def new_message_from_device(meta, payload, account)
-      msg = Message.new(payload)
-      ## Write your code here
-      log_debug('initial:new_message_from_device')
-    end
+``` ruby
+def new_message_from_device(meta, payload, account)
+  msg = Message.new(payload)
+  ## Write your code here
+  log_debug('initial:new_message_from_device')
+end
+```
 
  With :
 
@@ -91,10 +92,12 @@ note : class Message has the same structure as the payload.
 
 #### track : This method is called when a tracking set of data is received from the device.
 
-    def new_track_from_device(meta, payload, account)
-      ## Write your code here
-      log_debug('initial:new_track_from_device')
-    end
+``` ruby
+def new_track_from_device(meta, payload, account)
+  ## Write your code here
+  log_debug('initial:new_track_from_device')
+end
+```
 
 "**meta**", a map with some meta data, generally none.
 
@@ -113,6 +116,18 @@ note : class Message has the same structure as the payload.
 
 "**account**" (account name type String).
 
+#### order : This method is called when a schedule tasks is requested.
+
+``` ruby
+def remote_call(order, params)
+  # Write your code here
+  log_debug('initial:remote_call')
+end
+```
+
+"**order**", the given order.
+
+"**params**", a string or parameters.
 
 ### Send something to device
 

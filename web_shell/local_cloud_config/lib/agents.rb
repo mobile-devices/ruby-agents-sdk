@@ -4,7 +4,7 @@
 #########################################################
 
 
-class Agent < Struct.new(:name, :running, :agent_stats)
+class Agent < Struct.new(:name, :running, :agent_stats, :cron_tasks)
 end
 
 def agents_altered()
@@ -37,7 +37,7 @@ def agents
   $sdk_list_of_agents ||= begin
     run_agents = GEN.get_run_agents
     GEN.get_available_agents.inject({}) do |agents, agent_name|
-      agents[agent_name] = Agent.new(agent_name, run_agents.include?(agent_name), {})
+      agents[agent_name] = Agent.new(agent_name, run_agents.include?(agent_name), {}, [])
       agents
     end
   end
@@ -49,11 +49,11 @@ def update_sdk_stats
   begin
     # server stats
     params = {}
-    jstats =  http_get("http://localhost:5001/sdk_stats")
+    jstats = http_get("http://localhost:5001/sdk_stats")
     puts "update_sdk_stats downloaded: \n #{jstats}"
     stats = JSON.parse(jstats)
 
-    @sdk_server_stats = stats['server']
+    $sdk_server_stats = stats['server']
     puts "sdk_server_stats: \n #{@sdk_server_stats}"
 
     # agents
@@ -76,5 +76,35 @@ def update_sdk_stats
 end
 
 def sdk_stats
-  @sdk_server_stats ||= {}
+  $sdk_server_stats ||= {}
 end
+
+
+def update_cron_tasks
+  puts "update_cron_tasks try ..."
+  begin
+    jcron = http_get("http://localhost:5001/get_cron_tasks")
+    puts "update_cron_tasks downloaded: \n #{jcron}"
+    cron = JSON.parse(jcron)
+
+    # agents
+    cron.each { |k,v|
+      if agents[k] != nil
+        puts "##### #{v}"
+        v.each { |e|
+          agents[k].cron_tasks << JSON.parse(e)
+        }
+      end
+    }
+
+  rescue Exception => e
+    stack=""
+    e.backtrace.take(20).each { |trace|
+      stack+="  >> #{trace}\n"
+    }
+    puts "update_cron_tasks ERROR: #{e.inspect}\n\n#{stack}"
+  end
+
+  p ''
+end
+

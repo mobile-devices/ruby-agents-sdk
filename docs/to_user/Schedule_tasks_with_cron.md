@@ -32,3 +32,5 @@ end
 ```
 
 @see [whenever documentation](https://github.com/javan/whenever) to see time configuration you can make.
+
+Once you created this and reboot the serveur, you will be able to test the task by using the bouton in the 'Scheduled cron tasks' view in the project tab.

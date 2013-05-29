@@ -39,6 +39,8 @@ get '/projects' do
   @agents = agents
   # stats
   update_sdk_stats
+  # cron
+  update_cron_tasks
   # popup error
   @error_popup_msg = flash[:popup_error]
 
@@ -143,3 +145,21 @@ get '/extented_stats_hide' do
   redirect('/projects')
 end
 
+get '/cron_tasks_visible_show' do
+  set_cron_tasks_visible(true)
+  redirect('/projects')
+end
+
+get '/cron_tasks_visible_hide' do
+  set_cron_tasks_visible(false)
+  redirect('/projects')
+end
+
+post '/perform_cron_tasks' do
+  task = JSON.parse(params['task'])
+  puts "perform_cron_tasks: #{task}"
+  p ''
+  http_post('http://localhost:5001/remote_call', task)
+
+  redirect('/projects')
+end

@@ -63,16 +63,23 @@
   Display :
 
   <% if is_reminder_hidden == 'false' %>
-  <a class="btn btn-success" href="/reminder_hide">Reminder</a>
+    <a class="btn btn-success" href="/reminder_hide">Reminder</a>
   <% else %>
-  <a class="btn btn-danger" href="/reminder_show">Reminder</a>
+    <a class="btn btn-danger" href="/reminder_show">Reminder</a>
   <% end %>
 
   <% if is_show_more_stats == 'true' %>
-  <a class="btn btn-success" href="/extented_stats_hide">Extended stats</a>
+    <a class="btn btn-success" href="/extented_stats_hide">Extended stats</a>
   <% else %>
-  <a class="btn btn-danger" href="/extented_stats_show">Extended stats</a>
+    <a class="btn btn-danger" href="/extented_stats_show">Extended stats</a>
   <% end %>
+
+  <% if is_cron_tasks_visible == 'true' %>
+    <a class="btn btn-success" href="/cron_tasks_visible_hide">Scheduled cron tasks</a>
+  <% else %>
+    <a class="btn btn-danger" href="/cron_tasks_visible_show">Scheduled cron tasks</a>
+  <% end %>
+
 
 
 </div>
@@ -205,16 +212,20 @@
     <tr>
     <th>Agent name</th>
     <% if is_show_more_stats == 'true' %>
-      <th># Received</th>
-      <th># Ruby Error</th>
-      <th># Reply to device</th>
-      <th># Reply error</th>
-      <th># Message to device</th>
-      <th># Message error </th>
+      <th>#Received</th>
+      <th>#Ruby Error</th>
+      <th>#Reply to device</th>
+      <th>#Reply error</th>
+      <th>#Message to device</th>
+      <th>#Message error </th>
     <% else %>
       <th> Stats</th>
     <% end %>
-    <th>Action</th>
+    <th>Active</th>
+    <% if is_cron_tasks_visible == 'true' %>
+      <th>Cron Tasks</th>
+    <% end %>
+
     </tr>
   </thead>
 
@@ -293,14 +304,26 @@
         <td>
         <% if agent.running %>
           <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
-          <button class="btn btn-danger">Stop</button>
+            <button class="btn btn-danger">Stop</button>
           </form>
         <% else %>
           <form action='<%= "/agents/#{agent_name}/start" %>' method="post">
-          <button class="btn btn-success">Start</button>
+            <button class="btn btn-success">Start</button>
           </form>
         <% end %>
         </td>
+
+      <% if is_cron_tasks_visible == 'true' %>
+        <td>
+        <% agent.cron_tasks.each do | task | %>
+            <form action='/perform_cron_tasks' method="post">
+              <input type="hidden" name="task" value='<%= task.to_json %>'/>
+              <button class="btn btn-info">Perform: '<%= task['order'] %>'</button>
+            </form>
+        <% end %>
+        </td>
+      <% end %>
+
       </tr>
     <% end %>
 
@@ -318,7 +341,13 @@
         <td></td>
       <% end %>
       <td><button class="btn btn-info">Create agent</button></td></form>
+      <% if is_cron_tasks_visible == 'true' %>
+        <td></td>
+      <% end %>
     </tr>
+
+
+
   </tbody>
 </table>
 <!-- End agents panel ==========================================================-->

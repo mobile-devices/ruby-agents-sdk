@@ -60,7 +60,7 @@ CC_SDK.logger.info("bundle install done")
 crons = GEN.generated_get_agents_whenever_content
 File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
 
-GEN.get_agents_cron_tasks(agents_running)
+$agents_cron_tasks = GEN.get_agents_cron_tasks(agents_running)
 
 #### Init server ##################################################################################
 
@@ -130,6 +130,11 @@ end
 #test : curl http://localhost:5001/sdk_stats
 get '/sdk_stats' do
   SDK_STATS.stats.to_json
+end
+
+#test : curl http://localhost:5001/get_cron_tasks
+get '/get_cron_tasks' do
+  $agents_cron_tasks.to_json
 end
 
 

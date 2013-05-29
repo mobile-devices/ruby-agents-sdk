@@ -56,3 +56,23 @@ def set_show_more_stats(val)
     @show_more_stats = val
   end
 end
+
+def is_cron_tasks_visible
+  @cron_tasks_visible ||= begin
+    if File.exist?('.cron_tasks_visible')
+      File.read('.cron_tasks_visible')
+    else
+      set_show_more_stats(false)
+      'false'
+    end
+  end
+end
+
+def set_cron_tasks_visible(val)
+  if (@previous_cron_tasks_visible != val)
+    File.open('.cron_tasks_visible', 'w') { |file| file.write(val) }
+    @previous_cron_tasks_visible = val
+    @cron_tasks_visible = val
+  end
+end
+

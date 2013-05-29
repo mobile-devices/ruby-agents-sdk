@@ -1,4 +1,5 @@
 * added gem activesupport to manage rails methods.
 * add logo
-* add task management with rake and whenever
 * massive refactoring
+* complete refactor of the cron managment
+* menu views in admin server

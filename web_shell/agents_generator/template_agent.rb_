@@ -43,6 +43,7 @@ class Agent_XX_PROJECT_NAME
       return
     end
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     CC_SDK.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
     new_message_from_device(meta, payload, account)
   end
@@ -53,6 +54,7 @@ class Agent_XX_PROJECT_NAME
       return
     end
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     CC_SDK.logger.info("Server: handle_presence: pushing presence '#{payload['type']}' to agent XX_PROJECT_NAME ..................")
     new_presence_from_device(meta, payload, account)
   end
@@ -60,8 +62,17 @@ class Agent_XX_PROJECT_NAME
   def handle_track(meta, payload, account)
     #todo: test type, log on errors
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][2] += 1
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     CC_SDK.logger.info("Server: handle_track: pushing track to agent XX_PROJECT_NAME ..................")
     new_track_from_device(meta, payload, account)
+  end
+
+  def handle_order(order, params)
+    #todo: test type, log on errors
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][3] += 1
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+    CC_SDK.logger.info("Server: handle_track: pushing order to agent XX_PROJECT_NAME ..................")
+    remote_call(order, params)
   end
 
   ########## Messages to devices #######################################
@@ -84,10 +95,12 @@ class Agent_XX_PROJECT_NAME
     #     payload:   content.to_json
     #     }, as: :agent).push
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
     rescue Exception => e
       CC_SDK.logger.error("Error on send_message_to_device")
       print_ruby_exeption(e)
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
     end
   end
 
@@ -98,10 +111,12 @@ class Agent_XX_PROJECT_NAME
       m = message.reply("200#{content}")
       m.push('account' => account)
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
     rescue Exception => e
       CC_SDK.logger.error("Error on reply_message_to_device")
       print_ruby_exeption(e)
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
     end
   end
 

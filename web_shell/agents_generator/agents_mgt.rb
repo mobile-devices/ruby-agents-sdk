@@ -54,6 +54,7 @@ module AgentsGenerator
       agents_generated_code += "    CC_SDK.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][0] += 1\n"
+      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"
@@ -67,6 +68,7 @@ module AgentsGenerator
       agents_generated_code += "    CC_SDK.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][1] += 1\n"
+      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"
@@ -74,11 +76,12 @@ module AgentsGenerator
     agents_generated_code += "def handle_track(meta, payload, account)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      agents_generated_code += "  \$#{agent}_initial.handle_track(meta, payload, account)\n"
+      agents_generated_code += "    \$#{agent}_initial.handle_track(meta, payload, account)\n"
       agents_generated_code += "  rescue => e\n"
       agents_generated_code += "    CC_SDK.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][2] += 1\n"
+      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"
@@ -86,11 +89,12 @@ module AgentsGenerator
     agents_generated_code += "def remote_call_to_server(agent, order, params)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      agents_generated_code += "  \$#{agent}_initial.remote_call(order, params)\n"
+      agents_generated_code += "    \$#{agent}_initial.handle_order(order, params)\n"
       agents_generated_code += "  rescue => e\n"
       agents_generated_code += "    CC_SDK.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order}\")\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
-      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_remote_call'] += 1\n"
+      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][3] += 1\n"
+      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"

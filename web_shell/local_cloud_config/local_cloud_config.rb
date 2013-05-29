@@ -13,6 +13,7 @@ require_relative 'lib/agents'
 require_relative 'lib/documentation'
 require_relative 'lib/logs_getter'
 require_relative 'lib/net_http'
+require_relative 'lib/erb_config'
 
 require_relative '../agents_generator/agents_mgt'
 include GEN
@@ -119,3 +120,26 @@ get '/restart_server' do
   `cd ../local_cloud; ./local_cloud.sh restart`
   redirect('/projects')
 end
+
+#=========================================================================================
+get '/reminder_show' do
+  set_reminder_hidden(false)
+  redirect('/projects')
+end
+
+get '/reminder_hide' do
+  set_reminder_hidden(true)
+  redirect('/projects')
+end
+
+
+get '/extented_stats_show' do
+  set_show_more_stats(true)
+  redirect('/projects')
+end
+
+get '/extented_stats_hide' do
+  set_show_more_stats(false)
+  redirect('/projects')
+end
+

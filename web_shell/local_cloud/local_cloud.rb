@@ -139,11 +139,14 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"disconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 post '/presence' do
   SDK_STATS.stats['server']['received'][0] += 1
+  SDK_STATS.stats['server']['total_received'] += 1
+
   CC_SDK.logger.debug("\n\n\n\nServer: /presence new presence")
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
     SDK_STATS.stats['server']['err_parse'][0] += 1
+    SDK_STATS.stats['server']['total_error'] += 1
     return
   end
   handle_msg_from_device('presence', jsonData)
@@ -154,11 +157,13 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.agps_agent", "recorded_at":78364, "payload":"check/aaaaaaaaaabbbbbbbbbbcccccccccc12", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 post '/message' do
   SDK_STATS.stats['server']['received'][1] += 1
+  SDK_STATS.stats['server']['total_received'] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /message new message")
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
     SDK_STATS.stats['server']['err_parse'][1] += 1
+    SDK_STATS.stats['server']['total_error'] += 1
     return
   end
   handle_msg_from_device('message', jsonData)
@@ -170,11 +175,13 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"sender":"351777047016827", "id":19, "data":[{"reset":true, "3":"V", "14":"\u0001", "recorded_at":1368449272}, {"recorded_at":1368449279, "24":"", "23":""}, {"recorded_at":1368449340}, {"recorded_at":1368449400}, {"recorded_at":1368449460}, {"recorded_at":1368449520}, {"recorded_at":1368449580}, {"recorded_at":1368449640}, {"recorded_at":1368449766}, {"recorded_at":1368449826}, {"recorded_at":1368449886}, {"recorded_at":1368449946}, {"recorded_at":1368450006}, {"recorded_at":1368450066}, {"recorded_at":1368450310}, {"recorded_at":1368450369}, {"recorded_at":1368450429}, {"recorded_at":1368450489}, {"recorded_at":1368497096}, {"recorded_at":1368497276}, {"recorded_at":1368497336}, {"recorded_at":1368497396}, {"recorded_at":1368497456}, {"recorded_at":1368497576}, {"recorded_at":1368497637}, {"recorded_at":1368497697}, {"recorded_at":1368497757}, {"recorded_at":1368497817}, {"recorded_at":1368497877}, {"recorded_at":1368497996}, {"recorded_at":1368498116}], "asset":"351777047016827"}}' http://localhost:5001/track
 post '/track' do
   SDK_STATS.stats['server']['received'][2] += 1
+  SDK_STATS.stats['server']['total_received'] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /track new track")
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
     SDK_STATS.stats['server']['err_parse'][2] += 1
+    SDK_STATS.stats['server']['total_error'] += 1
     return
   end
   handle_msg_from_device('track', jsonData)
@@ -184,24 +191,28 @@ end
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"agent":"agps_agent", "order":"refresh_agps_files"}' http://localhost:5001/remote_call
 post '/remote_call' do
-  SDK_STATS.stats['server']['remote_call'] += 1
+  SDK_STATS.stats['server']['received'][3] += 1
+  SDK_STATS.stats['server']['total_received'] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /remote_call new order")
   jsonData = get_json_from_request(request)
   if jsonData == nil
     response.body = 'error while parsing json'
-    SDK_STATS.stats['server']['err_parse_remote_call'] += 1
+    SDK_STATS.stats['server']['err_parse'][3] += 1
+    SDK_STATS.stats['server']['total_error'] += 1
     return
   end
   if jsonData['agent'] == nil || jsonData['order'] == nil
     CC_SDK.logger.debug("Server: remote_call missing order or agent in:\n #{jsonData}")
     response.body = 'error while parsing json, order not found'
-    SDK_STATS.stats['server']['err_parse_remote_call'] += 1
+    SDK_STATS.stats['server']['err_parse'][3] += 1
+    SDK_STATS.stats['server']['total_error'] += 1
     return
   end
   if !(agents_running.include?(jsonData['agent']))
     CC_SDK.logger.debug("Server: agent #{jsonData['agent']} is not running on this bay")
     response.body = 'service unavailable'
     SDK_STATS.stats['server']['remote_call_unused'] += 1
+    SDK_STATS.stats['server']['total_error'] += 1
     return
   end
 

@@ -3,7 +3,7 @@
   Mobile Devices 2013
 -->
 
-<!-- Modal -->
+<!-- Modal (POPUP) ==============================================================-->
 <% if @action_popup == 1 %>
 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header">
@@ -41,43 +41,93 @@
 </div>
 <% end %>
 <% if @error_popup_msg != nil %>
-  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header alert-error">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-      <h3 id="myModalLabel">Error</h3>
-    </div>
-    <div class="modal-body">
-      <p>
-        <%= @error_popup_msg %>
-      </p>
-    </div>
-    <div class="modal-footer">
-      <a id="myModal_btn" class="btn btn-primary" href="/">Ok</a>
-    </div>
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header alert-error">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Error</h3>
   </div>
-<% end %>
-
-<!-- End Modal -->
-
-<div class="well row">
- <p>
-    <b>REMINDER :</b><br/>
-    Remember to click on button <b>'Apply and reboot ruby agent sdk server'</b> after start or stop agents to be taken in concideration.<br/><br/>
-
-    <b>How to check if reboot went ok :</b><br/>
-    If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message into the  <a href="/logSdkAgents">SDK Agents Log tab</a>  (ruby-agent-sdk-server.log).<br/>
-    If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daemon_server.log).<br/>
-  </p>
+  <div class="modal-body">
+    <p>
+      <%= @error_popup_msg %>
+    </p>
+  </div>
+  <div class="modal-footer">
+    <a id="myModal_btn" class="btn btn-primary" href="/">Ok</a>
+  </div>
 </div>
+<% end %>
+<!-- End modal ===================================================================-->
 
-<br/>
+<!-- Display menu ================================================================-->
+<div class="well row">
+  Display :
 
-<div class="row">
-  Server stats (<b>[presence, message, track]</b>):
+  <% if is_reminder_hidden == 'false' %>
+  <a class="btn btn-success" href="/reminder_hide">Reminder</a>
+  <% else %>
+  <a class="btn btn-danger" href="/reminder_show">Reminder</a>
+  <% end %>
+
+  <% if is_show_more_stats == 'true' %>
+  <a class="btn btn-success" href="/extented_stats_hide">Extended stats</a>
+  <% else %>
+  <a class="btn btn-danger" href="/extented_stats_show">Extended stats</a>
+  <% end %>
+
+
+</div>
+<!-- End display menu ===========================================================-->
+
+<!-- Reminder ===================================================================-->
+<% if is_reminder_hidden == 'false' %>
+  <div class="well row">
+     <p>
+      <b>REMINDER:</b><br/>
+      Remember to click on button <b>'Apply and reboot ruby agent sdk server'</b> after start or stop agents to be taken in concideration.<br/><br/>
+
+      <b>How to check if reboot went ok :</b><br/>
+      If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message into the  <a href="/logSdkAgents">SDK Agents Log tab</a>  (ruby-agent-sdk-server.log).<br/>
+      If not, look for errors into the  <a href="/logSdk">SDK Server Log tab</a> (daemon_server.log).<br/>
+    </p>
+  </div>
   <br/>
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
+<% end %>
+<!-- End Reminder ==============================================================-->
+
+<!-- Server stats basic ========================================================-->
+<div class="well row">
+  <b>Server message stats :</b>
+  <% if sdk_stats['total_received'] %>
+    <span class="label label-error"><b><big>
+      <%= sdk_stats['total_received'] %>
+      received
+    </big></b></span></td>
+    <% if sdk_stats['total_error'] == 0 %>
+      <%= '<span class="label label-error">' %>
+    <% else %>
+      <%= '<span class="label label-important">' %>
+    <% end %>
+      <b><big>
+      <%= sdk_stats['total_error'] %>
+      errors
+    </big></b></span></td>
+    <span class="label label-error"><b><big>
+      <%= sdk_stats['total_sent'] %>
+      sent
+    </big></b></span></td>
+  <% end %>
+</div>
+<br/>
+<!-- End server stats basic ====================================================-->
+
+<!-- Server stats advanced =====================================================-->
+<% if is_show_more_stats == 'true' %>
+  <div class="row">
+    Server stats (<b>[presence, message, track, order]</b>):
+    <br/>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
         <th># Received</th>
         <th># Parse error</th>
         <th># Channel error</th>
@@ -85,38 +135,40 @@
         <th># Ack to device</th>
         <th># Total queued to device</th>
         <th># In queue</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
         <td><span class="label label-error"><b><big>
           <%= sdk_stats['received'] %>
         </big></b></span></td>
-        <td><big>
-          <% if sdk_stats['err_parse'] == [0, 0, 0] %>
-          <%= '<span class="label label-success">' %>
+        <td>
+          <% if sdk_stats['err_parse'] == [0, 0, 0, 0] %>
+            <%= '<span class="label label-error">' %>
           <% else %>
-          <%= '<span class="label label-important">' %>
+            <%= '<span class="label label-important">' %>
           <% end %>
+          <b><big>
           <%= sdk_stats['err_parse'] %>
-        </span></big></td>
-        <td><big>
-          <% if sdk_stats['err_dyn_channel'] == [0, 0, 0] %>
-          <%= '<span class="label label-success">' %>
+        </big></b></span></td>
+        <td>
+          <% if sdk_stats['err_dyn_channel'] == [0, 0, 0, 0] %>
+            <%= '<span class="label label-error">' %>
           <% else %>
-          <%= '<span class="label label-important">' %>
+            <%= '<span class="label label-important">' %>
           <% end %>
+          <b><big>
           <%= sdk_stats['err_dyn_channel'] %>
-        </span></big></td>
-        <td><big>
-          <% if sdk_stats['err_while_send_ack'] == [0, 0, 0] %>
-          <%= '<span class="label label-success">' %>
+        </big></b></span></td>
+        <td>
+          <% if sdk_stats['err_while_send_ack'] == [0, 0, 0, 0] %>
+          <%= '<span class="label label-error">' %>
           <% else %>
           <%= '<span class="label label-important">' %>
           <% end %>
+          <b><big>
           <%= sdk_stats['err_while_send_ack'] %>
-        </span></big></td>
+        </big></b></span></td>
         <td><span class="label label-error"><b><big>
           <%= sdk_stats['total_ack_queued'] %>
         </big></b></span></td>
@@ -126,124 +178,163 @@
         <td><span class="label label-error"><b><big>
           <%= sdk_stats['in_queue'] %>
         </big></b></span></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <br/>
+<% end %>
+<!-- End server stats advanced =================================================-->
 
-<br/>
-
-
+<!-- Reboot server form ========================================================-->
 <div class="row">
   <form action="/restart_server" method="get" class="form-inline">
-   <div class="pull-right">
-     <label class="checkbox">
-       <input name="reset_logs" type="checkbox" <% if is_reset_log_checked == 'true' %> checked <% end %> > Reset logs on reboot
-     </label>
-     <button class="btn btn-primary">Apply and reboot ruby agent sdk server</button>
-   </div>
+    <div class="pull-right">
+    <label class="checkbox">
+      <input name="reset_logs" type="checkbox" <% if is_reset_log_checked == 'true' %> checked <% end %> > Reset logs on reboot
+    </label>
+    <button class="btn btn-primary">Apply and reboot ruby agent sdk server</button>
   </form>
-  <br>
+</div>
+<br>
+<!-- End reboot server form ====================================================-->
 
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th>Agent name</th>
-        <th># Received</th>
-        <th># Ruby Error</th>
-        <th># Reply to device</th>
-        <th># Reply error</th>
-        <th># Message to device</th>
-        <th># Message error </th>
-        <th>Action</th>
-      </tr>
-    </thead>
+<!-- Agents Panel ==============================================================-->
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+    <th>Agent name</th>
+    <% if is_show_more_stats == 'true' %>
+      <th># Received</th>
+      <th># Ruby Error</th>
+      <th># Reply to device</th>
+      <th># Reply error</th>
+      <th># Message to device</th>
+      <th># Message error </th>
+    <% else %>
+      <th> Stats</th>
+    <% end %>
+    <th>Action</th>
+    </tr>
+  </thead>
 
-    <tbody>
-      <% @agents.each do |agent_name, agent| %>
+  <tbody>
+    <% @agents.each do |agent_name, agent| %>
       <tr>
         <td><%= agent.name %></td>
-        <td><span class="label label-error"><b><big>
-          <%= agent.agent_stats['received']%>
-        </big></b></span></td>
 
-        <td><big>
-          <% if agent.agent_stats['err_while_process'] == [0, 0, 0] %>
-            <%= '<span class="label label-success">' %>
+        <% if is_show_more_stats == 'true' %>
+          <td><span class="label label-error"><b><big>
+            <%= agent.agent_stats['received']%>
+          </big></b></span></td>
+
+          <td>
+          <% if agent.agent_stats['err_while_process'] == [0, 0, 0, 0] %>
+            <%= '<span class="label label-error">' %>
           <% else %>
             <%= '<span class="label label-important">' %>
           <% end %>
+          <b><big>
           <%= agent.agent_stats['err_while_process'] %>
-        </span></big></td>
+          </big></b></span></td>
 
-        <td><span class="label label-error"><b><big>
-          <%= agent.agent_stats['reply_sent_to_device'] %>
-        </big></b></span></td>
+          <td><span class="label label-error"><b><big>
+            <%= agent.agent_stats['reply_sent_to_device'] %>
+          </big></b></span></td>
 
-        <td><big class="center-label-table">
+          <td>
           <% if agent.agent_stats['err_on_reply'] == 0 %>
-            <%= '<span class="label label-success">' %>
+            <%= '<span class="label label-error">' %>
           <% else %>
             <%= '<span class="label label-important">' %>
           <% end %>
+          <b><big>
           <%= agent.agent_stats['err_on_reply'] %>
-        </span></big></td>
+          </big></b></span></td>
 
-        <td><span class="label label-error"><b><big>
-          <%= agent.agent_stats['push_sent_to_device'] %>
-        </big></b></span></td>
+          <td><span class="label label-error"><b><big>
+            <%= agent.agent_stats['push_sent_to_device'] %>
+          </big></b></span></td>
 
-        <td><big>
+          <td>
           <% if agent.agent_stats['err_on_push'] == 0 %>
-            <%= '<span class="label label-success">' %>
+            <%= '<span class="label label-error">' %>
           <% else %>
             <%= '<span class="label label-important">' %>
           <% end %>
+          <big><b>
           <%= agent.agent_stats['err_on_push'] %>
-        </span></big></td>
+          </big></b></span></td>
 
+        <% else %>
+          <td>
+            <span class="label label-error"><b><big>
+              <%= agent.agent_stats['total_received'] %>
+              received
+            </big></b></span>
+
+            <% if agent.agent_stats['total_error'] == 0 %>
+              <%= '<span class="label label-error">' %>
+            <% else %>
+              <%= '<span class="label label-important">' %>
+            <% end %>
+            <b><big>
+              <%= agent.agent_stats['total_error'] %>
+              errors
+            </big></b></span>
+
+            <span class="label label-error"><b><big>
+              <%= agent.agent_stats['total_sent'] %>
+              sent
+            </big></b></span>
+          </td>
+        <% end %>
 
         <td>
-          <% if agent.running %>
+        <% if agent.running %>
           <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
-            <button class="btn btn-danger">Stop</button>
+          <button class="btn btn-danger">Stop</button>
           </form>
-          <% else %>
+        <% else %>
           <form action='<%= "/agents/#{agent_name}/start" %>' method="post">
-            <button class="btn btn-success">Start</button>
+          <button class="btn btn-success">Start</button>
           </form>
-          <% end %>
+        <% end %>
         </td>
       </tr>
+    <% end %>
+
+    <tr>
+      <form action="/create_agents" method="post">
+      <td><input type="text" name="agent[name]"/></td>
+      <% if is_show_more_stats == 'true' %>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      <% else %>
+        <td></td>
       <% end %>
+      <td><button class="btn btn-info">Create agent</button></td></form>
+    </tr>
+  </tbody>
+</table>
+<!-- End agents panel ==========================================================-->
 
-      <tr>
-        <form action="/create_agents" method="post">
-          <td><input type="text" name="agent[name]" /></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td><button class="btn btn-info">Create agent</button></td>
-        </form>
-      </tr>
 
-    </tbody>
-  </table>
-</div>
-
+<!-- Scripts ===================================================================-->
 <% if @action_popup != 0 || @error_popup_msg != ""%>
-<script>
-$(document).ready(function() {
-  var modal = $('#myModal').modal('show');
-  //$('#myModal_btn').focus();
-
-  modal.on('shown', function () {
-     $('#myModal_btn').focus();
-  })
-
-});
-</script>
+  <script>
+    $(document).ready(function() {
+      // Show popup
+      var modal = $('#myModal').modal('show');
+      // Focus on ok bouton
+      modal.on('shown', function () {
+        $('#myModal_btn').focus();
+      })
+    });
+  </script>
 <% end %>
+<!-- End scripts ===============================================================-->

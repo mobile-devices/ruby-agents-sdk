@@ -17,6 +17,7 @@ def push_something_to_device(something)
     SDK_STATS.stats['server']['in_queue'] = $message_to_device.size
   end
   SDK_STATS.stats['server']['total_queued'] += 1
+  SDK_STATS.stats['server']['total_sent'] += 1
 end
 
 def push_ack_to_device(payload)
@@ -77,9 +78,23 @@ end
 def handle_msg_from_device(type, params)
   CC_SDK.logger.info("Server: handle_msg_from_device: of type #{type}:\n#{params}")
 
-  meta = params['meta']
-  payload = params['payload']
-  account = meta['account']
+  begin
+    meta = params['meta']
+    payload = params['payload']
+    account = meta['account']
+  rescue Exception => e
+    case type
+    when 'presence'
+      SDK_STATS.stats['server']['err_parse'][0] += 1
+    when 'message'
+      SDK_STATS.stats['server']['err_parse'][1] += 1
+    when 'track'
+      SDK_STATS.stats['server']['err_parse'][2] += 1
+    end
+    SDK_STATS.stats['server']['total_error'] += 1
+    print_ruby_exeption(e)
+    return
+  end
 
   CC_SDK.logger.debug("Server: handle_msg_from_device: success parse\n")
 
@@ -90,12 +105,14 @@ def handle_msg_from_device(type, params)
     # check channel
     if !(check_channel(payload))
       SDK_STATS.stats['server']['err_dyn_channel'][1] += 1
+      SDK_STATS.stats['server']['total_error'] += 1
       return
     end
 
     # Ack mesage
     if !(push_ack_to_device(payload))
       SDK_STATS.stats['server']['err_while_send_ack'][1] += 1
+      SDK_STATS.stats['server']['total_error'] += 1
       return
     end
     SDK_STATS.stats['server']['ack_sent_to_device'][1] += 1

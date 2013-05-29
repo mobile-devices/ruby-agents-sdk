@@ -32,21 +32,3 @@ def logs_agent
 end
 
 
-def is_reset_log_checked
-  @reset_log_checked ||= begin
-    if File.exist?('.reset_log_checked')
-      File.read('.reset_log_checked')
-    else
-      set_reset_log_checked(true)
-      true
-    end
-  end
-end
-
-def set_reset_log_checked(val)
-  if (@previous_reset_log_checked != val)
-    File.open('.reset_log_checked', 'w') { |file| file.write(val) }
-    @previous_reset_log_checked = val
-    @reset_log_checked = val
-  end
-end

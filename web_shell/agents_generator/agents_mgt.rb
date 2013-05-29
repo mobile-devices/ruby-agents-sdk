@@ -210,8 +210,8 @@ module AgentsGenerator
   #return [name]
   def get_run_agents()
     #read .agents_to_run file (if not exist create one)
-    FileUtils.touch("#{source_path}/.agent_to_run")
-    agents = File.read("#{source_path}/.agent_to_run").split(';')
+    FileUtils.touch("#{source_path}/.agents_to_run")
+    agents = File.read("#{source_path}/.agents_to_run").split(';')
 
     #for each verify that agent is still here and valid
     remove_unvalid_agents(agents)
@@ -325,8 +325,8 @@ module AgentsGenerator
   end
 
   def set_run_agents(agents)
-    FileUtils.touch("#{source_path}/.agent_to_run")
-    File.open("#{source_path}/.agent_to_run", 'w') { |file| file.write(agents.join(';')) }
+    FileUtils.touch("#{source_path}/.agents_to_run")
+    File.open("#{source_path}/.agents_to_run", 'w') { |file| file.write(agents.join(';')) }
   end
 
   def remove_unvalid_agents(array)

@@ -6,3 +6,5 @@ cloud_agents_generated
 .agents_to_run
 .last_version
 .reset_log_checked
+.reminder_hidden
+.show_more_stats

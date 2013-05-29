@@ -279,6 +279,9 @@ module AgentsGenerator
     content = ''
     #content += "cron_tasks_folder=\'#{workspace_path}/#{name}/cron_tasks\'\n"
     content += "job_type :execute_order, \'curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d \\\'{\"agent\":\"#{name}\", \"order\":\":task\", \"params\":\":params\"}\\\' http://localhost:5001/remote_call\'\n"
+    content += "job_type :rake, echo :task\n"
+    content += "job_type :runner, echo :task\n"
+    content += "job_type :command, echo :task\n"
 
     content += File.read("#{workspace_path}/#{name}/config/schedule.rb")
   end

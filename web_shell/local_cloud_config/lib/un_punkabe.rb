@@ -116,8 +116,16 @@ module PUNK
 
   def gen_server_crash_title()
     `cd ../local_cloud; ./local_cloud.sh is_running`
-    used_server_run_id =  File.read('/tmp/mdi_server_run_id')
-    server_running =  File.read('/tmp/local_cloud_running')
+    if File.exist?('/tmp/mdi_server_run_id')
+      used_server_run_id =  File.read('/tmp/mdi_server_run_id')
+    else
+      used_server_run_id = nil
+    end
+    if File.exist?('/tmp/local_cloud_running')
+      server_running =  File.read('/tmp/local_cloud_running')
+    else
+      server_running = nil
+    end
 
     p "server_run_id = '#{$server_run_id}'' and used_server_run_id = '#{used_server_run_id}'"
 

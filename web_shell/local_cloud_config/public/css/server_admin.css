@@ -3,6 +3,24 @@
   Mobile Devices 2013
 */
 
+section {
+  padding-top: 30px;
+}
+
+.well-gray {
+  min-height: 20px;
+  padding: 19px;
+  margin-bottom: 20px;
+  background-color: #333333;
+  border: 1px solid #e3e3e3;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+}
+
 ===================================================================
 /* Sidenav for Docs
 -------------------------------------------------- */

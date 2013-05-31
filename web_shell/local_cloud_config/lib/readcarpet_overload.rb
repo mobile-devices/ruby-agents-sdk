@@ -1,6 +1,7 @@
 #########################################################
 # Xavier Demompion : xavier.demompion@mobile-devices.fr
 # Mobile Devices 2013
+# Special thanks to Cyril Schmitt
 #########################################################
 
 class Redcarpet::Render::ColorHTML < Redcarpet::Render::HTML

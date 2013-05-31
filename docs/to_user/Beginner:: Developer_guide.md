@@ -18,7 +18,7 @@ On this page, you can create/start/stop a project then apply and reboot the VM's
 * **config/schedule.rb** : whenever file to create cron rules for scripts created in cron_tasks folder.
 * **modules/** : folder where you create your ruby modules.
 
-You will also find ib your workspace an sdk_logs with you find your agent's logs and also server's logs.
+You will also find in your workspace an sdk_logs with you find your agent's logs and also server's logs.
 
 To test your code, just modify your code and 'apply and reboot' on the **http://localhost:5000/** web page.
 

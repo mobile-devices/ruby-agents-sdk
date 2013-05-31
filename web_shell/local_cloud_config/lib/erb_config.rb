@@ -1,3 +1,7 @@
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
 
 def is_reset_log_checked
   @reset_log_checked ||= begin

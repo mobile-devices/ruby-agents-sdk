@@ -19,7 +19,7 @@ module Initial_agent_XXProjectName
   end
 
 
-  def remote_call(order, params)
+  def new_order(order, params)
     # Write your code here
     log_debug('initial:remote_call')
   end

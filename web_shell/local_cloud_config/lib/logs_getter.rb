@@ -31,4 +31,14 @@ def logs_agent
   end
 end
 
+def logs_agent_punked
+  if File.exist?(log_agents_path)
+    logs = File.read(log_agents_path)
+    PUNK.un_punk(logs)
+  else
+    []
+  end
+end
+
+
 

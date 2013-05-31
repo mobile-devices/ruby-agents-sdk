@@ -15,6 +15,9 @@ require_relative 'lib/logs_getter'
 require_relative 'lib/net_http'
 require_relative 'lib/erb_config'
 
+require_relative 'lib/un_punkabe'
+include PUNK
+
 require_relative '../agents_generator/agents_mgt'
 include GEN
 
@@ -63,15 +66,20 @@ end
 
 get '/logSdk' do
   @active_tab='logSdk'
-
   erb :logSdk
 end
 
 get '/logSdkAgents' do
   @active_tab='logSdkAgents'
-
   erb :logSdkAgents
 end
+
+get '/logSdkAgentsPunk' do
+  @active_tab='logSdkAgentsPunk'
+  erb :logSdkAgentsPunk
+end
+
+
 
 get '/reset_daemon_server_log' do
   if File.exist?(log_server_path)
@@ -118,6 +126,10 @@ get '/restart_server' do
   else
     set_reset_log_checked(false)
   end
+
+  $server_run_id = rand
+
+  File.open('/tmp/should_mdi_server_run_id', 'w') { |file| file.write($server_run_id) }
 
   `cd ../local_cloud; ./local_cloud.sh restart`
   redirect('/projects')

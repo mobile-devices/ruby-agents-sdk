@@ -5,6 +5,12 @@
 # Mobile Devices 2013
 ###################################################################################################
 
+
+# server run id
+should_id = File.read('/tmp/should_mdi_server_run_id')
+File.open('/tmp/mdi_server_run_id', 'w') { |file| file.write(should_id) }
+
+
 require 'sinatra'
 set :bind, '0.0.0.0'
 set :port, '5001'
@@ -23,6 +29,8 @@ include CC_SDK
 require_relative 'fake_cloud_lib/message'
 require_relative 'fake_cloud_lib/cloud_gate'
 
+require_relative 'fake_cloud_lib/punkabe'
+include PUNK
 
 ## API ############################################################################################
 require_relative 'API/sdk_stats'
@@ -40,11 +48,14 @@ end
 
 CC_SDK.logger.info("\n\n\n\n\n")
 
+PUNK.start('a')
+
 # re-generate all agents wrapper
 GEN.generate_agents
 
 CC_SDK.logger.info("agents generation successful")
 
+PUNK.end('a','ok','','SERVER : code generation successful')
 ## bundle install #################################################################################
 
 # merge Gemfile (into generate_agents)
@@ -56,12 +67,14 @@ CC_SDK.logger.info("agents generation successful")
 CC_SDK.logger.info("bundle install done")
 
 ## Generate cron tasks ############################################################################
+PUNK.start('a')
 
 crons = GEN.generated_get_agents_whenever_content
 File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
 
 $agents_cron_tasks = GEN.get_agents_cron_tasks(agents_running)
 
+PUNK.end('a','ok','','SERVER : cron tasks generation successful')
 #### Init server ##################################################################################
 
 # include main
@@ -77,7 +90,10 @@ $mutex_message_to_device = Mutex.new()
 # reset starts
 SDK_STATS.reset_stats
 
-
+agents_running.each { |agent|
+  PUNK.start('a')
+  PUNK.end('a','system','',"SERVER mounts AGENT:#{agent}TNEGA")
+}
 
 agents_list_str=""
 agents_running.each { |agent|
@@ -86,7 +102,10 @@ agents_running.each { |agent|
 CC_SDK.logger.info("\n\n+===========================================================\n| starting ruby-agent-sdk-server with #{get_run_agents().count} agents:\n#{agents_list_str}+===========================================================\n")
 
 
-CC_SDK.logger.info("ruby-agent-sdk-server ready !\n\n")
+CC_SDK.logger.info("ruby-agent-sdk-server ready to use !\n\n")
+
+PUNK.start('a')
+PUNK.end('a','ok','',"SERVER ready to use !")
 
 ###################################################################################################
 
@@ -143,6 +162,7 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"reconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"disconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 post '/presence' do
+  PUNK.start('a')
   SDK_STATS.stats['server']['received'][0] += 1
   SDK_STATS.stats['server']['total_received'] += 1
 
@@ -152,6 +172,7 @@ post '/presence' do
     response.body = 'error while parsing json'
     SDK_STATS.stats['server']['err_parse'][0] += 1
     SDK_STATS.stats['server']['total_error'] += 1
+    PUNK.end('a','ko','in',"SERVER <- PRESENCE : parse json fail")
     return
   end
   handle_msg_from_device('presence', jsonData)
@@ -161,6 +182,7 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.psa.messagingagent.echo.0", "recorded_at":78364, "payload":"/test/echo/for/me?da=ble", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.agps_agent", "recorded_at":78364, "payload":"check/aaaaaaaaaabbbbbbbbbbcccccccccc12", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 post '/message' do
+  PUNK.start('a')
   SDK_STATS.stats['server']['received'][1] += 1
   SDK_STATS.stats['server']['total_received'] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /message new message")
@@ -169,6 +191,7 @@ post '/message' do
     response.body = 'error while parsing json'
     SDK_STATS.stats['server']['err_parse'][1] += 1
     SDK_STATS.stats['server']['total_error'] += 1
+    PUNK.end('a','ko','in',"SERVER <- MSG : parse json fail")
     return
   end
   handle_msg_from_device('message', jsonData)
@@ -179,6 +202,7 @@ end
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"sender":"351777047016827", "id":19, "data":[{"reset":true, "3":"V", "14":"\u0001", "recorded_at":1368449272}, {"recorded_at":1368449279, "24":"", "23":""}, {"recorded_at":1368449340}, {"recorded_at":1368449400}, {"recorded_at":1368449460}, {"recorded_at":1368449520}, {"recorded_at":1368449580}, {"recorded_at":1368449640}, {"recorded_at":1368449766}, {"recorded_at":1368449826}, {"recorded_at":1368449886}, {"recorded_at":1368449946}, {"recorded_at":1368450006}, {"recorded_at":1368450066}, {"recorded_at":1368450310}, {"recorded_at":1368450369}, {"recorded_at":1368450429}, {"recorded_at":1368450489}, {"recorded_at":1368497096}, {"recorded_at":1368497276}, {"recorded_at":1368497336}, {"recorded_at":1368497396}, {"recorded_at":1368497456}, {"recorded_at":1368497576}, {"recorded_at":1368497637}, {"recorded_at":1368497697}, {"recorded_at":1368497757}, {"recorded_at":1368497817}, {"recorded_at":1368497877}, {"recorded_at":1368497996}, {"recorded_at":1368498116}], "asset":"351777047016827"}}' http://localhost:5001/track
 post '/track' do
+  PUNK.start('a')
   SDK_STATS.stats['server']['received'][2] += 1
   SDK_STATS.stats['server']['total_received'] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /track new track")
@@ -187,6 +211,7 @@ post '/track' do
     response.body = 'error while parsing json'
     SDK_STATS.stats['server']['err_parse'][2] += 1
     SDK_STATS.stats['server']['total_error'] += 1
+    PUNK.end('a','ko','in',"SERVER <- TRACK : parse json fail")
     return
   end
   handle_msg_from_device('track', jsonData)
@@ -196,6 +221,7 @@ end
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"agent":"agps_agent", "order":"refresh_agps_files"}' http://localhost:5001/remote_call
 post '/remote_call' do
+  PUNK.start('a')
   SDK_STATS.stats['server']['received'][3] += 1
   SDK_STATS.stats['server']['total_received'] += 1
   CC_SDK.logger.debug("\n\n\n\nServer: /remote_call new order")
@@ -204,6 +230,7 @@ post '/remote_call' do
     response.body = 'error while parsing json'
     SDK_STATS.stats['server']['err_parse'][3] += 1
     SDK_STATS.stats['server']['total_error'] += 1
+    PUNK.end('a','ko','in',"SERVER <- ORDER : parse json fail")
     return
   end
   if jsonData['agent'] == nil || jsonData['order'] == nil
@@ -211,6 +238,7 @@ post '/remote_call' do
     response.body = 'error while parsing json, order not found'
     SDK_STATS.stats['server']['err_parse'][3] += 1
     SDK_STATS.stats['server']['total_error'] += 1
+    PUNK.end('a','ko','in',"SERVER <- ORDER : order struct fail")
     return
   end
   if !(agents_running.include?(jsonData['agent']))
@@ -218,10 +246,11 @@ post '/remote_call' do
     response.body = 'service unavailable'
     SDK_STATS.stats['server']['remote_call_unused'] += 1
     SDK_STATS.stats['server']['total_error'] += 1
+    PUNK.end('a','ko','in',"SERVER <- ORDER : agent not found")
     return
   end
 
   CC_SDK.logger.debug("Server: remote_call on '#{jsonData['agent']}' agent with order '#{jsonData['order']}'.")
 
-  remote_call_to_server(jsonData['agent'], jsonData['order'], jsonData)
+  handle_order(jsonData['agent'], jsonData['order'], jsonData)
 end

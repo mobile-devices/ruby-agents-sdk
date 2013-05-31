@@ -83,16 +83,19 @@ def handle_msg_from_device(type, params)
     payload = params['payload']
     account = meta['account']
   rescue Exception => e
+    print_ruby_exeption(e)
     case type
     when 'presence'
       SDK_STATS.stats['server']['err_parse'][0] += 1
+      PUNK.end('a','ko','in',"SERVER <- PRESENCE : parse params fail")
     when 'message'
       SDK_STATS.stats['server']['err_parse'][1] += 1
+      PUNK.end('a','ko','in',"SERVER <- MSG : parse params fail")
     when 'track'
       SDK_STATS.stats['server']['err_parse'][2] += 1
+      PUNK.end('a','ko','in',"SERVER <- TRACK : parse params fail")
     end
     SDK_STATS.stats['server']['total_error'] += 1
-    print_ruby_exeption(e)
     return
   end
 
@@ -100,25 +103,34 @@ def handle_msg_from_device(type, params)
 
   case type
   when 'presence'
+    PUNK.end('a','ok','in',"SERVER <- PRESENCE")
     handle_presence(meta, payload, account)
   when 'message'
     # check channel
     if !(check_channel(payload))
       SDK_STATS.stats['server']['err_dyn_channel'][1] += 1
       SDK_STATS.stats['server']['total_error'] += 1
+      PUNK.end('a','ko','in',"SERVER <- MSG : channel not found")
       return
     end
 
+    PUNK.end('a','ok','in',"SERVER <- MSG")
+
     # Ack mesage
+    PUNK.start('ack')
     if !(push_ack_to_device(payload))
       SDK_STATS.stats['server']['err_while_send_ack'][1] += 1
       SDK_STATS.stats['server']['total_error'] += 1
+      PUNK.end('ack','ko','out',"SERVER -> ACK : fail")
       return
     end
     SDK_STATS.stats['server']['ack_sent_to_device'][1] += 1
+    PUNK.end('ack','ok','out',"SERVER -> ACK")
 
     handle_message(meta, payload, account)
   when 'track'
+    PUNK.end('a','ok','in',"SERVER <- TRACK")
+
     handle_track(meta, payload, account)
   else
     CC_SDK.logger.error('Server: handle_msg_from_device: type unknown')

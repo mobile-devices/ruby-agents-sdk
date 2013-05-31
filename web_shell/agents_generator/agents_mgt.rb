@@ -50,13 +50,13 @@ module AgentsGenerator
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
       agents_generated_code += "    \$#{agent}_initial.handle_presence(meta, payload, account)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','proccess','AGENT:#{agent}TNEGA runs PRESENCE')\n"
+      agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs PRESENCE')\n"
       agents_generated_code += "  rescue => e\n"
       agents_generated_code += "    CC_SDK.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][0] += 1\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
-      agents_generated_code += "    PUNK.end('handle','ko','proccess','AGENT:#{agent}TNEGA runs PRESENCE fail')\n"
+      agents_generated_code += "    PUNK.end('handle','ko','process','AGENT:#{agent}TNEGA runs PRESENCE fail')\n"
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"
@@ -65,13 +65,13 @@ module AgentsGenerator
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
       agents_generated_code += "    \$#{agent}_initial.handle_message(meta, payload, account)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','proccess','AGENT:#{agent}TNEGA runs MSG')\n"
+      agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs MSG')\n"
       agents_generated_code += "  rescue => e\n"
       agents_generated_code += "    CC_SDK.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][1] += 1\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
-      agents_generated_code += "    PUNK.end('handle','ko','proccess','AGENT:#{agent}TNEGA runs MSG fail')\n"
+      agents_generated_code += "    PUNK.end('handle','ko','process','AGENT:#{agent}TNEGA runs MSG fail')\n"
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"
@@ -80,13 +80,13 @@ module AgentsGenerator
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
       agents_generated_code += "    \$#{agent}_initial.handle_track(meta, payload, account)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','proccess','AGENT:#{agent}TNEGA runs TRACK')\n"
+      agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs TRACK')\n"
       agents_generated_code += "  rescue => e\n"
       agents_generated_code += "    CC_SDK.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][2] += 1\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
-      agents_generated_code += "    PUNK.end('handle','ko','proccess','AGENT:#{agent}TNEGA runs TRACK fail')\n"
+      agents_generated_code += "    PUNK.end('handle','ko','process','AGENT:#{agent}TNEGA runs TRACK fail')\n"
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"
@@ -95,13 +95,13 @@ module AgentsGenerator
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
       agents_generated_code += "    \$#{agent}_initial.handle_order(order, params)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','proccess','AGENT:#{agent}TNEGA runs ORDER')\n"
+      agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs ORDER')\n"
       agents_generated_code += "  rescue => e\n"
       agents_generated_code += "    CC_SDK.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order}\")\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][3] += 1\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
-      agents_generated_code += "    PUNK.end('handle','ko','proccess','AGENT:#{agent}TNEGA runs ORDER fail')\n"
+      agents_generated_code += "    PUNK.end('handle','ko','process','AGENT:#{agent}TNEGA runs ORDER fail')\n"
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"

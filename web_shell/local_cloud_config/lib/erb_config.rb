@@ -80,3 +80,63 @@ def set_cron_tasks_visible(val)
   end
 end
 
+
+
+def is_log_show_com
+  @log_show_com ||= begin
+    if File.exist?('.log_show_com')
+      File.read('.log_show_com')
+    else
+      set_show_more_stats(true)
+      'true'
+    end
+  end
+end
+
+def set_log_show_com(val)
+  if (@previous_log_show_com != val)
+    File.open('.log_show_com', 'w') { |file| file.write(val) }
+    @previous_log_show_com = val
+    @log_show_com = val
+  end
+end
+
+
+def is_log_show_process
+  @log_show_process ||= begin
+    if File.exist?('.log_show_process')
+      File.read('.log_show_process')
+    else
+      set_show_more_stats(true)
+      'true'
+    end
+  end
+end
+
+def set_log_show_process(val)
+  if (@previous_log_show_process != val)
+    File.open('.log_show_process', 'w') { |file| file.write(val) }
+    @previous_log_show_process = val
+    @log_show_process = val
+  end
+end
+
+
+def is_log_show_error
+  @log_show_error ||= begin
+    if File.exist?('.log_show_error')
+      File.read('.log_show_error')
+    else
+      set_show_more_stats(true)
+      'true'
+    end
+  end
+end
+
+def set_log_show_error(val)
+  if (@previous_log_show_error != val)
+    File.open('.log_show_error', 'w') { |file| file.write(val) }
+    @previous_log_show_error = val
+    @log_show_error = val
+  end
+end

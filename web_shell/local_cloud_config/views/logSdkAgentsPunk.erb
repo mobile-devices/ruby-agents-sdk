@@ -4,17 +4,40 @@
 -->
 
 <div class="well info row well-small">
-  <i class="icon-th"></i> : SERVER
-  <i class="icon-star"></i> : PRESENCE
-  <i class="icon-envelope"></i> : MESSAGE
-  <i class="icon-th-list"></i> TRACK
-  <i class="icon-fire"></i> : ORDER
-  <i class="icon-share"></i> : ACK
 
-<!--
-<br/><br/>
-<em>Plain text log can be found in ruby_workspace/sdk_logs/ruby-agent-sdk-server.log file.</em>
--->
+  <div class="pull-left">
+    <i class="icon-th"></i> : SERVER
+    <i class="icon-star"></i> : PRESENCE
+    <i class="icon-envelope"></i> : MESSAGE
+    <i class="icon-th-list"></i> TRACK
+    <i class="icon-fire"></i> : ORDER
+    <i class="icon-share"></i> : ACK
+  </div>
+
+  <div class="pull-right">
+
+
+    <% if is_log_show_com() == 'true' %>
+      <a class="btn btn-success" href="/log_show_com_hide">com</a>
+    <% else %>
+      <a class="btn btn-success disabled" href="/log_show_com_show">com</a>
+    <% end %>
+
+    <% if is_log_show_process() == 'true' %>
+      <a class="btn btn-info" href="/log_show_process_hide">processing</a>
+    <% else %>
+      <a class="btn btn-info disabled" href="/log_show_process_show">processing</a>
+    <% end %>
+
+    <% if is_log_show_error() == 'true' %>
+      <a class="btn btn-danger" href="/log_show_error_hide">errors</a>
+    <% else %>
+      <a class="btn btn-danger disabled" href="/log_show_error_show">errors</a>
+    <% end %>
+
+  </div>
+
+
 </div>
 
 <div class="row-fluid">
@@ -23,40 +46,58 @@
 
     <% logs_agent_punked.each_with_index do | punk, index| %>
 
-    <p>
-      <button type="button" data-bind="btn" data-content="btn_content_<%= index %>"
-        <% if punk.way == 'proccess' %>
-          <% if punk.type == 'ok' %>
+      <% punk_kind = "" %>
+
+      <p>
+        <button type="button" data-bind="btn" data-content="btn_content_<%= index %>"
+          <% if punk.way == 'process' %>
+            <% if punk.type == 'ok' %>
               class="btn btn-info btn-block"
-          <% elsif punk.type == 'ko' %>
-             class="btn btn-danger btn-block"
+              <% punk_kind = "process" %>
+            <% elsif punk.type == 'ko' %>
+              class="btn btn-danger btn-block"
+              <% punk_kind = "error" %>
+            <% else %>
+              class="btn btn-inverse btn-block"
+            <% end %>
           <% else %>
-             class="btn btn-inverse btn-block"
-          <% end %>
-        <% else %>
-          <% if punk.type == 'ok' %>
+            <% if punk.type == 'ok' %>
               class="btn btn-success btn-block"
-          <% elsif punk.type == 'ko' %>
-             class="btn btn-danger btn-block"
-          <% elsif punk.type == 'system' %>
-             class="btn btn-info btn-block"
-          <% else %>
-             class="btn btn-inverse btn-block"
+              <% punk_kind = "com" %>
+            <% elsif punk.type == 'ko' %>
+              class="btn btn-danger btn-block"
+              <% punk_kind = "error" %>
+            <% elsif punk.type == 'system' %>
+              class="btn btn-info btn-block"
+              <% punk_kind = "process" %>
+            <% else %>
+              class="btn btn-inverse btn-block"
+            <% end %>
           <% end %>
-        <% end %>
-        >
 
-        <p class="text-left"><b>
-          [<%= punk.start_time %>]
-           <%= PUNK.title_to_html(punk.title) %>
-        </b></p>
+          <% if is_log_show_com() != 'true' && punk_kind == "com" %>
+            style="display:none"
+          <% end %>
+          <% if is_log_show_process() != 'true' && punk_kind == "process" %>
+            style="display:none"
+          <% end %>
+          <% if is_log_show_error() != 'true' && punk_kind == "error" %>
+            style="display:none"
+          <% end %>
 
-      </button>
+          >
 
-      <textarea id="btn_content_<%= index %>" style="display:none">
-        <%= punk.content %>
-      </textarea>
-    </p>
+          <p class="text-left"><b>
+            [<%= punk.start_time %>]
+             <%= PUNK.title_to_html(punk.title) %>
+          </b></p>
+
+        </button>
+
+        <textarea id="btn_content_<%= index %>" style="display:none">
+          <%= punk.content %>
+        </textarea>
+      </p>
 
     <% end %>
 

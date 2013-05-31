@@ -167,6 +167,41 @@ get '/cron_tasks_visible_hide' do
   redirect('/projects')
 end
 
+
+get '/log_show_com_show' do
+  set_log_show_com(true)
+  redirect('/logSdkAgentsPunk')
+end
+
+get '/log_show_com_hide' do
+  set_log_show_com(false)
+  redirect('/logSdkAgentsPunk')
+end
+
+
+get '/log_show_process_show' do
+  set_log_show_process(true)
+  redirect('/logSdkAgentsPunk')
+end
+
+get '/log_show_process_hide' do
+  set_log_show_process(false)
+  redirect('/logSdkAgentsPunk')
+end
+
+
+get '/log_show_error_show' do
+  set_log_show_error(true)
+  redirect('/logSdkAgentsPunk')
+end
+
+get '/log_show_error_hide' do
+  set_log_show_error(false)
+  redirect('/logSdkAgentsPunk')
+end
+
+
+
 post '/perform_cron_tasks' do
   task = JSON.parse(params['task'])
   puts "perform_cron_tasks: #{task}"

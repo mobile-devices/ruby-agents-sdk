@@ -21,9 +21,10 @@
 
   <div class="span4">
 
-    <% logs_agent_punked.each do | punk| %>
+    <% logs_agent_punked.each_with_index do | punk, index| %>
 
-      <button type="button" data-bind="btn" data-content="<%= Rack::Utils.escape_html(punk.content) %>"
+    <p>
+      <button type="button" data-bind="btn" data-content="btn_content_<%= index %>"
         <% if punk.way == 'proccess' %>
           <% if punk.type == 'ok' %>
               class="btn btn-info btn-block"
@@ -52,6 +53,11 @@
 
       </button>
 
+      <textarea id="btn_content_<%= index %>" style="display:none">
+        <%= punk.content %>
+      </textarea>
+    </p>
+
     <% end %>
 
 
@@ -79,10 +85,15 @@
 
 
 <script>
+  function escapeHTML(text) {   return text.replace(/[&<>"'`]/g, function (chr) {     return '&#' + chr.charCodeAt(0) + ';';   }); };
+
   $(document).ready(function() {
 
     $("button[data-bind=btn]").bind('click', function() {
-      $("#view_code").html($(this).attr('data-content'));
+      var content = $('#' + $(this).data('content'));
+      var lines   = JSON.parse(content.text());
+      var sanitizedLines = lines.map(function(line){ return escapeHTML(line) });
+      $("#view_code").html(sanitizedLines.join('<br />'));
     });
 
   });

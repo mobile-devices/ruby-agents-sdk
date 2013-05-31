@@ -53,16 +53,7 @@ module PUNK
           if pending['id'] == id
             puts "found #{id} in pending with #{pending.lines.size} lines !"
 
-            content = ''
-            pending.lines.each { |line|
-              content += "#{line}<br>"
-            }
-
-            puts "content:\n#{content}"
-            p ''
-
-
-            punk_events << PunkEvent.new(json['type'], json['way'], json['title'], line[15..22], '', '', content)
+            punk_events << PunkEvent.new(json['type'], json['way'], json['title'], line[15..22], '', '', pending.lines)
             punks_pending.delete_at(punks_pending.index(pending))
             break
           end
@@ -72,7 +63,10 @@ module PUNK
 
       # fill all pending with current line
       punks_pending.each { |pending|
-        pending.lines << line.delete!("\n")
+        line.delete!("\n")
+        if line != ''
+          pending.lines << line
+        end
       }
     }
 

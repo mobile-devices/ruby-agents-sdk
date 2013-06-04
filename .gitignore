@@ -8,3 +8,4 @@ cloud_agents_generated
 .reset_log_checked
 .reminder_hidden
 .show_more_stats
+.cron_tasks_visible

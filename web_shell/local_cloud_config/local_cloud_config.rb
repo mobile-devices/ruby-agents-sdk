@@ -47,6 +47,9 @@ get '/projects' do
   # popup error
   @error_popup_msg = flash[:popup_error]
 
+
+  p "Doing projects with #{is_show_more_stats} show more stat"
+
   erb :projects
 end
 

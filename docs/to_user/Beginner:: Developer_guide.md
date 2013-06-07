@@ -28,7 +28,7 @@ The com interface runs on port 5001.
 
 * You receive the messages in the initial.rb, you shall include your code in a sub .rb file in the lib folder.
 * Do your agent stateless, global variables are strictly forbidden.
-* To configure the dynamic channel used by this agent, go and edit config/<agent_name>.yml.example file.
+* To configure the dynamic channel used by this agent, go and edit config/<agent_name>.yml.example file, you can put a string or an array of string (see yaml documention for syntaxes).
 * If you need additional gems, edit the Gemfile and require them here.
 * Remember to complete your README.md
 

@@ -22,22 +22,29 @@ class Agent_XX_PROJECT_NAME
 
   # Project
   @AGENT_NAME = 'XX_PROJECT_NAME'
-  @CHANNEL = 'com.mdi.services.XX_PROJECT_NAME'
+  @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
 
   def initialize() # constructor
     log_debug("Agent_XX_PROJECT_NAME root path is = \"#{root_path}\"")
 
     # Load dynamic channel
     @CHANNEL = config['Dynamic_channel_str']
-    if @CHANNEL == nil
-      @CHANNEL = 'com.mdi.services.XX_PROJECT_NAME'
+    if @CHANNEL == nil || @CHANNEL.length == 0
+      @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
     end
     log_debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")
   end
 
   ######### Messages from devices ######################################
   def handle_message(meta, payload, account)
-    return unless payload['channel'] == @CHANNEL
+    a_channel_is_valid = false
+    @CHANNEL.each { |chan|
+      if payload['channel'] == chan
+        a_channel_is_valid = true
+      end
+    }
+    return unless a_channel_is_valid
+
     if payload['type'] != 'message'
       log_error("handle_message: wrong type #{payload['type']} (not 'message')")
       return
@@ -87,7 +94,7 @@ class Agent_XX_PROJECT_NAME
         asset:     asset,
         recipient: asset,
         sender:    '@@server@@',
-        channel:   @CHANNEL,
+        channel:   @CHANNEL[0],
         payload:   content.to_json
         }).push
     #note: for real wrapper : mock up account as bellow :

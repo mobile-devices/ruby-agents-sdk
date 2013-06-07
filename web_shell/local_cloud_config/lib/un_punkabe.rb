@@ -95,9 +95,6 @@ module PUNK
     if agent_pos != nil && agent_end_pos != nil
       agent_name = title[(agent_pos+6)..(agent_end_pos-1)]
 
-
-
-
       title.gsub!(title[agent_pos..(agent_end_pos+4)], "<span class=\"label label-warning\">#{agent_name}</span>")
 
       #title.gsub!(title[agent_pos..(agent_end_pos+4)], "[<i class=\"icon-th-large icon-white\"></i> #{agent_name}]")

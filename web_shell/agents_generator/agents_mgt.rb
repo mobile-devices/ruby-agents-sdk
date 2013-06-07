@@ -25,7 +25,6 @@ module AgentsGenerator
     # get agents to run
     agents_to_run = get_run_agents
 
-
     puts "generate_agents of #{agents_to_run.join(', ')}"
 
 
@@ -127,13 +126,15 @@ module AgentsGenerator
     }
 
     #  generad dyn channel list
-    dyn_channels_str = get_agents_dyn_channel(get_available_agents())
     dyn_channels = Hash.new()
     channel_int = 1000
-    dyn_channels_str.each_pair do |name,channel_str|
-      dyn_channels[channel_str] = channel_int
-      channel_int +=1
-    end
+    agents_to_run.each { |agent|
+      channels = get_agent_dyn_channel(agent)
+      channels.each { |chan|
+        dyn_channels[chan] = channel_int
+        channel_int +=1
+      }
+    }
 
     File.open("#{source_path}/cloud_agents_generated/dyn_channels.yml", 'w+') { |file| file.write(dyn_channels.to_yaml) }
 
@@ -226,25 +227,23 @@ module AgentsGenerator
     remove_unvalid_agents(agents)
   end
 
+  # return an array of string
   def get_agent_dyn_channel(name)
     return "" unless File.directory?("#{workspace_path}/#{name}")
-    cnf = nil
+    cnf = []
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
     elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
     end
-    cnf['Dynamic_channel_str']
-  end
 
-
-  def get_agents_dyn_channel(array)
-    dyn_channel = Hash.new()
-    array.each { |agent_name|
-      dyn_channel[agent_name] = get_agent_dyn_channel(agent_name)
-      puts "get_agents_dyn_channel USING #{dyn_channel[agent_name]}"
-    }
-    dyn_channel
+    if conf.is_a? String
+      [] << conf
+    elsif conf.is_a? Array
+      conf
+    else
+      p "get_agent_dyn_channel: unkown format of #{conf}"
+    end
   end
 
   #########################################################################################################

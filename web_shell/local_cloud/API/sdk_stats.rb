@@ -15,6 +15,7 @@ module SDK_STATS
   def reset_stats
     @daemon_stat = {
       'server' => {
+        'uptime' => '',
         'total_received' => 0,
         'total_error' => 0,
         'total_sent' => 0,

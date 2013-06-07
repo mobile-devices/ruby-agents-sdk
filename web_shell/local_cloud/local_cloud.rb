@@ -10,6 +10,7 @@
 should_id = File.read('/tmp/should_mdi_server_run_id')
 File.open('/tmp/mdi_server_run_id', 'w') { |file| file.write(should_id) }
 
+$local_cloud_start_time = Time.now
 
 require 'sinatra'
 set :bind, '0.0.0.0'
@@ -148,6 +149,7 @@ end
 
 #test : curl http://localhost:5001/sdk_stats
 get '/sdk_stats' do
+  SDK_STATS.stats['server']['uptime'] = Time.now - $local_cloud_start_time
   SDK_STATS.stats.to_json
 end
 

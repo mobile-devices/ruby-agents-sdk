@@ -79,7 +79,6 @@
           <% if is_log_show_error() != 'true' && punk_kind == "error" %>
             style="display:none"
           <% end %>
-
           >
 
           <p class="text-left"><b>
@@ -99,11 +98,14 @@
 
     <% crashed = PUNK.gen_server_crash_title %>
     <% if crashed != "" %>
-      <button type="button" data-bind="btn" data-content="<%= logs_server %>" class="btn btn-danger btn-block">
+      <button type="button" data-bind="btn" data-content="btn_content_crash" class="btn btn-danger btn-block">
         <p class="text-left"><b>
            <%= crashed %>
         </b></p>
       </button>
+      <textarea id="btn_content_crash" style="display:none">
+        <%= logs_server %>
+      </textarea>
     <% end %>
 
   </div>

@@ -14,10 +14,15 @@ end
 def logs_server
   if File.exist?(log_server_path)
     logs = File.read(log_server_path)
-    logs = Rack::Utils.escape_html(logs)
-    logs.gsub!("\n","<br/>")
+    log_server = []
+    logs.each_line { |line|
+      line.delete!("\n")
+      line.gsub!('"','\\"')
+      log_server << line
+    }
+    log_server
   else
-    ""
+    []
   end
 end
 

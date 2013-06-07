@@ -11,5 +11,6 @@ s jbinaryGate active 1
 s jbinaryGate url 192.168.10.4
 s jbinaryGate port 5001
 s jbinaryGate forceSerialUse 0
+s jbinaryGate refreshPeriod 3
 
 note : "192.168.10.4" is the ip of the vm's host side of the network built between the device and the vm's host.

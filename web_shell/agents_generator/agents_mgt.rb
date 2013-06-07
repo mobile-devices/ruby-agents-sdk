@@ -229,7 +229,7 @@ module AgentsGenerator
 
   # return an array of string
   def get_agent_dyn_channel(name)
-    return "" unless File.directory?("#{workspace_path}/#{name}")
+    return [] unless File.directory?("#{workspace_path}/#{name}")
     cnf = []
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
@@ -237,12 +237,16 @@ module AgentsGenerator
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
     end
 
-    if conf.is_a? String
-      [] << conf
-    elsif conf.is_a? Array
-      conf
+    channels = cnf['Dynamic_channel_str']
+
+    p channels
+
+    if channels.is_a? String
+      [] << channels
+    elsif channels.is_a? Hash
+      channels
     else
-      p "get_agent_dyn_channel: unkown format of #{conf}"
+      p "get_agent_dyn_channel: unkown format of #{cnf}"
     end
   end
 

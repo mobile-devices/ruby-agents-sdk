@@ -29,7 +29,12 @@ class Agent_XX_PROJECT_NAME
 
     # Load dynamic channel
     @CHANNEL = config['Dynamic_channel_str']
-    if (@CHANNEL == nil) || (@CHANNEL.length == 0) || (@CHANNEL.is_a? String)
+
+    if @CHANNEL.is_a? String
+      @CHANNEL = ["#{@CHANNEL}"]
+    end
+
+    if (@CHANNEL == nil) || (@CHANNEL.length == 0)
       @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
     end
     log_debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")

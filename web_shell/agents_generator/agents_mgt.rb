@@ -92,7 +92,7 @@ module AgentsGenerator
 
     agents_generated_code += "def handle_order(order)\n"
     agents_to_run.each { |agent|
-      agents_generated_code += "  if agent == \"#{agent}\"\n"
+      agents_generated_code += "  if order.agent == \"#{agent}\"\n"
       agents_generated_code += "    begin\n"
       agents_generated_code += "      \$#{agent}_initial.handle_order(order)\n"
       agents_generated_code += "      PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs ORDER')\n"

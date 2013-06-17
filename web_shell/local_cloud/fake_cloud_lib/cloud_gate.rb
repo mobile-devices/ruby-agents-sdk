@@ -114,7 +114,7 @@ def handle_msg_from_device(type, params)
     begin
       msg = CCS::Order.new(params)
       PUNK.end('a','ok','in',"SERVER <- ORDER")
-    rescue CCS.AgentNotFound
+    rescue CCS::AgentNotFound => e
       print_ruby_exeption(e)
       response.body = 'service unavailable'
       SDK_STATS.stats['server']['remote_call_unused'] += 1

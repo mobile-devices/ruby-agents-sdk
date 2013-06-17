@@ -240,7 +240,7 @@ module CloudConnectServices
   class AgentNotFound < StandardError
   end
 
-  class Order < Struct.new(:agent, :order, :params)
+  class Order < Struct.new(:agent, :code, :params)
 
     def initialize(struct)
       self.agent = struct['agent']
@@ -249,8 +249,8 @@ module CloudConnectServices
 
       #todo: test nullity or agent and order?
 
-      if !(agents_running.include?(@agent))
-        raise AgentNotFound , "Server: agent #{jsonData['agent']} is not running on this bay"
+      if !(agents_running.include?(self.agent))
+        raise AgentNotFound , "Server: agent #{self.agent} is not running on this bay"
       end
     end
 

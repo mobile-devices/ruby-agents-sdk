@@ -5,10 +5,10 @@
 
 module PUNK
   def start(id)
-    CC_SDK.logger.info("PUNKabeNK_#{id}")
+    CC.logger.info("PUNKabeNK_#{id}")
   end
 
   def end(id, type, way, title)
-    CC_SDK.logger.info("PUNKabe_#{id}_axd_{\"type\":\"#{type}\", \"way\":\"#{way}\", \"title\":\"#{title}\"}")
+    CC.logger.info("PUNKabe_#{id}_axd_{\"type\":\"#{type}\", \"way\":\"#{way}\", \"title\":\"#{title}\"}")
   end
 end

@@ -1,27 +1,23 @@
 module Initial_agent_XXProjectName
 
-  def new_presence_from_device(meta, payload, account)
+  def new_presence_from_device(presence)
     # Write your code here
-    log_debug('initial:new_presence_from_device')
   end
 
-
-  def new_message_from_device(meta, payload, account)
-    msg = Message.new(payload)
+  def new_msg_from_device(msg)
     # Write your code here
-    log_debug('initial:new_message_from_device')
   end
 
-
-  def new_track_from_device(meta, payload, account)
+  def new_track_from_device(track)
     # Write your code here
-    log_debug('initial:new_track_from_device')
   end
 
-
-  def new_order(order, params)
+  def new_order(order)
     # Write your code here
-    log_debug('initial:remote_call')
   end
+
+  #################################################
+  # Implement below callbacks defined in protogen #
+
 
 end

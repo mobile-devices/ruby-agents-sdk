@@ -8,7 +8,7 @@ require 'yaml'
 # Framework to be standalone
 require 'active_support/all'
 if (require_relative '../../local_cloud/fake_cloud_lib/cloud_connect_sdk_module')
-  include CC_SDK
+  include CC
 end
 if (require_relative '../../local_cloud/API/sdk_stats')
   include SDK_STATS
@@ -40,8 +40,16 @@ class Agent_XX_PROJECT_NAME
     log_debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")
   end
 
-  ######### Messages from devices ######################################
-  def handle_message(meta, payload, account)
+  ######### Messages delivered for the agent ###########################
+  def handle_presence(presence)
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
+    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+    PUNK.start('handle')
+    CC.logger.info("Server: handle_presence: pushing presence '#{presence.type}' to agent XX_PROJECT_NAME ..................")
+    new_presence_from_device(presence)
+  end
+
+  def handle_message(message)
     a_channel_is_valid = false
     @CHANNEL.each { |chan|
       if payload['channel'] == chan
@@ -50,107 +58,98 @@ class Agent_XX_PROJECT_NAME
     }
     return unless a_channel_is_valid
 
-    if payload['type'] != 'message'
-      log_error("handle_message: wrong type #{payload['type']} (not 'message')")
-      return
-    end
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     PUNK.start('handle')
-    CC_SDK.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
-    new_message_from_device(meta, payload, account)
+    CC.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
+    new_message_from_device(message)
   end
 
-  def handle_presence(meta, payload, account)
-    if payload['type'] != 'connect' && payload['type'] != 'reconnect' && payload['type'] != 'disconnect'
-      log_error("handle_presence: wrong type '#{payload['type']}' (not 'message')")
-      return
-    end
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
-    PUNK.start('handle')
-    CC_SDK.logger.info("Server: handle_presence: pushing presence '#{payload['type']}' to agent XX_PROJECT_NAME ..................")
-    new_presence_from_device(meta, payload, account)
-  end
-
-  def handle_track(meta, payload, account)
+  def handle_track(track)
     #todo: test type, log on errors
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][2] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     PUNK.start('handle')
-    CC_SDK.logger.info("Server: handle_track: pushing track to agent XX_PROJECT_NAME ..................")
-    new_track_from_device(meta, payload, account)
+    CC.logger.info("Server: handle_track: pushing track to agent XX_PROJECT_NAME ..................")
+    new_track_from_device(track)
   end
 
-  def handle_order(order, params)
+  def handle_order(order)
     #todo: test type, log on errors
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][3] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     PUNK.start('handle')
-    CC_SDK.logger.info("Server: handle_track: pushing order to agent XX_PROJECT_NAME ..................")
-    new_order(order, params)
+    CC.logger.info("Server: handle_track: pushing order #{order.code} to agent XX_PROJECT_NAME ..................")
+    new_order(order)
   end
 
   ########## Messages to devices #######################################
-  def send_message_to_device(account, asset, content)
-    #todo add try catch
-    begin
-      Message.new({
-        asset:     asset,
-        recipient: asset,
-        sender:    '@@server@@',
-        channel:   @CHANNEL[0],
-        payload:   content.to_json
-        }).push
-    #note: for real wrapper : mock up account as bellow :
-    #   account.messages.new({
-    #     asset:     asset.imei,
-    #     recipient: asset.imei,
-    #     sender:    '@@server@@',
-    #     channel:   @CHANNEL,
-    #     payload:   content.to_json
-    #     }, as: :agent).push
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
-    rescue Exception => e
-      CC_SDK.logger.error("Error on send_message_to_device")
-      print_ruby_exeption(e)
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
-    end
-  end
 
-  def reply_message_to_device(message, account, content)
-    #idem, we build a Message then send it to rqueue
-    begin
-      #note: real wrapper will be : m.push('account' => account.name)
-      m = message.reply("200#{content}")
-      m.push('account' => account)
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
-    rescue Exception => e
-      CC_SDK.logger.error("Error on reply_message_to_device")
-      print_ruby_exeption(e)
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
-    end
-  end
+  #todo: implement send and reply for a CCS.Message
+
+
+# require /include implémentation du send(maClass) from protogen génération
+# send message : set channel as @CHANNEL[0]
+
+  # def send_message_to_device(account, asset, content)
+  #   #todo add try catch
+  #   begin
+  #     Message.new({
+  #       asset:     asset,
+  #       recipient: asset,
+  #       sender:    '@@server@@',
+  #       channel:   @CHANNEL[0],
+  #       payload:   content.to_json
+  #       }).push
+  #   #note: for real wrapper : mock up account as bellow :
+  #   #   account.messages.new({
+  #   #     asset:     asset.imei,
+  #   #     recipient: asset.imei,
+  #   #     sender:    '@@server@@',
+  #   #     channel:   @CHANNEL,
+  #   #     payload:   content.to_json
+  #   #     }, as: :agent).push
+  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
+  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
+  #   rescue Exception => e
+  #     CC.logger.error("Error on send_message_to_device")
+  #     print_ruby_exeption(e)
+  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
+  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+  #   end
+  # end
+
+  # def reply_message_to_device(message, account, content)
+  #   #idem, we build a Message then send it to rqueue
+  #   begin
+  #     #note: real wrapper will be : m.push('account' => account.name)
+  #     m = message.reply("200#{content}")
+  #     m.push('account' => account)
+  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
+  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
+  #   rescue Exception => e
+  #     CC.logger.error("Error on reply_message_to_device")
+  #     print_ruby_exeption(e)
+  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
+  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+  #   end
+  # end
 
   ############### Logger ###############################################
   def log_debug(str_msg)
-    CC_SDK.logger.debug("Agent XX_PROJECT_NAME: #{str_msg}")
+    CC.logger.debug("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_info(str_msg)
-    CC_SDK.logger.info("Agent XX_PROJECT_NAME: #{str_msg}")
+    CC.logger.info("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_warn(str_msg)
-    CC_SDK.logger.warn("Agent XX_PROJECT_NAME: #{str_msg}")
+    CC.logger.warn("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   def log_error(str_msg)
-    CC_SDK.logger.error("Agent XX_PROJECT_NAME: #{str_msg}")
+    CC.logger.error("Agent XX_PROJECT_NAME: #{str_msg}")
   end
 
   ############### Redis ################################################

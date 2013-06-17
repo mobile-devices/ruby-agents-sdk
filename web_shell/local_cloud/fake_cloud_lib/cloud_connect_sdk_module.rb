@@ -7,6 +7,7 @@ require 'logger'
 require 'redis'
 require 'redis-namespace'
 
+# Cloud connect SDK Side Implementation
 
 module CloudConnectSDK
   # wrapper from indigen
@@ -44,7 +45,11 @@ module CloudConnectSDK
     @redis ||= Redis.new(:host => 'localhost', :port =>  '7879')
   end
 
+  # send outside the cloud
+  def push(hash_msg)
+    push_something_to_device(hash_msg)
+  end
 
 end
 
-CC_SDK = CloudConnectSDK
+CC = CloudConnectSDK

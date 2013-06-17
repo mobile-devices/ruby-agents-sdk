@@ -5,13 +5,6 @@
 
 module SDK_STATS
 
-  #stats :
-  class StatTypeSet < Struct.new(:presence, :msg, :track)
-    def initialize(presence = 0, msg = 0, track = 0) # constructor
-      super
-    end
-  end
-
   def reset_stats
     @daemon_stat = {
       'server' => {

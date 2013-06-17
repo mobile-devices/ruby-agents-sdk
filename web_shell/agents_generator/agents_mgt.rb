@@ -45,13 +45,13 @@ module AgentsGenerator
 
     # forward messages to agent
     agents_generated_code += "\n"
-    agents_generated_code += "def handle_presence(meta, payload, account)\n"
+    agents_generated_code += "def handle_presence(presence)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      agents_generated_code += "    \$#{agent}_initial.handle_presence(meta, payload, account)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs PRESENCE')\n"
+      agents_generated_code += "    \$#{agent}_initial.handle_presence(presence)\n"
+      agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA runs PRESENCE '\#{presence.type}'\")\n"
       agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC_SDK.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
+      agents_generated_code += "    CC.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][0] += 1\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
@@ -60,13 +60,13 @@ module AgentsGenerator
     }
     agents_generated_code += "end\n\n"
 
-    agents_generated_code += "def handle_message(meta, payload, account)\n"
+    agents_generated_code += "def handle_message(message)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      agents_generated_code += "    \$#{agent}_initial.handle_message(meta, payload, account)\n"
+      agents_generated_code += "    \$#{agent}_initial.handle_message(message)\n"
       agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs MSG')\n"
       agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC_SDK.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
+      agents_generated_code += "    CC.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][1] += 1\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
@@ -75,13 +75,13 @@ module AgentsGenerator
     }
     agents_generated_code += "end\n\n"
 
-    agents_generated_code += "def handle_track(meta, payload, account)\n"
+    agents_generated_code += "def handle_track(track)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      agents_generated_code += "    \$#{agent}_initial.handle_track(meta, payload, account)\n"
+      agents_generated_code += "    \$#{agent}_initial.handle_track(track)\n"
       agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs TRACK')\n"
       agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC_SDK.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
+      agents_generated_code += "    CC.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][2] += 1\n"
       agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
@@ -90,14 +90,14 @@ module AgentsGenerator
     }
     agents_generated_code += "end\n\n"
 
-    agents_generated_code += "def handle_order(agent, order, params)\n"
+    agents_generated_code += "def handle_order(order)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  if agent == \"#{agent}\"\n"
       agents_generated_code += "    begin\n"
-      agents_generated_code += "      \$#{agent}_initial.handle_order(order, params)\n"
+      agents_generated_code += "      \$#{agent}_initial.handle_order(order)\n"
       agents_generated_code += "      PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs ORDER')\n"
       agents_generated_code += "    rescue => e\n"
-      agents_generated_code += "      CC_SDK.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order}\")\n"
+      agents_generated_code += "      CC.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order}\")\n"
       agents_generated_code += "      print_ruby_exeption(e)\n"
       agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['err_while_process'][3] += 1\n"
       agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
@@ -246,7 +246,7 @@ module AgentsGenerator
     elsif channels.is_a? Hash
       channels
     else
-      p "get_agent_dyn_channel: unkown format of #{cnf}"
+      p "get_agent_dyn_channel: unkown format of #{cnf} for dynchannels of agent #{name}"
     end
   end
 

@@ -185,7 +185,7 @@ module CloudConnectServices
       end
     end
 
-    def reply_with(content)
+    def reply_content(content)
       msg = self.dup
       msg.parent_id = self.id
       msg.id = CC.indigen_next_id

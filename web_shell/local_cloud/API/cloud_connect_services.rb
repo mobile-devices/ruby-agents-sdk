@@ -167,7 +167,7 @@ module CloudConnectServices
 
         CC.push(self.to_hash)
 
-        if @is_reply
+        if self.meta['is_reply']
           SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['reply_sent_to_device'] += 1
         else
           SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['push_sent_to_device'] += 1
@@ -176,7 +176,7 @@ module CloudConnectServices
       rescue Exception => e
         CC.logger.error("Error on push with reply=#{@is_reply}")
         print_ruby_exeption(e)
-        if @is_reply
+        if self.meta['is_reply']
           SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_reply'] += 1
         else
           SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_push'] += 1
@@ -186,14 +186,14 @@ module CloudConnectServices
     end
 
     def reply_content(content)
-      msg = self.dup
+      msg = self.clone
       msg.parent_id = self.id
       msg.id = CC.indigen_next_id
       msg.content = content
 
-      @is_reply = true
+      msg.meta['is_reply'] = true
       msg.push(this.asset, this.account)
-      @is_reply = false
+      msg.meta['is_reply'] = nil
     end
 
   end

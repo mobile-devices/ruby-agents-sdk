@@ -1,0 +1,22 @@
+<% Dir.foreach(File.join(Env['output_directory'], 'server', 'ruby')) do |file|
+  next unless /.rb$/.match(file) %>
+require_relative '<%= file %>'<% end %>
+
+module ProtogenAPIs
+
+  def self.encode(message)
+    Protogen::Codec.encode(message.content, message.cookies, message.asset)
+  end
+
+  def self.decode(message)
+    Protogen::Codec.decode(message.content, message.asset)
+  end
+
+  def self.process(message)
+    case message.content<% Env['msg_seq_dev'].each do |msg,seq| %>
+    when Protogen::Messages::<%= msg %> # <%= seq %> sequence
+      <%= "#{Env['sequences'][seq]['callback'] || seq}(message)" %><% end %>
+    end
+  end
+
+end

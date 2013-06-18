@@ -1,0 +1,110 @@
+require 'json'
+require '<%= Env['proto_file_name'] %>'
+
+module Codec
+
+  PROTOCOL_VERSION = <%= Env['protocol_version'] %>
+  PG_VERSION = "<%= ::ProtocolGenerator.version %>"
+
+  def self.encode(msg_object, cookies, asset, validity_length=Array.new(cookies.size))
+    wrap = Messages::MDI_MessageWrapper.new
+    case msg_object <% for message in Env['sendable_messages'] %>
+    when Messages::<%= message %>
+      wrap.type = Messages::MDI_MessageWrapper::MessageType::<%= message.upcase %>
+      wrap.<%= message.downcase %> = msg_object<% end %>
+    else raise 'Unknown message'
+    end
+    <% if Env['use_cookies'] %>
+    cookie_list = Messages::MDI_MessageWrapper::CookieList.new
+    cookies.each_with_index do |cookie,i|
+      vl_i = validity_length[i] || 12 # validity_length must contain an integer or nil for default value
+      passwd_i = CookiePasswdMgr.get_passwd(cookie.class, vl_i, 10)
+
+      case cookie<% Env['cookie_names'].each do |cookie_name| %>
+      when Messages::MDI_MessageWrapper::CookieList::EncryptedCookie::<%= cookie_name %>
+        enc_cookie = Messages::MDI_MessageWrapper::CookieList::EncryptedCookie.new
+        enc_cookie.data, enc_cookie.signature, enc_cookie.expiration = CookieMgr.encrypt(cookie.serialize_to_string,passwd_i,asset,vl_i)
+        cookie_list.encrypted_<%= cookie_name.downcase %> = enc_cookie<% end %>
+      end
+    end
+    wrap.cookies = cookie_list
+    <% end %>
+    wrap.serialize_to_string
+  end
+
+  # This function unwraps the object using its metadata, and give out cookies and the object
+  # if cookie feature is not used, the parameters asset, and passwd_list will be ignored
+  def self.decode(msg, asset<%if !Env['use_cookies']%>=nil<%end%>)
+    wrap = Messages::MDI_MessageWrapper.new
+    wrap.parse_from_string msg
+    case wrap.type <% for message in Env['sendable_messages'] %>
+    when Messages::MDI_MessageWrapper::MessageType::<%= message.upcase %>
+      obj = wrap.<%= message.downcase %><% end %>
+    else raise 'Unknown message'
+    end
+
+    cookies = []
+    <% if Env['use_cookies'] %>
+    passwd_list = CookiePasswdMgr.get_all_passwd(wrap.type.to_s)
+    <% Env['cookie_names'].each do |cookie_name| %>
+    valid = false
+    enc_cookie = wrap.cookies.encrypted_<%= cookie_name.downcase %>
+    valid,raw_cookie = CookieMgr.decrypt(enc_cookie.data,enc_cookie.signature,enc_cookie.expiration,passwd_list,asset) unless wrap.cookies.encrypted_<%= cookie_name.downcase %>.nil?
+    if valid
+      temp_cookie = Messages::MDI_MessageWrapper::CookieList::EncryptedCookie::<%= cookie_name %>.new
+      cookies << temp_cookie.parse_from_string(raw_cookie)
+    end
+    <% end end %>
+    [obj, cookies]
+  end
+
+  class ::Protobuf::Message
+    def to_json
+      JSON.pretty_generate({ self.class.to_s.split('::').last => self.to_hash })
+    end
+  end
+end
+
+def test(mode)
+  input = STDIN.read
+  if mode == "-E"
+    input = JSON.parse input
+    case input.keys.first
+      <% Env['structure'].each do |message, content| %>
+        when "<%= message %>"
+          <%= message.downcase %> = Messages::<%= message %>.new
+          p Messages.encode instantiation(<%= message.downcase %>, input["<%= message %>"])
+        <% end %>
+    end
+  elsif mode == "-D"
+    message = Messages.decode(input)
+    puts message.to_json
+  else
+    return "Wrong argument"
+  end
+end
+
+def instantiation(object, input)
+  object.each_field do |field|
+    if field.repeated?
+      input[field.name.to_s].each do |value|
+        if Protobuf::Field::PREDEFINED_TYPES.include?(field.type) || field.class == Protobuf::Field::EnumField
+          object[field.name] << value
+        elsif field.class == Protobuf::Field::MessageField
+          object[field.name] << instantiation(field.type.new, value)
+        end
+      end
+    else
+      if Protobuf::Field::PREDEFINED_TYPES.include?(field.type) || field.class == Protobuf::Field::EnumField
+        object[field.name] = input[field.name.to_s]
+      elsif field.class == Protobuf::Field::MessageField
+        object[field.name] = instantiation(field.type.new, input[field.name.to_s])
+      end
+    end
+  end
+  return object
+end
+
+if __FILE__ == $0
+  test(ARGV[0])
+end

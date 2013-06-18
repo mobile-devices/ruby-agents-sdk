@@ -1,0 +1,29 @@
+package <%= Env['package_name']%>;
+
+option java_package = <%= '"'+Env['java_package']+'"' %>;
+option java_outer_classname = <%= '"'+"MDIMessages"+'"' %>;
+
+<%= plugin.generate_proto(Env['messages_tmp'],0, 'messages.proto.erb')  %>
+
+message MDI_MessageWrapper {
+  enum MessageType {<% Env["sendable_messages"].each_with_index do |message, index| %>
+    <%= message.upcase %> = <%= index %>;<% end %>
+  }
+  required MessageType type = 1;
+  <% if Env['use_cookies'] %>
+  message CookieList {
+    message EncryptedCookie {
+      required int32 expiration = 1;
+      required bytes signature = 2;
+      required bytes data = 3;
+      <%= plugin.generate_proto('TOREMOVE', 4, 'cookies.proto.erb') %>
+    }
+    <% Env["cookie_names"].each_with_index do |cookie_name, index|%>
+    optional EncryptedCookie encrypted_<%= cookie_name.downcase %> = <%= index+1 %>;<%
+    end %>
+  }
+  required CookieList cookies = 2;
+  <% end %>
+  <% Env["sendable_messages"].each_with_index do |message, index| %>optional <%= message %> <%= message.downcase %> = <%= index+3 %>;
+  <% end %>
+}

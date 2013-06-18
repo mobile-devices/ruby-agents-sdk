@@ -17,6 +17,11 @@ end
 # User code
 require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
 
+# Protogen
+if File.exist?('protogen_XX_PROJECT_NAME/protogen_apis.rb')
+  require_relative 'protogen_XX_PROJECT_NAME/protogen_apis'
+end
+
 # XX_PROJECT_NAME agent
 class Agent_XX_PROJECT_NAME
 
@@ -50,6 +55,8 @@ class Agent_XX_PROJECT_NAME
   end
 
   def handle_message(message)
+    msg_type = ""
+
     a_channel_is_valid = false
     @CHANNEL.each { |chan|
       if payload['channel'] == chan
@@ -61,8 +68,31 @@ class Agent_XX_PROJECT_NAME
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     PUNK.start('handle')
+
+    begin
+      msg, cookies = ProtogenAPIs.decode(message.content)
+      message.content = msg
+      message.meta['content_cookie'] = cookies
+      msg_type = msg.class
+
+      # do stats
+
+      is_protogen = true
+    rescue Protogen::UnknownMessageType => e
+      # direct run
+      is_protogen = false
+      CC.logger.warn('Server: handle_message: message unrecognized by protogen, keep as it')
+    end
+
+    # process
     CC.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
-    new_message_from_device(message)
+    if is_protogen
+      ProtogenAPIs.process(message)
+    else
+      new_message_from_device(message)
+    end
+
+    msg_type
   end
 
   def handle_track(track)
@@ -182,6 +212,8 @@ class Agent_XX_PROJECT_NAME
   end
 
   ######################################################################
+
+  include ProtogenAPIs if defined? ProtogenAPIs
 
   include Initial_agent_XX_PROJECT_NAME
 

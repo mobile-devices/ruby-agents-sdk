@@ -1,0 +1,12 @@
+package <%= Env['java_package']%>;
+
+import <%= Env['java_package']%>.<%= Env['java_messages_class'] %>.*;
+
+public interface IMessageController {
+  <% Env['msg_callbacks_dev'].each do |callback,message| %>
+  void <%= callback %>(<%= message %> message);
+  <% end %>
+  <% Env['timeout_callbacks_dev'].each do |callback| %>
+  void <%= callback %>();
+  <% end %>
+}

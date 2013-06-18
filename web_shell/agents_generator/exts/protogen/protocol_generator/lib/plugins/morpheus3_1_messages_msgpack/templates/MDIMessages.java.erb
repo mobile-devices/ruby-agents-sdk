@@ -1,0 +1,85 @@
+package <%= Env['java_package']%>;
+
+import java.util.HashMap;
+import org.msgpack.type.MapValue;
+import org.msgpack.type.Value;
+
+
+public class MDIMessages {
+  public static final int PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
+  public static final String PG_VERSION = "<%= ::ProtocolGenerator.version %>";
+
+  <% Env['declared_types'].each_with_index do |type, index| %>
+  public static final int ID_<%= type.upcase %> = <%= index %>; <% end %>
+
+  public interface <%= Env['java_message_parent_class'] %> {}
+
+  <% Env['declared_types'].each do |type| %>
+  public static class <%= type %> implements <%= Env['java_message_parent_class'] %> {
+  <% Env['fields'][type].each do |field|
+    ft=Env['messages'][type][field]['type']
+    is_array = Env['messages'][type][field]['array'] %>
+    public <%= MSGPACK2JAVA[ft]||ft %><%= ( is_array ? '[]' : '' ) %> <%= field %> = <%= plugin.nullvalue(ft, is_array) %>;<% end %>
+
+    public <%= type %>() {}
+
+    public <%= type %>(MapValue hm) {
+      for (java.util.Map.Entry<Value, Value> kv : hm.entrySet()) {
+        String key = kv.getKey().asRawValue().getString();
+        <% Env['fields'][type].each do |field|
+        %>if (key.equals("<%= field %>")) {<%
+          ft = Env['messages'][type][field]['type']
+            if Env['messages'][type][field]['array'] %>
+          Value[] tab = kv.getValue().asArrayValue().getElementArray();
+          <%= field %> = new <%= (ft == 'bytes' ? "byte[tab.length][]" : "#{MSGPACK2JAVA[ft]||ft}[tab.length]") %>;
+          for(int i = 0 ; i < tab.length ; i++){
+            <%= field %>[i] = <%=
+            case ft
+            when 'string' then "tab[i].asRawValue().getString()"
+            when 'int' then "tab[i].asIntegerValue().getInt()"
+            when 'bool' then "tab[i].asBooleanValue().getBoolean()"
+            when 'float' then "tab[i].asFloatValue().getFloat()"
+            when 'bytes' then "tab[i].asRawValue().getByteArray()"
+            when *Env['declared_types'] then "new #{ft}(tab[i].asMapValue())"
+            when 'msgpack' then "tab[i]"
+            else raise "#{ft} conversion not implemented."
+            end %>;
+          }
+          <% else %>
+          <%= field %> = <%=
+            case ft
+            when 'string' then "kv.getValue().asRawValue().getString()"
+            when 'int' then "kv.getValue().asIntegerValue().getInt()"
+            when 'bool' then "kv.getValue().asBooleanValue().getBoolean()"
+            when 'float' then "kv.getValue().asFloatValue().getFloat()"
+            when 'bytes' then "kv.getValue().asRawValue().getByteArray()"
+            when *Env['declared_types'] then "new #{ft}(kv.getValue().asMapValue())"
+            when 'msgpack' then "kv.getValue()"
+            else raise "#{ft} conversion not implemented."
+            end %>;<% end %>
+        } else <% end %> {
+          // TODO : log unknown field ?
+        }
+      }
+    }
+
+    public HashMap<String,Object> toHash() {
+      HashMap<String,Object> hm = new HashMap<String,Object>();
+<% Env['fields'][type].each do |field|
+    ft = Env['messages'][type][field]['type']
+    if Env['declared_types'].include?(ft)
+      if Env['messages'][type][field]['array'] -%>
+      HashMap<String,Object>[] _<%= field %> = new HashMap[<%= field %>.length];
+      for(int i = 0; i < <%= field %>.length; i++) {
+        _<%= field %>[i] = <%= field %>[i].toHash();
+      }
+      hm.put("<%= field %>",_<%= field %>);<% else -%>
+      hm.put("<%= field %>",<%= field %>.toHash());<% end; else -%>
+      hm.put("<%= field %>",<%= field %>);<% end %>
+<% end %>
+      return hm;
+    }
+  }
+  <% end %>
+
+}

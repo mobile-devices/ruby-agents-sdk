@@ -165,9 +165,23 @@ module CloudConnectServices
         # set acount is meta
         self.meta['account'] = account
 
+        is_reply = self.meta['is_reply']
+        self.meta['is_reply'] = nil
+
+        # Protogen encode
+        if defined? ProtogenAPIs
+          begin
+            self.content = ProtogenAPIs.encode_content_of_message(self)
+          rescue Protogen::UnknownMessageType => e
+            CC.logger.warn('CloudConnectServices:Messages.push: unknown message type')
+          end
+        else
+          CC.logger.warn('CloudConnectServices:Messages.push: ProtogenAPIs not defined')
+        end
+
         CC.push(self.to_hash)
 
-        if self.meta['is_reply']
+        if is_reply
           SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['reply_sent_to_device'] += 1
         else
           SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['push_sent_to_device'] += 1
@@ -176,7 +190,7 @@ module CloudConnectServices
       rescue Exception => e
         CC.logger.error("Error on push with reply=#{@is_reply}")
         print_ruby_exeption(e)
-        if self.meta['is_reply']
+        if is_reply
           SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_reply'] += 1
         else
           SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_push'] += 1

@@ -1,0 +1,27 @@
+
+module Protogen
+
+module Dispatcher
+
+  PROTOCOL_VERSION = <%= Env['protocol_version'] %>
+  PG_VERSION = "<%= ::ProtocolGenerator.version %>"
+
+  def self.dispatch_messages(gate,enc_msg) # Called by the Gate
+    message, cookies = Codec.decode(enc_msg, gate.asset)
+
+  	case message<% Env['msg_seq_dev'].each do |msg,seq| %>
+    when Messages::<%= msg %> # <%= seq %> sequence
+      <%= "#{Env['sequences'][seq]['callback'] || seq}(gate,message,cookies)" %><% end %>
+  	end
+  end
+
+  def self.send(gate, message, cookies, validity_length=[])
+    gate.send(Codec.encode(message, cookies, gate.asset))
+  end
+
+  def self.reply(gate, message, cookies, validity_length=[])
+    gate.reply(Codec.encode(message, cookies, gate.asset))
+  end
+end
+
+end

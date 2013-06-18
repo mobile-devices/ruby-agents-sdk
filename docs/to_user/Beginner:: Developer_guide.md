@@ -1,21 +1,22 @@
 
 This documentation applies to sdk vm XXXX_VERSION.
 
-The ruby_workspace folder is your workspace, you can't move it or rename it, but you can sym-link it if you want.
+The **ruby_workspace** folder is your workspace, you can't move it or rename it, but you can sym-link it if you want.
 
-## Project management
-To manage projects, go to http://localhost:5000/ with your favourite browser (you should use the ip of the VM's host instead of 'localhost' in order to access it through the network).
+## Agents management
+Gui interface : http://localhost:5000/
 
 On this page, you can create/start/stop a project then apply and reboot the VM's ruby server to apply your modifications.
 
-## Project structure
+## Agent structure
  When you have created your project in the SDK Agents tab you will see a folder with the same name in your workspace, it looks like :
 
 * **initial.rb** : where your code adventure starts.
 * **Gemfile** : where you put gems you need.
 * **README.md** : where you explain what you do because documentation is mandatory.
 * **config/** : folder where you put your configuration.
-* **config/schedule.rb** : whenever file to create cron rules for scripts created in cron_tasks folder.
+* **config/protogen.json** : configuration of classes that can be exchange between device and server.
+* **config/schedule.rb** : whenever file to create your schedules cron rules folder.
 * **modules/** : folder where you create your ruby modules.
 
 You will also find in your workspace an sdk_logs with you find your agent's logs and also server's logs.

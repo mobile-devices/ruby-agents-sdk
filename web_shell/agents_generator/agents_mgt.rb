@@ -18,19 +18,56 @@ module AgentsGenerator
     @ROOT_PATH_WORKSPACE ||= "#{source_path}/../../cloud_agents"
   end
 
+  def protogen_bin_path()
+    @PROTOGEN_BIN_PATH ||= "#{source_path}/exts/protogen/protocol_generator/"
+  end
+
   #########################################################################################################
   ## compile
 
   def generate_agents()
+    puts "\n========= generate_agents start ==============="
+
     # get agents to run
     agents_to_run = get_run_agents
 
     puts "generate_agents of #{agents_to_run.join(', ')}"
 
-
     agents_generated_code = ""
 
     template_agent_src = File.read("#{source_path}/template_agent.rb_")
+
+    # protogen
+    agents_to_run.each { |agent|
+
+      next unless File.exist?("#{workspace_path}/#{agent}/config/protogen.json")
+
+      # generate compil conf
+      java_pkg = get_agent_java_package(agent)
+      compil_opt = {
+        "plugins" => ["mdi_ruby_sdk_vm"],
+        "server_output_directory" => "#{source_path}/cloud_agents_generated/protogen_#{agent}",
+        "device_output_directory" => "#{workspace_path}/#{agent}/device_side_generated",
+        "java_package" => java_pkg,
+        "mdi_framework_jar" => "config/mdi-framework-3.X.jar",
+        "keep_java_source":false
+      }
+      puts "generating protogen for agent #{agent} with config :\n #{compil_opt}"
+      File.open('/tmp/protogen_conf.json', 'w') { |file| file.write(compil_opt.to_json)}
+
+      # create output dir for java jar
+      FileUtils.mkdir_p(compil_opt['device_output_directory'])
+      # create dir for ruby side code
+      FileUtils.mkdir_p(compil_opt['server_output_directory'])
+
+      # call protogen
+      command = "cd #{protogen_bin_path}; ruby protogen.rb #{workspace_path}/#{agent}/config/protogen.json /tmp/protogen_conf.json"
+      puts "running command #{command} :"
+      output = `#{command}`
+
+      p "Protogen output:\n #{output}\n\n"
+
+    }
 
     # template generation
     agents_to_run.each { |agent|
@@ -63,8 +100,8 @@ module AgentsGenerator
     agents_generated_code += "def handle_message(message)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
-      agents_generated_code += "    \$#{agent}_initial.handle_message(message)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs MSG')\n"
+      agents_generated_code += "    msg_type = \$#{agent}_initial.handle_message(message)\n"
+      agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA runs MSG '\#{msg_type}'\")\n"
       agents_generated_code += "  rescue => e\n"
       agents_generated_code += "    CC.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
@@ -92,12 +129,12 @@ module AgentsGenerator
 
     agents_generated_code += "def handle_order(order)\n"
     agents_to_run.each { |agent|
-      agents_generated_code += "  if order.agent == \"#{agent}\"\n"
+      agents_generated_code += "  if order.agent == '#{agent}'\n"
       agents_generated_code += "    begin\n"
       agents_generated_code += "      \$#{agent}_initial.handle_order(order)\n"
-      agents_generated_code += "      PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs ORDER')\n"
+      agents_generated_code += "      PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA runs ORDER '\#{order.code}' \")\n"
       agents_generated_code += "    rescue => e\n"
-      agents_generated_code += "      CC.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order}\")\n"
+      agents_generated_code += "      CC.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order.code}\")\n"
       agents_generated_code += "      print_ruby_exeption(e)\n"
       agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['err_while_process'][3] += 1\n"
       agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
@@ -239,16 +276,37 @@ module AgentsGenerator
 
     channels = cnf['Dynamic_channel_str']
 
-    p channels
-
     if channels.is_a? String
       [] << channels
     elsif channels.is_a? Hash
       channels
     else
-      p "get_agent_dyn_channel: unkown format of #{cnf} for dynchannels of agent #{name}"
+      p "get_agent_dyn_channel: unkown format of #{channels} for dynchannels of agent #{name}"
     end
   end
+
+    # return an array of string
+  def get_agent_java_package(name)
+    return [] unless File.directory?("#{workspace_path}/#{name}")
+    cnf = []
+    if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
+    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
+    end
+
+    pkg_name = cnf['Device_side_package_name_str']
+
+    if pkg_name == nil
+      "com.mdi.services.#{name}.protogen"
+    elsif pkg_name.is_a? String
+      pkg_name
+    else
+      p "get_agent_java_package: unkown format of #{pkg_name} for java package name of agent #{name}"
+      "com.mdi.services.#{name}.protogen"
+    end
+  end
+
 
   #########################################################################################################
   ## Basic tools
@@ -326,7 +384,7 @@ module AgentsGenerator
             #puts "found #{in_par_cmd}"
             final_map[assigned_agent] << "{#{in_par_cmd}}"
           rescue Exception => e
-            puts "get_agents_cron_tasks error on line #{line}"
+            puts "get_agents_cron_tasks error on line #{line} :\n #{e}"
           end
         end
       }

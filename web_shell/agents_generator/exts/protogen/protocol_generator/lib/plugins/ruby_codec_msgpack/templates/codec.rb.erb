@@ -1,0 +1,62 @@
+### Do not edit
+require 'msgpack'
+
+module Protogen
+
+  class UnknownMessageType < Exception
+  end
+
+module Codec
+
+  PROTOCOL_VERSION = <%= Env['protocol_version'] %>
+  PG_VERSION = "<%= ::ProtocolGenerator.version %>"
+
+  def self.encode(object, cookies, asset, validity_length=Array.new(cookies.size))
+
+    msg_hash = {'v' => PROTOCOL_VERSION }
+
+    msg_hash['type'] = case object <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
+    when Messages::<%= type %> then Messages::ID_<%= type.upcase %> <% end %>
+    else
+      raise UnknownMessageType, "The following object is not sendable: #{object.class}."
+    end
+
+    msg_hash['msg'] = object.to_hash
+    <% if Env['use_cookies'] %>
+    cookies.each_with_index do |cookie,i|
+      vl_i = validity_length[i] || cookie.class.validity_time # validity_length must contain an integer or nil for default value
+      passwd_i = CookiePasswdMgr.get_passwd(cookie.class, vl_i, 10)
+
+      case cookie<% Env['cookie_names'].each do |cookie_name| %>
+      when Cookies::<%= cookie_name %> then msg_hash['_<%= cookie_name %>'] = CookieMgr.encrypt(cookie.to_hash.to_json,passwd_i,asset,vl_i) <% end %>
+      end
+    end
+    <% end %>
+    msg_hash.to_msgpack
+  end
+
+  def self.decode(msg, asset<%if !Env['use_cookies']%>=nil<%end%>)
+    msg_hash = MessagePack.unpack(msg)
+
+    protocol_version = msg_hash['v'] # TODO : Use it.
+
+    obj = case msg_hash['type'] <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
+    when Messages::ID_<%= type.upcase %> then Messages::<%= type %>.from_hash(msg_hash['msg']) <% end %>
+    else
+      raise UnknownMessageType, "The following object type is not decodable: #{msg_hash['type']}."
+    end
+    cookies = []
+    <% if Env['use_cookies'] %>
+    passwd_list = CookiePasswdMgr.get_all_passwd(msg_hash['type'])
+    <% Env['cookie_names'].each do |cookie_name| %>
+    cookie = msg_hash['_<%= cookie_name %>']
+    valid = false
+    valid,raw_cookie = CookieMgr.decrypt(cookie[0],cookie[1],cookie[2],passwd_list,asset) unless cookie.nil?
+    cookies << Cookies::<%= cookie_name %>.from_hash(JSON.load(raw_cookie)) if valid
+    <% end %>
+    <% end %>
+    [obj, cookies]
+  end
+
+end
+end

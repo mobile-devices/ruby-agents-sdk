@@ -1,0 +1,106 @@
+package <%= Env['java_package']%>;
+
+import com.mdi.services.binaryGate.BinaryGate;
+import com.mdi.services.messageGate.MessageGate;
+import com.mdi.tools.std.BuffRef;
+import com.mdi.tools.std.IntRef;
+import com.mdi.tools.std.LongRef;
+import com.mdi.tools.dbg.Debug;
+import com.mdi.tools.helpers.messagegate.IndependantMessageHandler;
+import com.mdi.tools.helpers.messagegate.Message;
+import com.mdi.tools.helpers.messagegate.MessageGateHelper;
+
+import <%= Env['java_package']%>.Codec.UnknownMessage;
+
+public class Dispatcher implements IndependantMessageHandler {
+
+  public static final int PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
+  public static final String PG_VERSION = "<%= ::ProtocolGenerator.version %>";
+
+  private Debug _dbg = null;
+  private IMessageController _messageController = null;
+
+  public Dispatcher(IMessageController msgc, Debug dbg) {
+    _dbg = dbg;
+    _messageController = msgc;
+  }
+
+  public boolean processMessage(BuffRef data, IntRef timestamp, LongRef refMessageId, long serverMsgId) {
+    try {
+      <%= Env['java_messages_class']%>.<%= Env['java_message_parent_class'] %> message = Codec.decode(data);
+      <% if Env['msg_indep'].size  == 0 %>_dbg.error("Droping an unexpected message: " + message.getClass() + '.');
+      return false;<%
+      else %><% Env['msg_indep'].each do |msg,content| %>if (message.getClass() == <%= Env['java_messages_class'] %>.<%= msg %>.class) {
+        _messageController.<%= content['callback']%>((<%= Env['java_messages_class'] %>.<%= msg %>)message);
+        return true;
+      } else <% end %> {
+        _dbg.error("Droping an unexpected message: " + message.getClass() + '.');
+        return false;
+      } <% end %>
+    } catch (Codec.UnknownMessage e) {
+      _dbg.error(e.getMessage());
+      return false;
+    }
+  }
+  <% Env['msg_seq_dev'].each do |msg,seq|
+    timeout_calls = Env['sequences'][seq]['timeout_calls'] %>
+  public class Proxy<%= msg %> extends Message {
+    private Debug _dbg = null;
+
+    public Proxy<%= msg %>(BuffRef data, Debug dbg) {
+      super(data, true, -1, <%= Env['sequences'][seq]['timeouts']['response'] || -1 %>, <%= Env['sequences'][seq]['timeouts']['send'] || -1 %>);
+      _dbg = dbg;
+    }
+
+    @Override
+    public void onReply(BuffRef data, IntRef timestamp, long serverMsgId) {
+      try {
+        <%= Env['java_messages_class']%>.<%= Env['java_message_parent_class'] %> message = Codec.decode(data);
+        <% if Env['msg_replies_dev'][msg].nil? || Env['msg_replies_dev'][msg].size == 0
+        %>_dbg.error("Droping an unexpected message: " + message.getClass() + '.');<%
+        else Env['msg_replies_dev'][msg].each do |ans_msg,ans_callback|
+        %>if (message.getClass() == <%= Env['java_messages_class'] %>.<%= ans_msg %>.class) {
+          _messageController.<%= ans_callback%>((<%= Env['java_messages_class'] %>.<%= ans_msg %>) message);
+        } else <% end %> {
+          _dbg.error("Droping an unexpected message: " + message.getClass() + '.');
+        }<% end %>
+      } catch (Codec.UnknownMessage e) {
+        _dbg.error(e.getMessage());
+      }
+    }
+
+    @Override public void onAckTimeOut() {<% if timeout_calls.include?('ack') %>
+      _messageController.<%= seq %>_ack_timeout();
+    <% end %>}
+    @Override public void onCancel() {}
+    @Override public void onResponseTimeOut() {<% if timeout_calls.include?('response') %>
+      _messageController.<%= seq %>_response_timeout();
+    <% end %>}
+    @Override public void onSendSucceed() {}
+    @Override public void onSendTimeOut() {<% if timeout_calls.include?('send') %>
+      _messageController.<%= seq %>_send_timeout();
+    <% end %>}
+    @Override public void onServerNAck() {}
+  }
+  <% end %>
+  public static class MessageSender {
+    private MessageGate _msggate = null;
+    private BinaryGate _bgate = null;
+    private MessageGateHelper _messageGateHelper  = null;
+    private Debug _dbg = null;
+    private Dispatcher _dispatcher = null;
+
+    public MessageSender(String channel, IMessageController msgc, MessageGate msggate, BinaryGate bgate, Debug dbg){
+      _bgate = bgate;
+      _msggate = msggate;
+      _dbg = dbg;
+      _dispatcher = new Dispatcher(msgc, _dbg);
+      _messageGateHelper = new MessageGateHelper(_msggate, _bgate, 0, _dispatcher, null, false, channel);
+    }
+    <% Env['msg_seq_dev'].each do |msg,seq| %>
+    public MessageGateHelper.Status send_<%= seq %>(<%= Env['java_messages_class'] %>.<%= msg %> data) throws UnknownMessage {
+      Proxy<%= msg %> message = _dispatcher.new Proxy<%= msg %>(Codec.encode(data), _dbg);
+      return _messageGateHelper.send(message);
+    }<% end %>
+  }
+}

@@ -1,0 +1,38 @@
+
+module <%= Env['ruby_agent_name'] %>
+
+  class Gate
+    def initialize(payload, account)
+      @payload = payload
+      @account = account
+    end
+
+    def send(enc_msg)
+      Message.new(@payload).push('account' => @account)
+    end
+
+    def reply(enc_msg)
+      Message.new(@payload).reply(enc_msg).push('account' => @account)
+    end
+
+    def asset
+      @payload['asset']
+    end
+  end
+
+  class <%= Env['ruby_agent_name'] %>Handler < MobileAgent::Base
+    def handle_message(meta, payload, account)
+      begin
+        if payload['channel'] == "<%= Env['channel_name'] %>"
+          <% if Env['use_cookies'] %>CookiePasswdMgr.init(CC.redis) <% end %>
+          Splitter.init(CC.redis)
+          gate = Gate.new(payload, account)
+          Dispatcher.dispatch_messages(gate,payload['payload'])
+        end
+      rescue Exception => e
+        DaemonKit.logger.error e.message
+        DaemonKit.logger.error e.backtrace.join("\n")
+      end
+    end
+  end
+end

@@ -1,0 +1,74 @@
+package <%= Env['java_package']%>;
+
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import com.mdi.tools.std.BuffRef;
+
+import <%= Env['java_package']%>.MDIMessages;
+import <%= Env['java_package']%>.MDIMessages.MDI_MessageWrapper;
+
+public class Codec {
+
+  public static final int PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
+  public static final String PG_VERSION = "<%= ::ProtocolGenerator.version %>";
+
+  public static class UnknownMessage extends Exception {
+    public UnknownMessage(String message) {
+        super(message);
+    }
+  }
+
+  public static com.google.protobuf.GeneratedMessage decode(BuffRef message) throws UnknownMessage {
+    MDI_MessageWrapper wrap;
+    try {
+      wrap = MDI_MessageWrapper.parseFrom(message.getBytes());
+    } catch (InvalidProtocolBufferException e) {
+      throw new UnknownMessage("Unknown protobuf message");
+    }
+<%
+  if Env['use_cookies']
+    Env['cookie_names'].each do |cookie_name|
+%>
+    if (wrap.getCookies().hasEncrypted<%= cookie_name %>()) {
+      CookieJar.set(CookieJar.<%= cookie_name.upcase %>_ID, new CookieJar.StoredCookie(
+        new BuffRef(wrap.getCookies().getEncrypted<%= cookie_name %>().getData().toByteArray()),
+        new BuffRef(wrap.getCookies().getEncrypted<%= cookie_name %>().getSignature().toByteArray()),
+        wrap.getCookies().getEncrypted<%= cookie_name %>().getExpiration()));
+    }<%
+    end
+  end
+%>
+
+    switch(wrap.getType())
+    {<% for message in Env['sendable_messages'] %>
+      case <%= message.upcase %>:
+        return wrap.get<%= message %>();<% end %>
+      default:
+        throw new UnknownMessage("Unknown message type");
+    }
+  }
+
+<% for message in Env['sendable_messages'] %>
+
+  public static BuffRef encode(MDIMessages.<%= message %> <%= message.downcase %>){
+    MDI_MessageWrapper.Builder wrap = MDI_MessageWrapper.newBuilder();
+    wrap.setType(MDI_MessageWrapper.MessageType.<%= message.upcase %>);
+    wrap.set<%= message %>(<%= message.downcase %>);
+    <% if Env['use_cookies'] %>
+    CookieJar.clean();
+    MDI_MessageWrapper.CookieList.Builder cookiesbd = MDI_MessageWrapper.CookieList.newBuilder();<% Env['cookie_names'].each do |cookie_name|
+      next unless Env['cookies'][cookie_name]['_send_with'].include?(message) %>
+    if(CookieJar.has(CookieJar.<%= cookie_name.upcase %>_ID)){
+      MDI_MessageWrapper.CookieList.EncryptedCookie.Builder cookiebd = MDI_MessageWrapper.CookieList.EncryptedCookie.newBuilder();
+      CookieJar.StoredCookie storedCookie = CookieJar.get(CookieJar.<%= cookie_name.upcase %>_ID);
+      cookiebd.setData(ByteString.copyFrom(storedCookie.content.getBytes()));
+      cookiebd.setSignature(ByteString.copyFrom(storedCookie.signature.getBytes()));
+      cookiebd.setExpiration(storedCookie.expiration);
+      cookiesbd.setEncrypted<%= cookie_name %>(cookiebd.build());
+    }<% end %>
+    wrap.setCookies(cookiesbd.build());
+    <% end %>
+    return new BuffRef(wrap.build().toByteArray());
+  }<% end %>
+}

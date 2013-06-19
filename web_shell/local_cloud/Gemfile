@@ -8,6 +8,7 @@ gem 'hashie'
 gem 'thin'
 gem 'redis'
 gem 'redis-namespace'
+gem 'redis-lock' # needed for protogen
 gem 'activesupport', :require => "active_support/all"
 gem 'i18n'
 gem 'whenever', :require => false

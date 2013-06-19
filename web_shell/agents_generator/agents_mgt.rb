@@ -25,15 +25,30 @@ module AgentsGenerator
   #########################################################################################################
   ## compile
 
+  def add_to_rapport(txt)
+    @AgentsGenerator_rapport_generation += "#{txt}\n"
+    puts txt
+  end
+
+
   def generate_agents()
-    puts "\n========= generate_agents start ==============="
+    @AgentsGenerator_rapport_generation = ""
+
+    add_to_rapport("\n========= generate_agents start ===============")
 
     # get agents to run
     agents_to_run = get_run_agents
 
-    puts "generate_agents of #{agents_to_run.join(', ')}"
+    add_to_rapport("generate_agents of #{agents_to_run.join(', ')}")
 
     agents_generated_code = ""
+
+
+    agents_generated_code += "def generated_rb_path()\n"
+    agents_generated_code += "  @ROOT_PATH_AGENT_MGT ||= File.expand_path(\"..\", __FILE__)\n"
+    agents_generated_code += "end\n\n"
+
+
 
     template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
@@ -50,9 +65,9 @@ module AgentsGenerator
         "device_output_directory" => "#{workspace_path}/#{agent}/device_side_generated",
         "java_package" => java_pkg,
         "mdi_framework_jar" => "config/mdi-framework-3.X.jar",
-        "keep_java_source":false
+        "keep_java_source" => false
       }
-      puts "generating protogen for agent #{agent} with config :\n #{compil_opt}"
+      add_to_rapport(">>> Generating Protogen for #{agent} agent with config :\n #{compil_opt}")
       File.open('/tmp/protogen_conf.json', 'w') { |file| file.write(compil_opt.to_json)}
 
       # create output dir for java jar
@@ -61,11 +76,16 @@ module AgentsGenerator
       FileUtils.mkdir_p(compil_opt['server_output_directory'])
 
       # call protogen
+      command = "cd #{protogen_bin_path}; bundle install"
+      output = `#{command}`
+      add_to_rapport("Protogen bundle install:\n #{output}\n\n")
+
       command = "cd #{protogen_bin_path}; ruby protogen.rb #{workspace_path}/#{agent}/config/protogen.json /tmp/protogen_conf.json"
-      puts "running command #{command} :"
+      add_to_rapport "running command #{command} :"
       output = `#{command}`
 
-      p "Protogen output:\n #{output}\n\n"
+      add_to_rapport("Protogen output:\n #{output}\n\n")
+      add_to_rapport("Generating Protogen for #{agent} done \n")
 
     }
 
@@ -145,7 +165,14 @@ module AgentsGenerator
     agents_generated_code += "end\n\n"
 
 
+
+
+
+
+
     File.open("#{source_path}/cloud_agents_generated/generated.rb", 'w') { |file| file.write(agents_generated_code) }
+
+    add_to_rapport("Templates generated done\n")
 
     # Gemfile
     agents_Gemfile = ""
@@ -155,12 +182,16 @@ module AgentsGenerator
     }
     File.open("#{source_path}/cloud_agents_generated/Gemfile", 'w') { |file| file.write(agents_Gemfile) }
 
+    add_to_rapport("Gem file merged\n")
+
     # check config exist
     agents_to_run.each { |agent|
       if !(File.exist?("#{workspace_path}/#{agent}/config/#{agent}.yml.example"))
         restore_default_config(agent)
       end
     }
+
+    add_to_rapport("Config checked\n")
 
     #  generad dyn channel list
     dyn_channels = Hash.new()
@@ -175,7 +206,11 @@ module AgentsGenerator
 
     File.open("#{source_path}/cloud_agents_generated/dyn_channels.yml", 'w+') { |file| file.write(dyn_channels.to_yaml) }
 
-    p 'generate_agents done'
+    add_to_rapport("Dynamic channel merged\n")
+
+    add_to_rapport('generate_agents done')
+
+    @AgentsGenerator_rapport_generation
   end
 
   def generated_get_dyn_channel()

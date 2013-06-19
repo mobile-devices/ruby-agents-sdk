@@ -63,7 +63,13 @@ module PUNK
 
       # fill all pending with current line
       punks_pending.each { |pending|
+        begin
         line.delete!("\n")
+        rescue Exception => e
+          # utf8 errors
+          puts "error on line.delete #{e.inspect}"
+        end
+
         if line != ''
           pending.lines << line
         end

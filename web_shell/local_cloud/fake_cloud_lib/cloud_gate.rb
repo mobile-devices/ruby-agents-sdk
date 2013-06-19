@@ -25,7 +25,7 @@ def push_ack_to_device(message)
 
     parent_id = CC.indigen_next_id
 
-    payload['id'] = parent_id
+    message.id = parent_id
 
     channel_str = message.channel
 
@@ -33,22 +33,25 @@ def push_ack_to_device(message)
 
     CC.logger.debug("Server: push_ack_to_device: for channel #{channel_str} using number #{channel_int}")
 
-    msgAck = Message.new(payload) #just to have a message struct, buts beurk ! todo: fix it
+    msgAck = message.clone
+
+    #msgAck = Message.new(payload) #just to have a message struct, buts beurk ! todo: fix it
     ack_map = Hash.new()
     ack_map['channel'] =  channel_int
     ack_map['channelStr'] = channel_str
     ack_map['tmpId'] = tmp_id_from_device
     ack_map['msgId'] = parent_id
 
-    msgAck['payload'] = ack_map.to_json
-    msgAck['type'] = 'ackmessage'
+    msgAck.content = ack_map.to_json
+    msgAck.type = 'ackmessage'
+
 
     CC.logger.info("Server: push_ack_to_device: adding Ack message with tmpId=#{ack_map['tmpId']} and msgId=#{ack_map['msgId']}")
 
-    push_something_to_device({'meta' => { 'account' => 'vm-sdk'}, 'payload' => msgAck})
+    push_something_to_device(msgAck.to_hash)
     SDK_STATS.stats['server']['total_ack_queued'] += 1
   rescue Exception => e
-    CC.logger.error("Server: push_ack_to_device error with payload = \n#{payload}")
+    CC.logger.error("Server: push_ack_to_device error with payload = \n#{message}")
     print_ruby_exeption(e)
     return false
   end

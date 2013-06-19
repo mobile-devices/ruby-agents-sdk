@@ -1,18 +1,39 @@
 ### Do not edit
 require 'json'
 
+# This module namespaces all classes and modules used by protogen.
 module Protogen
 
+# This module contains all the protogen defined messages
+# @protogen_version <%= ::ProtocolGenerator.version %>
+# @protocol_version <%= Env['protocol_version'] %>
 module Messages
 
+  # Hardcoded protocol version
+  # @api private
   PROTOCOL_VERSION = <%= Env['protocol_version'] %>
+
+  # Hardcoded protogen version
+  # @api private
   PG_VERSION = "<%= ::ProtocolGenerator.version %>"
 
 <% Env['declared_types'].each_with_index do |type, index| %>
+  # Internal value describing a <%= type %>.
+  # @api private
+  # @see <%= type %>
   ID_<%= type.upcase %> = <%= index %> <% end %>
 <% Env['declared_types'].each do |type| %>
 
+  # <%= Env['messages'][type]['_description'] || "Protogen message object"%>
   class <%= type %>
+
+    <% Env['fields'][type].each do |field|
+    field_desc = Env['messages'][type][field]
+    is_array = field_desc['array']
+    doctype = MSGPACK2RUBY[field_desc['type']] || field_desc['type']
+    doctype = "Array<" + doctype + ">" if is_array %>
+    # @!attribute [rw] <%= field %>
+    #  @return [<%= doctype %>] <%= field_desc['docstring'] %><% end %>
 
     attr_accessor <%= Env['fields'][type].map{|f| ":#{f}"}.join(',') %>
 
@@ -20,6 +41,7 @@ module Messages
       @<%= field %> = <%= ( Env['messages'][type][field]['array'] ? '[]' : 'nil' ) %><% end %>
     end
 
+    # @api private
     def to_hash
       # TODO : Check the types <%
       Env['fields'][type].each do |field|
@@ -47,6 +69,7 @@ module Messages
       out_hash
     end
 
+    # @api private
     def self.from_hash in_hash
       # TODO : Check the types
       msg = Messages::<%= type %>.new

@@ -2,16 +2,34 @@
   next unless /.rb$/.match(file) %>
 require_relative '<%= file %>'<% end %>
 
+# Contains all the apis called by the Server SDK.
+# @protogen_version <%= ::ProtocolGenerator.version %>
+# @protocol_version <%= Env['protocol_version'] %>
 module ProtogenAPIs
 
+  # Encodes a protogen message object into a string, and join cookies
+  # @param [CCS::Message] message contains all information related to the
+  #   message. message.content must contain a Protogen::Message object.
+  # @raise [Protogen::UnknownMessageType] if message.content is not a protogen
+  #   message object.
+  # @return [String] Encoded protogen object
   def self.encode(message)
-    Protogen::Codec.encode(message.content, message.cookies, message.asset)
+    cookies = message.meta['protogen_cookies'] || []
+    Protogen::Codec.encode(message.content, cookies, message.asset)
   end
 
+  # Decodes a protogen encoded string, and cast it in the appropriate object
+  # @param [CCS::Message] message contains all information related to the
+  #   message (meta + payloads, protogen encoded string is in message.content)
+  # @raise [Protogen::UnknownMessageType] if the message content does not
+  #   correspond to any protogen message
+  # @return [Protogen::Message::MessageClass, Protogen::Cookies]
   def self.decode(message)
     Protogen::Codec.decode(message.content, message.asset)
   end
 
+  # Check the message protogen type, and call the defined callback accordingly.
+  # @param [CCS::Message] message message.content must be a protogen message object.
   def self.process(message)
     case message.content<% Env['msg_seq_dev'].each do |msg,seq| %>
     when Protogen::Messages::<%= msg %> # <%= seq %> sequence

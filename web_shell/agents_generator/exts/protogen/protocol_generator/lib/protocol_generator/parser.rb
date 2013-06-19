@@ -11,6 +11,17 @@ module ProtocolGenerator
     'msgpack' => 'Value'
   }.freeze
 
+  MSGPACK2RUBY = {
+    'int' => 'Fixnum',
+    'nil' => 'NilClass',
+    'bool' => 'bool', # No bool in ruby... TODO, find a workaroud
+    'float' => 'Float',
+    'bytes' => 'bytes',
+    'string' => 'String',
+    'msgpack' => 'Object'
+
+  }.freeze
+
   CONF_SCHEMA = {
     "type" => "object",
     'required' => true,
@@ -39,7 +50,8 @@ module ProtocolGenerator
     'properties' => {
       'type' => {'type'=>'string', 'required' => true},
       'modifier' => {'type'=>'string', 'required' => true},
-      'array' => {'type'=>'bool', 'required' => false}
+      'array' => {'type'=>'bool', 'required' => false},
+      'docstring' => {'type'=>'string', 'required' => false}
     }
   }.freeze
 
@@ -51,6 +63,7 @@ module ProtocolGenerator
       "^[A-Z]" => {
         'type' => 'object',
         'properties' => {
+          '_description' => {'type' => 'string', 'required' => false},
           '_way' => {'type' => 'string', 'enum' => ['toServer', 'toDevice', 'both', 'none'], 'required' => true},
           '_server_callback' => {'type' => 'string', 'required' => false},
           '_device_callback' => { 'type' => 'string', 'required' => false},

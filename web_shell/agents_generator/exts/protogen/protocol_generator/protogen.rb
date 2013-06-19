@@ -5,6 +5,7 @@ require 'erb'
 require 'fileutils'
 require 'json-schema'
 require 'rakejava'
+require 'yard'
 
 
 $LOAD_PATH << "#{File.dirname(__FILE__)}/lib"

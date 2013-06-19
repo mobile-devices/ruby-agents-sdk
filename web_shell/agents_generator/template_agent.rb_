@@ -17,13 +17,13 @@ end
 # User code
 require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
 
-# Protogen
-if File.exist?('protogen_XX_PROJECT_NAME/protogen_apis.rb')
-  require_relative 'protogen_XX_PROJECT_NAME/protogen_apis'
-end
-
 # XX_PROJECT_NAME agent
 class Agent_XX_PROJECT_NAME
+
+  # Protogen
+  if File.exist?("#{generated_rb_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
+    require_relative 'protogen_XX_PROJECT_NAME/protogen_apis'
+  end
 
   # Project
   @AGENT_NAME = 'XX_PROJECT_NAME'
@@ -36,14 +36,18 @@ class Agent_XX_PROJECT_NAME
     @CHANNEL = config['Dynamic_channel_str']
 
     if @CHANNEL.is_a? String
-      @CHANNEL = ["#{@CHANNEL}"]
+      @CHANNEL = ["#{@CHANNEL}","#{@AGENT_NAME}"]
     end
 
     if (@CHANNEL == nil) || (@CHANNEL.length == 0)
       @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
     end
-    log_debug("Agent_XX_PROJECT_NAME init with dynamic channel = \"#{@CHANNEL}\"")
+    @has_protogen = File.exist?("#{generated_rb_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
+
+
+    log_debug("Agent_XX_PROJECT_NAME init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
   end
+
 
   ######### Messages delivered for the agent ###########################
   def handle_presence(presence)
@@ -59,7 +63,7 @@ class Agent_XX_PROJECT_NAME
 
     a_channel_is_valid = false
     @CHANNEL.each { |chan|
-      if payload['channel'] == chan
+      if message.channel == chan
         a_channel_is_valid = true
       end
     }
@@ -69,27 +73,46 @@ class Agent_XX_PROJECT_NAME
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     PUNK.start('handle')
 
-    begin
-      msg, cookies = ProtogenAPIs.decode(message.content)
-      message.content = msg
-      message.meta['content_cookie'] = cookies
-      msg_type = msg.class
+    # decode content as base64
+    message.content = Base64.decode64(message.content)
 
-      # do stats
+    is_protogen = false
 
-      is_protogen = true
-    rescue Protogen::UnknownMessageType => e
-      # direct run
-      is_protogen = false
-      CC.logger.warn('Server: handle_message: message unrecognized by protogen, keep as it')
+    if @has_protogen
+      begin
+        # protogen decode
+        msg, cookies = ProtogenAPIs.decode(message)
+        message.content = msg
+        message.meta['protogen_cookies'] = cookies
+        msg_type = msg.class
+
+        # do stats
+
+        is_protogen = true
+      rescue Protogen::UnknownMessageType => e
+        # direct run
+        is_protogen = false
+        if $allow_non_protogen
+          CC.logger.warn("Server: handle_message: unknown protogen message type: #{e.inspect}")
+        else
+          raise e
+        end
+      end
+    else
+      if !($allow_non_protogen)
+        raise "No Protogen defined"
+      end
     end
+
+    CC.logger.debug("Server: message content is : \n #{message.content}")
 
     # process
     CC.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
     if is_protogen
-      ProtogenAPIs.process(message)
+      treat_poi_request(message)
+      #ProtogenAPIs.process(message)
     else
-      new_message_from_device(message)
+      new_msg_from_device(message)
     end
 
     msg_type

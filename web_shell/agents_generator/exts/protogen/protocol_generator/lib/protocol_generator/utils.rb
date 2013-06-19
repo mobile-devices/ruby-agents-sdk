@@ -2,8 +2,9 @@
 module ProtocolGenerator
   module Utils
     def self.render(erb_file, output_file, plugin=nil)
+      generated_code = ERB.new(File.read(erb_file),nil,'-').result(binding)
       File.open(output_file, 'w') do |f|
-        f.write ERB.new(File.read(erb_file),nil,'-').result(binding)
+        f.write generated_code
       end
     end
   end

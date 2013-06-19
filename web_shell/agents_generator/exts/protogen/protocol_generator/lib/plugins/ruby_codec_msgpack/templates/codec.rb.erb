@@ -3,6 +3,8 @@ require 'msgpack'
 
 module Protogen
 
+  # Exception raised by the Codec in case of an invalid message input
+  # @see Codec
   class UnknownMessageType < Exception
   end
 
@@ -23,12 +25,14 @@ module Codec
 
     msg_hash['msg'] = object.to_hash
     <% if Env['use_cookies'] %>
-    cookies.each_with_index do |cookie,i|
-      vl_i = validity_length[i] || cookie.class.validity_time # validity_length must contain an integer or nil for default value
-      passwd_i = CookiePasswdMgr.get_passwd(cookie.class, vl_i, 10)
+    unless cookies.nil?
+      cookies.each_with_index do |cookie,i|
+        vl_i = validity_length[i] || cookie.class.validity_time # validity_length must contain an integer or nil for default value
+        passwd_i = CookiePasswdMgr.get_passwd(cookie.class, vl_i, 10)
 
-      case cookie<% Env['cookie_names'].each do |cookie_name| %>
-      when Cookies::<%= cookie_name %> then msg_hash['_<%= cookie_name %>'] = CookieMgr.encrypt(cookie.to_hash.to_json,passwd_i,asset,vl_i) <% end %>
+        case cookie<% Env['cookie_names'].each do |cookie_name| %>
+        when Cookies::<%= cookie_name %> then msg_hash['_<%= cookie_name %>'] = CookieMgr.encrypt(cookie.to_hash.to_json,passwd_i,asset,vl_i) <% end %>
+        end
       end
     end
     <% end %>

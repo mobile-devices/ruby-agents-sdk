@@ -60,7 +60,7 @@ module CloudConnectServices
 
   end
 
-  class Message < Struct.new(:id, :parent_id, :thread_id, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content)
+  class Message < Struct.new(:id, :parent_id, :thread_id, :relative_agent_name, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content)
 
     # "meta", a map with some meta data, generally none.
 
@@ -90,6 +90,7 @@ module CloudConnectServices
         self.recorded_at = 007
         self.received_at = 007
 
+        #todo : marche pas tel quel
         if @CHANNEL && @CHANNEL[0]
           self.channel = @CHANNEL[0]
         else
@@ -129,6 +130,11 @@ module CloudConnectServices
         end
       end
 
+#      self.relative_agent_name = @CHANNEL[1]
+
+      p "channels : #{@CHANNEL}"
+
+      puts "Create a CCS::Message with channel : #{self.channel} with agent name = #{self.relative_agent_name}  >#{@AGENT_NAME}< "
     end
 
     # to do :
@@ -169,33 +175,44 @@ module CloudConnectServices
         self.meta['is_reply'] = nil
 
         # Protogen encode
+        # CC.logger.debug(ProtogenAPIs)
+
         if defined? ProtogenAPIs
           begin
-            self.content = ProtogenAPIs.encode_content_of_message(self)
+            self.content = ProtogenAPIs.encode(self)
           rescue Protogen::UnknownMessageType => e
-            CC.logger.warn('CloudConnectServices:Messages.push: unknown message type')
+            if $allow_non_protogen
+              CC.logger.warn("CloudConnectServices:Messages.push: unknown protogen message type: #{e.inspect}")
+            else
+              raise e
+            end
           end
         else
-          CC.logger.warn('CloudConnectServices:Messages.push: ProtogenAPIs not defined')
+          if $allow_non_protogen
+            CC.logger.warn('CloudConnectServices:Messages.push: ProtogenAPIs not defined')
+          else
+            raise "No Protogen defined"
+          end
         end
 
         CC.push(self.to_hash)
 
-        if is_reply
-          SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['reply_sent_to_device'] += 1
-        else
-          SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['push_sent_to_device'] += 1
-        end
-        SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['total_sent'] += 1
+        #todo : fix acess to class infos
+        # if is_reply
+        #   SDK_STATS.stats['agents'][self.relative_agent_name]['reply_sent_to_device'] += 1
+        # else
+        #   SDK_STATS.stats['agents'][self.relative_agent_name]['push_sent_to_device'] += 1
+        # end
+        # SDK_STATS.stats['agents'][self.relative_agent_name]['total_sent'] += 1
       rescue Exception => e
         CC.logger.error("Error on push with reply=#{@is_reply}")
         print_ruby_exeption(e)
-        if is_reply
-          SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_reply'] += 1
-        else
-          SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_push'] += 1
-        end
-        SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['total_error'] += 1
+        # if is_reply
+        #   SDK_STATS.stats['agents'][self.relative_agent_name]['err_on_reply'] += 1
+        # else
+        #   SDK_STATS.stats['agents'][self.relative_agent_name]['err_on_push'] += 1
+        # end
+        # SDK_STATS.stats['agents'][self.relative_agent_name]['total_error'] += 1
       end
     end
 
@@ -206,7 +223,7 @@ module CloudConnectServices
       msg.content = content
 
       msg.meta['is_reply'] = true
-      msg.push(this.asset, this.account)
+      msg.push(self.asset, self.account)
       msg.meta['is_reply'] = nil
     end
 

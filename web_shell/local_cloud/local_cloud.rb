@@ -16,9 +16,14 @@ require 'sinatra'
 set :bind, '0.0.0.0'
 set :port, '5001'
 require 'json'
-require 'thread'
+require 'base64'
+
+require 'thread' #todo: needed?
+
 
 $main_server_root_path = File.expand_path("..", __FILE__)
+
+$allow_non_protogen = true
 
 ## FAKE CLOUD LIB #################################################################################
 
@@ -27,7 +32,7 @@ require 'active_support/all'
 require_relative 'fake_cloud_lib/cloud_connect_sdk_module'
 include CC
 
-require_relative 'fake_cloud_lib/message'
+#require_relative 'fake_cloud_lib/message'
 require_relative 'fake_cloud_lib/cloud_gate'
 
 require_relative 'fake_cloud_lib/punkabe'
@@ -54,7 +59,9 @@ CC.logger.info("\n\n\n\n\n")
 PUNK.start('a')
 
 # re-generate all agents wrapper
-GEN.generate_agents
+rapport = GEN.generate_agents
+
+CC.logger.debug(rapport)
 
 CC.logger.info("agents generation successful")
 
@@ -159,14 +166,13 @@ end
 
 #test: curl localhost:5001/dynamic_channel_request
 get '/dynamic_channel_request' do
-  msg = Message.new()
-  msg.payload = $dyn_channels.clone.to_json
+
+  msg = CCS::Message.new()
+  msg.content = $dyn_channels.clone.to_json
   msg.type = 'dynchannelsmessage'
 
-  wrapped = wrap_message(msg)
-
-  CC.logger.debug("Server: /dynamic_channel_request has #{$dyn_channels.count} channels :\n#{wrapped.to_json}")
-  wrapped.to_json
+  CC.logger.debug("Server: /dynamic_channel_request has #{$dyn_channels.count} channels :\n#{msg.to_hash.to_json}")
+  msg.to_hash.to_json
 end
 
 
@@ -206,6 +212,11 @@ end
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.psa.messagingagent.echo.0", "recorded_at":78364, "payload":"/test/echo/for/me?da=ble", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.agps_agent", "recorded_at":78364, "payload":"check/aaaaaaaaaabbbbbbbbbbcccccccccc12", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
+
+#test with content base64 encoded :
+#curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.psa.messagingagent.echo.0", "recorded_at":78364, "payload":"L3Rlc3QvZWNoby9mb3IvbWU/ZGE9Ymxl", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
+#curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.agps_agent", "recorded_at":78364, "payload":"Y2hlY2svYWFhYWFhYWFhYWJiYmJiYmJiYmJjY2NjY2NjY2NjMTI=", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
+#protogen: curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d $'{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.protogen_fun_agent", "recorded_at":78364, "payload":"gqR0eXBlAaNtc2eCpG5hbWWvbXlsaXR0bGVyZXF1ZXN0p2xhdGxpc3STAQID", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 post '/message' do
   hashData = welcome_new_data_from_outside(1, request)
   handle_msg_from_device('message', hashData)

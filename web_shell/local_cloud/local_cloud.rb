@@ -18,12 +18,10 @@ set :port, '5001'
 require 'json'
 require 'base64'
 
-require 'thread' #todo: needed?
-
 
 $main_server_root_path = File.expand_path("..", __FILE__)
 
-$allow_non_protogen = true
+$allow_non_protogen = false
 
 ## FAKE CLOUD LIB #################################################################################
 
@@ -43,8 +41,6 @@ require_relative 'API/sdk_stats'
 include SDK_STATS
 
 require_relative 'API/cloud_connect_services'
-
-
 
 #### Agent generation #############################################################################
 require_relative '../agents_generator/agents_mgt'

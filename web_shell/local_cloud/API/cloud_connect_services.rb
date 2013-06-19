@@ -163,7 +163,10 @@ module CloudConnectServices
     end
 
     def push(asset, account)
+      reply_txt = "(reply)"
       begin
+        PUNK.start('push')
+
         # set asset
         self.asset = asset
         self.recipient = asset
@@ -173,6 +176,7 @@ module CloudConnectServices
 
         is_reply = self.meta['is_reply']
         self.meta['is_reply'] = nil
+        reply_txt = "" unless is_reply
 
         # Protogen encode
         # CC.logger.debug(ProtogenAPIs)
@@ -197,23 +201,34 @@ module CloudConnectServices
 
         CC.push(self.to_hash)
 
-        #todo : fix acess to class infos
-        # if is_reply
-        #   SDK_STATS.stats['agents'][self.relative_agent_name]['reply_sent_to_device'] += 1
-        # else
-        #   SDK_STATS.stats['agents'][self.relative_agent_name]['push_sent_to_device'] += 1
-        # end
-        # SDK_STATS.stats['agents'][self.relative_agent_name]['total_sent'] += 1
+        PUNK.end('push','ok','out',"SERVER -> MSG #{reply_txt}")
+        # todo : stats sent
       rescue Exception => e
         CC.logger.error("Error on push with reply=#{@is_reply}")
         print_ruby_exeption(e)
-        # if is_reply
-        #   SDK_STATS.stats['agents'][self.relative_agent_name]['err_on_reply'] += 1
-        # else
-        #   SDK_STATS.stats['agents'][self.relative_agent_name]['err_on_push'] += 1
-        # end
-        # SDK_STATS.stats['agents'][self.relative_agent_name]['total_error'] += 1
+        PUNK.end('push','ko','out',"SERVER -> MSG #{reply_txt}")
+        # todo : stats fail sent
       end
+
+        ##todo: +1 success -1 error
+
+      #   #todo : fix acess to class infos
+      #   # if is_reply
+      #   #   SDK_STATS.stats['agents'][self.relative_agent_name]['reply_sent_to_device'] += 1
+      #   # else
+      #   #   SDK_STATS.stats['agents'][self.relative_agent_name]['push_sent_to_device'] += 1
+      #   # end
+      #   # SDK_STATS.stats['agents'][self.relative_agent_name]['total_sent'] += 1
+      # rescue Exception => e
+      #   CC.logger.error("Error on push with reply=#{@is_reply}")
+      #   print_ruby_exeption(e)
+      #   # if is_reply
+      #   #   SDK_STATS.stats['agents'][self.relative_agent_name]['err_on_reply'] += 1
+      #   # else
+      #   #   SDK_STATS.stats['agents'][self.relative_agent_name]['err_on_push'] += 1
+      #   # end
+      #   # SDK_STATS.stats['agents'][self.relative_agent_name]['total_error'] += 1
+      # end
     end
 
     def reply_content(content)

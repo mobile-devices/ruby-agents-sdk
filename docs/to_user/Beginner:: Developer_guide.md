@@ -17,6 +17,8 @@ On this page, you can create/start/stop a project then apply and reboot the VM's
 * **config/** : folder where you put your configuration.
 * **config/protogen.json** : configuration of classes that can be exchange between device and server.
 * **config/schedule.rb** : whenever file to create your schedules cron rules folder.
+* **doc/** : folder where you put your documentations.
+* **doc/protogen/** : folder where the protocol's documentation is generated.
 * **modules/** : folder where you create your ruby modules.
 
 You will also find in your workspace an sdk_logs with you find your agent's logs and also server's logs.
@@ -41,72 +43,66 @@ The com interface runs on port 5001.
 #### presence : This method is called when a connection/reconnection/deconnection happen.
 
 ``` ruby
-def new_presence_from_device(meta, payload, account)
+def new_presence_from_device(presence)
   ## Write your code here
   log_debug('initial:new_presence_from_device')
 end
 ```
 
- With :
+Where presence is a class with following accessors :
 
-"**meta**", a map with some meta data, generally none.
+* **asset**   : imei of the device
+* **time**    : timestamp of the event
+* **bs**      : binary server source
+* **type**    : 'connect' or 'reconnect' or 'disconnect'
+* **reason**  : reason for the event
+* **account** : account name type String
+* **meta**    : a map with some meta data, generally none.
 
-"**payload**", a map with :
-
-* asset   : imei of the device
-* time    : timestamp of the event
-* bs      : binary server source
-* type    : 'connect' or 'reconnect' or 'disconnect'
-* reason  : reason for the event
-
-"**account**" (account name type String).
 
 #### message : This method is called when a message is received from the device.
 
 ``` ruby
-def new_message_from_device(meta, payload, account)
+def new_msg_from_device(message)
   msg = Message.new(payload)
   ## Write your code here
   log_debug('initial:new_message_from_device')
 end
 ```
 
- With :
+Where message is a class with following accessors :
 
-"**meta**", a map with some meta data, generally none.
+* **id**           : tmp id from the device
+* **parent_id**    : tmp id from the device
+* **thread_id**    : tmp id from the device
+* **asset**        : imei of device
+* **sender**       : Sender identifier (can be the same as the asset)
+* **recipient**    : Recipient identifier (can be the same as the asset)
+* **type**         : 'message'
+* **recorded_at**  : timestamp
+* **received_at**  : timestamp
+* **channel**      : string channel
+* **account**      : account name type String
+* **content**      : content, generaly an instance of a class provided by protogen
+* **meta**         : a map with some meta data, generally none
 
-"**payload**", a map with :
-
-* id           : tmp id from the device
-* asset        : imei of device
-* sender       : Sender identifier (can be the same as the asset)
-* recipient    : Recipient identifier (can be the same as the asset)
-* type         : 'message'
-* recorded_at  : timestamp
-* received_at  : timestamp
-* channel      : string channel
-* payload      : content
-
-"**account**" (account name type String).
-
-note : class Message has the same structure as the payload.
 
 #### track : This method is called when a tracking set of data is received from the device.
 
 ``` ruby
-def new_track_from_device(meta, payload, account)
+def new_track_from_device(track)
   ## Write your code here
   log_debug('initial:new_track_from_device')
 end
 ```
 
-"**meta**", a map with some meta data, generally none.
+Where track is a class with following accessors :
 
-"**payload**", a map with :
-
-* id           : tmp id from the device
-* asset        : imei of device
-* data map, with :
+* **id**           : tmp id from the device
+* **asset**        : imei of device
+* **account**      : account name type String
+* **meta**         : a map with some meta data, generally none
+* **data**         : a map, with :
   * latitude
   * longitude
   * recorded_at
@@ -115,20 +111,20 @@ end
   * field2
   * ...
 
-"**account**" (account name type String).
-
 #### order : This method is called when a schedule tasks is requested.
 
 ``` ruby
-def remote_call(order, params)
+def new_order(order)
   # Write your code here
-  log_debug('initial:remote_call')
+  log_debug('initial:new_order')
 end
 ```
+Where order is a class with following accessors :
 
-"**order**", the given order.
+* **agent**        : agent name concerned by the order
+* **code**         : code specified into the schedule.rb (@see Schedule tasks with cron documentation)
+* **params**       : a string or parameters (@see Schedule tasks with cron documentation)
 
-"**params**", a string or parameters.
 
 ### Send something to device
 

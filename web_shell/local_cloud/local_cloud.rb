@@ -57,14 +57,14 @@ PUNK.start('a')
 rapport = GEN.generate_agents_protogen
 CC.logger.debug(rapport)
 CC.logger.info("protogen generation successful")
-PUNK.end('a','ok','','SERVER : protogen generation successful')
+PUNK.end('a','ok','','SERVER : Protogen generation done')
 
 # main code generation
 PUNK.start('a')
 rapport = GEN.generate_agents
 CC.logger.debug(rapport)
 CC.logger.info("agents generation successful")
-PUNK.end('a','ok','','SERVER : code generation successful')
+PUNK.end('a','ok','','SERVER : code generation done')
 
 ## bundle install #################################################################################
 
@@ -73,17 +73,17 @@ PUNK.start('a')
 rapport = `cd ../agents_generator/cloud_agents_generated;bundle install`
 CC.logger.debug(rapport)
 CC.logger.info("bundle install done")
-PUNK.end('a','ok','','SERVER : bundle install successful')
+PUNK.end('a','ok','','SERVER : gem install done')
 
 ## Generate cron tasks ############################################################################
-PUNK.start('a')
 
+PUNK.start('a')
 crons = GEN.generated_get_agents_whenever_content
 File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
-
 $agents_cron_tasks = GEN.get_agents_cron_tasks(agents_running)
+CC.logger.debug("agents_cron_tasks =\n#{$agents_cron_tasks}")
+PUNK.end('a','ok','','SERVER : cron tasks done')
 
-PUNK.end('a','ok','','SERVER : cron tasks generation successful')
 #### Init server ##################################################################################
 
 # include main

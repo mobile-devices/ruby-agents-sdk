@@ -48,7 +48,6 @@ class Agent_XX_PROJECT_NAME
     log_debug("Agent_XX_PROJECT_NAME init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
   end
 
-
   ######### Messages delivered for the agent ###########################
   def handle_presence(presence)
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
@@ -109,8 +108,7 @@ class Agent_XX_PROJECT_NAME
     # process
     CC.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
     if is_protogen
-      treat_poi_request(message)
-      #ProtogenAPIs.process(message)
+      ProtogenAPIs.process(self, message)
     else
       new_msg_from_device(message)
     end
@@ -138,8 +136,60 @@ class Agent_XX_PROJECT_NAME
 
   ########## Messages to devices #######################################
 
-  #todo: implement send and reply for a CCS.Message
+  def send_content_to_device(asset, account, content)
+      begin
+        PUNK.start('push')
+        msg = CCS::Message.new({
+          'meta' => {},
+          'payload' => {
+            'type' => 'message',
+            'sender' => '@@server@@',
+            'channel' =>  @CHANNEL[0],
+            'payload' => content
+            }
+          })
 
+        msg.push(asset, account)
+        # success !
+        PUNK.end('push','ok','out',"SERVER -> MSG")
+        # stats:
+
+        #CC.logger.debug(SDK_STATS.stats)
+        CC.logger.debug(SDK_STATS.stats['agents']['protogen_fun_agent'])
+
+
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
+      rescue Exception => e
+        CC.logger.error("Error on push")
+        print_ruby_exeption(e)
+        PUNK.end('push','ko','out',"SERVER -> MSG")
+        # stats:
+        SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_push'] += 1
+        SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['total_error'] += 1
+      end
+  end
+
+  def reply_content_to_device(msg, content)
+    begin
+      PUNK.start('reply')
+      msg.reply_content(content)
+        # success !
+        PUNK.end('reply','ok','out',"SERVER -> MSG (reply)")
+        # stats:
+        SDK_STATS.stats['agents'][@AGENT_NAME]['reply_sent_to_device'] += 1
+        SDK_STATS.stats['agents'][@AGENT_NAME]['total_sent'] += 1
+      rescue Exception => e
+        CC.logger.error("Error on reply")
+        print_ruby_exeption(e)
+        PUNK.end('reply','ko','out',"SERVER -> MSG (reply)")
+        # stats:
+        SDK_STATS.stats['agents'][@AGENT_NAME]['err_on_reply'] += 1
+        SDK_STATS.stats['agents'][@AGENT_NAME]['total_error'] += 1
+      end
+    end
+
+# keep commented code until RAgent developped
 
 # require /include implémentation du send(maClass) from protogen génération
 # send message : set channel as @CHANNEL[0]
@@ -147,13 +197,13 @@ class Agent_XX_PROJECT_NAME
   # def send_message_to_device(account, asset, content)
   #   #todo add try catch
   #   begin
-  #     Message.new({
-  #       asset:     asset,
-  #       recipient: asset,
-  #       sender:    '@@server@@',
-  #       channel:   @CHANNEL[0],
-  #       payload:   content.to_json
-  #       }).push
+      # Message.new({
+      #   asset:     asset,
+      #   recipient: asset,
+      #   sender:    '@@server@@',
+      #   channel:   @CHANNEL[0],
+      #   payload:   content.to_json
+      #   }).push
   #   #note: for real wrapper : mock up account as bellow :
   #   #   account.messages.new({
   #   #     asset:     asset.imei,

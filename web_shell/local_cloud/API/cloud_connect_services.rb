@@ -60,7 +60,7 @@ module CloudConnectServices
 
   end
 
-  class Message < Struct.new(:id, :parent_id, :thread_id, :relative_agent_name, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content)
+  class Message < Struct.new(:id, :parent_id, :thread_id, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content)
 
     # "meta", a map with some meta data, generally none.
 
@@ -80,7 +80,7 @@ module CloudConnectServices
     def initialize(struct = nil)
       if struct.blank?
         self.meta = {}
-        self.id = CC.indigen_next_id
+
         self.parent_id = nil
         self.thread_id = nil
         self.asset = nil
@@ -120,21 +120,16 @@ module CloudConnectServices
           self.account = meta['account']
         end
 
-        if type != 'message'
+        if self.type != 'message'
           raise "Message: wrong type of message : '#{type}'"
           return
         end
-        if self.id == nil
-          raise "Message: id is empty"
-          return
+
+        if self.id.blank?
+          self.id = CC.indigen_next_id
         end
+
       end
-
-#      self.relative_agent_name = @CHANNEL[1]
-
-      p "channels : #{@CHANNEL}"
-
-      puts "Create a CCS::Message with channel : #{self.channel} with agent name = #{self.relative_agent_name}  >#{@AGENT_NAME}< "
     end
 
     # to do :
@@ -163,10 +158,6 @@ module CloudConnectServices
     end
 
     def push(asset, account)
-      reply_txt = "(reply)"
-      begin
-        PUNK.start('push')
-
         # set asset
         self.asset = asset
         self.recipient = asset
@@ -174,13 +165,7 @@ module CloudConnectServices
         # set acount is meta
         self.meta['account'] = account
 
-        is_reply = self.meta['is_reply']
-        self.meta['is_reply'] = nil
-        reply_txt = "" unless is_reply
-
         # Protogen encode
-        # CC.logger.debug(ProtogenAPIs)
-
         if defined? ProtogenAPIs
           begin
             self.content = ProtogenAPIs.encode(self)
@@ -200,35 +185,6 @@ module CloudConnectServices
         end
 
         CC.push(self.to_hash)
-
-        PUNK.end('push','ok','out',"SERVER -> MSG #{reply_txt}")
-        # todo : stats sent
-      rescue Exception => e
-        CC.logger.error("Error on push with reply=#{@is_reply}")
-        print_ruby_exeption(e)
-        PUNK.end('push','ko','out',"SERVER -> MSG #{reply_txt}")
-        # todo : stats fail sent
-      end
-
-        ##todo: +1 success -1 error
-
-      #   #todo : fix acess to class infos
-      #   # if is_reply
-      #   #   SDK_STATS.stats['agents'][self.relative_agent_name]['reply_sent_to_device'] += 1
-      #   # else
-      #   #   SDK_STATS.stats['agents'][self.relative_agent_name]['push_sent_to_device'] += 1
-      #   # end
-      #   # SDK_STATS.stats['agents'][self.relative_agent_name]['total_sent'] += 1
-      # rescue Exception => e
-      #   CC.logger.error("Error on push with reply=#{@is_reply}")
-      #   print_ruby_exeption(e)
-      #   # if is_reply
-      #   #   SDK_STATS.stats['agents'][self.relative_agent_name]['err_on_reply'] += 1
-      #   # else
-      #   #   SDK_STATS.stats['agents'][self.relative_agent_name]['err_on_push'] += 1
-      #   # end
-      #   # SDK_STATS.stats['agents'][self.relative_agent_name]['total_error'] += 1
-      # end
     end
 
     def reply_content(content)
@@ -236,10 +192,7 @@ module CloudConnectServices
       msg.parent_id = self.id
       msg.id = CC.indigen_next_id
       msg.content = content
-
-      msg.meta['is_reply'] = true
       msg.push(self.asset, self.account)
-      msg.meta['is_reply'] = nil
     end
 
   end

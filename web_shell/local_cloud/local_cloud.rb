@@ -21,7 +21,7 @@ require 'base64'
 
 $main_server_root_path = File.expand_path("..", __FILE__)
 
-$allow_non_protogen = false
+$allow_non_protogen = true
 
 ## FAKE CLOUD LIB #################################################################################
 
@@ -52,20 +52,21 @@ end
 
 CC.logger.info("\n\n\n\n\n")
 
+#progen generation
 PUNK.start('a')
-
-# re-generate all agents wrapper
-rapport = GEN.generate_agents
-
+rapport = GEN.generate_agents_protogen
 CC.logger.debug(rapport)
+CC.logger.info("protogen generation successful")
+PUNK.end('a','ok','','SERVER : protogen generation successful')
 
+# main code generation
+PUNK.start('a')
+rapport = GEN.generate_agents
+CC.logger.debug(rapport)
 CC.logger.info("agents generation successful")
-
 PUNK.end('a','ok','','SERVER : code generation successful')
+
 ## bundle install #################################################################################
-
-# merge Gemfile (into generate_agents)
-
 
 
 # bundle install

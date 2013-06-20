@@ -61,6 +61,8 @@ module AgentsGenerator
 
       next unless File.exist?("#{workspace_path}/#{agent}/config/protogen.json")
 
+      FileUtils.mkdir_p("#{workspace_path}/#{agent}/doc/protogen")
+
       # generate compil conf
       java_pkg = get_agent_java_package(agent)
       compil_opt = {
@@ -85,12 +87,17 @@ module AgentsGenerator
       output = `#{command}`
       add_to_rapport("Protogen bundle install:\n #{output}\n\n")
 
-      command = "cd #{protogen_bin_path}; ruby protogen.rb #{workspace_path}/#{agent}/config/protogen.json /tmp/protogen_conf.json"
+      command = "cd #{protogen_bin_path}; bundle exec ruby protogen.rb #{workspace_path}/#{agent}/config/protogen.json /tmp/protogen_conf.json"
       add_to_rapport "running command #{command} :"
       output = `#{command}`
 
       add_to_rapport("Protogen output:\n #{output}\n\n")
       add_to_rapport("Generating Protogen for #{agent} done \n")
+
+
+      FileUtils.cp_r(Dir["#{source_path}/cloud_agents_generated/protogen_#{agent}/doc/*"],"#{workspace_path}/#{agent}/doc/protogen/")
+
+      add_to_rapport("Protogen doc deployed \n")
     }
 
     @AgentsGenerator_rapport_generation
@@ -191,11 +198,6 @@ module AgentsGenerator
     agents_generated_code += "end\n\n"
 
 
-
-
-
-
-
     File.open("#{source_path}/cloud_agents_generated/generated.rb", 'w') { |file| file.write(agents_generated_code) }
 
     add_to_rapport("Templates generated done\n")
@@ -205,7 +207,7 @@ module AgentsGenerator
     agents_to_run.each { |agent|
       agents_Gemfiles << get_agent_Gemfile_content(agent)
     }
-    master_GemFile = File.read("#{source_path}/../local_cloud/Gemfile.model")
+    master_GemFile = File.read("#{source_path}/../local_cloud/Gemfile.master")
 
     gemFile_content = merge_gem_file(master_GemFile, agents_Gemfiles)
     puts "GemFile_content =\n #{gemFile_content}\n\n"

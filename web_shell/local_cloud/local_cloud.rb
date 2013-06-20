@@ -68,10 +68,12 @@ PUNK.end('a','ok','','SERVER : code generation successful')
 
 ## bundle install #################################################################################
 
-
 # bundle install
-`cd ../agents_generator/cloud_agents_generated;bundle install`
+PUNK.start('a')
+rapport = `cd ../agents_generator/cloud_agents_generated;bundle install`
+CC.logger.debug(rapport)
 CC.logger.info("bundle install done")
+PUNK.end('a','ok','','SERVER : bundle install successful')
 
 ## Generate cron tasks ############################################################################
 PUNK.start('a')

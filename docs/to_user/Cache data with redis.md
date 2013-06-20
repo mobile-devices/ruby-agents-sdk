@@ -1,6 +1,7 @@
 
 Basically you have a Redis object created for each agent. You have nothing to create or configure, just use it.
 
+
 For instance :
 
     def new_presence_from_device(meta, payload, account)
@@ -8,5 +9,5 @@ For instance :
       redis['pom'] ='pyro'
     end
 
-
+note : the redis object you handle has all redis api as documented below (using redis 3.0.4) :
 @see documentation [on official redis webwite](http://redis.io/).

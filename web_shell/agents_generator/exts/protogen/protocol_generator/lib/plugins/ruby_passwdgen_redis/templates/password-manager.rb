@@ -9,6 +9,7 @@ module Protogen
 # elements, and we'd have to search them using "keys pattern" command, which is not recommended on a production environment. Therefore, we
 # shall implement our own expiration system.
 
+# @api private
 class CookiePasswdMgr
   def self.init(redis)
     @@redis = redis

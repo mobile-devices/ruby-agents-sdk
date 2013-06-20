@@ -200,7 +200,7 @@ module ProtocolGenerator
       Env['sequences'] = {}
       Env['messages'].each do |msg_name, msg_content|
         if msg_content['_way'] == 'toServer' || msg_content['_way'] == 'both'
-          Env['sequences']["seq_#{msg_name}_dev"] = {
+          Env['sequences']["#{msg_name}ToServer"] = {
             'type' => '1shot.device',
             'message' => msg_name,
             'callback' => msg_content['_server_callback']
@@ -208,7 +208,7 @@ module ProtocolGenerator
         end
 
         if msg_content['_way'] == 'toDevice' || msg_content['_way'] == 'both'
-          Env['sequences']["seq_#{msg_name}_srv"] = {
+          Env['sequences']["#{msg_name}_to_device"] = {
             'type' => '1shot.server',
             'message' => msg_name,
             'callback' => msg_content['_device_callback'],
@@ -231,7 +231,7 @@ module ProtocolGenerator
         Env['msg_seq_srv'] = {} # TODO !
         Env['msg_indep'] = {}
         Env['msg_callbacks_dev'] = {}
-        Env['timeout_callbacks_dev'] = []
+        Env['timeout_callbacks_dev'] = {}
         Env['sequences'].each do |name,seq|
           seq['timeouts'] ||= {}
           seq['timeout_calls'] ||= {}
@@ -252,7 +252,11 @@ module ProtocolGenerator
           else
             raise "Unimplemented sequence: #{seq['type']}"
           end
-          seq['timeout_calls'].each{|tc| Env['timeout_callbacks_dev'] << "#{name}_#{tc}_timeout"} unless seq['timeout_calls'].nil?
+          unless seq['timeout_calls'].nil?
+            seq['timeout_calls'].each do |tc|
+              Env['timeout_callbacks_dev']["#{name}_#{tc}_timeout"] = {'name' => seq['message'], 'tc' => tc}
+            end
+          end
         end
       end
 

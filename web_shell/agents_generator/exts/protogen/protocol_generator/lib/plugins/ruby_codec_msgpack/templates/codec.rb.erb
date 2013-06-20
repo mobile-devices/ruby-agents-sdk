@@ -5,9 +5,11 @@ module Protogen
 
   # Exception raised by the Codec in case of an invalid message input
   # @see Codec
+  # @api private
   class UnknownMessageType < Exception
   end
 
+# @api private
 module Codec
 
   PROTOCOL_VERSION = <%= Env['protocol_version'] %>

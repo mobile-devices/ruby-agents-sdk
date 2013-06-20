@@ -5,10 +5,9 @@ The MDI protocol generator, based on the msgpack, aims to simplify the communica
 
 ## Dependencies
 
-In order to make the protocol generator work, you will need the "jar" and "javac" java build tools installed on your system. You will also need the MDI core jar. It can be found in the device SDK, in
+In order to make the protocol generator work, you will need the "jar" and "javac" java build tools installed on your system. It also needs the device core .jar. You can find it in config/mdi-framework-3.X.jar . If you wish to use your own lib, you can define it in your configuration file.
 
-    plugins/com.mdi.project.fw.fw_XXXXXXXXXXXXXXXXX/mdi-framework-3.X/simulator/mdi-framework-3.X.jar
-
+You will also need doxygen installed, if you wish to have documentation aside from generated code.
 
 ## Usage
 
@@ -18,7 +17,7 @@ To generate some code, you need to launch :
 
 where &lt;protocol_file_path&gt; is the path to the file which describes your protocol.
 where &lt;configuration_file_path&gt; is the path to the file which will configure how your code will be genereated.
-where &lt;output_directory&gt; is the path to the directory in which the code will be generated.
+where &lt;output_directory&gt; is the path to the directory in which the code will be generated. (optional)
 
 
 ## Protocol file
@@ -70,7 +69,7 @@ Mandatory fields of a variable:
 
 Other possible fields:
 
-* "array" : means that we will deal with a list of object rather than only one (FIXME: may be removed, not implemented)
+* "array" : means that we will deal with a list of object rather than only one
 
 Example:
 
@@ -122,6 +121,20 @@ Example:
       "_timeouts":{"send":10000},
       "question": {"type":"string", "modifier":"required"}
     }
+
+
+#### Message description
+
+The protogen will generate some documentation aside from your code. You therefore can add your own description of each message type, and each field. For a message, add the field "_description". For a field, you can add a "docstring" string.
+
+Example:
+
+      "PhoneNumber": {
+        "_description": "This class implements a phone number as descibed in the RFC 10291."
+        ...
+        "number": {"type":"string", "modifier":"required", "docstring":"contains the phonenumber (must start with a +)"},
+        "type": {"type":"string", "modifier":"required", "docstring":"can either be 'mobile' or 'home'"}
+      }
 
 
 #### Nested messages
@@ -191,7 +204,7 @@ This files will decribe how the code will be generated. It can either be written
       "java_package":"com.mdi.test.protogen.avril11", /* the name of the java package in which all the code will be generated*/
       "java_outer_classname":"MDIMessages", /* name of the final java class  defining the messages*/
       "protobuf_jar":"/usr/share/java/protobuf.jar", /* path to the protobuf jar, to generate java code (obviously not used in the msgpack version*/
-      "mdi_framework_jar":"/home/guillaume/sdk/MDI-SDK-3.0.14-rc1-linux-x86_64/plugins/com.mdi.project.fw_3.0.13.20121016153400/mdi-framework-3.X/simulator/mdi-framework-3.X.jar" /* path to the mdi framework. Used only when compiling java during code generation */
+      "mdi_framework_jar":"/home/guillaume/sdk/MDI-SDK-3.0.14-rc1-linux-x86_64/plugins/com.mdi.project.fw_3.0.13.20121016153400/mdi-framework-3.X/simulator/mdi-framework-3.X.jar" /* path to the mdi framework. Used only when compiling java during code generation and to override default framework */
     }
 
 

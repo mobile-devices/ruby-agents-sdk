@@ -4,7 +4,10 @@ import java.util.HashMap;
 import org.msgpack.type.MapValue;
 import org.msgpack.type.Value;
 
-
+/*
+ * Each nested class of this class defines a protogen message
+ *
+ */
 public class MDIMessages {
   public static final int PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
   public static final String PG_VERSION = "<%= ::ProtocolGenerator.version %>";
@@ -15,10 +18,16 @@ public class MDIMessages {
   public interface <%= Env['java_message_parent_class'] %> {}
 
   <% Env['declared_types'].each do |type| %>
+  /**
+   * <%= Env['messages'][type]['_description'] || "Protogen message object"%>
+   */
   public static class <%= type %> implements <%= Env['java_message_parent_class'] %> {
   <% Env['fields'][type].each do |field|
     ft=Env['messages'][type][field]['type']
     is_array = Env['messages'][type][field]['array'] %>
+    /**
+     * <%= Env['messages'][type][field]['docstring'] %>
+     */
     public <%= MSGPACK2JAVA[ft]||ft %><%= ( is_array ? '[]' : '' ) %> <%= field %> = <%= plugin.nullvalue(ft, is_array) %>;<% end %>
 
     public <%= type %>() {}

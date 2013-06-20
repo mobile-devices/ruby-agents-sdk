@@ -5,6 +5,7 @@ require_relative '<%= file %>'<% end %>
 # Contains all the apis called by the Server SDK.
 # @protogen_version <%= ::ProtocolGenerator.version %>
 # @protocol_version <%= Env['protocol_version'] %>
+# @api private
 module ProtogenAPIs
 
   # Encodes a protogen message object into a string, and join cookies
@@ -30,10 +31,10 @@ module ProtogenAPIs
 
   # Check the message protogen type, and call the defined callback accordingly.
   # @param [CCS::Message] message message.content must be a protogen message object.
-  def self.process(message)
+  def self.process(message_class_owner, message)
     case message.content<% Env['msg_seq_dev'].each do |msg,seq| %>
     when Protogen::Messages::<%= msg %> # <%= seq %> sequence
-      <%= "#{Env['sequences'][seq]['callback'] || seq}(message)" %><% end %>
+      message_class_owner.<%= "#{Env['sequences'][seq]['callback'] || seq}(message)" %><% end %>
     end
   end
 

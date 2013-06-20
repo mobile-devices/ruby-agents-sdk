@@ -17,17 +17,22 @@ module ProtocolGenerator
           yard_task = YARD::Rake::YardocTask.new do |t|
             t.files   = ['*.rb']
             t.options = [
-              "--output-dir", 'doc'
+              "--output-dir", 'doc',
+              "--query", "@api.text != 'private'"
             ]
           end
           Rake.application[yard_task.name].invoke
         end
+
+        Utils.render(File.join(@templates_dir, '.doxygen.erb'), File.join(device_directory, ".doxygen"))
+        puts `cd #{device_directory}; doxygen .doxygen; cd -`
 
         FileUtils.mkdir_p(Env['server_output_directory'])
         FileUtils.mkdir_p(Env['device_output_directory'])
         FileUtils.mv(Dir.glob(File.join(server_directory, '*.rb')), Env['server_output_directory'], :force => true)
         FileUtils.mv(Dir.glob(File.join(server_directory, 'doc')), Env['server_output_directory'], :force => true)
         FileUtils.mv(Dir.glob(File.join(device_directory, "*")), Env['device_output_directory'], :force => true)
+        FileUtils.mv(Dir.glob(File.join(device_directory, "doc")), Env['device_output_directory'], :force => true)
         FileUtils.rm_r(Env['output_directory'], :secure => true)
       end
 

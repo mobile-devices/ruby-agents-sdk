@@ -2,11 +2,27 @@ package <%= Env['java_package']%>;
 
 import <%= Env['java_package']%>.<%= Env['java_messages_class'] %>.*;
 
+/**
+ * This interface asks to implement the callbacks defined in the protocol file, and that will be called by
+ * the java application when a specific message is received by the device.
+ */
 public interface IMessageController {
+
   <% Env['msg_callbacks_dev'].each do |callback,message| %>
+  /**
+   * This method is called when a <%= message %> is decoded.
+   */
   void <%= callback %>(<%= message %> message);
   <% end %>
-  <% Env['timeout_callbacks_dev'].each do |callback| %>
+
+  <% Env['timeout_callbacks_dev'].each do |callback, call_content| %>
+  /**
+   * <%= case call_content['tc']
+        when 'ack' then "This method is called when the Communication Server fails to send a ACK to a #{call_content['name']} message."
+        when 'send' then "This method is called when the MessageGate fails to send a #{call_content['name']} message to a server."
+        else raise "Invalid timeout type: #{call_content['tc']}"
+        end %>
+   */
   void <%= callback %>();
   <% end %>
 }

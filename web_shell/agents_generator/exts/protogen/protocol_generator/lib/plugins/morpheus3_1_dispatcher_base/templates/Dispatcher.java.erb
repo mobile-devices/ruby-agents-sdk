@@ -30,7 +30,7 @@ public class Dispatcher implements IndependantMessageHandler {
       <%= Env['java_messages_class']%>.<%= Env['java_message_parent_class'] %> message = Codec.decode(data);
       <% if Env['msg_indep'].size  == 0 %>_dbg.error("Droping an unexpected message: " + message.getClass() + '.');
       return false;<%
-      else %><% Env['msg_indep'].each do |msg,content| %>if (message.getClass() == <%= Env['java_messages_class'] %>.<%= msg %>.class) {
+      else %><% Env['msg_indep'].each do |msg,content| %>if (message instanceof <%= Env['java_messages_class'] %>.<%= msg %>) {
         _messageController.<%= content['callback']%>((<%= Env['java_messages_class'] %>.<%= msg %>)message);
         return true;
       } else <% end %> {
@@ -59,7 +59,7 @@ public class Dispatcher implements IndependantMessageHandler {
         <% if Env['msg_replies_dev'][msg].nil? || Env['msg_replies_dev'][msg].size == 0
         %>_dbg.error("Droping an unexpected message: " + message.getClass() + '.');<%
         else Env['msg_replies_dev'][msg].each do |ans_msg,ans_callback|
-        %>if (message.getClass() == <%= Env['java_messages_class'] %>.<%= ans_msg %>.class) {
+        %>if (message instanceof <%= Env['java_messages_class'] %>.<%= ans_msg %>) {
           _messageController.<%= ans_callback%>((<%= Env['java_messages_class'] %>.<%= ans_msg %>) message);
         } else <% end %> {
           _dbg.error("Droping an unexpected message: " + message.getClass() + '.');

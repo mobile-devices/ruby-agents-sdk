@@ -3,12 +3,33 @@
 # Mobile Devices 2013
 #########################################################
 
+# rm -rf ~/workServ/SDK/ruby-agents-sdk/web_shell/agents_generator/exts/protogen/protocol_generator; cp -r protocol_generator ~/workServ/SDK/ruby-agents-sdk/web_shell/agents_generator/exts/protogen/
+
+
+# gem
+# see java generated
+# agps portage with protogen
+# who to communicate outside / need store ? db agent kind of fonctionnement
+# message type stat
+# gen doc protocol
+# doc général review
+# make a general agent example visible in the workspace
+
+# temps/process/mémoire, chaque message est traité // -> oui
+
+# sandjeeeb : what to give him
+# how to release services in dev (flow)
+
+
 require 'fileutils'
 require 'securerandom'
 require 'yaml'
 
 
+
 module AgentsGenerator
+
+  require_relative 'gemfile_mergator'
 
   def source_path()
       @ROOT_PATH_AGENT_MGT ||= File.expand_path("..", __FILE__)
@@ -30,27 +51,10 @@ module AgentsGenerator
     puts txt
   end
 
-
-  def generate_agents()
+  def generate_agents_protogen() # we could do it into generate_agents but we separate generations to track errors easily
     @AgentsGenerator_rapport_generation = ""
 
-    add_to_rapport("\n========= generate_agents start ===============")
-
-    # get agents to run
     agents_to_run = get_run_agents
-
-    add_to_rapport("generate_agents of #{agents_to_run.join(', ')}")
-
-    agents_generated_code = ""
-
-
-    agents_generated_code += "def generated_rb_path()\n"
-    agents_generated_code += "  @ROOT_PATH_AGENT_MGT ||= File.expand_path(\"..\", __FILE__)\n"
-    agents_generated_code += "end\n\n"
-
-
-
-    template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
     # protogen
     agents_to_run.each { |agent|
@@ -60,6 +64,7 @@ module AgentsGenerator
       # generate compil conf
       java_pkg = get_agent_java_package(agent)
       compil_opt = {
+        "agent_name" => "#{agent}",
         "plugins" => ["mdi_ruby_sdk_vm"],
         "server_output_directory" => "#{source_path}/cloud_agents_generated/protogen_#{agent}",
         "device_output_directory" => "#{workspace_path}/#{agent}/device_side_generated",
@@ -86,8 +91,29 @@ module AgentsGenerator
 
       add_to_rapport("Protogen output:\n #{output}\n\n")
       add_to_rapport("Generating Protogen for #{agent} done \n")
-
     }
+
+    @AgentsGenerator_rapport_generation
+  end
+
+  def generate_agents()
+    @AgentsGenerator_rapport_generation = ""
+
+    add_to_rapport("\n========= generate_agents start ===============")
+
+    # get agents to run
+    agents_to_run = get_run_agents
+
+    add_to_rapport("generate_agents of #{agents_to_run.join(', ')}")
+
+    agents_generated_code = ""
+
+
+    agents_generated_code += "def generated_rb_path()\n"
+    agents_generated_code += "  @ROOT_PATH_AGENT_MGT ||= File.expand_path(\"..\", __FILE__)\n"
+    agents_generated_code += "end\n\n"
+
+    template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
     # template generation
     agents_to_run.each { |agent|
@@ -136,7 +162,7 @@ module AgentsGenerator
     agents_to_run.each { |agent|
       agents_generated_code += "  begin\n"
       agents_generated_code += "    \$#{agent}_initial.handle_track(track)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','process','AGENT:#{agent}TNEGA runs TRACK')\n"
+      agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA runs TRACK\")\n"
       agents_generated_code += "  rescue => e\n"
       agents_generated_code += "    CC.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
       agents_generated_code += "    print_ruby_exeption(e)\n"
@@ -174,15 +200,17 @@ module AgentsGenerator
 
     add_to_rapport("Templates generated done\n")
 
-    # Gemfile
-    agents_Gemfile = ""
-
+    # Merge Gemfile
+    agents_Gemfiles = []
     agents_to_run.each { |agent|
-      agents_Gemfile += get_agent_Gemfile_content(agent) + "\n"
+      agents_Gemfiles << get_agent_Gemfile_content(agent)
     }
-    File.open("#{source_path}/cloud_agents_generated/Gemfile", 'w') { |file| file.write(agents_Gemfile) }
+    master_GemFile = File.read("#{source_path}/../local_cloud/Gemfile.model")
 
-    add_to_rapport("Gem file merged\n")
+    gemFile_content = merge_gem_file(master_GemFile, agents_Gemfiles)
+    puts "GemFile_content =\n #{gemFile_content}\n\n"
+
+    File.open("#{source_path}/../local_cloud/Gemfile", 'w') { |file| file.write(gemFile_content) }
 
     # check config exist
     agents_to_run.each { |agent|
@@ -235,6 +263,8 @@ module AgentsGenerator
   def create_new_agent(name)
 
     #todo filter name character, only letter and '_'
+    name.gsub!(' ', '_')
+    name.gsub!('-', '_')
 
     #verify if folder/file already exist
     return false if File.exists?("#{workspace_path}/#{name}")
@@ -372,7 +402,6 @@ module AgentsGenerator
     File.exists?("#{workspace_path}/#{name}/.mdi_cloud_agent_guid")
     File.exists?("#{workspace_path}/#{name}/initial.rb")
   end
-
 
   def get_agent_Gemfile_content(name)
     return "" unless File.exists?("#{workspace_path}/#{name}/Gemfile")

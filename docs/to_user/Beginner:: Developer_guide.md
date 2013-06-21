@@ -128,24 +128,4 @@ Where order is a class with following accessors :
 
 ### Send something to device
 
-#### push message to device
-
-    send_message_to_device(account, asset, content)
-
-With :
-
-"**account**" (account name type String).
-
-"**asset**" (imei type integer).
-
-"**content** (binary content, or string, or map)
-
-#### reply a message to device
-
-    reply_message_to_device(message, account, content)
-
-"**message**" (message to reply to, type message).
-
-"**account**" (account name type String).
-
-"**content** (binary content, or string, or map)
+Use the gate api (see API server documentation).

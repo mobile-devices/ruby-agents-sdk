@@ -30,7 +30,7 @@ class Agent_XX_PROJECT_NAME
   @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
 
   def initialize() # constructor
-    log_debug("Agent_XX_PROJECT_NAME root path is = \"#{root_path}\"")
+    log.debug("root path is = \"#{root_path}\"")
 
     # Load dynamic channel
     @CHANNEL = config['Dynamic_channel_str']
@@ -45,7 +45,7 @@ class Agent_XX_PROJECT_NAME
     @has_protogen = File.exist?("#{generated_rb_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
 
 
-    log_debug("Agent_XX_PROJECT_NAME init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
+    log.debug("init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
   end
 
   ######### Messages delivered for the agent ###########################
@@ -191,8 +191,8 @@ class Agent_XX_PROJECT_NAME
 
 # keep commented code until RAgent developped
 
-# require /include implémentation du send(maClass) from protogen génération
-# send message : set channel as @CHANNEL[0]
+
+# keep commented code until RAgent developped
 
   # def send_message_to_device(account, asset, content)
   #   #todo add try catch
@@ -212,31 +212,6 @@ class Agent_XX_PROJECT_NAME
   #   #     channel:   @CHANNEL,
   #   #     payload:   content.to_json
   #   #     }, as: :agent).push
-  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
-  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
-  #   rescue Exception => e
-  #     CC.logger.error("Error on send_message_to_device")
-  #     print_ruby_exeption(e)
-  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
-  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
-  #   end
-  # end
-
-  # def reply_message_to_device(message, account, content)
-  #   #idem, we build a Message then send it to rqueue
-  #   begin
-  #     #note: real wrapper will be : m.push('account' => account.name)
-  #     m = message.reply("200#{content}")
-  #     m.push('account' => account)
-  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
-  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
-  #   rescue Exception => e
-  #     CC.logger.error("Error on reply_message_to_device")
-  #     print_ruby_exeption(e)
-  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
-  #     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
-  #   end
-  # end
 
   ############### Logger ###############################################
 
@@ -261,11 +236,11 @@ class Agent_XX_PROJECT_NAME
       elsif File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml.example")
         @config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml.example"))['development']
       else
-        log_warn("NO CONFIG FILE FOUND in #{root_path}/config")
+        log.warn("NO CONFIG FILE FOUND in #{root_path}/config")
         @config = Hash.new
       end
     rescue Exception => e
-      log_error("ERROR while loading configuration")
+      log.error("ERROR while loading configuration")
       print_ruby_exeption(e)
     end
   end

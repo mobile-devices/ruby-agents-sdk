@@ -3,7 +3,7 @@ The MDI protocol generator, based on the msgpack, aims to simplify the communica
 
 ## Example
 
-The following example implements most of the available features of the protogen :
+The following example implements most of the available features of the protogen within your config/protogen.json file :
 
     {
       "protocol_version": 1,
@@ -181,3 +181,4 @@ Example:
       "lastitem": {"type":"int", "modifier":"required"},
       "purchased":   {"type":"bool", "modifier":"required"}
     }
+

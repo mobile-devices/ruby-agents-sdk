@@ -371,13 +371,14 @@ module AgentsGenerator
     pkg_name = cnf['Device_side_package_name_str']
 
     if pkg_name == nil
-      "com.mdi.services.#{name}.protogen"
+      pkg_name ="com.mdi.services.#{name}.protogen"
     elsif pkg_name.is_a? String
-      pkg_name
+      #NOP
     else
       p "get_agent_java_package: unkown format of #{pkg_name} for java package name of agent #{name}"
-      "com.mdi.services.#{name}.protogen"
+      pkg_name = "com.mdi.services.#{name}.protogen"
     end
+    pkg_name.gsub!('_','') # maybe also transform as kamel case
   end
 
 

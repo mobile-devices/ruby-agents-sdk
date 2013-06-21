@@ -165,8 +165,8 @@ class Agent_XX_PROJECT_NAME
         print_ruby_exeption(e)
         PUNK.end('push','ko','out',"SERVER -> MSG")
         # stats:
-        SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['err_on_push'] += 1
-        SDK_STATS.stats['agents']["#{@AGENT_NAME}"]['total_error'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
       end
   end
 
@@ -177,15 +177,15 @@ class Agent_XX_PROJECT_NAME
         # success !
         PUNK.end('reply','ok','out',"SERVER -> MSG (reply)")
         # stats:
-        SDK_STATS.stats['agents'][@AGENT_NAME]['reply_sent_to_device'] += 1
-        SDK_STATS.stats['agents'][@AGENT_NAME]['total_sent'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
       rescue Exception => e
         CC.logger.error("Error on reply")
         print_ruby_exeption(e)
         PUNK.end('reply','ko','out',"SERVER -> MSG (reply)")
         # stats:
-        SDK_STATS.stats['agents'][@AGENT_NAME]['err_on_reply'] += 1
-        SDK_STATS.stats['agents'][@AGENT_NAME]['total_error'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
       end
     end
 
@@ -239,20 +239,12 @@ class Agent_XX_PROJECT_NAME
   # end
 
   ############### Logger ###############################################
-  def log_debug(str_msg)
-    CC.logger.debug("Agent XX_PROJECT_NAME: #{str_msg}")
-  end
 
-  def log_info(str_msg)
-    CC.logger.info("Agent XX_PROJECT_NAME: #{str_msg}")
-  end
-
-  def log_warn(str_msg)
-    CC.logger.warn("Agent XX_PROJECT_NAME: #{str_msg}")
-  end
-
-  def log_error(str_msg)
-    CC.logger.error("Agent XX_PROJECT_NAME: #{str_msg}")
+  def log()
+    puts "log hello"
+    @agent_logger ||= begin
+      CCS::Log.new('Agent XX_PROJECT_NAME: ')
+    end
   end
 
   ############### Redis ################################################

@@ -262,6 +262,32 @@ module CloudConnectServices
     end
   end
 
+
+  class Log
+
+    def initialize(header_txt)
+      @head = header_txt
+    end
+
+    def debug(str_msg)
+      CC.logger.debug("#{@head}#{str_msg}")
+    end
+
+    def info(str_msg)
+      CC.logger.info("#{@head}#{str_msg}")
+    end
+
+    def warn(str_msg)
+      CC.logger.warn("#{@head}#{str_msg}")
+    end
+
+    def error(str_msg)
+      CC.logger.error("#{@head}#{str_msg}")
+    end
+
+  end
+
+
 end
 
 

@@ -83,6 +83,7 @@ PUNK.end('a','ok','','SERVER installed ruby gems')
 
 PUNK.start('a')
 crons = GEN.generated_get_agents_whenever_content
+FileUtils.mkdir_p("#{$main_server_root_path}/config")
 File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
 $agents_cron_tasks = GEN.get_agents_cron_tasks(agents_running)
 CC.logger.debug("agents_cron_tasks =\n#{$agents_cron_tasks}")

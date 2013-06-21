@@ -136,7 +136,13 @@ class Agent_XX_PROJECT_NAME
 
   ########## Messages to devices #######################################
 
-  def send_content_to_device(asset, account, content)
+  class MessageGate
+
+    def initialize(channel)
+      @CHANNEL = channel
+    end
+
+    def push(asset, account, content)
       begin
         PUNK.start('push')
         msg = CCS::Message.new({
@@ -144,7 +150,7 @@ class Agent_XX_PROJECT_NAME
           'payload' => {
             'type' => 'message',
             'sender' => '@@server@@',
-            'channel' =>  @CHANNEL[0],
+            'channel' =>  @CHANNEL,
             'payload' => content
             }
           })
@@ -168,12 +174,12 @@ class Agent_XX_PROJECT_NAME
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
       end
-  end
+    end
 
-  def reply_content_to_device(msg, content)
-    begin
-      PUNK.start('reply')
-      msg.reply_content(content)
+    def reply(msg, content)
+      begin
+        PUNK.start('reply')
+        msg.reply_content(content)
         # success !
         PUNK.end('reply','ok','out',"SERVER -> MSG (reply)")
         # stats:
@@ -188,8 +194,13 @@ class Agent_XX_PROJECT_NAME
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
       end
     end
+  end
 
-# keep commented code until RAgent developped
+  def gate
+    @msgGate ||= begin
+      MessageGate.new(@CHANNEL[0])
+    end
+  end
 
 
 # keep commented code until RAgent developped

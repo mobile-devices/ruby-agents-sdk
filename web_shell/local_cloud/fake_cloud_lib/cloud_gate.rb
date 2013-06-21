@@ -75,8 +75,6 @@ end
 
 
 def handle_msg_from_device(type, params)
-  #CC.logger.info("Server: handle_msg_from_device: of type #{type}:\n#{params}")
-
   # parse the message
   msg = nil
   case type

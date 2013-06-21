@@ -67,19 +67,19 @@ end
 
 
 
-## send/reply message to a device
+## gate
 
 #### description :
 
-APIs that allow to reply of push a message to a device.
+Send/reply messages with protogen content to a device.
 
 #### methods :
 
-* send_content_to_device(asset, account, content)
+* push(asset, account, content)
   * asset : imei of the device.
   * account : account name to use.
   * content : protogen object to send.
-* reply_content_to_device(msg, content)
+* reply(msg, content)
   * msg : message to reply to.
   * content : protogen object to reply with.
 
@@ -88,21 +88,21 @@ APIs that allow to reply of push a message to a device.
 ``` ruby
 def new_presence_from_device(presence)
   # on each presence received, we push a protogenPOI objet to the device.
-  send_content_to_device('13371337', 'sdk-vm-account', protogenPOI)
+  gate.push('13371337', 'sdk-vm-account', protogenPOI)
 end
 ```
 
 ``` ruby
 def new_msg_from_device(msg)
   # on each message received, we reply back with a protogenPOI objet to the device.
-  reply_content_to_device(msg, protogenPOI)
+  gate.reply(msg, protogenPOI)
 end
 ```
 
 ``` ruby
 def new_msg_from_device(msg)
   # on each message received, we reply back the same content (echo agent)
-  reply_content_to_device(msg, msg.content)
+  gate.reply(msg, msg.content)
 end
 ```
 

@@ -54,6 +54,8 @@ module AgentsGenerator
   def generate_agents_protogen() # we could do it into generate_agents but we separate generations to track errors easily
     @AgentsGenerator_rapport_generation = ""
 
+    FileUtils.mkdir_p("#{source_path}/cloud_agents_generated")
+
     agents_to_run = get_run_agents
 
     # protogen
@@ -62,6 +64,8 @@ module AgentsGenerator
       next unless File.exist?("#{workspace_path}/#{agent}/config/protogen.json")
 
       FileUtils.mkdir_p("#{workspace_path}/#{agent}/doc/protogen")
+
+
 
       # generate compil conf
       java_pkg = get_agent_java_package(agent)
@@ -105,6 +109,8 @@ module AgentsGenerator
 
   def generate_agents()
     @AgentsGenerator_rapport_generation = ""
+
+    FileUtils.mkdir_p("#{source_path}/cloud_agents_generated")
 
     add_to_rapport("\n========= generate_agents start ===============")
 

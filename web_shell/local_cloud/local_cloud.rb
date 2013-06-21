@@ -52,6 +52,10 @@ end
 
 CC.logger.info("\n\n\n\n\n")
 
+# clear output
+FileUtils.rm_r("../agents_generator/cloud_agents_generated")
+FileUtils.mkdir_p("{source_path}/cloud_agents_generated")
+
 #progen generation
 PUNK.start('a')
 rapport = GEN.generate_agents_protogen

@@ -201,7 +201,7 @@ class Agent_XX_PROJECT_NAME
         PUNK.start('reply')
         reply_id = msg.reply_content(content)
         # success !
-        PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(reply_id,4)}] (reply of #{crop_ref(msg.id,4)})")
+        PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(reply_id,4)}] [reply of #{crop_ref(msg.id,4)}]")
         # stats:
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1

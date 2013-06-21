@@ -81,7 +81,7 @@ def handle_msg_from_device(type, params)
   when 'presence'
     begin
       msg = CCS::Presence.new(params)
-      PUNK.end('a','ok','in',"SERVER <- PRESENCE  '#{msg.type}'")
+      PUNK.end('a','ok','in',"SERVER <- PRESENCE '#{msg.type}'")
     rescue Exception => e
       print_ruby_exeption(e)
       SDK_STATS.stats['server']['err_parse'][0] += 1
@@ -114,7 +114,7 @@ def handle_msg_from_device(type, params)
   when 'order'
     begin
       msg = CCS::Order.new(params)
-      PUNK.end('a','ok','in',"SERVER <- ORDER")
+      PUNK.end('a','ok','in',"SERVER <- ORDER #(msg.code}")
     rescue CCS::AgentNotFound => e
       print_ruby_exeption(e)
       response.body = 'service unavailable'
@@ -142,11 +142,11 @@ def handle_msg_from_device(type, params)
     if !(check_channel(msg.channel))
       SDK_STATS.stats['server']['err_dyn_channel'][1] += 1
       SDK_STATS.stats['server']['total_error'] += 1
-      PUNK.end('a','ko','in',"SERVER <- MSG : channel not found")
+      PUNK.end('a','ko','in',"SERVER <- MSG[#{crop_ref(msg.id, 4)}] : channel not found")
       return
     end
 
-    PUNK.end('a','ok','in',"SERVER <- MSG")
+    PUNK.end('a','ok','in',"SERVER <- MSG[#{crop_ref(msg.id, 4)}]")
 
     # Ack mesage
     PUNK.start('ack')

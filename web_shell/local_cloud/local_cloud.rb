@@ -54,7 +54,7 @@ CC.logger.info("\n\n\n\n\n")
 
 # clear output
 FileUtils.rm_r("../agents_generator/cloud_agents_generated")
-FileUtils.mkdir_p("{source_path}/cloud_agents_generated")
+FileUtils.mkdir_p("#{source_path}/cloud_agents_generated")
 
 #progen generation
 PUNK.start('a')
@@ -117,6 +117,7 @@ CC.logger.info("\n\n+===========================================================
 
 CC.logger.info("ruby-agent-sdk-server ready to use !\n\n")
 
+
 PUNK.start('a')
 PUNK.end('a','ok','',"SERVER ready to use !")
 
@@ -166,6 +167,14 @@ def welcome_new_data_from_outside(index_type, request)
   jsonData
 end
 
+def crop_ref(ref, size)
+  ref_str = "#{ref}"
+  if ref_str.size <= size
+    ref_str
+  else
+    ref_str.split(//).last(size).join('')
+  end
+end
 
 #test: curl localhost:5001/dynamic_channel_request
 get '/dynamic_channel_request' do

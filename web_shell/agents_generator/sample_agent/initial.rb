@@ -19,5 +19,4 @@ module Initial_agent_XXProjectName
   #################################################
   # Implement below callbacks defined in protogen #
 
-
 end

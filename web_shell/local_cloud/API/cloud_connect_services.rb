@@ -286,8 +286,6 @@ module CloudConnectServices
     end
 
   end
-
-
 end
 
 

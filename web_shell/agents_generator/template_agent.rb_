@@ -50,15 +50,17 @@ class Agent_XX_PROJECT_NAME
 
   ######### Messages delivered for the agent ###########################
   def handle_presence(presence)
+    PUNK.start('msgPresence')
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+    PUNK.end('msgPresence','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- PRESENCE '#{presence.type}'")
+
     PUNK.start('handle')
     CC.logger.info("Server: handle_presence: pushing presence '#{presence.type}' to agent XX_PROJECT_NAME ..................")
     new_presence_from_device(presence)
   end
 
   def handle_message(message)
-    msg_type = ""
 
     a_channel_is_valid = false
     @CHANNEL.each { |chan|
@@ -68,44 +70,54 @@ class Agent_XX_PROJECT_NAME
     }
     return unless a_channel_is_valid
 
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
-    PUNK.start('handle')
+    msg_type = ""
+    PUNK.start('msgAgent')
+    begin
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
 
-    # decode content as base64
-    message.content = Base64.decode64(message.content)
+      # decode content as base64
+      message.content = Base64.decode64(message.content)
 
-    is_protogen = false
+      is_protogen = false
 
-    if @has_protogen
-      begin
-        # protogen decode
-        msg, cookies = ProtogenAPIs.decode(message)
-        message.content = msg
-        message.meta['protogen_cookies'] = cookies
-        msg_type = msg.class
+      if @has_protogen
+        begin
+          # protogen decode
+          msg, cookies = ProtogenAPIs.decode(message)
+          message.content = msg
+          message.meta['protogen_cookies'] = cookies
+          msg_type = msg.class
 
-        # do stats
+          # do stats
 
-        is_protogen = true
-      rescue Protogen::UnknownMessageType => e
-        # direct run
-        is_protogen = false
-        if $allow_non_protogen
-          CC.logger.warn("Server: handle_message: unknown protogen message type: #{e.inspect}")
-        else
-          raise e
+          is_protogen = true
+        rescue Protogen::UnknownMessageType => e
+          # direct run
+          is_protogen = false
+          if $allow_non_protogen
+            CC.logger.warn("Server: handle_message: unknown protogen message type: #{e.inspect}")
+          else
+            raise e
+          end
+        end
+      else
+        if !($allow_non_protogen)
+          raise "No Protogen defined"
         end
       end
-    else
-      if !($allow_non_protogen)
-        raise "No Protogen defined"
-      end
+
+      CC.logger.debug("Server: message content is : \n #{message.content}")
+      PUNK.end('msgAgent','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
+
+    rescue Exception => e
+      print_ruby_exeption(e)
+      PUNK.end('msgAgent','ko','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
     end
 
-    CC.logger.debug("Server: message content is : \n #{message.content}")
 
     # process
+    PUNK.start('handle')
     CC.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
     if is_protogen
       ProtogenAPIs.process(self, message)
@@ -113,13 +125,16 @@ class Agent_XX_PROJECT_NAME
       new_msg_from_device(message)
     end
 
-    msg_type
+    message.id
   end
 
   def handle_track(track)
     #todo: test type, log on errors
+    PUNK.start('msgTrack')
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][2] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+    PUNK.end('msgTrack','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- TRACK")
+
     PUNK.start('handle')
     CC.logger.info("Server: handle_track: pushing track to agent XX_PROJECT_NAME ..................")
     new_track_from_device(track)
@@ -127,8 +142,11 @@ class Agent_XX_PROJECT_NAME
 
   def handle_order(order)
     #todo: test type, log on errors
+    PUNK.start('msgOrder')
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][3] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+    PUNK.end('msgOrder','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- ORDER '#{order.code}'")
+
     PUNK.start('handle')
     CC.logger.info("Server: handle_track: pushing order #{order.code} to agent XX_PROJECT_NAME ..................")
     new_order(order)
@@ -157,11 +175,13 @@ class Agent_XX_PROJECT_NAME
 
         msg.push(asset, account)
         # success !
-        PUNK.end('push','ok','out',"SERVER -> MSG")
+        PUNK.end('push','ok','out',"SERVER -> MSG[#{crop_ref(msg.id,4)}]")
         # stats:
 
         #CC.logger.debug(SDK_STATS.stats)
         CC.logger.debug(SDK_STATS.stats['agents']['protogen_fun_agent'])
+
+
 
 
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
@@ -179,9 +199,9 @@ class Agent_XX_PROJECT_NAME
     def reply(msg, content)
       begin
         PUNK.start('reply')
-        msg.reply_content(content)
+        reply_id = msg.reply_content(content)
         # success !
-        PUNK.end('reply','ok','out',"SERVER -> MSG (reply)")
+        PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(reply_id,4)}] (reply of #{crop_ref(msg.id,4)})")
         # stats:
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1

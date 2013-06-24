@@ -169,7 +169,7 @@ class Agent_XX_PROJECT_NAME
             'type' => 'message',
             'sender' => '@@server@@',
             'channel' =>  @CHANNEL,
-            'payload' => content
+            'payload' => Base64.encode64(content)
             }
           })
 

@@ -7,6 +7,14 @@
 def push_something_to_device(something)
   CC.logger.debug("Server: push_something_to_device:\n#{something}")
 
+  # in fake mode, the content or a message must be base64 encode
+  begin
+    crash_test = something['payload']['payload']
+    something['payload']['payload'] = Base64.encode64(crash_test)
+  rescue Exception => e
+  end
+
+
   $mutex_message_to_device.synchronize do
     #$message_to_device << wrap_message(something)
     $message_to_device << something

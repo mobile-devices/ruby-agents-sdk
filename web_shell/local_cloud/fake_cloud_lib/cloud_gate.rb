@@ -114,7 +114,7 @@ def handle_msg_from_device(type, params)
   when 'order'
     begin
       msg = CCS::Order.new(params)
-      PUNK.end('a','ok','in',"SERVER <- ORDER #(msg.code}")
+      PUNK.end('a','ok','in',"SERVER <- ORDER '#{msg.code}'")
     rescue CCS::AgentNotFound => e
       print_ruby_exeption(e)
       response.body = 'service unavailable'

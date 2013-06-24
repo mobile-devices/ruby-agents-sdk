@@ -15,7 +15,7 @@ On this page, you can create/start/stop a project then apply and reboot the VM's
 * **Gemfile** : where you put gems you need.
 * **README.md** : where you explain what you do because documentation is mandatory.
 * **config/** : folder where you put your configuration.
-* **config/protogen.json** : configuration of classes that can be exchange between device and server.
+* **config/protogen.json** : configuration of messages that can be exchange between device and server.
 * **config/schedule.rb** : whenever file to create your schedules cron rules folder.
 * **doc/** : folder where you put your documentations.
 * **doc/protogen/** : folder where the protocol's documentation is generated.
@@ -31,6 +31,7 @@ The com interface runs on port 5001.
 
 * You receive the messages in the initial.rb, you shall include your code in a sub .rb file in the lib folder.
 * Do your agent stateless, global variables are strictly forbidden.
+* If you use messages, follow the Protogen Guide to see how to configure your messages.
 * To configure the dynamic channel used by this agent, go and edit config/<agent_name>.yml.example file, you can put a string or an array of string (see yaml documention for syntaxes).
 * If you need additional gems, edit the Gemfile and require them here.
 * Remember to complete your README.md
@@ -64,7 +65,6 @@ Where presence is a class with following accessors :
 
 ``` ruby
 def new_msg_from_device(message)
-  msg = Message.new(payload)
   ## Write your code here
   log_debug('initial:new_message_from_device')
 end

@@ -21,7 +21,7 @@ require 'base64'
 
 $main_server_root_path = File.expand_path("..", __FILE__)
 
-$allow_non_protogen = false
+$allow_non_protogen = true
 
 ## FAKE CLOUD LIB #################################################################################
 

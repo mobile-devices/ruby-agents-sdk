@@ -157,6 +157,10 @@ module CloudConnectServices
       r_hash.delete_if { |k, v| v.nil? }
     end
 
+    def fast_push()
+      CC.push(self.to_hash)
+    end
+
     def push(asset, account)
         # set asset
         self.asset = asset
@@ -168,7 +172,26 @@ module CloudConnectServices
         # Protogen encode
         if defined? ProtogenAPIs
           begin
-            self.content = ProtogenAPIs.encode(self)
+            decoded = ProtogenAPIs.encode(self)
+
+            if decoded.is_a? String
+              self.content = decoded
+              CC.logger.info("Protogen content is simple string")
+            elsif decoded.is_a? Array
+              CC.logger.info("Protogen content is an array of size #{decoded.size}")
+              self.content = decoded[-1]
+              # remove last fragment from list
+              decoded.slice!(-1)
+              # let create X fragment
+              decoded.each { |content|
+                frg = self.clone
+                frg.id = CC.indigen_next_id
+                frg.fast_push
+              }
+            else
+              raise "message push protogen unknown decoded type : #{decoded.type}"
+            end
+
           rescue Protogen::UnknownMessageType => e
             if $allow_non_protogen
               CC.logger.warn("CloudConnectServices:Messages.push: unknown protogen message type: #{e.inspect}")
@@ -184,11 +207,11 @@ module CloudConnectServices
           end
         end
 
-        CC.push(self.to_hash)
+        self.fast_push
     end
 
     def reply_content(content)
-      msg = self.clone
+      msg = self.clone # todo : check si on clone bien récursivement les table de hash
       msg.parent_id = self.id
       msg.id = CC.indigen_next_id
       msg.content = content

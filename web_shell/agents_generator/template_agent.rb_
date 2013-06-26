@@ -26,11 +26,13 @@ class Agent_XX_PROJECT_NAME
   end
 
   # Project
-  @AGENT_NAME = 'XX_PROJECT_NAME'
+  @AGENT_NAME = ''
   @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
 
   def initialize() # constructor
     log.debug("root path is = \"#{root_path}\"")
+
+    @AGENT_NAME = 'XX_PROJECT_NAME'
 
     # Load dynamic channel
     @CHANNEL = config['Dynamic_channel_str']

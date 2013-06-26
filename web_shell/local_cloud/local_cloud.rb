@@ -42,6 +42,8 @@ include SDK_STATS
 
 require_relative 'API/cloud_connect_services'
 
+require_relative 'API/cloud_connect_services_internal'
+
 #### Agent generation #############################################################################
 require_relative '../agents_generator/agents_mgt'
 include GEN

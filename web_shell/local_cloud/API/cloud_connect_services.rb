@@ -4,16 +4,12 @@
 #########################################################
 
 
-def print_ruby_exeption(e)
-  stack=""
-  e.backtrace.take(20).each { |trace|
-    stack+="  >> #{trace}\n"
-  }
-  CC.logger.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-end
-
 
 module CloudConnectServices
+
+
+  #============================== CLASSES ========================================
+
   class Presence < Struct.new(:asset, :time, :bs, :type, :reason, :account, :meta)
 
     # With :
@@ -310,6 +306,20 @@ module CloudConnectServices
     end
 
   end
+
+
+
+  #============================== METHODS ========================================
+
+  def self.print_ruby_exeption(e)
+    stack=""
+    e.backtrace.take(20).each { |trace|
+      stack+="  >> #{trace}\n"
+    }
+    CC.logger.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+  end
+
+
 end
 
 

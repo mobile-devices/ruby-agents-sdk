@@ -28,20 +28,12 @@ $allow_non_protogen = true
 require 'active_support/all'
 
 require_relative 'fake_cloud_lib/cloud_connect_sdk_module'
-include CC
-
-#require_relative 'fake_cloud_lib/message'
 require_relative 'fake_cloud_lib/cloud_gate'
-
 require_relative 'fake_cloud_lib/punkabe'
-include PUNK
 
 ## API ############################################################################################
 require_relative 'API/sdk_stats'
-include SDK_STATS
-
 require_relative 'API/cloud_connect_services'
-
 require_relative 'API/cloud_connect_services_internal'
 
 #### Agent generation #############################################################################

@@ -260,6 +260,10 @@ class Agent_XX_PROJECT_NAME
     @redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
   end
 
+  def redis_internal()
+    @redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
+  end
+
   ############### Config ###############################################
   #note: real wrapper wille have a .yml for each agent in a same folder
   def config()

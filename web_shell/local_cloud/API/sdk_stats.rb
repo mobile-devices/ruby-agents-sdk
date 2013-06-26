@@ -5,7 +5,7 @@
 
 module SDK_STATS
 
-  def reset_stats
+  def self.reset_stats
     @daemon_stat = {
       'server' => {
         'uptime' => '',
@@ -51,7 +51,7 @@ module SDK_STATS
       }
   end
 
-  def stats
+  def self.stats
     @daemon_stat ||= begin
       reset_stats
       @daemon_stat

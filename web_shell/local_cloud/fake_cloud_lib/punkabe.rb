@@ -4,11 +4,11 @@
 #########################################################
 
 module PUNK
-  def start(id)
+  def self.start(id)
     CC.logger.info("PUNKabeNK_#{id}")
   end
 
-  def end(id, type, way, title)
+  def self.end(id, type, way, title)
     CC.logger.info("PUNKabe_#{id}_axd_{\"type\":\"#{type}\", \"way\":\"#{way}\", \"title\":\"#{title}\"}")
   end
 end

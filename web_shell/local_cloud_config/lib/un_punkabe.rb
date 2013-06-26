@@ -5,13 +5,19 @@
 
 module PUNK
 
+  #============================== CLASSES ========================================
+
   class PunkEvent < Struct.new(:type, :way, :title, :start_time, :end_time, :elaspe_time, :content)
   end
 
   class PunkPendingStack < Struct.new(:id, :lines)
   end
 
-  def un_punk(txt_src)
+
+  #============================== METHODS ========================================
+
+
+  def self.un_punk(txt_src)
     punk_events = []
 
     punks_pending = []
@@ -83,7 +89,7 @@ module PUNK
   end
 
 
-  def title_to_html(title)
+  def self.title_to_html(title)
     title.gsub!('->','<i class="icon-arrow-right icon-white"></i>')
     title.gsub!('<-','<i class="icon-arrow-left icon-white"></i>')
 
@@ -111,7 +117,7 @@ module PUNK
   end
 
 
-  def gen_server_crash_title()
+  def self.gen_server_crash_title()
     `cd ../local_cloud; ./local_cloud.sh is_running`
     if File.exist?('/tmp/mdi_server_run_id')
       used_server_run_id =  File.read('/tmp/mdi_server_run_id')

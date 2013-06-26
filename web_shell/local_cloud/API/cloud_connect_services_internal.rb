@@ -6,8 +6,13 @@
 
 module CloudConnectServicesInternal
 
-  def redis()
-    @redis ||= Redis::Namespace.new('CCSI', :redis => CCS.redis)
+  #============================== CLASSES ========================================
+
+
+  #============================== METHODS ========================================
+
+  def self.redis()
+    @redis ||= Redis::Namespace.new('CCSI', :redis => CC.redis)
   end
 
 end

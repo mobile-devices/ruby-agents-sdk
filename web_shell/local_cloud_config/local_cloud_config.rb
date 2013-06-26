@@ -16,7 +16,6 @@ require_relative 'lib/net_http'
 require_relative 'lib/erb_config'
 
 require_relative 'lib/un_punkabe'
-include PUNK
 
 require_relative '../agents_generator/agents_mgt'
 include GEN

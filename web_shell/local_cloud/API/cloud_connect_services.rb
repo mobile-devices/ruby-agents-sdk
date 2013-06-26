@@ -186,6 +186,7 @@ module CloudConnectServices
               decoded.each { |content|
                 frg = self.clone
                 frg.id = CC.indigen_next_id
+                frg.content = content
                 frg.fast_push
               }
             else

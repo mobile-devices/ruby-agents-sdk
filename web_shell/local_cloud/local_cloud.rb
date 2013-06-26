@@ -18,7 +18,6 @@ set :port, '5001'
 require 'json'
 require 'base64'
 
-
 $main_server_root_path = File.expand_path("..", __FILE__)
 
 $allow_non_protogen = true
@@ -32,6 +31,7 @@ require_relative 'fake_cloud_lib/cloud_gate'
 require_relative 'fake_cloud_lib/punkabe'
 
 ## API ############################################################################################
+
 require_relative 'API/sdk_stats'
 require_relative 'API/cloud_connect_services'
 require_relative 'API/cloud_connect_services_internal'
@@ -128,7 +128,7 @@ def get_json_from_request(request)
     JSON.parse(to_parse)
   rescue Exception => e
     CC.logger.error("Server: error while reading json (len=#{to_parse.length}) \n #{to_parse}")
-    print_ruby_exeption(e)
+    CCS.print_ruby_exeption(e)
     nil
   end
 end

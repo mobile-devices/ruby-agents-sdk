@@ -36,7 +36,7 @@ class Agent_XX_PROJECT_NAME
     @CHANNEL = config['Dynamic_channel_str']
 
     if @CHANNEL.is_a? String
-      @CHANNEL = ["#{@CHANNEL}","#{@AGENT_NAME}"]
+      @CHANNEL = ["#{@CHANNEL}"]
     end
 
     if (@CHANNEL == nil) || (@CHANNEL.length == 0)

@@ -220,6 +220,14 @@ module AgentsGenerator
 
     File.open("#{source_path}/../local_cloud/Gemfile", 'w') { |file| file.write(gemFile_content) }
 
+
+    # check agent name here, restore if note here
+    agents_to_run.each { |agent|
+      if !(File.exist?("#{workspace_path}/#{agent}/.agent_name"))
+        File.open("#{workspace_path}/#{agent}/.agent_name", 'w') { |file| file.write(agent) }
+      end
+    }
+
     # check config exist
     agents_to_run.each { |agent|
       if !(File.exist?("#{workspace_path}/#{agent}/config/#{agent}.yml.example"))

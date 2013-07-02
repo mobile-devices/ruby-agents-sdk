@@ -286,6 +286,9 @@ module AgentsGenerator
     # create file guid
     File.open("#{project_path}/.mdi_cloud_agent_guid", 'w') { |file| file.write(generate_new_guid()) }
 
+    # init agent name
+    File.open("#{project_path}/.agent_name", 'w') { |file| file.write(name) }
+
 
     #copy sample project
     FileUtils.cp_r(Dir["#{source_path}/sample_agent/*"],"#{project_path}")

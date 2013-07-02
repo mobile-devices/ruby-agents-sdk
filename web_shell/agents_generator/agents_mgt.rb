@@ -419,8 +419,9 @@ module AgentsGenerator
   #return true if valid todo: add more case that return false (gem file dynchannel etc), + print when rejected
   def is_agent_valid(name)
     return false unless File.directory?("#{workspace_path}/#{name}")
-    File.exists?("#{workspace_path}/#{name}/.mdi_cloud_agent_guid")
-    File.exists?("#{workspace_path}/#{name}/initial.rb")
+    return false unless File.exists?("#{workspace_path}/#{name}/.mdi_cloud_agent_guid")
+    return false unless File.exists?("#{workspace_path}/#{name}/initial.rb")
+    return true
   end
 
   def get_agent_Gemfile_content(name)

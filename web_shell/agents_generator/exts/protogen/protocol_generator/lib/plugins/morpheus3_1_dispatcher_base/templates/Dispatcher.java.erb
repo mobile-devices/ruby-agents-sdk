@@ -14,7 +14,7 @@ import <%= Env['java_package']%>.Codec.UnknownMessage;
 
 public class Dispatcher implements IndependantMessageHandler {
 
-  public static final int PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
+  public static final String PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
   public static final String PG_VERSION = "<%= ::ProtocolGenerator.version %>";
 
   private Debug _dbg = null;
@@ -38,6 +38,12 @@ public class Dispatcher implements IndependantMessageHandler {
         return false;
       } <% end %>
     } catch (Codec.UnknownMessage e) {
+      _dbg.error(e.getMessage());
+      return false;
+    } catch (Codec.PartialMessage e) {
+      _dbg.print(e.getMessage());
+      return false;
+    } catch (Codec.CorruptedMessage e) {
       _dbg.error(e.getMessage());
       return false;
     }
@@ -65,6 +71,10 @@ public class Dispatcher implements IndependantMessageHandler {
           _dbg.error("Droping an unexpected message: " + message.getClass() + '.');
         }<% end %>
       } catch (Codec.UnknownMessage e) {
+        _dbg.error(e.getMessage());
+      } catch (Codec.PartialMessage e) {
+        _dbg.print(e.getMessage());
+      } catch (Codec.CorruptedMessage e) {
         _dbg.error(e.getMessage());
       }
     }
@@ -96,6 +106,7 @@ public class Dispatcher implements IndependantMessageHandler {
       _dbg = dbg;
       _dispatcher = new Dispatcher(msgc, _dbg);
       _messageGateHelper = new MessageGateHelper(_msggate, _bgate, 0, _dispatcher, null, false, channel);
+      _messageGateHelper.setDebugger(_dbg);
     }
     <% Env['msg_seq_dev'].each do |msg,seq| %>
     public MessageGateHelper.Status send_<%= seq %>(<%= Env['java_messages_class'] %>.<%= msg %> data) throws UnknownMessage {

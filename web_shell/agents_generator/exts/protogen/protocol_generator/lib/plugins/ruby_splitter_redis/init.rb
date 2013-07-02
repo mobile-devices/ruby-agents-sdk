@@ -1,10 +1,10 @@
 module ProtocolGenerator
   module Generator
-    class RubyCookiesEncryptBase < GeneratorPlugin
+    class RubyCookiesSplitterRedis < GeneratorPlugin
       def self.run
         directory = File.join(Env['output_directory'], 'server', 'ruby')
         FileUtils.mkdir_p(directory) if !File.directory?(directory)
-        Utils.render(File.join(@templates_dir,'cookiesencrypt.rb.erb'), File.join(directory,'cookiesencrypt.rb'))
+        Utils.render(File.join(@templates_dir,'splitter.rb.erb'), File.join(directory,'splitter.rb'))
       end
 
       @dependencies = []

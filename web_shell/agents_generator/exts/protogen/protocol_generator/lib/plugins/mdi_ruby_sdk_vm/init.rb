@@ -13,26 +13,29 @@ module ProtocolGenerator
 
         YARD::Tags::Library.define_tag "ProtocolGenerator version", :protogen_version
         YARD::Tags::Library.define_tag "Protocol version", :protocol_version
+
         Dir.chdir(server_directory) do
           yard_task = YARD::Rake::YardocTask.new do |t|
             t.files   = ['*.rb']
             t.options = [
               "--output-dir", 'doc',
-              "--query", "@api.text != 'private'"
+              "--api", "public",
+              "--title", "#{Env['agent_name']} generated code documentation, Protocol Version #{Env['protocol_version']}, Protocol Generator #{::ProtocolGenerator.version}"
             ]
           end
           Rake.application[yard_task.name].invoke
         end
 
-        Utils.render(File.join(@templates_dir, '.doxygen.erb'), File.join(device_directory, ".doxygen"))
-        puts `cd #{device_directory}; doxygen .doxygen; cd -`
+        # No doc generated for the java APIs. It's up to the end developper to do it on his own.
+        # Utils.render(File.join(@templates_dir, '.doxygen.erb'), File.join(device_directory, ".doxygen"))
+        # puts `cd #{device_directory}; doxygen .doxygen; cd -`
 
         FileUtils.mkdir_p(Env['server_output_directory'])
         FileUtils.mkdir_p(Env['device_output_directory'])
         FileUtils.mv(Dir.glob(File.join(server_directory, '*.rb')), Env['server_output_directory'], :force => true)
         FileUtils.mv(Dir.glob(File.join(server_directory, 'doc')), Env['server_output_directory'], :force => true)
         FileUtils.mv(Dir.glob(File.join(device_directory, "*")), Env['device_output_directory'], :force => true)
-        FileUtils.mv(Dir.glob(File.join(device_directory, "doc")), Env['device_output_directory'], :force => true)
+        # FileUtils.mv(Dir.glob(File.join(device_directory, "doc")), Env['device_output_directory'], :force => true)
         FileUtils.rm_r(Env['output_directory'], :secure => true)
       end
 
@@ -44,7 +47,8 @@ module ProtocolGenerator
         :ruby_cookiesencrypt_base,
         :ruby_messages_msgpack,
         :ruby_passwdgen_redis,
-        :morpheus3_1_jar_compiler,
+        :ruby_splitter_redis,
+        :morpheus3_1_jar_compiler
       ]
       @priority = -10
       init

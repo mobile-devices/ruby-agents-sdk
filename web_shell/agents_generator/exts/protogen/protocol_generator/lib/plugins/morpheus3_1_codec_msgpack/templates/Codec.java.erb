@@ -1,6 +1,7 @@
 package <%= Env['java_package']%>;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,12 +23,62 @@ import <%= Env['java_package']%>.MDIMessages;
 
 public class Codec {
 
-  public static final int PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
+  public static final String PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
   public static final String PG_VERSION = "<%= ::ProtocolGenerator.version %>";
 
   public static class UnknownMessage extends Exception {
     public UnknownMessage(String message) {
-        super(message);
+      super(message);
+    }
+  }
+
+  public static class PartialMessage extends Exception {
+    public PartialMessage(String message) {
+      super(message);
+    }
+  }
+
+  public static class CorruptedMessage extends Exception {
+    public CorruptedMessage(String message) {
+      super(message);
+    }
+  }
+
+  public static class Splitter {
+
+    private static Map<String, Map<Integer, byte[]>> _messageParts = new HashMap<String, Map<Integer, byte[]>>();
+
+    public static Map<Integer, byte[]> getStoredParts(String messageHash) {
+      Map<Integer, byte[]> sp = _messageParts.get(messageHash);
+      if (sp == null) {
+        return new HashMap<Integer, byte[]>();
+      } else {
+        return sp;
+      }
+    }
+
+    public static void put(byte[] partContent, String messageHash, int messageFraction) {
+      Map<Integer, byte[]> parts = getStoredParts(messageHash);
+      parts.put(messageFraction, partContent);
+      _messageParts.put(messageHash, parts);
+    }
+
+
+    public static BuffRef assemble(Map<Integer, byte[]> otherMessageParts, String messageHash) throws CorruptedMessage {
+      _messageParts.remove(messageHash);
+
+      ByteArrayOutputStream completeMessage = new ByteArrayOutputStream();
+      for (int i = 0; i < otherMessageParts.size(); i++) {
+        try {
+          completeMessage.write(otherMessageParts.get(i));
+        } catch (IOException e) {
+          throw new CorruptedMessage("IOException on message part " + i);
+        }
+      }
+
+      // todo check hash
+
+      return new BuffRef(completeMessage.toByteArray());
     }
   }
 <% if Env['use_cookies'] %>
@@ -48,7 +99,10 @@ public class Codec {
   }<% end %>
 
 
-  public static MDIMessages.<%= Env['java_message_parent_class']%> decode(BuffRef message) throws UnknownMessage {
+
+  public static MDIMessages.<%= Env['java_message_parent_class']%> decode(BuffRef message)
+      throws CorruptedMessage, UnknownMessage, PartialMessage {
+
     final MessagePack msgpack = new MessagePack();
     final ByteArrayInputStream in = new ByteArrayInputStream(message.getBytes());
     final Unpacker unpacker = msgpack.createUnpacker(in);
@@ -62,6 +116,27 @@ public class Codec {
       return null;
     }
 
+    // "h" presence means this is a partial message
+    if (wrap.containsKey("h")) {
+      String messageHash = wrap.get("h").asRawValue().getString();
+      int messageFraction = wrap.get("f").asIntegerValue().getInt();
+      int totalParts = wrap.get("t").asIntegerValue().getInt();
+      byte[] partContent = wrap.get("m").asRawValue().getByteArray();
+
+      Map<Integer, byte[]> otherMessageParts = Splitter.getStoredParts(messageHash);
+      if (otherMessageParts.size() + 1 == totalParts) {
+        otherMessageParts.put(messageFraction, partContent);
+        return decode(Splitter.assemble(otherMessageParts, messageHash));
+      } else {
+        Splitter.put(partContent, messageHash, messageFraction);
+        throw new PartialMessage("Received part " + messageFraction + "/" + totalParts + " of message " + messageHash);
+      }
+    }
+
+    String received_version = wrap.get("v").asRawValue().getString();
+    if (!received_version.equals(PROTOCOL_VERSION)) {
+      throw new UnknownMessage("Invalid protocol versions: actual " + PROTOCOL_VERSION + " / received " + received_version);
+    }
 <%
   if Env['use_cookies']
     Env['cookie_names'].each do |cookie_name|

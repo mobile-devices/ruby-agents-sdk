@@ -1,0 +1,77 @@
+require 'digest/sha1'
+
+module Protogen
+
+# The module provides APIs to split messages when they are
+# too big (to avoid congestion in the mdi communication servers).
+# @protogen_version <%= ::ProtocolGenerator.version %>
+# @protocol_version <%= Env['protocol_version'] %>
+# @api private
+module Splitter
+
+  PROTOCOL_VERSION = <%= Env['protocol_version'] %>
+  PG_VERSION = "<%= ::ProtocolGenerator.version %>"
+
+  # Init the redis connection
+  # @param [Redis] redis initialized redis connection
+  # @return [Redis] (unused) the same redis connection
+  def self.init(redis)
+    @@redis = redis
+  end
+
+  # Splits a serialized message if its length exceeds a certain limit.
+  #
+  # @param [String] message the serialized message
+  # @param [Fixnum] lengh_limit in bytes
+  # @return [message SHA1 (String), array of message parts (Array(String))]
+  def self.split(message, length_limit)
+    hash = Digest::SHA1.hexdigest message
+    parts = []
+    (message.bytesize/length_limit+1).times do |i|
+      parts << message.byteslice((i*length_limit)..((i+1)*length_limit-1))
+    end
+    [hash, parts]
+  end
+
+  # Assembles message parts to retrieve original message, and checks its
+  # integrity using a sha1 hash. Deletes the correspondant message parts
+  # stored in redis.
+  #
+  # @param [Hash] message_parts the key is the part number (a String),
+  #   the value is the part content (String).
+  # @param [String] sha1_hash the SHA1 hash of the assembled serialized message.
+  # @raise [RuntimeError] if the assembled message does not correspond to the
+  #   SHA1 hash.
+  # @return [String] the serialized message
+  def self.assemble(message_parts, sha1_hash, asset)
+    @@redis.del("message_#{asset}_#{sha1_hash}")
+    # Since redis hkeys can only be strings, we have to retransform them into ints
+    message = message_parts.keys.map{|i| i.to_i}.sort.inject(""){
+      |acc,part_i| acc << message_parts[part_i.to_s]
+    }
+    raise 'Message corrupted' unless Digest::SHA1.hexdigest(message) == sha1_hash
+    message
+  end
+
+  # Fetch from redis the message part previously received
+  #
+  # @param [String] sha1_hash SHA1 of the final message
+  # @param [String] asset asset of the device that sent this big message
+  # @return [Hash] the hash keys ar the part number (String), the value is the
+  #   content
+  def self.get_stored_parts(sha1_hash, asset)
+    @@redis.hgetall("message_#{asset}_#{sha1_hash}")
+  end
+
+  # Add a message part in redis
+  #
+  # @param [String] message the message part content
+  # @param [String] sha1_hash SHA1 of the final message
+  # @param [String] part_num part number
+  # @param [String] asset asset of the device that sent this big message
+  def self.put(message, sha1_hash, part_num, asset)
+    @@redis.hset("message_#{asset}_#{sha1_hash}", part_num, message)
+  end
+end
+
+end

@@ -29,7 +29,10 @@ module ProtocolGenerator
       "plugins" => {'type' => 'array', 'required' => true},
       "java_package" => {'type' => 'string', 'required' => true},
       "mdi_framework_jar" => {'type' => 'string', 'required' => false},
-      "keep_java_source" => {'type' => 'bool', 'required' => false}
+      "keep_java_source" => {'type' => 'bool', 'required' => false},
+      "agent_name" => {'type' => 'string', 'required' => true},
+      "message_size_limit" => {'type' => 'int', 'required' => false},
+      "message_part_size" => {'type' => 'int', 'required' => false}
     }
   }.freeze
 
@@ -113,7 +116,6 @@ module ProtocolGenerator
   GENERAL_SCHEMA = {
     "type" => "object",
     "properties" => {
-      "protocol_version" => { 'type' => 'int', 'required' => true},
       "messages" => MESSAGES_SCHEMA,
       "cookies" => COOKIES_SCHEMA,
       "sequences" => SEQUENCES_SCHEMA
@@ -263,7 +265,55 @@ module ProtocolGenerator
       # General validation, just to be sure
       JSON::Validator.validate!(GENERAL_SCHEMA, input, :validate_schema => true)
 
-      Env['protocol_version'] = input['protocol_version']
+      Env['protocol_version'] = compute_version_string
+      puts "Protocol version: #{Env['protocol_version']}"
+    end
+
+    def self.compute_version_string
+      # Marshaled copies of the hashes, just to be sure there are no modified values in the original hash
+      messages_copy = Marshal.load( Marshal.dump(Env['messages']) )
+      cookies_copy = Marshal.load( Marshal.dump(Env['cookies']) )
+
+      messages_v = {}
+      # Order of message declarations matters, so we don't sort the keys
+      messages_copy.keys.each do |msg_name|
+        messages_v[msg_name] = {}
+        # Order of field declarations does not matter, so we sort the fields alphabetically
+        messages_copy[msg_name].keys.sort.each do |field|
+          next unless ( /^[a-z]/.match(field) || ['_way'].include?(field)) # we only keep pertinent fields (no description or callback names)
+          field_content = {}
+          if(/^[a-z]/.match(field))
+            # Again, order of the field  options does not matter, we sort
+            messages_copy[msg_name][field].keys.sort.each do |field_opt|
+              next unless ['type', 'modifier', 'array'].include?(field_opt)
+              field_content[field_opt] = messages_copy[msg_name][field][field_opt]
+            end
+          else
+            field_content = messages_copy[msg_name][field]
+          end
+          messages_v[msg_name][field] = field_content
+        end
+      end
+
+      cookies_v = {}
+      # Order stuff for cookies is the same than for messages
+      cookies_copy.keys.each do |cookie_name|
+        cookies_v[cookie_name] = {}
+        cookies_copy[cookie_name].keys.sort.each do |field|
+          next unless ( /^[a-z]/.match(field) || ['_send_with', '_secure', '_validity_time'].include?(field))
+          field_content = {}
+          if(/^[a-z]/.match(field))
+            cookies_copy[cookie_name][field].keys.sort.each do |field_opt|
+              next unless ['type', 'modifier', 'array'].include?(field_opt)
+              field_content[field_opt] = cookies_copy[cookie_name][field][field_opt]
+            end
+          else
+            field_content = cookies_copy[cookie_name][field]
+          end
+          cookies_v[cookie_name][field] = field_content
+        end
+      end
+      "\"#{Digest::SHA1.hexdigest(messages_v.to_s+cookies_v.to_s)[-6..-1]}\""
     end
 
   end

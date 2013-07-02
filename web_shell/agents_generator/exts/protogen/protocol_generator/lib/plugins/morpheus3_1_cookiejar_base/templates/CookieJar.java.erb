@@ -4,7 +4,7 @@ import com.mdi.tools.std.BuffRef;
 
 public class CookieJar {
 
-  public static final int PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
+  public static final String PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
   public static final String PG_VERSION = "<%= ::ProtocolGenerator.version %>";
 
   public static class StoredCookie {

@@ -9,7 +9,7 @@ import org.msgpack.type.Value;
  *
  */
 public class MDIMessages {
-  public static final int PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
+  public static final String PROTOCOL_VERSION = <%= Env['protocol_version'] %>;
   public static final String PG_VERSION = "<%= ::ProtocolGenerator.version %>";
 
   <% Env['declared_types'].each_with_index do |type, index| %>
@@ -78,7 +78,7 @@ public class MDIMessages {
     ft = Env['messages'][type][field]['type']
     if Env['declared_types'].include?(ft)
       if Env['messages'][type][field]['array'] -%>
-      HashMap<String,Object>[] _<%= field %> = new HashMap[<%= field %>.length];
+      HashMap[] _<%= field %> = new HashMap[<%= field %>.length];
       for(int i = 0; i < <%= field %>.length; i++) {
         _<%= field %>[i] = <%= field %>[i].toHash();
       }

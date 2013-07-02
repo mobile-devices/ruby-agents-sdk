@@ -9,8 +9,22 @@ module Protogen
   class UnknownMessageType < Exception
   end
 
+  # Exception raised by the Codec when there is a mismatch between of the protocol version of the server and the device
+  # @see Codec
+  # @api private
+  class InvalidProtocolVersion < Exception
+  end
+
+  # object returned by the Codec when a big message was split on the device, and there are still missing pieces on the server
+  # @see Codec
+  # @api private
+  class MessagePartNotice
+  end
+
+
 # @api private
 module Codec
+
 
   PROTOCOL_VERSION = <%= Env['protocol_version'] %>
   PG_VERSION = "<%= ::ProtocolGenerator.version %>"
@@ -38,13 +52,45 @@ module Codec
       end
     end
     <% end %>
-    msg_hash.to_msgpack
+
+    enc_msg = msg_hash.to_msgpack
+    raise 'OverMessageSizeLimit' if enc_msg.size > <%= Env['message_size_limit'] %>
+    if enc_msg.size > <%= Env['message_part_size'] %>
+      sha1_hash, parts = Splitter.split(enc_msg, <%= Env['message_part_size'] %>)
+      if parts.size > 1
+        output = []
+        parts.each_with_index do |part, i|
+          output << {'m' => part, 'h' => sha1_hash, 'f' => i, 't' => parts.size}.to_msgpack
+        end
+        output
+      else
+        [enc_msg]
+      end
+    else
+      [enc_msg]
+    end
   end
 
   def self.decode(msg, asset<%if !Env['use_cookies']%>=nil<%end%>)
     msg_hash = MessagePack.unpack(msg)
 
-    protocol_version = msg_hash['v'] # TODO : Use it.
+    unless msg_hash['h'].nil? # if this is only part of a message
+      # Retrieve from storage all the other parts.
+      other_parts = Splitter.get_stored_parts(msg_hash['h'], asset)
+      if other_parts.size + 1 == msg_hash['t']
+        other_parts["#{msg_hash['f']}"] = msg_hash['m']
+        enc_msg = Splitter.assemble(other_parts, msg_hash['h'], asset)
+        msg_hash = MessagePack.unpack(enc_msg)
+      else
+        Splitter.put(msg_hash['m'], msg_hash['h'], msg_hash['f'], asset)
+        # still missing parts -> nothing else to excecute
+        return [MessagePartNotice.new,nil]
+      end
+    end
+
+    if msg_hash['v'] != PROTOCOL_VERSION
+      raise InvalidProtocolVersion, "Protocol message version: #{msg_hash['v']}, protocol server version: #{PROTOCOL_VERSION}"
+    end
 
     obj = case msg_hash['type'] <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
     when Messages::ID_<%= type.upcase %> then Messages::<%= type %>.from_hash(msg_hash['msg']) <% end %>

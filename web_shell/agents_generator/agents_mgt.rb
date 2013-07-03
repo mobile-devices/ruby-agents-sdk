@@ -65,15 +65,13 @@ module AgentsGenerator
 
       FileUtils.mkdir_p("#{workspace_path}/#{agent}/doc/protogen")
 
-
-
       # generate compil conf
       java_pkg = get_agent_java_package(agent)
       compil_opt = {
         "agent_name" => "#{agent}",
         "plugins" => ["mdi_ruby_sdk_vm"],
         "server_output_directory" => "#{source_path}/cloud_agents_generated/protogen_#{agent}",
-        "device_output_directory" => "#{workspace_path}/#{agent}/device_side_generated",
+        "device_output_directory" => "/tmp",
         "java_package" => java_pkg,
         "mdi_framework_jar" => "config/mdi-framework-3.X.jar",
         "keep_java_source" => false
@@ -82,7 +80,7 @@ module AgentsGenerator
       File.open('/tmp/protogen_conf.json', 'w') { |file| file.write(compil_opt.to_json)}
 
       # create output dir for java jar
-      FileUtils.mkdir_p(compil_opt['device_output_directory'])
+      #FileUtils.mkdir_p(compil_opt['device_output_directory'])
       # create dir for ruby side code
       FileUtils.mkdir_p(compil_opt['server_output_directory'])
 

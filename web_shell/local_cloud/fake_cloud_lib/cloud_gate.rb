@@ -9,8 +9,9 @@ def push_something_to_device(something)
 
   # in fake mode, the content or a message must be base64 encode
   begin
-    crash_test = something['payload']['payload']
-    something['payload']['payload'] = Base64.encode64(crash_test)
+    if something['payload']['type'] == 'message'
+      something['payload']['payload'] = Base64.encode64(something['payload']['payload'])
+    end
   rescue Exception => e
   end
 

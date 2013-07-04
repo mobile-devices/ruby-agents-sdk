@@ -147,6 +147,11 @@ def handle_msg_from_device(type, params)
   when 'presence'
     handle_presence(msg)
   when 'message'
+    # let's drop all message with channel 0 :
+    if (msg.channel == 0)
+      return
+    end
+
     # check channel
     if !(check_channel(msg.channel))
       SDK_STATS.stats['server']['err_dyn_channel'][1] += 1

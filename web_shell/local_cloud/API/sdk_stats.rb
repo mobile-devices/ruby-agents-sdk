@@ -31,7 +31,9 @@ module SDK_STATS
           'reply_sent_to_device' => 0,
           'err_on_reply' => 0,
           'push_sent_to_device' => 0,
-          'err_on_push' => 0
+          'err_on_push' => 0,
+          'upstream_data' => [0,0,0,0],
+          'downstream_data' => [0,0,0,0]
           },
         'agents' => {}
       }
@@ -46,7 +48,9 @@ module SDK_STATS
         'reply_sent_to_device' => 0,
         'err_on_reply' => 0,
         'push_sent_to_device' => 0,
-        'err_on_push' => 0
+        'err_on_push' => 0,
+        'upstream_data' => [0,0,0,0],
+        'downstream_data' => [0,0,0,0]
         }
       }
   end

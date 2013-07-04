@@ -7,6 +7,7 @@ Here are some configuration commands you have to run on the device's console :
 
 s messageGate useBinaryGate 0
 s dataEmitter useBinaryGate 0
+s binaryGate active 0
 s jbinaryGate active 1
 s jbinaryGate url 192.168.10.4
 s jbinaryGate port 5001

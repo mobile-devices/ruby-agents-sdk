@@ -2,6 +2,7 @@ cloud_agents
 cloud_agents_generated
 *.log*
 *.html
+protogen_*
 
 .agents_to_run
 .last_version

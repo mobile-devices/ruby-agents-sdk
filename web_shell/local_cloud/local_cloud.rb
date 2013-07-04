@@ -177,6 +177,7 @@ end
 get '/dynamic_channel_request' do
 
   msg = CCS::Message.new()
+  msg.channel = 0
   msg.content = $dyn_channels.clone.to_json
   msg.type = 'dynchannelsmessage'
 

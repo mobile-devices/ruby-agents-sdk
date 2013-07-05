@@ -44,6 +44,3 @@ def logs_agent_punked
     []
   end
 end
-
-
-

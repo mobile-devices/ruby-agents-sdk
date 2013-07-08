@@ -181,6 +181,9 @@ get '/dynamic_channel_request' do
   msg.content = $dyn_channels.clone.to_json
   msg.type = 'dynchannelsmessage'
 
+  # Base64 it
+  msg.content = Base64.encode64(msg.content)
+
   CC.logger.debug("Server: /dynamic_channel_request has #{$dyn_channels.count} channels :\n#{msg.to_hash.to_json}")
   msg.to_hash.to_json
 end

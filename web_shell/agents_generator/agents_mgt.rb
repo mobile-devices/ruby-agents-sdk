@@ -69,12 +69,8 @@ module AgentsGenerator
       java_pkg = get_agent_java_package(agent)
       compil_opt = {
         "agent_name" => "#{agent}",
-        "plugins" => ["mdi_ruby_sdk_vm"],
-        "server_output_directory" => "#{source_path}/cloud_agents_generated/protogen_#{agent}",
-        "device_output_directory" => "/tmp",
-        "java_package" => java_pkg,
-        "mdi_framework_jar" => "config/mdi-framework-3.X.jar",
-        "keep_java_source" => false
+        "plugins" => ["mdi_sdk_vm_server_ruby"],
+        "server_output_directory" => "#{source_path}/cloud_agents_generated/protogen_#{agent}"
       }
       add_to_rapport(">>> Generating Protogen for #{agent} agent with config :\n #{compil_opt}")
       File.open('/tmp/protogen_conf.json', 'w') { |file| file.write(compil_opt.to_json)}

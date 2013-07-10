@@ -88,9 +88,11 @@ module Codec
       end
     end
 
-    if msg_hash['v'] != PROTOCOL_VERSION
-      raise InvalidProtocolVersion, "Protocol message version: #{msg_hash['v']}, protocol server version: #{PROTOCOL_VERSION}"
-    end
+    <% if Env['check_protocol_version'] == 'yes' %>
+      if msg_hash['v'] != PROTOCOL_VERSION
+        raise InvalidProtocolVersion, "Protocol message version: #{msg_hash['v']}, protocol server version: #{PROTOCOL_VERSION}"
+      end
+    <% end %>
 
     obj = case msg_hash['type'] <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
     when Messages::ID_<%= type.upcase %> then Messages::<%= type %>.from_hash(msg_hash['msg']) <% end %>

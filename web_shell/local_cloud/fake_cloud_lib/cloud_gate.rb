@@ -148,7 +148,8 @@ def handle_msg_from_device(type, params)
     handle_presence(msg)
   when 'message'
     # let's drop all message with channel 0 :
-    if (msg.channel == 0)
+    if (msg.channel == '0')
+      CC.logger.info('received a message with channel 0, dropping it')
       return
     end
 

@@ -105,6 +105,21 @@ def new_presence_from_device(presence)
 end
 ```
 
+## redis_shared
+
+#### description :
+
+Use it to cache data for faster reply (@see redis), but the keys will be shared between several instances of your agent dispatched into the cloud.
+
+#### methods :
+
+@see redis
+
+#### example :
+
+@see redis
+
+
 
 ## root_path
 

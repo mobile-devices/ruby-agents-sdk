@@ -15,6 +15,10 @@ module CloudConnectServicesInternal
     @redis ||= Redis::Namespace.new('CCSI', :redis => CC.redis)
   end
 
+  def self.redis_shared()
+    @redis ||= Redis::Namespace.new("CCSI", :redis => CC.redis)
+  end
+
 end
 
 CCSI = CloudConnectServicesInternal

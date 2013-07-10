@@ -260,8 +260,16 @@ class Agent_XX_PROJECT_NAME
     @redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
   end
 
+  def redis_shared()
+    @redis ||= Redis::Namespace.new("CCS:XX_PROJECT_NAME", :redis => CC.redis)
+  end
+
   def redis_internal()
     @redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
+  end
+
+  def redis_internal_shared()
+    @redis_internal ||= Redis::Namespace.new("CCSI:XX_PROJECT_NAME", :redis => CC.redis)
   end
 
   ############### Config ###############################################

@@ -109,7 +109,7 @@ class Agent_XX_PROJECT_NAME
         end
       end
 
-      CC.logger.debug("Server: message content is : \n #{message.content}")
+      CC.logger.debug("Server: new message (protogen=#{is_protogen}) in a protogen agent = #{@has_protogen} content is: \n #{message.content}")
       PUNK.end('msgAgent','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
 
     rescue Exception => e

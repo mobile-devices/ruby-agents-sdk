@@ -410,10 +410,6 @@ module AgentsGenerator
     Dir.entries(path).select {|f| File.file? File.join(path,f)}
   end
 
-  def is_agent_exist(name)
-    File.directory?("#{workspace_path}/#{name}")
-  end
-
   #return true if valid todo: add more case that return false (gem file dynchannel etc), + print when rejected
   def is_agent_valid(name)
     return false unless File.directory?("#{workspace_path}/#{name}")

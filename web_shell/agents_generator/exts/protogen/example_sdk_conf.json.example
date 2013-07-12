@@ -1,0 +1,7 @@
+{
+  "plugins":[
+    "mdi_sdk_vm_server_ruby"
+  ],
+  "agent_name":"ProtogenAgentTest",
+  "server_output_directory":"sdk_defined_directory"
+}

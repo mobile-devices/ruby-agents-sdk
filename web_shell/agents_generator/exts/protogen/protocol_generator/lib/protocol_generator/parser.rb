@@ -22,7 +22,18 @@ module ProtocolGenerator
 
   }.freeze
 
-  CONF_SCHEMA = {
+  SERVER_CONF_SCHEMA = {
+    "type" => "object",
+    'required' => true,
+    "properties" => {
+      "plugins" => {'type' => 'array', 'required' => true},
+      "agent_name" => {'type' => 'string', 'required' => true},
+      "message_size_limit" => {'type' => 'int', 'required' => false},
+      "message_part_size" => {'type' => 'int', 'required' => false}
+    }
+  }.freeze
+
+  DEVICE_CONF_SCHEMA = {
     "type" => "object",
     'required' => true,
     "properties" => {
@@ -30,6 +41,7 @@ module ProtocolGenerator
       "java_package" => {'type' => 'string', 'required' => true},
       "mdi_framework_jar" => {'type' => 'string', 'required' => false},
       "keep_java_source" => {'type' => 'bool', 'required' => false},
+      "keep_java_jar" => {'type' => 'bool', 'required' => false},
       "agent_name" => {'type' => 'string', 'required' => true},
       "message_size_limit" => {'type' => 'int', 'required' => false},
       "message_part_size" => {'type' => 'int', 'required' => false}
@@ -133,7 +145,13 @@ module ProtocolGenerator
       configuration = JSON.parse(File.open(Env['conf_file_path']).read)
 
       # Configuration validation
-      JSON::Validator.validate!(CONF_SCHEMA, configuration, :validate_schema => true)
+      if configuration['server_output_directory']
+        JSON::Validator.validate!(SERVER_CONF_SCHEMA, configuration, :validate_schema => true)
+      elsif configuration['device_output_directory']
+        JSON::Validator.validate!(DEVICE_CONF_SCHEMA, configuration, :validate_schema => true)
+      else
+        raise 'no output directory was given'
+      end
       Env.merge!(configuration)
       use_protobuf, use_msgpack = false,false
       Env['plugins'].each do |plugin_name|

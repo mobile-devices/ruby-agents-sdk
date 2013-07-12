@@ -18,7 +18,7 @@ end
 require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
 
 # XX_PROJECT_NAME agent
-class Agent_XX_PROJECT_NAME
+class Agent_XX_CLEAN_PROJECT_NAME
 
   # Protogen
   if File.exist?("#{generated_rb_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")

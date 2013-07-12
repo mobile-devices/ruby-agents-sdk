@@ -128,12 +128,16 @@ module AgentsGenerator
 
     # template generation
     agents_to_run.each { |agent|
+      clean_class_name = "#{agent}"
+      clean_class_name.gsub!('-','_')
+
       template_agent = template_agent_src.clone
       template_agent.gsub!('XX_PROJECT_NAME',"#{agent}")
+      template_agent.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
       template_agent.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
       agents_generated_code += template_agent
 
-      agents_generated_code += "\$#{agent}_initial = Agent_#{agent}.new\n\n\n"
+      agents_generated_code += "\$#{clean_class_name}_initial = Agent_#{clean_class_name}.new\n\n\n"
     }
     agents_generated_code += "\n\n\n\n"
 

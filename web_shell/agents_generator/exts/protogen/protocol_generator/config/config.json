@@ -1,1 +1,1 @@
-{"pg_version":"0.4-dev-240999f7cd","default":{"mdi_framework_jar":"config/mdi-framework-3.X.jar","message_part_size":65536,"message_size_limit":1048576}}
+{"pg_version":"0.4-dev-db491d29f4","default":{"mdi_framework_jar":"config/mdi-framework-3.X.jar","message_part_size":65536,"message_size_limit":1048576}}

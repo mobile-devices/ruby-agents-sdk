@@ -237,11 +237,14 @@ module CloudConnectServices
     # "account" (account name type String).
 
     def initialize(struct)
-      self.id = struct['id']
-      self.asset = struct['asset']
-      self.data = struct['data']
       self.meta = struct['meta']
+      payload = struct['payload']
+
+      self.id = payload['id']
+      self.asset = payload['asset']
+      self.data = payload['data']
       self.account = self.meta['account']
+
     end
 
     def to_hash
@@ -250,7 +253,7 @@ module CloudConnectServices
       r_hash['payload'] = {
         'id' => self.id,
         'asset' => self.asset,
-        'data' => self.sender
+        'data' => self.data
       }
       r_hash.delete_if { |k, v| v.nil? }
     end

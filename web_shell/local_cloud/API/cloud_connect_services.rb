@@ -194,7 +194,7 @@ module CloudConnectServices
 
           rescue Protogen::UnknownMessageType => e
             if $allow_non_protogen
-              CC.logger.warn("CloudConnectServices:Messages.push: unknown protogen message type: #{e.inspect}")
+              CC.logger.warn("CloudConnectServices:Messages.push: unknown protogen message type because #{e.inspect}")
             else
               raise e
             end
@@ -241,6 +241,7 @@ module CloudConnectServices
     # "account" (account name type String).
 
     def initialize(struct)
+
       self.meta = struct['meta']
       payload = struct['payload']
 

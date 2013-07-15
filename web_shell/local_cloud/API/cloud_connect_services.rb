@@ -162,6 +162,9 @@ module CloudConnectServices
         self.asset = asset
         self.recipient = asset
 
+        # set sender if not defined (ie a direct push)
+        self.sender ||= '@@server@@'
+
         # set acount is meta
         self.meta['account'] = account
 
@@ -213,6 +216,7 @@ module CloudConnectServices
       msg.id = CC.indigen_next_id
       msg.content = content
       msg.meta['protogen_cookies'] = cookies
+      msg.sender = self.recipient
       msg.push(self.asset, self.account)
     end
 

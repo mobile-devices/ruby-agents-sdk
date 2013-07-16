@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 #########################################################
 # Xavier Demompion : xavier.demompion@mobile-devices.fr
 # Mobile Devices 2013
@@ -9,9 +10,6 @@ require 'yaml'
 require 'active_support/all'
 if (require_relative '../../local_cloud/fake_cloud_lib/cloud_connect_sdk_module')
   include CC
-end
-if (require_relative '../../local_cloud/API/sdk_stats')
-  include SDK_STATS
 end
 
 # User code
@@ -30,7 +28,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
   @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
 
   def initialize() # constructor
-    log.debug("root path is = \"#{root_path}\"")
+    log.info("root path is = \"#{root_path}\"")
 
     @AGENT_NAME = 'XX_PROJECT_NAME'
 
@@ -47,7 +45,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
     @has_protogen = File.exist?("#{generated_rb_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
 
 
-    log.debug("init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
+    log.info("init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
   end
 
   ######### Messages delivered for the agent ###########################
@@ -56,9 +54,8 @@ class Agent_XX_CLEAN_PROJECT_NAME
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     PUNK.end('msgPresence','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- PRESENCE '#{presence.type}'")
-
     PUNK.start('handle')
-    CC.logger.info("Server: handle_presence: pushing presence '#{presence.type}' to agent XX_PROJECT_NAME ..................")
+    CC.logger.info("Server: handle_presence: pushing presence '#{presence.type}' of imei='#{presence.asset}' to agent 'XX_PROJECT_NAME'")
     new_presence_from_device(presence)
   end
 
@@ -78,7 +75,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
 
-      # decode content as base64
+      # decode content as base64 (vm mode)
       message.content = Base64.decode64(message.content)
 
       is_protogen = false
@@ -91,39 +88,37 @@ class Agent_XX_CLEAN_PROJECT_NAME
           message.meta['protogen_cookies'] = cookies
           msg_type = msg.class
 
-          # do stats
-
           is_protogen = true
         rescue Protogen::UnknownMessageType => e
           # direct run
-          is_protogen = false
-          if $allow_non_protogen
-            CC.logger.warn("Server: handle_message: unknown protogen message type: #{e.inspect}")
-          else
-            raise e
-          end
+          CC.logger.warn("Server: handle_message: unknown protogen message type: #{e.inspect}")
+          raise e unless $allow_non_protogen
+        rescue MessagePack::UnpackError => e
+          CC.logger.warn("Server: handle_message: MessagePack unpack error, either the payload is corrupted or not a protogen message : (err=#{e.inspect})")
+          raise e unless $allow_non_protogen
         end
-      else
-        if !($allow_non_protogen)
-          raise "No Protogen defined"
-        end
+      else # not @has_protogen
+        raise "No Protogen defined" unless $allow_non_protogen
       end
 
-      CC.logger.debug("Server: new message (protogen=#{is_protogen}) in a protogen agent = #{@has_protogen} content is: \n #{message.content}")
       PUNK.end('msgAgent','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
 
     rescue Exception => e
       CCS.print_ruby_exeption(e)
       PUNK.end('msgAgent','ko','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
+      return
     end
 
 
     # process
     PUNK.start('handle')
-    CC.logger.info("Server: handle_message: pushing message to agent XX_PROJECT_NAME ..................")
     if is_protogen
+
+      CC.logger.info("Server: new protogen message of imei='#{message.asset}' to agent 'XX_PROJECT_NAME': #{message.content} ---------------------")
       ProtogenAPIs.process(self, message)
     else
+
+      CC.logger.debug("Server: new standard message  of imei='#{message.asset}' to agent 'XX_PROJECT_NAME' ---------------------")
       new_msg_from_device(message)
     end
 
@@ -131,14 +126,13 @@ class Agent_XX_CLEAN_PROJECT_NAME
   end
 
   def handle_track(track)
-    #todo: test type, log on errors
     PUNK.start('msgTrack')
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][2] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
     PUNK.end('msgTrack','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- TRACK")
 
     PUNK.start('handle')
-    CC.logger.info("Server: handle_track: pushing track to agent XX_PROJECT_NAME ..................")
+    CC.logger.info("Server: handle_track: pushing track of imei='#{track.asset}'' to agent 'XX_PROJECT_NAME' ---------------------")
     new_track_from_device(track)
   end
 
@@ -150,7 +144,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
     PUNK.end('msgOrder','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- ORDER '#{order.code}'")
 
     PUNK.start('handle')
-    CC.logger.info("Server: handle_track: pushing order #{order.code} to agent XX_PROJECT_NAME ..................")
+    CC.logger.info("Server: handle_order: pushing order #{order.code} to agent 'XX_PROJECT_NAME' ---------------------")
     new_order(order)
   end
 
@@ -178,11 +172,6 @@ class Agent_XX_CLEAN_PROJECT_NAME
         msg.push(asset, account)
         # success !
         PUNK.end('push','ok','out',"SERVER -> MSG[#{crop_ref(msg.id,4)}]")
-        # stats:
-
-        #CC.logger.debug(SDK_STATS.stats)
-        CC.logger.debug(SDK_STATS.stats['agents']['protogen_fun_agent'])
-
 
 
 
@@ -249,7 +238,6 @@ class Agent_XX_CLEAN_PROJECT_NAME
   ############### Logger ###############################################
 
   def log()
-    puts "log hello"
     @agent_logger ||= begin
       CCS::Log.new('Agent XX_PROJECT_NAME: ')
     end

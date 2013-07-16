@@ -29,6 +29,7 @@ require 'active_support/all'
 require_relative 'fake_cloud_lib/cloud_connect_sdk_module'
 require_relative 'fake_cloud_lib/cloud_gate'
 require_relative 'fake_cloud_lib/punkabe'
+require_relative 'fake_cloud_lib/ragent_helper'
 
 ## API ############################################################################################
 
@@ -39,18 +40,22 @@ require_relative 'API/cloud_connect_services_internal'
 #### Agent generation #############################################################################
 require_relative '../agents_generator/agents_mgt'
 include GEN
-# agent running
-def agents_running()
-  @agents_running_456 ||= get_run_agents()
-end
 
 CC.logger.info("\n\n\n\n\n")
+
+CC.logger.info("#{$main_server_root_path}/../agents_generator/cloud_agents_generated/running_agents")
 
 # clear output
 if File.exists?("../agents_generator/cloud_agents_generated")
   FileUtils.rm_r("../agents_generator/cloud_agents_generated")
 end
 FileUtils.mkdir_p("#{source_path}/cloud_agents_generated")
+
+# agent running to generation path
+File.open("#{$main_server_root_path}/../agents_generator/cloud_agents_generated/running_agents", 'w') { |file| file.write(get_run_agents().join('|')) }
+
+# gen
+
 
 #progen generation
 PUNK.start('a')
@@ -65,6 +70,11 @@ rapport = GEN.generate_agents
 CC.logger.debug(rapport)
 CC.logger.info("agents generation successful")
 PUNK.end('a','ok','','SERVER generated agents')
+
+# include generated code
+require_relative '../agents_generator/cloud_agents_generated/generated'
+
+
 
 ## bundle install #################################################################################
 
@@ -81,14 +91,11 @@ PUNK.start('a')
 crons = GEN.generated_get_agents_whenever_content
 FileUtils.mkdir_p("#{$main_server_root_path}/config")
 File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
-$agents_cron_tasks = GEN.get_agents_cron_tasks(agents_running)
+$agents_cron_tasks = GEN.get_agents_cron_tasks(RH.running_agents)
 CC.logger.debug("agents_cron_tasks =\n#{$agents_cron_tasks}")
 PUNK.end('a','ok','','SERVER created cron tasks')
 
 #### Init server ##################################################################################
-
-# include main
-require_relative '../agents_generator/cloud_agents_generated/generated'
 
 # dynamic channel
 $dyn_channels = GEN.generated_get_dyn_channel
@@ -100,13 +107,13 @@ $mutex_message_to_device = Mutex.new()
 # reset starts
 SDK_STATS.reset_stats
 
-agents_running.each { |agent|
+RH.running_agents.each { |agent|
   PUNK.start('a')
   PUNK.end('a','system','',"SERVER mounts AGENT:#{agent}TNEGA")
 }
 
 agents_list_str=""
-agents_running.each { |agent|
+RH.running_agents.each { |agent|
   agents_list_str+="|   . #{agent}\n"
 }
 CC.logger.info("\n\n+===========================================================\n| starting ruby-agent-sdk-server with #{get_run_agents().count} agents:\n#{agents_list_str}+===========================================================\n")

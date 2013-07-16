@@ -26,7 +26,6 @@ require 'securerandom'
 require 'yaml'
 
 
-
 module AgentsGenerator
 
   require_relative 'gemfile_mergator'

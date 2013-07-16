@@ -277,7 +277,7 @@ module CloudConnectServices
 
       #todo: test nullity or agent and order?
 
-      if !(agents_running.include?(self.agent))
+      if !(RH.running_agents.include?(self.agent))
         raise AgentNotFound , "Server: agent #{self.agent} is not running on this bay"
       end
     end

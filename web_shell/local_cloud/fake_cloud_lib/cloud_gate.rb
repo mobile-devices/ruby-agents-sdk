@@ -15,9 +15,7 @@ def push_something_to_device(something)
   rescue Exception => e
   end
 
-
   $mutex_message_to_device.synchronize do
-    #$message_to_device << wrap_message(something)
     $message_to_device << something
     SDK_STATS.stats['server']['in_queue'] = $message_to_device.size
   end

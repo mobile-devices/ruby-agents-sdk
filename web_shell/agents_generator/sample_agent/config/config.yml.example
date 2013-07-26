@@ -1,5 +1,4 @@
 default: &DEFAULT
   Dynamic_channel_str: com.mdi.services.XXProjectName
-  Device_side_package_name_str: com.mdi.services.XXProjectName.protogen
 
 development: *DEFAULT

@@ -65,7 +65,6 @@ module AgentsGenerator
       FileUtils.mkdir_p("#{workspace_path}/#{agent}/doc/protogen")
 
       # generate compil conf
-      java_pkg = get_agent_java_package(agent)
       compil_opt = {
         "agent_name" => "#{agent}",
         "plugins" => ["mdi_sdk_vm_server_ruby"],
@@ -365,30 +364,6 @@ module AgentsGenerator
       p "get_agent_dyn_channel: unkown format of #{channels} for dynchannels of agent #{name}"
     end
   end
-
-    # return an array of string
-  def get_agent_java_package(name)
-    return [] unless File.directory?("#{workspace_path}/#{name}")
-    cnf = []
-    if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
-      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
-    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
-      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
-    end
-
-    pkg_name = cnf['Device_side_package_name_str']
-
-    if pkg_name == nil
-      pkg_name ="com.mdi.services.#{name}.protogen"
-    elsif pkg_name.is_a? String
-      #NOP
-    else
-      p "get_agent_java_package: unkown format of #{pkg_name} for java package name of agent #{name}"
-      pkg_name = "com.mdi.services.#{name}.protogen"
-    end
-    pkg_name.gsub!('_','') # maybe also transform as kamel case
-  end
-
 
   #########################################################################################################
   ## Basic tools

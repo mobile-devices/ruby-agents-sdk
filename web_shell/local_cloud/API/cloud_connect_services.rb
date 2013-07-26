@@ -171,25 +171,25 @@ module CloudConnectServices
         # Protogen encode
         if defined? ProtogenAPIs
           begin
-            decoded = ProtogenAPIs.encode(self)
+            encoded = ProtogenAPIs.encode(self)
 
-            if decoded.is_a? String
-              self.content = decoded
+            if encoded.is_a? String
+              self.content = encoded
               CC.logger.info("Protogen content is simple string")
-            elsif decoded.is_a? Array
-              CC.logger.info("Protogen content is an array of size #{decoded.size}")
-              self.content = decoded[-1]
+            elsif encoded.is_a? Array
+              CC.logger.info("Protogen content is an array of size #{encoded.size}")
+              self.content = encoded[-1]
               # remove last fragment from list
-              decoded.slice!(-1)
+              encoded.slice!(-1)
               # let create X fragment
-              decoded.each { |content|
+              encoded.each { |content|
                 frg = self.clone
                 frg.id = CC.indigen_next_id
                 frg.content = content
                 frg.fast_push
               }
             else
-              raise "message push protogen unknown decoded type : #{decoded.type}"
+              raise "message push protogen unknown encoded type : #{encoded.type}"
             end
 
           rescue Protogen::UnknownMessageType => e

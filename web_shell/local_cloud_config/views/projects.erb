@@ -313,12 +313,10 @@
             <td>
             <% if agent.running %>
               <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
-                <button class="btn btn-danger">Stop</button>
-              </form>
+                <button class="btn btn-success">Mounted</button>
             <% else %>
               <form action='<%= "/agents/#{agent_name}/start" %>' method="post">
-                <button class="btn btn-success">Start</button>
-              </form>
+                <button class="btn btn-danger">Unmounted</button>
             <% end %>
             </td>
 

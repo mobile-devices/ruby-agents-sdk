@@ -114,10 +114,6 @@ module AgentsGenerator
     agents_generated_code = ""
 
 
-    agents_generated_code += "def generated_rb_path()\n"
-    agents_generated_code += "  @ROOT_PATH_AGENT_MGT ||= File.expand_path(\"..\", __FILE__)\n"
-    agents_generated_code += "end\n\n"
-
     template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
     # template generation

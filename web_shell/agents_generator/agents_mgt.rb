@@ -38,9 +38,14 @@ module AgentsGenerator
     @ROOT_PATH_WORKSPACE ||= "#{source_path}/../../cloud_agents"
   end
 
+  def generated_rb_path()
+    @GENERATED_PATH = File.expand_path("#{source_path}/cloud_agents_generated")
+  end
+
   def protogen_bin_path()
     @PROTOGEN_BIN_PATH ||= "#{source_path}/exts/protogen/protocol_generator/"
   end
+
 
   #########################################################################################################
   ## compile
@@ -53,7 +58,7 @@ module AgentsGenerator
   def generate_agents_protogen() # we could do it into generate_agents but we separate generations to track errors easily
     @AgentsGenerator_rapport_generation = ""
 
-    FileUtils.mkdir_p("#{source_path}/cloud_agents_generated")
+    FileUtils.mkdir_p("#{generated_rb_path}")
 
     agents_to_run = get_run_agents
 
@@ -66,9 +71,9 @@ module AgentsGenerator
 
       # generate compil conf
       compil_opt = {
-        "agent_name" => "#{agent}",
         "plugins" => ["mdi_sdk_vm_server_ruby"],
-        "server_output_directory" => "#{source_path}/cloud_agents_generated/protogen_#{agent}"
+        "agent_name" => "#{agent}",
+        "server_output_directory" => "#{generated_rb_path}/protogen_#{agent}"
       }
       add_to_rapport(">>> Generating Protogen for #{agent} agent with config :\n #{compil_opt}")
       File.open('/tmp/protogen_conf.json', 'w') { |file| file.write(compil_opt.to_json)}
@@ -102,7 +107,7 @@ module AgentsGenerator
   def generate_agents()
     @AgentsGenerator_rapport_generation = ""
 
-    FileUtils.mkdir_p("#{source_path}/cloud_agents_generated")
+    FileUtils.mkdir_p("#{generated_rb_path}")
 
     add_to_rapport("\n========= generate_agents start ===============")
 
@@ -235,21 +240,11 @@ module AgentsGenerator
     agents_generated_code += "end\n\n"
 
 
-    File.open("#{source_path}/cloud_agents_generated/generated.rb", 'w') { |file| file.write(agents_generated_code) }
+    File.open("#{generated_rb_path}/generated.rb", 'w') { |file| file.write(agents_generated_code) }
 
     add_to_rapport("Templates generated done\n")
 
-    # Merge Gemfile
-    agents_Gemfiles = []
-    agents_to_run.each { |agent|
-      agents_Gemfiles << get_agent_Gemfile_content(agent)
-    }
-    master_GemFile = File.read("#{source_path}/../local_cloud/Gemfile.master")
-
-    gemFile_content = merge_gem_file(master_GemFile, agents_Gemfiles)
-    puts "GemFile_content =\n #{gemFile_content}\n\n"
-
-    File.open("#{source_path}/../local_cloud/Gemfile", 'w') { |file| file.write(gemFile_content) }
+    generate_Gemfile
 
 
     # check agent name here, restore if note here
@@ -287,6 +282,27 @@ module AgentsGenerator
 
     @AgentsGenerator_rapport_generation
   end
+
+  def generate_Gemfile()
+
+    # get agents to run
+    agents_to_run = get_run_agents
+
+
+    # Merge Gemfile
+    agents_Gemfiles = []
+    agents_to_run.each { |agent|
+      agents_Gemfiles << get_agent_Gemfile_content(agent)
+    }
+    master_GemFile = File.read("#{source_path}/../local_cloud/Gemfile.master")
+
+    gemFile_content = merge_gem_file(master_GemFile, agents_Gemfiles)
+    puts "GemFile_content =\n #{gemFile_content}\n\n"
+
+    File.open("#{source_path}/../local_cloud/Gemfile", 'w') { |file| file.write(gemFile_content) }
+
+  end
+
 
   def generated_get_dyn_channel()
     YAML::load(File.open("#{source_path}/cloud_agents_generated/dyn_channels.yml"))

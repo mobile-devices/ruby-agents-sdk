@@ -19,7 +19,7 @@ require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
 class Agent_XX_CLEAN_PROJECT_NAME
 
   # Protogen
-  if File.exist?("#{generated_rb_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
+  if File.exist?("#{RH.generated_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
     require_relative 'protogen_XX_PROJECT_NAME/protogen_apis'
   end
 
@@ -42,7 +42,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
     if (@CHANNEL == nil) || (@CHANNEL.length == 0)
       @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
     end
-    @has_protogen = File.exist?("#{generated_rb_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
+    @has_protogen = File.exist?("#{RH.generated_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
 
 
     log.info("init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")

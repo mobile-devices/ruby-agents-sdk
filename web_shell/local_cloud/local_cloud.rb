@@ -54,11 +54,6 @@ FileUtils.mkdir_p("#{source_path}/cloud_agents_generated")
 # agent running to generation path
 File.open("#{$main_server_root_path}/../agents_generator/cloud_agents_generated/running_agents", 'w') { |file| file.write(get_run_agents().join('|')) }
 
-# implement generated_rb_path
-def generated_rb_path()
-  File.expand_path("#{$main_server_root_path}/../agents_generator/cloud_agents_generated")
-end
-
 # gen
 
 #progen generation

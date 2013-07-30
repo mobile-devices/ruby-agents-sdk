@@ -135,46 +135,85 @@ module AgentsGenerator
     agents_generated_code += "\n"
     agents_generated_code += "def handle_presence(presence)\n"
     agents_to_run.each { |agent|
-      agents_generated_code += "  begin\n"
-      agents_generated_code += "    \$#{agent}_initial.handle_presence(presence)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback PRESENCE '\#{presence.type}'\")\n"
-      agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
-      agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
-      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][0] += 1\n"
-      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
-      agents_generated_code += "    PUNK.end('handle','ko','process','AGENT:#{agent}TNEGA callback PRESENCE fail')\n"
-      agents_generated_code += "  end\n"
+
+      sub_p = get_agent_is_sub_presence(agent)
+      if sub_p != true && sub_p != false
+        PUNK.start('subcription_p')
+        sub_p = false
+        CC.logger.info("Presence subcription configuration not found ! (sub_p=#{sub_p})")
+        CC.logger.info("Please add a \n\"subscribe_presence: false\"\n or\n \"subscribe_presence: true\"\n line in your agent config file.")
+        CC.logger.info("This parameter will allow or forbidden your agent to receive presence notification.")
+        PUNK.end('subcription_p','ko','',"AGENT:#{agent}TNEGA missing configuration")
+      end
+
+      if sub_p
+        agents_generated_code += "  begin\n"
+        agents_generated_code += "    \$#{agent}_initial.handle_presence(presence)\n"
+        agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback PRESENCE '\#{presence.type}'\")\n"
+        agents_generated_code += "  rescue => e\n"
+        agents_generated_code += "    CC.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
+        agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][0] += 1\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
+        agents_generated_code += "    PUNK.end('handle','ko','process','AGENT:#{agent}TNEGA callback PRESENCE fail')\n"
+        agents_generated_code += "  end\n"
+      end
     }
     agents_generated_code += "end\n\n"
 
     agents_generated_code += "def handle_message(message)\n"
     agents_to_run.each { |agent|
-      agents_generated_code += "  begin\n"
-      agents_generated_code += "    \$#{agent}_initial.handle_message(message)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback MSG[\#{crop_ref(message.id,4)}]\")\n"
-      agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
-      agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
-      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][1] += 1\n"
-      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
-      agents_generated_code += "    PUNK.end('handle','ko','process',\"AGENT:#{agent}TNEGA callback MSG[\#{crop_ref(message.id,4)}] fail\")\n"
-      agents_generated_code += "  end\n"
+
+      sub_m = get_agent_is_sub_message(agent)
+      if sub_m != true && sub_m != false
+        PUNK.start('subcription_m')
+        sub_m = false
+        CC.logger.info("Message subcription configuration not found ! (sub_m=#{sub_m})")
+        CC.logger.info("Please add a \n\"subscribe_message: false\"\n or\n \"subscribe_message: true\"\n line in your agent config file.")
+        CC.logger.info("This parameter will allow or forbidden your agent to receive message notification.")
+        PUNK.end('subcription_m','ko','',"AGENT:#{agent}TNEGA missing configuration")
+      end
+
+      if sub_m
+        agents_generated_code += "  begin\n"
+        agents_generated_code += "    \$#{agent}_initial.handle_message(message)\n"
+        agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback MSG[\#{crop_ref(message.id,4)}]\")\n"
+        agents_generated_code += "  rescue => e\n"
+        agents_generated_code += "    CC.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
+        agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][1] += 1\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
+        agents_generated_code += "    PUNK.end('handle','ko','process',\"AGENT:#{agent}TNEGA callback MSG[\#{crop_ref(message.id,4)}] fail\")\n"
+        agents_generated_code += "  end\n"
+      end
     }
     agents_generated_code += "end\n\n"
 
     agents_generated_code += "def handle_track(track)\n"
     agents_to_run.each { |agent|
-      agents_generated_code += "  begin\n"
-      agents_generated_code += "    \$#{agent}_initial.handle_track(track)\n"
-      agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback TRACK\")\n"
-      agents_generated_code += "  rescue => e\n"
-      agents_generated_code += "    CC.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
-      agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
-      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][2] += 1\n"
-      agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
-      agents_generated_code += "    PUNK.end('handle','ko','process',\"AGENT:#{agent}TNEGA callback TRACK fail\")\n"
-      agents_generated_code += "  end\n"
+
+      sub_t = get_agent_is_sub_track(agent)
+      if  sub_t != true && sub_t != false
+        PUNK.start('subcription_t')
+        sub_t = false
+        CC.logger.info("Track subcription configuration not found ! (sub_t=#{sub_t})")
+        CC.logger.info("Please add a \n\"subscribe_track: false\"\n or\n \"subscribe_track: true\"\n line in your agent config file.")
+        CC.logger.info("This parameter will allow or forbidden your agent to receive track notification.")
+        PUNK.end('subcription_t','ko','',"AGENT:#{agent}TNEGA missing configuration")
+      end
+
+      if sub_t
+        agents_generated_code += "  begin\n"
+        agents_generated_code += "    \$#{agent}_initial.handle_track(track)\n"
+        agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback TRACK\")\n"
+        agents_generated_code += "  rescue => e\n"
+        agents_generated_code += "    CC.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
+        agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][2] += 1\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
+        agents_generated_code += "    PUNK.end('handle','ko','process',\"AGENT:#{agent}TNEGA callback TRACK fail\")\n"
+        agents_generated_code += "  end\n"
+      end
     }
     agents_generated_code += "end\n\n"
 
@@ -351,6 +390,7 @@ module AgentsGenerator
     end
 
     channels = cnf['Dynamic_channel_str']
+    channels = cnf['dynamic_channel_str'] if channels == nil
 
     if channels.is_a? String
       [] << channels
@@ -360,6 +400,46 @@ module AgentsGenerator
       p "get_agent_dyn_channel: unkown format of #{channels} for dynchannels of agent #{name}"
     end
   end
+
+
+  def get_agent_is_sub_presence(name)
+    return nil unless File.directory?("#{workspace_path}/#{name}")
+    cnf = []
+    if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
+    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
+    end
+
+    cnf['subscribe_presence']
+  end
+
+  def get_agent_is_sub_message(name)
+    return nil unless File.directory?("#{workspace_path}/#{name}")
+    cnf = []
+    if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
+    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
+    end
+
+    cnf['subscribe_message']
+  end
+
+  def get_agent_is_sub_track(name)
+    return nil unless File.directory?("#{workspace_path}/#{name}")
+    cnf = []
+    if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
+    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
+    end
+
+    cnf['subscribe_track']
+  end
+
+
+
 
   #########################################################################################################
   ## Basic tools

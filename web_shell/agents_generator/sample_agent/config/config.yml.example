@@ -1,4 +1,7 @@
 default: &DEFAULT
-  Dynamic_channel_str: com.mdi.services.XXProjectName
+  dynamic_channel_str: com.mdi.services.XXProjectName
+  subscribe_presence: false
+  subscribe_message: false
+  subscribe_track: false
 
 development: *DEFAULT

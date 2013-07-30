@@ -114,6 +114,26 @@ SDK_STATS.reset_stats
 RH.running_agents.each { |agent|
   PUNK.start('a')
   PUNK.end('a','system','',"SERVER mounts AGENT:#{agent}TNEGA")
+
+  # verify some configuration
+  PUNK.start('a')
+  sub_p = get_agent_is_sub_presence(agent)
+  if sub_p == true
+    PUNK.end('a','system','',"AGENT:#{agent}TNEGA subscribe presence")
+  end
+
+  PUNK.start('a')
+  sub_m = get_agent_is_sub_message(agent)
+  if sub_m == true
+    PUNK.end('a','system','',"AGENT:#{agent}TNEGA subscribe message")
+  end
+
+  PUNK.start('a')
+  sub_t = get_agent_is_sub_track(agent)
+  if sub_t == true
+    PUNK.end('a','system','',"AGENT:#{agent}TNEGA subscribe track")
+  end
+
 }
 
 agents_list_str=""

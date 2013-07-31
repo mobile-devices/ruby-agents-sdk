@@ -73,8 +73,6 @@ PUNK.end('a','ok','','SERVER generated agents')
 # include generated code
 require_relative '../agents_generator/cloud_agents_generated/generated'
 
-
-
 ## bundle install #################################################################################
 
 # bundle install

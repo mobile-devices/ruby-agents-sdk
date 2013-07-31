@@ -33,6 +33,7 @@ The com interface runs on port 5001.
 * Do your agent stateless, global variables are strictly forbidden.
 * If you use messages, follow the Protogen Guide to see how to configure your messages.
 * To configure the dynamic channel used by this agent, go and edit config/<agent_name>.yml.example file, you can put a string or an array of string (see yaml documention for syntaxes).
+* You also need to configure which kind of message you want to received in your agent with parameters 'subscribe_presence', 'subscribe_message' and 'subscribe_track'.
 * If you need additional gems, edit the Gemfile and require them here.
 * Remember to complete your README.md
 

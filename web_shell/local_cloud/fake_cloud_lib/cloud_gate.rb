@@ -13,6 +13,7 @@ def push_something_to_device(something)
       something['payload']['payload'] = Base64.encode64(something['payload']['payload'])
     end
   rescue Exception => e
+    CCS.print_ruby_exeption(e)
   end
 
   $mutex_message_to_device.synchronize do

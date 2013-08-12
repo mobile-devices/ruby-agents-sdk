@@ -136,6 +136,18 @@ module AgentsGenerator
     }
     agents_generated_code += "\n\n\n\n"
 
+
+    # check if no subscription is setted
+    agents_to_run.each { |agent|
+      sub_p = get_agent_is_sub_presence(agent)
+      sub_m = get_agent_is_sub_message(agent)
+      sub_t = get_agent_is_sub_track(agent)
+      if sub_p != true && sub_m != true && sub_t != true
+        PUNK.start('subcription_none')
+        PUNK.end('subcription_p','ko','',"AGENT:#{agent}TNEGA didn't subscribe to anything")
+      end
+    }
+
     # forward messages to agent
     agents_generated_code += "\n"
     agents_generated_code += "def handle_presence(presence)\n"

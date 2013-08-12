@@ -15,8 +15,8 @@ Ruby method Hash object :  @see documentation [on ruby Hash official documentati
 
 ``` ruby
 def new_presence_from_device(presence)
-  # on each presence received, we read the config value of param 'Dynamic_channel_str'
-  puts "Dynamic_channel_str value = #{config['Dynamic_channel_str']}"
+  # on each presence received, we read the config value of param 'dynamic_channel_str'
+  puts "dynamic_channel_str value = #{config['dynamic_channel_str']}"
 
 end
 ```

@@ -58,17 +58,27 @@ File.open("#{$main_server_root_path}/../agents_generator/cloud_agents_generated/
 
 #progen generation
 PUNK.start('a')
-rapport = GEN.generate_agents_protogen
-CC.logger.debug(rapport)
-CC.logger.info("protogen generation successful")
-PUNK.end('a','ok','','SERVER generated Protogen')
+begin
+  rapport = GEN.generate_agents_protogen
+  CC.logger.debug(rapport)
+  CC.logger.info("protogen generation successful")
+  PUNK.end('a','ok','','SERVER generated Protogen')
+rescue Exception => e
+  PUNK.end('a','ko','','SERVER generation Protogen fail')
+  raise e
+end
 
 # main code generation
 PUNK.start('a')
-rapport = GEN.generate_agents
-CC.logger.debug(rapport)
-CC.logger.info("agents generation successful")
-PUNK.end('a','ok','','SERVER generated agents')
+begin
+  rapport = GEN.generate_agents
+  CC.logger.debug(rapport)
+  CC.logger.info("agents generation successful")
+  PUNK.end('a','ok','','SERVER generated agents')
+rescue Exception => e
+  PUNK.end('a','ko','','SERVER generation agents fail')
+  raise e
+end
 
 # include generated code
 require_relative '../agents_generator/cloud_agents_generated/generated'

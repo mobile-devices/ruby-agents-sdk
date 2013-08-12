@@ -10,6 +10,7 @@ def merge_gem_file(master_gem_file, gemfiles_contents)
   }
 
   gemfiles_contents.each { |content|
+    content << "\n"
     content.each_line { |line|
       gem_name = get_gem_name(line)
 

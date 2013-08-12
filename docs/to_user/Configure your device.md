@@ -1,5 +1,5 @@
 
-In this section we will configure your mobile device product (or Morpheus simulator) to be able to communicate with the vm.
+In this section we will configure your mobile device product (or Morpheus simulator) to be able to communicate with the VM.
 
 **KEEP IN MIND THAT THIS DOCUMENTATION MIGHT NOT BE UP TO DATE, PLEASE REFER TO THE DEVICE SOFTWARE DOCUMENTATION**
 
@@ -14,4 +14,4 @@ s jbinaryGate port 5001
 s jbinaryGate forceSerialUse 0
 s jbinaryGate refreshPeriod 3
 
-note : "192.168.10.4" is the ip of the vm's host side of the network built between the device and the vm's host.
+note : "192.168.10.4" is the ip of the VM's host side of the network built between the device and the VM's host.

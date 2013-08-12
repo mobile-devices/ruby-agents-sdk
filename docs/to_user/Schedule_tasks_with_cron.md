@@ -1,7 +1,7 @@
 
 In the [Beginner documentation](http://10.42.2.206:5000/doc#toc_1) you saw you can manage scheduled orders.
 
-Here we will see how to trigger thoses orders.
+Here we will see how to trigger those orders.
 
 In this example we will send an order 'refresh' to the agent every day at 1am.
 
@@ -33,4 +33,4 @@ end
 
 @see [whenever documentation](https://github.com/javan/whenever) to see time configuration you can make.
 
-Once you created this and reboot the serveur, you will be able to test the task by using the bouton in the 'Scheduled cron tasks' view in the project tab.
+Once you created this and rebooted the serveur, you will be able to test the task by using the button in the 'Scheduled cron tasks' view in the project tab.

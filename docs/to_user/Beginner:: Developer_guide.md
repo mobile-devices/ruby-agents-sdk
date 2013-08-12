@@ -6,22 +6,22 @@ The **ruby_workspace** folder is your workspace, you can't move it or rename it,
 ## Agents management
 Gui interface : http://localhost:5000/
 
-On this page, you can create/start/stop a project then apply and reboot the VM's ruby server to apply your modifications.
+On this page, you can create/start/stop a project then reboot the VM's ruby server to apply your modifications.
 
 ## Agent structure
- When you have created your project in the SDK Agents tab you will see a folder with the same name in your workspace, it looks like :
+ When you have created your project in the SDK Agents tab, you will see a folder with the same name in your workspace, it looks like:
 
 * **initial.rb** : where your code adventure starts.
-* **Gemfile** : where you put gems you need.
+* **Gemfile** : where you put the gems you need.
 * **README.md** : where you explain what you do because documentation is mandatory.
 * **config/** : folder where you put your configuration.
-* **config/protogen.json** : configuration of messages that can be exchange between device and server.
-* **config/schedule.rb** : whenever file to create your schedules cron rules folder.
-* **doc/** : folder where you put your documentations.
+* **config/protogen.json** : configuration of messages that can be exchanged between device and server.
+* **config/schedule.rb** : a *whenever* file to create your scheduled cron rules folder.
+* **doc/** : folder where you put your documentation.
 * **doc/protogen/** : folder where the protocol's documentation is generated.
 * **modules/** : folder where you create your ruby modules.
 
-You will also find in your workspace an sdk_logs with you find your agent's logs and also server's logs.
+You will also find in your workspace an *sdk\_logs* folder where you will find your agent's logs (file *ruby-agent-sdk-server.log*) and also server's logs.
 
 To test your code, just modify your code and 'apply and reboot' on the **http://localhost:5000/** web page.
 
@@ -32,8 +32,8 @@ The com interface runs on port 5001.
 * You receive the messages in the initial.rb, you shall include your code in a sub .rb file in the lib folder.
 * Do your agent stateless, global variables are strictly forbidden.
 * If you use messages, follow the Protogen Guide to see how to configure your messages.
-* To configure the dynamic channel used by this agent, go and edit config/<agent_name>.yml.example file, you can put a string or an array of string (see yaml documention for syntaxes).
-* You also need to configure which kind of message you want to received in your agent with parameters 'subscribe_presence', 'subscribe_message' and 'subscribe_track'.
+* To configure the dynamic channel used by this agent, go and edit the *config/\<agent\_name\>.yml.example* file, you can put a string or an array of string (see YAML documention for syntax).
+* You also need to configure **which kind of message you want to receive** in your agent with parameters 'subscribe\_presence', 'subscribe\_message' and 'subscribe\_track'.
 * If you need additional gems, edit the Gemfile and require them here.
 * Remember to complete your README.md
 
@@ -47,11 +47,11 @@ The com interface runs on port 5001.
 ``` ruby
 def new_presence_from_device(presence)
   ## Write your code here
-  log_debug('initial:new_presence_from_device')
+  log.debug('initial:new_presence_from_device')
 end
 ```
 
-Where presence is a class with following accessors :
+Where *presence* is a class with the following accessors :
 
 * **asset**   : imei of the device
 * **time**    : timestamp of the event
@@ -67,11 +67,11 @@ Where presence is a class with following accessors :
 ``` ruby
 def new_msg_from_device(message)
   ## Write your code here
-  log_debug('initial:new_message_from_device')
+  log.debug('initial:new_message_from_device')
 end
 ```
 
-Where message is a class with following accessors :
+Where *message* is a class with the following accessors :
 
 * **id**           : tmp id from the device
 * **parent_id**    : tmp id from the device
@@ -93,11 +93,11 @@ Where message is a class with following accessors :
 ``` ruby
 def new_track_from_device(track)
   ## Write your code here
-  log_debug('initial:new_track_from_device')
+  log.debug('initial:new_track_from_device')
 end
 ```
 
-Where track is a class with following accessors :
+Where *track* is a class with following accessors :
 
 * **id**           : tmp id from the device
 * **asset**        : imei of device
@@ -117,10 +117,10 @@ Where track is a class with following accessors :
 ``` ruby
 def new_order(order)
   # Write your code here
-  log_debug('initial:new_order')
+  log.debug('initial:new_order')
 end
 ```
-Where order is a class with following accessors :
+Where *order* is a class with following accessors :
 
 * **agent**        : agent name concerned by the order
 * **code**         : code specified into the schedule.rb (@see Schedule tasks with cron documentation)
@@ -129,4 +129,4 @@ Where order is a class with following accessors :
 
 ### Send something to device
 
-Use the gate api (see API server documentation).
+Use the gate API (see the API server documentation).

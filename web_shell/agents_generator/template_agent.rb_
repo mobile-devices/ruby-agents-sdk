@@ -34,6 +34,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
 
     # Load dynamic channel
     @CHANNEL = config['Dynamic_channel_str']
+    @CHANNEL = cnf['dynamic_channel_str'] if @CHANNEL == nil
 
     if @CHANNEL.is_a? String
       @CHANNEL = ["#{@CHANNEL}"]

@@ -86,13 +86,15 @@ module AgentsGenerator
       # call protogen
       command = "cd #{protogen_bin_path}; bundle install"
       output = `#{command}`
-      add_to_rapport("Protogen bundle install:\n #{output}\n\n")
+      add_to_rapport("")
+      add_to_rapport("\n[[----------------------------------------------\nProtogen bundle install:\n #{output}\n----------------------------------------------]]\n")
 
       command = "cd #{protogen_bin_path}; bundle exec ruby protogen.rb #{workspace_path}/#{agent}/config/protogen.json /tmp/protogen_conf.json"
       add_to_rapport "running command #{command} :"
       output = `#{command}`
 
-      add_to_rapport("Protogen output:\n #{output}\n\n")
+      add_to_rapport("")
+      add_to_rapport("\n[[----------------------------------------------\nProtogen output:\n #{output}\n----------------------------------------------]]\n")
       add_to_rapport("Generating Protogen for #{agent} done \n")
 
 

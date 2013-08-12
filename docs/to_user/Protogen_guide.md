@@ -1,9 +1,9 @@
 
-The MDI protocol generator, based on the msgpack, aims to simplify the communication protocol between MDI devices and servers. It generates the base server and device code that will serialize/deserialize messages and deal with calling appropriate methods when receiving a message.
+The MDI protocol generator, based on *msgpack*, aims to simplify the communication protocol between MDI devices and servers. It generates the server and device code that will serialize/deserialize messages and deal with calling appropriate methods when receiving a message.
 
 ## Example
 
-The following example implements most of the available features of the protogen within your config/protogen.json file :
+The following example implements most of the available features of the protogen within your *config/protogen.json* file:
 
     {
       "protocol_version": 1,
@@ -51,7 +51,7 @@ The following example implements most of the available features of the protogen 
 
 ## Minimal template file
 
-This is the minimal template of a protocol file
+This is the minimal template of a protocol file:
 
     {
       "protocol_version": 1
@@ -68,17 +68,17 @@ This is the minimal template of a protocol file
 
 ### Protocol version
 
-The "protocol_version" field contains an int. Each time you change the protocol of an agent that has already been released, you should increment this value.
+The "protocol\_version" field contains an *int*. Each time you change the protocol of an agent that has already been released, you should increment this value.
 
 
 ### Data structure ("messages")
 
-Each entry in "messages" will be a new message. It MUST start with an upcase letter ("^[A-Z]").
+Each entry in "messages" will be a new message. It MUST start with an upcase letter ("\^[A-Z]").
 
 A field of a message may start with:
 
-* an underscore ("^_") . It is then a configuration of the message. See below for example of message conf.
-* a downcase letter ("^[a-z]"). It then defines an attribute of a message.
+* an underscore ("\^_") . It is then a configuration of the message. See below for examples of message configuration.
+* a downcase letter ("\^[a-z]"). It then defines an attribute of a message.
 
 Example:
 
@@ -92,11 +92,11 @@ Example:
 
 #### Message configuration
 
-* "_description" : (optional string) Describes in the protocol documentation the purpose of this message
-* "_way" : (required string) Tells who will send the message. Possible : "none", "toServer", "toDevice", "both",
-* "_server_callback" : (required string if message received by the server ("toServer" or "both")) Name of the callback to implement when a server receive a new message
-* "_device_callback" : (required string if message received by the device ("toDevice" or "both")) Name of the callback to implement when a device receive a new message
-* "_timeout_calls" and "_timeout" : (optional) See Timeout section.
+* "\_description" (optional string): Describes in the protocol documentation the purpose of this message
+* "\_way" (required string): Tells who will send the message. Possible : "none", "toServer", "toDevice", "both",
+* "\_server\_callback" (required string if message received by the server ("toServer" or "both")): Name of the callback to implement when a server receive a new message
+* "\_device\_callback" (required string if message received by the device ("toDevice" or "both")): Name of the callback to implement when a device receive a new message
+* "\_timeout\_calls" and "\_timeout" (optional): see Timeout section.
 
 
 #### Attributes
@@ -106,18 +106,18 @@ Example:
     "myfirstvariable":{"type":"int", "modifier":"required", "docstring":"This variable is an example."}
 
 
-* "type" : (required) It can either be a basic type (int, bool, string…), or a nested message name (see below). It can also be "msgpack", to declare a unmessagepacked type, allowing dynamic fields (use with caution).
-* "modifier" : (required) specifies if the field is mandatory, can be "required" or "optional".
-* "array" : (optional boolean) : If true, means that we will deal with a list of object rather than only one.
-* "docstring" : (optional string) : This field will describe the attribute in the documentation describing the protocol.
+* "type" (required): It can either be a basic type (int, bool, string…), or a nested message name (see below). It can also be "msgpack", to declare a unmessagepacked type, allowing dynamic fields (use with caution).
+* "modifier" (required): specifies if the field is mandatory, can be "required" or "optional".
+* "array" (optional boolean): If true, means that we will deal with a list of objects rather than only one.
+* "docstring" (optional string): This field will describe the attribute in the generated documentation of the protocol.
 
 
 #### Timeout
 
-When a problem occurs while a message is being sent by a device ("toServer" or "both"), you may defined specific timeout behaviours :
+When a problem occurs while a message is being sent by a device ("toServer" or "both"), you may define specific timeout behaviours:
 
-* "send" : if the message wasn't sent to the communication server. You may also configure the timeout length for this event (in milliseconds).
-* "ack" : if the communication did not send any acknowledgment for receiving the message (no length configuration).
+* "send": if the message wasn't sent to the communication server. You may also configure the timeout length for this event (in milliseconds).
+* "ack": if the communication did not send any acknowledgment for receiving the message (no length configuration).
 
 The callback thus created in the IMessageController will be called &lt;sequencename&gt;\_&lt;timeout&gt;\_timeout .
 
@@ -151,27 +151,27 @@ Example:
       "phone": {"type":"PhoneNumber", "modifier":"optional"}
     }
 
-Note that a nested message may be sendable (if _way is anything other than "none"). However, if not necessary, we recommend leaving it unsendable.
+Note that a nested message may be sendable (if \_way is anything other than "none"). However, if not necessary, we recommend leaving it unsendable.
 
 
 ### Session information ("cookies")
 
-In many case, the server you will have to deal with a stateless services, meaning that when treating a request, it won't know what previous requests have been done (authentification requests for example). You may overcome this problem by sending cookies with your messages. Cookies are pieces of data generated by a server that is send in a message metadata, is stored on a device, and then send with appropriate devices messages. They are encrypted data (enable by default), and may only be decrypted by the server itself.
+In many cases, the server you will have to deal with runs stateless services, meaning that when treating a request, it won't know what previous requests have been received (authentification requests for example). You may overcome this by sending cookies with your messages. Cookies are pieces of data generated by a server that are sent in a message metadata, are stored on a device, and then sent with appropriate devices messages. They are encrypted data (enabled by default), and may only be decrypted by the server itself.
 
-They are defined the same way messages are. Note however that you may not create nested cookies : they are supposed to be very small pieces of data (with (2/3 fields max).
+They are defined the same way messages are. Note however that you may not create nested cookies: they are supposed to be very small pieces of data (with (2/3 fields max).
 
-Cookies share the same convention than messages ("^_" for conf, "^[a-z] for fields"). cookie fields share the same properties than messages (except for nested messages).
+Cookies share the same convention as messages ("\^\_" for conf, "\^[a-z] for fields"). Cookie fields share the same properties as messages (except for nested messages).
 
 Mandatory conf fields:
-- "_send_with" : list all messages that may carry this type of cookie.
+- "\_send\_with" : list all messages that may carry this type of cookie.
 
 Other possible fields:
 
 * "_secure" :
   * "high" (default): cookies are encrypted and may not be seen by the devices
-  * "low" : cookies aren't encrypted, but carry a signature that assert their authenticity (not implem)
+  * "low" : cookies aren't encrypted, but carry a signature that assert their authenticity (not implemented)
   * "none" : no encryption, no signature.
-* "_validity_time" : (in seconds, int) time during which the cookie is considered valid. After this, it will be discarded by the server when received, and by the device when sent. Default: 3600s .
+* "\_validity\_time" : (in seconds, int) time during which the cookie is considered valid. After this, it will be discarded by the server when received, and by the device when sent. Default: 3600s .
 
 Example:
 

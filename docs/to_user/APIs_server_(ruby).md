@@ -1,11 +1,11 @@
-Here a sum-up of what features you can handle from the server/ruby side, you call them directly from your ruby code :
+Here a sum-up of what features you can handle from the server/ruby side, you call them directly from your ruby code:
 
 ## config
 
 #### description :
 
-Give you access of your configuration set in the file config/<you_agent_name>.yml.example as a ruby hash.
-Write in the config hash object wont write into the config file.
+Give you access of your configuration set in the file *config/\<your_agent_name\>.yml.example* as a ruby hash.
+Writing in the config hash object will not write in the config file.
 
 #### methods :
 
@@ -26,7 +26,7 @@ end
 
 #### description :
 
-Send/reply messages with protogen content to a device.
+Send/reply to messages with protogen content to a device.
 
 #### methods :
 
@@ -66,7 +66,7 @@ end
 
 #### description :
 
-Use it to write some log while runtime.
+Use it to write some log during runtime. Your logs are written in the *sdk\_logs/ruby-agent-sdk-server.log* file.
 
 #### methods :
 
@@ -84,7 +84,7 @@ def new_presence_from_device(presence)
 end
 ```
 
-## redis
+## <a id="redis"></a> redis
 
 #### description :
 
@@ -92,7 +92,7 @@ Use it to cache data for faster reply.
 
 #### methods :
 
-This object has all redis api as documented below (using redis 3.0.4), @see documentation [on official redis webwite](http://redis.io/).
+This object has all redis API as documented below (using redis 3.0.4), @see documentation [on official redis webwite](http://redis.io/).
 
 #### example :
 
@@ -109,15 +109,15 @@ end
 
 #### description :
 
-Use it to cache data for faster reply (@see redis), but the keys will be shared between several instances of your agent dispatched into the cloud.
+Use it to cache data for faster reply (see [redis](#redis)), but the keys will be shared between several instances of your agent dispatched into the cloud.
 
 #### methods :
 
-@see redis
+see [redis](#redis)
 
 #### example :
 
-@see redis
+see [redis](#redis)
 
 
 
@@ -129,7 +129,7 @@ Give you the path of your agent root directory.
 
 #### methods :
 
-Ruby method String object :  @see documentation [on ruby String official documentation](http://www.ruby-doc.org/core-1.9.3/String.html).
+Ruby methods of the String object : see the official Ruby documentation [on String](http://www.ruby-doc.org/core-1.9.3/String.html).
 
 #### example :
 

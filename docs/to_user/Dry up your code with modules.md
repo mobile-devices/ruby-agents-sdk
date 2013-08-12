@@ -1,9 +1,9 @@
 If you want to dry up your code in the initial.rb (and you should), you should create ruby modules.
 
-Let's create a 'MyAgentModule' module for my agent 'tracking_agent'.
+Let's create a 'MyAgentModule' module for our agent 'tracking_agent'.
 
 
-modules/MyAgentModule.rb :
+modules/MyAgentModule.rb:
 
 ``` ruby
 module MyAgentModule
@@ -14,7 +14,7 @@ module MyAgentModule
 end
 ```
 
-initial.rb :
+initial.rb:
 
 ``` ruby
 require_relative 'modules/my_agent_module'

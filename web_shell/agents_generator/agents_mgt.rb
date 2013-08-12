@@ -412,7 +412,7 @@ module AgentsGenerator
   # return an array of string
   def get_agent_dyn_channel(name)
     return [] unless File.directory?("#{workspace_path}/#{name}")
-    cnf = []
+    cnf = {}
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
     elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
@@ -434,7 +434,7 @@ module AgentsGenerator
 
   def get_agent_is_sub_presence(name)
     return nil unless File.directory?("#{workspace_path}/#{name}")
-    cnf = []
+    cnf = {}
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
     elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
@@ -446,7 +446,7 @@ module AgentsGenerator
 
   def get_agent_is_sub_message(name)
     return nil unless File.directory?("#{workspace_path}/#{name}")
-    cnf = []
+    cnf = {}
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
     elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
@@ -458,7 +458,7 @@ module AgentsGenerator
 
   def get_agent_is_sub_track(name)
     return nil unless File.directory?("#{workspace_path}/#{name}")
-    cnf = []
+    cnf = {}
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
     elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")

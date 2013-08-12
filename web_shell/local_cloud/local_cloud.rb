@@ -87,20 +87,30 @@ require_relative '../agents_generator/cloud_agents_generated/generated'
 
 # bundle install
 PUNK.start('a')
-rapport = `cd ../agents_generator/cloud_agents_generated;bundle install`
-CC.logger.debug(rapport)
-CC.logger.info("bundle install done")
-PUNK.end('a','ok','','SERVER installed ruby gems')
+begin
+  rapport = `bundle install`
+  CC.logger.debug(rapport)
+  CC.logger.info("bundle install done")
+  PUNK.end('a','ok','','SERVER ruby gems bundle install done')
+rescue Exception => e
+  PUNK.end('a','ko','','SERVER ruby bundle install fail')
+  raise e
+end
 
 ## Generate cron tasks ############################################################################
 
 PUNK.start('a')
-crons = GEN.generated_get_agents_whenever_content
-FileUtils.mkdir_p("#{$main_server_root_path}/config")
-File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
-$agents_cron_tasks = GEN.get_agents_cron_tasks(RH.running_agents)
-CC.logger.debug("agents_cron_tasks =\n#{$agents_cron_tasks}")
-PUNK.end('a','ok','','SERVER created cron tasks')
+begin
+  crons = GEN.generated_get_agents_whenever_content
+  FileUtils.mkdir_p("#{$main_server_root_path}/config")
+  File.open("#{$main_server_root_path}/config/schedule.rb", 'w') { |file| file.write(crons) }
+  $agents_cron_tasks = GEN.get_agents_cron_tasks(RH.running_agents)
+  CC.logger.debug("agents_cron_tasks =\n#{$agents_cron_tasks}")
+  PUNK.end('a','ok','','SERVER created cron tasks')
+rescue Exception => e
+  PUNK.end('a','ko','','SERVER cron tasks creation fail')
+  raise e
+end
 
 #### Init server ##################################################################################
 

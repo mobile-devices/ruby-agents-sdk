@@ -27,13 +27,13 @@ To test your code, just modify your code and 'apply and reboot' on the **http://
 
 The com interface runs on port 5001.
 
-##### General guide-lines :
+##### General guide-lines:
 
 * You receive the messages in the initial.rb, you shall include your code in a sub .rb file in the lib folder.
 * Do your agent stateless, global variables are strictly forbidden.
 * If you use messages, follow the Protogen Guide to see how to configure your messages.
 * To configure the dynamic channel used by this agent, go and edit the *config/\<agent\_name\>.yml.example* file, you can put a string or an array of string (see YAML documention for syntax).
-* You also need to configure **which kind of message you want to receive** in your agent with parameters 'subscribe\_presence', 'subscribe\_message' and 'subscribe\_track'.
+* You also need to **configure which kind of message you want to receive** in your agent with parameters 'subscribe\_presence', 'subscribe\_message' and 'subscribe\_track'.
 * If you need additional gems, edit the Gemfile and require them here.
 * Remember to complete your README.md
 
@@ -51,7 +51,7 @@ def new_presence_from_device(presence)
 end
 ```
 
-Where *presence* is a class with the following accessors :
+Where *presence* is an object of the *CCS::Presence* class with the following accessors:
 
 * **asset**   : imei of the device
 * **time**    : timestamp of the event
@@ -62,7 +62,7 @@ Where *presence* is a class with the following accessors :
 * **meta**    : a map with some meta data, generally none.
 
 
-#### message : This method is called when a message is received from the device.
+#### message: This method is called when a message is received from the device.
 
 ``` ruby
 def new_msg_from_device(message)
@@ -71,7 +71,7 @@ def new_msg_from_device(message)
 end
 ```
 
-Where *message* is a class with the following accessors :
+Where *message* is an object of the *CCS::Message* class with the following accessors:
 
 * **id**           : tmp id from the device
 * **parent_id**    : tmp id from the device
@@ -88,7 +88,7 @@ Where *message* is a class with the following accessors :
 * **meta**         : a map with some meta data, generally none
 
 
-#### track : This method is called when a tracking set of data is received from the device.
+#### track: This method is called when a tracking set of data is received from the device.
 
 ``` ruby
 def new_track_from_device(track)
@@ -97,7 +97,7 @@ def new_track_from_device(track)
 end
 ```
 
-Where *track* is a class with following accessors :
+Where *track* is an object of the *CCS::Track* class with following accessors:
 
 * **id**           : tmp id from the device
 * **asset**        : imei of device
@@ -112,7 +112,7 @@ Where *track* is a class with following accessors :
   * field2
   * ...
 
-#### order : This method is called when a schedule tasks is requested.
+#### order: This method is called when a schedule tasks is requested.
 
 ``` ruby
 def new_order(order)
@@ -120,7 +120,7 @@ def new_order(order)
   log.debug('initial:new_order')
 end
 ```
-Where *order* is a class with following accessors :
+Where *order* is an object of the *CCS::Order* class with following accessors:
 
 * **agent**        : agent name concerned by the order
 * **code**         : code specified into the schedule.rb (@see Schedule tasks with cron documentation)
@@ -129,4 +129,4 @@ Where *order* is a class with following accessors :
 
 ### Send something to device
 
-Use the gate API (see the API server documentation).
+Use the *gate* object API (see the *API server* section of the documentation).

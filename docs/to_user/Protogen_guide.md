@@ -54,7 +54,7 @@ The following example implements most of the available features of the protogen 
 This is the minimal template of a protocol file:
 
     {
-      "protocol_version": 1
+      "protocol_version": 1,
 
       "messages": {
 

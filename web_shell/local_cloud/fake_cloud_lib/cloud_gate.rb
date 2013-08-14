@@ -13,7 +13,7 @@ def push_something_to_device(something)
       something['payload']['payload'] = Base64.encode64(something['payload']['payload'])
     end
   rescue Exception => e
-    CCS.print_ruby_exeption(e)
+    CCS.print_ruby_exception(e)
   end
 
   $mutex_message_to_device.synchronize do
@@ -60,7 +60,7 @@ def push_ack_to_device(message)
     SDK_STATS.stats['server']['total_ack_queued'] += 1
   rescue Exception => e
     CC.logger.error("Server: push_ack_to_device error with payload = \n#{message}")
-    CCS.print_ruby_exeption(e)
+    CCS.print_ruby_exception(e)
     return false
   end
   return true
@@ -91,7 +91,7 @@ def handle_msg_from_device(type, params)
       msg = CCS::Presence.new(params)
       PUNK.end('a','ok','in',"SERVER <- PRESENCE '#{msg.type}'")
     rescue Exception => e
-      CCS.print_ruby_exeption(e)
+      CCS.print_ruby_exception(e)
       SDK_STATS.stats['server']['err_parse'][0] += 1
       PUNK.end('a','ko','in',"SERVER <- PRESENCE : parse params fail")
       SDK_STATS.stats['server']['total_error'] += 1
@@ -102,7 +102,7 @@ def handle_msg_from_device(type, params)
       msg = CCS::Message.new(params)
       # we punk end further when channel is valid
     rescue Exception => e
-      CCS.print_ruby_exeption(e)
+      CCS.print_ruby_exception(e)
       SDK_STATS.stats['server']['err_parse'][1] += 1
       PUNK.end('a','ko','in',"SERVER <- MSG : parse params fail")
       SDK_STATS.stats['server']['total_error'] += 1
@@ -113,7 +113,7 @@ def handle_msg_from_device(type, params)
       msg = CCS::Track.new(params)
       PUNK.end('a','ok','in',"SERVER <- TRACK")
     rescue Exception => e
-      CCS.print_ruby_exeption(e)
+      CCS.print_ruby_exception(e)
       SDK_STATS.stats['server']['err_parse'][2] += 1
       PUNK.end('a','ko','in',"SERVER <- TRACK : parse params fail")
       SDK_STATS.stats['server']['total_error'] += 1
@@ -124,14 +124,14 @@ def handle_msg_from_device(type, params)
       msg = CCS::Order.new(params)
       PUNK.end('a','ok','in',"SERVER <- ORDER '#{msg.code}'")
     rescue CCS::AgentNotFound => e
-      CCS.print_ruby_exeption(e)
+      CCS.print_ruby_exception(e)
       response.body = 'service unavailable'
       SDK_STATS.stats['server']['remote_call_unused'] += 1
       PUNK.end('a','ko','in',"SERVER <- ORDER : agent not found")
       SDK_STATS.stats['server']['total_error'] += 1
       return
     rescue Exception => e
-      CCS.print_ruby_exeption(e)
+      CCS.print_ruby_exception(e)
       SDK_STATS.stats['server']['err_parse'][3] += 1
       PUNK.end('a','ko','in',"SERVER <- ORDER : parse params fail")
       SDK_STATS.stats['server']['total_error'] += 1

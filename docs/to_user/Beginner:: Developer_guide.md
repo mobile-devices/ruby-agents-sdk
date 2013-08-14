@@ -21,7 +21,7 @@ On this page, you can create/start/stop a project then reboot the VM's ruby serv
 * **doc/protogen/** : folder where the protocol's documentation is generated.
 * **modules/** : folder where you create your ruby modules.
 
-You will also find in your workspace an *sdk\_logs* folder where you will find your agent's logs (file *ruby-agent-sdk-server.log*) and also server's logs.
+You will also find in your workspace a *sdk\_logs* folder where you will find your agent's logs (file *ruby-agent-sdk-server.log*) and also the server's logs.
 
 To test your code, just modify your code and 'apply and reboot' on the **http://localhost:5000/** web page.
 
@@ -32,7 +32,7 @@ The com interface runs on port 5001.
 * You receive the messages in the initial.rb, you shall include your code in a sub .rb file in the lib folder.
 * Do your agent stateless, global variables are strictly forbidden.
 * If you use messages, follow the Protogen Guide to see how to configure your messages.
-* To configure the dynamic channel used by this agent, go and edit the *config/\<agent\_name\>.yml.example* file, you can put a string or an array of string (see YAML documention for syntax).
+* To configure the dynamic channel used by this agent, edit the *config/\<agent\_name\>.yml.example* file, you can put a string or an array of string (see YAML documention for syntax).
 * You also need to **configure which kind of message you want to receive** in your agent with parameters 'subscribe\_presence', 'subscribe\_message' and 'subscribe\_track'.
 * If you need additional gems, edit the Gemfile and require them here.
 * Remember to complete your README.md
@@ -42,7 +42,7 @@ The com interface runs on port 5001.
 
 ### Receive something from a device (@see initial.rb)
 
-#### presence : This method is called when a connection/reconnection/deconnection happen.
+#### presence : This method is called when a connection/reconnection/deconnection happens.
 
 ``` ruby
 def new_presence_from_device(presence)

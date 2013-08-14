@@ -1,6 +1,6 @@
-# Here you define your rules to schedule order to be sent to your agent
+# Define here your agent scheduled callbacks
 
-# Example:
+# Examples:
 
 # every 2.hours do
 #   execute_order "66"

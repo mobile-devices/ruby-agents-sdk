@@ -1,4 +1,4 @@
-Here a sum-up of what features you can handle from the server/ruby side, you call them directly from your ruby code:
+Here is a sum-up of what features you can handle from the server/ruby side, you call them directly from your ruby code:
 
 ## config
 
@@ -9,7 +9,7 @@ Writing in the config hash object will not write in the config file.
 
 #### methods :
 
-Ruby method Hash object :  @see documentation [on ruby Hash official documentation](http://www.ruby-doc.org/core-1.9.3/Hash.html).
+Ruby methods of the Hash class: see [the official Ruby documentation on Hash](http://www.ruby-doc.org/core-1.9.3/Hash.html).
 
 #### example :
 
@@ -42,14 +42,14 @@ Send/reply to messages with protogen content to a device.
 
 ``` ruby
 def new_presence_from_device(presence)
-  # on each presence received, we push a protogenPOI objet to the device.
+  # on each presence received, we push a protogenPOI object to the device.
   gate.push('13371337', 'sdk-vm-account', protogenPOI)
 end
 ```
 
 ``` ruby
 def new_msg_from_device(msg)
-  # on each message received, we reply back with a protogenPOI objet to the device.
+  # on each message received, we reply back with a protogenPOI object to the device.
   gate.reply(msg, protogenPOI)
 end
 ```
@@ -129,7 +129,7 @@ Give you the path of your agent root directory.
 
 #### methods :
 
-Ruby methods of the String object : see the official Ruby documentation [on String](http://www.ruby-doc.org/core-1.9.3/String.html).
+Ruby methods of the String class: see [the official Ruby documentation on String](http://www.ruby-doc.org/core-1.9.3/String.html).
 
 #### example :
 

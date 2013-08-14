@@ -157,7 +157,7 @@ module AgentsGenerator
 
       sub_p = get_agent_is_sub_presence(agent)
       if sub_p != true && sub_p != false
-        PUNK.start('subcription
+        PUNK.start('subcription_p')
         sub_p = false
         CC.logger.info("Presence subcription configuration not found ! (sub_p=#{sub_p})")
         CC.logger.info("Please add a \n\"subscribe_presence: false\"\n or\n \"subscribe_presence: true\"\n line in your agent config file.")
@@ -171,7 +171,7 @@ module AgentsGenerator
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback PRESENCE '\#{presence.type}'\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
-        agents_generated_code += "    CCS.print_ruby_exception(e)\n"
+        agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
         agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][0] += 1\n"
         agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
         agents_generated_code += "    PUNK.end('handle','ko','process','AGENT:#{agent}TNEGA callback PRESENCE fail')\n"
@@ -199,7 +199,7 @@ module AgentsGenerator
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback MSG[\#{crop_ref(message.id,4)}]\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
-        agents_generated_code += "    CCS.print_ruby_exception(e)\n"
+        agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
         agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][1] += 1\n"
         agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
         agents_generated_code += "    PUNK.end('handle','ko','process',\"AGENT:#{agent}TNEGA callback MSG[\#{crop_ref(message.id,4)}] fail\")\n"
@@ -227,7 +227,7 @@ module AgentsGenerator
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback TRACK\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
-        agents_generated_code += "    CCS.print_ruby_exception(e)\n"
+        agents_generated_code += "    CCS.print_ruby_exeption(e)\n"
         agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['err_while_process'][2] += 1\n"
         agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
         agents_generated_code += "    PUNK.end('handle','ko','process',\"AGENT:#{agent}TNEGA callback TRACK fail\")\n"
@@ -244,7 +244,7 @@ module AgentsGenerator
       agents_generated_code += "      PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback ORDER '\#{order.code}' \")\n"
       agents_generated_code += "    rescue => e\n"
       agents_generated_code += "      CC.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order.code}\")\n"
-      agents_generated_code += "      CCS.print_ruby_exception(e)\n"
+      agents_generated_code += "      CCS.print_ruby_exeption(e)\n"
       agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['err_while_process'][3] += 1\n"
       agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['total_error'] += 1\n"
       agents_generated_code += "      PUNK.end('handle','ko','process',\"AGENT:#{agent}TNEGA callback ORDER '\#{order.code}' fail\")\n"
@@ -551,7 +551,7 @@ module AgentsGenerator
       p 'get_agents_cron_tasks done'
     rescue => e
       p 'get_agents_cron_tasks fail'
-      print_ruby_exception(e)
+      print_ruby_exeption(e)
     end
 
     final_map

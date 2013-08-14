@@ -110,7 +110,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
       PUNK.end('msgAgent','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
 
     rescue Exception => e
-      CCS.print_ruby_exception(e)
+      CCS.print_ruby_exeption(e)
       PUNK.end('msgAgent','ko','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
       return
     end
@@ -185,7 +185,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
       rescue Exception => e
         CC.logger.error("Error on push")
-        CCS.print_ruby_exception(e)
+        CCS.print_ruby_exeption(e)
         PUNK.end('push','ko','out',"SERVER -> MSG")
         # stats:
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
@@ -204,7 +204,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
       rescue Exception => e
         CC.logger.error("Error on reply")
-        CCS.print_ruby_exception(e)
+        CCS.print_ruby_exeption(e)
         PUNK.end('reply','ko','out',"SERVER -> MSG (reply)")
         # stats:
         SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
@@ -280,7 +280,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
       end
     rescue Exception => e
       log.error("ERROR while loading configuration")
-      CCS.print_ruby_exception(e)
+      CCS.print_ruby_exeption(e)
     end
   end
 

@@ -320,7 +320,7 @@ module CloudConnectServices
 
   #============================== METHODS ========================================
 
-  def self.print_ruby_exception(e)
+  def self.print_ruby_exeption(e)
     stack=""
     e.backtrace.take(20).each { |trace|
       stack+="  >> #{trace}\n"

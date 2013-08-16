@@ -15,6 +15,10 @@ end
 # User code
 require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
 
+# Generated SDK API (the folder is added to $LOAD_PATH in generated code so we
+# don't need require_relative)
+require 'sdk_api'
+
 # XX_PROJECT_NAME agent
 class Agent_XX_CLEAN_PROJECT_NAME
 
@@ -28,13 +32,13 @@ class Agent_XX_CLEAN_PROJECT_NAME
   @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
 
   def initialize() # constructor
-    log.info("root path is = \"#{root_path}\"")
+    SDK.log.info("root path is = \"#{SDK.root_path}\"")
 
     @AGENT_NAME = 'XX_PROJECT_NAME'
 
     # Load dynamic channel
-    @CHANNEL = config['Dynamic_channel_str']
-    @CHANNEL = config['dynamic_channel_str'] if @CHANNEL == nil
+    @CHANNEL = SDK.config['Dynamic_channel_str']
+    @CHANNEL = SDK.config['dynamic_channel_str'] if @CHANNEL == nil
 
     if @CHANNEL.is_a? String
       @CHANNEL = ["#{@CHANNEL}"]
@@ -46,7 +50,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
     @has_protogen = File.exist?("#{RH.generated_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
 
 
-    log.info("init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
+    SDK.log.info("init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
   end
 
   ######### Messages delivered for the agent ###########################
@@ -213,13 +217,6 @@ class Agent_XX_CLEAN_PROJECT_NAME
     end
   end
 
-  def gate
-    @msgGate ||= begin
-      MessageGate.new(@CHANNEL[0])
-    end
-  end
-
-
 # keep commented code until RAgent developped
 
   # def send_message_to_device(account, asset, content)
@@ -241,56 +238,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
   #   #     payload:   content.to_json
   #   #     }, as: :agent).push
 
-  ############### Logger ###############################################
-
-  def log()
-    @agent_logger ||= begin
-      CCS::Log.new('Agent XX_PROJECT_NAME: ')
-    end
-  end
-
-  ############### Redis ################################################
-  def redis()
-    @redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
-  end
-
-  def redis_shared()
-    @redis ||= Redis::Namespace.new("CCS:XX_PROJECT_NAME", :redis => CC.redis)
-  end
-
-  def redis_internal()
-    @redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
-  end
-
-  def redis_internal_shared()
-    @redis_internal ||= Redis::Namespace.new("CCSI:XX_PROJECT_NAME", :redis => CC.redis)
-  end
-
-  ############### Config ###############################################
-  #note: real wrapper wille have a .yml for each agent in a same folder
-  def config()
-    @config ||= begin
-      if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
-        @config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
-      elsif File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml.example")
-        @config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml.example"))['development']
-      else
-        log.warn("NO CONFIG FILE FOUND in #{root_path}/config")
-        @config = Hash.new
-      end
-    rescue Exception => e
-      log.error("ERROR while loading configuration")
-      CCS.print_ruby_exception(e)
-    end
-  end
-
-  ############### Path ################################################
-
-  def root_path()
-    'XX_PROJECT_ROOT_PATH'
-  end
-
-  ######################################################################
+  include XX_CAPITALIZED_CLEAN_PROJECT_NAME_sdk_api
 
   include ProtogenAPIs if defined? ProtogenAPIs
 

@@ -46,6 +46,13 @@ module AgentsGenerator
     @PROTOGEN_BIN_PATH ||= "#{source_path}/exts/protogen/protocol_generator/"
   end
 
+  def sdk_utils_path()
+    @SDK_UTILS_PATH ||= "#{generated_rb_path}/sdk_utils"
+  end
+
+  def clean_name(name)
+    name.gsub('-','_')
+  end
 
   #########################################################################################################
   ## compile
@@ -120,16 +127,24 @@ module AgentsGenerator
 
     agents_generated_code = ""
 
+    # add sdk_utils folder to $LOAD_PATH so the users can write directly
+    # "require 'sdk_utils'"" in their code
+     agents_generated_code += <<-CODE
+      libdir = File.expand_path("#{sdk_utils_path}")
+      $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
+    CODE
+
 
     template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
     # template generation
     agents_to_run.each { |agent|
-      clean_class_name = "#{agent}"
-      clean_class_name.gsub!('-','_')
+      clean_class_name = clean_name("#{agent}")
+      capitalized_class_name = clean_class_name.capitalize
 
       template_agent = template_agent_src.clone
       template_agent.gsub!('XX_PROJECT_NAME',"#{agent}")
+      template_agent.gsub!('XX_CAPITALIZED_CLEAN_PROJECT_NAME',capitalized_class_name)
       template_agent.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
       template_agent.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
       agents_generated_code += template_agent
@@ -253,8 +268,30 @@ module AgentsGenerator
     }
     agents_generated_code += "end\n\n"
 
-
     File.open("#{generated_rb_path}/generated.rb", 'w') { |file| file.write(agents_generated_code) }
+
+
+    # Generate sdk_api.rb
+    template_sdk_api_generated_code = ''
+    template_api_src = File.read("#{source_path}/template_sdk_api.rb_")
+    FileUtils.mkdir_p("#{sdk_utils_path}")
+
+    agents_to_run.each { |agent|
+      clean_class_name = clean_name("#{agent}")
+      capitalized_class_name = clean_class_name.capitalize
+      template_sdk_api = template_api_src.clone
+      template_sdk_api.gsub!('XX_PROJECT_NAME',"#{agent}")
+      template_sdk_api.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
+      template_sdk_api.gsub!('XX_CAPITALIZED_CLEAN_PROJECT_NAME',capitalized_class_name)
+      template_sdk_api.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
+      template_sdk_api_generated_code += template_sdk_api
+      template_sdk_api_generated_code += "\n\n"
+    }
+
+    File.open("#{sdk_utils_path}/sdk_api.rb", 'w') { |file| file.write(template_sdk_api_generated_code)}
+
+
+
 
     add_to_rapport("Templates generated done\n")
 

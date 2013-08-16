@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
+
+module XX_CAPITALIZED_CLEAN_PROJECT_NAME_sdk_api
+  module SDK
+    def self.gate
+      @@msgGate ||= begin
+        MessageGate.new(@CHANNEL[0])
+      end
+    end
+
+    def self.log()
+      @@agent_logger ||= begin
+        CCS::Log.new('Agent XX_PROJECT_NAME: ')
+      end
+    end
+
+    ############### Redis ################################################
+    def self.redis()
+      @@redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
+    end
+
+    def self.redis_shared()
+      @@redis ||= Redis::Namespace.new("CCS:XX_PROJECT_NAME", :redis => CC.redis)
+    end
+
+    def self.redis_internal()
+      @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
+    end
+
+    def self.redis_internal_shared()
+      @@redis_internal ||= Redis::Namespace.new("CCSI:XX_PROJECT_NAME", :redis => CC.redis)
+    end
+
+    ############### Config ###############################################
+    #note: real wrapper wille have a .yml for each agent in a same folder
+    def self.config()
+      @@config ||= begin
+        if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
+          @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
+        elsif File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml.example")
+          @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml.example"))['development']
+        else
+          log.warn("NO CONFIG FILE FOUND in #{root_path}/config")
+          @@config = Hash.new
+        end
+      rescue Exception => e
+        log.error("ERROR while loading configuration")
+        CCS.print_ruby_exeption(e)
+      end
+    end
+
+    ############### Path ################################################
+
+    def self.root_path()
+      'XX_PROJECT_ROOT_PATH'
+    end
+  end
+end

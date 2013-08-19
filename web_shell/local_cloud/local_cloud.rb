@@ -172,7 +172,7 @@ def get_json_from_request(request)
     JSON.parse(to_parse)
   rescue Exception => e
     CC.logger.error("Server: error while reading json (len=#{to_parse.length}) \n #{to_parse}")
-    CCS.print_ruby_exeption(e)
+    CCS.print_ruby_exception(e)
     nil
   end
 end

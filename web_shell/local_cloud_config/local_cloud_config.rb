@@ -227,6 +227,7 @@ post '/perform_cron_tasks' do
   rescue JSON::ParserError => e
     flash[:popup_error] = "Error when parsing scheduled tasks, double-check your config/schedule.rb."
     puts "error when parsing cron tasks"
+    print_ruby_exception(e)
   end
 
   redirect('/projects')

@@ -1,3 +1,4 @@
+
 #########################################################
 # Xavier Demompion : xavier.demompion@mobile-devices.fr
 # Mobile Devices 2013
@@ -23,7 +24,10 @@ end
 
 def add_new_agent(agent_name)
   puts "add_new_agent #{agent_name}"
-  if create_new_agent(agent_name)
+  if agent_name.empty?
+    puts "Agent name can not be empty."
+    flash[:popup_error] = "Agent name can not be empty."
+  elsif create_new_agent(agent_name)
     agents_altered
     puts "Agent #{agent_name} successfully created."
   else

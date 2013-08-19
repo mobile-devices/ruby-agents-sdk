@@ -6,57 +6,72 @@
 
 module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
   module SDK
-    def self.gate
-      @@msgGate ||= begin
-        MessageGate.new(@CHANNEL[0])
-      end
-    end
-
-    def self.log()
-      @@agent_logger ||= begin
-        CCS::Log.new('Agent XX_PROJECT_NAME: ')
-      end
-    end
-
-    ############### Redis ################################################
-    def self.redis()
-      @@redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
-    end
-
-    def self.redis_shared()
-      @@redis ||= Redis::Namespace.new("CCS:XX_PROJECT_NAME", :redis => CC.redis)
-    end
-
-    def self.redis_internal()
-      @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
-    end
-
-    def self.redis_internal_shared()
-      @@redis_internal ||= Redis::Namespace.new("CCSI:XX_PROJECT_NAME", :redis => CC.redis)
-    end
-
-    ############### Config ###############################################
-    #note: real wrapper wille have a .yml for each agent in a same folder
-    def self.config()
-      @@config ||= begin
-        if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
-          @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
-        elsif File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml.example")
-          @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml.example"))['development']
-        else
-          log.warn("NO CONFIG FILE FOUND in #{root_path}/config")
-          @@config = Hash.new
+    module API
+      def self.gate
+        @@msgGate ||= begin
+          MessageGate.new(@CHANNEL[0])
         end
-      rescue Exception => e
-        log.error("ERROR while loading configuration")
-        CCS.print_ruby_exeption(e)
+      end
+
+      def self.log()
+        @@agent_logger ||= begin
+          CCS::Log.new('Agent XX_PROJECT_NAME: ')
+        end
+      end
+
+      ############### Redis ################################################
+      def self.redis()
+        @@redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
+      end
+
+      def self.redis_shared()
+        @@redis ||= Redis::Namespace.new("CCS:XX_PROJECT_NAME", :redis => CC.redis)
+      end
+
+      def self.redis_internal()
+        @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
+      end
+
+      def self.redis_internal_shared()
+        @@redis_internal ||= Redis::Namespace.new("CCSI:XX_PROJECT_NAME", :redis => CC.redis)
+      end
+
+      ############### Config ###############################################
+      #note: real wrapper wille have a .yml for each agent in a same folder
+      def self.config()
+        @@config ||= begin
+          if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
+            @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
+          elsif File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml.example")
+            @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml.example"))['development']
+          else
+            log.warn("NO CONFIG FILE FOUND in #{root_path}/config")
+            @@config = Hash.new
+          end
+        rescue Exception => e
+          log.error("ERROR while loading configuration")
+          CCS.print_ruby_exeption(e)
+        end
+      end
+
+      ############### Path ################################################
+
+      def self.root_path()
+        'XX_PROJECT_ROOT_PATH'
       end
     end
 
-    ############### Path ################################################
-
-    def self.root_path()
-      'XX_PROJECT_ROOT_PATH'
+    # Add CCS to the SDK module so the user has all of his tools in the SDK namespace
+    # But to keep compatibility with existing code, do not move the CCS namespace into the SDK namespace
+    def self.CCS
+      CCS
     end
-  end
-end
+
+    # this enables us to write SDK.API (and not SDK::API)
+    # for symetry with SDK.CCS
+    def self.API
+      API
+    end
+
+  end # module SDK
+end # module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME

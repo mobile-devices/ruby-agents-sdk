@@ -238,7 +238,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
   #   #     payload:   content.to_json
   #   #     }, as: :agent).push
 
-  include XX_CAPITALIZED_CLEAN_PROJECT_NAME_sdk_api
+  include Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
   include ProtogenAPIs if defined? ProtogenAPIs
 

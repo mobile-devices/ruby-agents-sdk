@@ -140,11 +140,11 @@ module AgentsGenerator
     # template generation
     agents_to_run.each { |agent|
       clean_class_name = clean_name("#{agent}")
-      capitalized_class_name = clean_class_name.capitalize
+      downcased_class_name = clean_class_name.downcase
 
       template_agent = template_agent_src.clone
       template_agent.gsub!('XX_PROJECT_NAME',"#{agent}")
-      template_agent.gsub!('XX_CAPITALIZED_CLEAN_PROJECT_NAME',capitalized_class_name)
+      template_agent.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
       template_agent.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
       template_agent.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
       agents_generated_code += template_agent
@@ -278,11 +278,11 @@ module AgentsGenerator
 
     agents_to_run.each { |agent|
       clean_class_name = clean_name("#{agent}")
-      capitalized_class_name = clean_class_name.capitalize
+      downcased_class_name = clean_class_name.downcase
       template_sdk_api = template_api_src.clone
       template_sdk_api.gsub!('XX_PROJECT_NAME',"#{agent}")
       template_sdk_api.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
-      template_sdk_api.gsub!('XX_CAPITALIZED_CLEAN_PROJECT_NAME',capitalized_class_name)
+      template_sdk_api.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
       template_sdk_api.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
       template_sdk_api_generated_code += template_sdk_api
       template_sdk_api_generated_code += "\n\n"

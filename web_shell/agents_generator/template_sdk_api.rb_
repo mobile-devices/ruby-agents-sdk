@@ -4,7 +4,7 @@
 # Mobile Devices 2013
 #########################################################
 
-module XX_CAPITALIZED_CLEAN_PROJECT_NAME_sdk_api
+module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
   module SDK
     def self.gate
       @@msgGate ||= begin

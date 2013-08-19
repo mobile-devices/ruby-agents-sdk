@@ -76,6 +76,8 @@ begin
   CC.logger.info("agents generation successful")
   PUNK.end('a','ok','','SERVER generated agents')
 rescue Exception => e
+  CC.logger.debug("agents generation failed")
+  CCS.print_ruby_exception(e)
   PUNK.end('a','ko','','SERVER generation agents fail')
   raise e
 end

@@ -219,10 +219,16 @@ end
 
 
 post '/perform_cron_tasks' do
-  task = JSON.parse(params['task'])
-  puts "perform_cron_tasks: #{task}"
-  p ''
-  http_post('http://localhost:5001/remote_call', task)
+  begin
+    task = JSON.parse(params['task'])
+    puts "perform_cron_tasks: #{task}"
+    p ''
+    http_post('http://localhost:5001/remote_call', task)
+  rescue JSON::ParserError => e
+    flash[:popup_error] = "Error when parsing scheduled tasks, double-check your config/schedule.rb."
+    puts "error when parsing cron tasks"
+    print_ruby_exception(e)
+  end
 
   redirect('/projects')
 end

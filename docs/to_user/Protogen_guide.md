@@ -54,7 +54,7 @@ The following example implements most of the available features of the protogen 
 This is the minimal template of a protocol file:
 
     {
-      "protocol_version": 1
+      "protocol_version": 1,
 
       "messages": {
 
@@ -163,15 +163,15 @@ They are defined the same way messages are. Note however that you may not create
 Cookies share the same convention as messages ("\^\_" for conf, "\^[a-z] for fields"). Cookie fields share the same properties as messages (except for nested messages).
 
 Mandatory conf fields:
-- "\_send\_with" : list all messages that may carry this type of cookie.
+* "\_send\_with" : list all messages that may carry this type of cookie.
 
 Other possible fields:
 
 * "_secure" :
   * "high" (default): cookies are encrypted and may not be seen by the devices
-  * "low" : cookies aren't encrypted, but carry a signature that assert their authenticity (not implemented)
+  * "low" : cookies aren't encrypted, but carry a signature that asserts their authenticity (not implemented)
   * "none" : no encryption, no signature.
-* "\_validity\_time" : (in seconds, int) time during which the cookie is considered valid. After this, it will be discarded by the server when received, and by the device when sent. Default: 3600s .
+* "\_validity\_time" : (in seconds, int) duration of the validity period of the cookie. At the end of this duration, it will be discarded by the server when received, and by the device when sent. Default: 3600s .
 
 Example:
 

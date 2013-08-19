@@ -28,6 +28,15 @@ require 'rack/flash'
 enable :sessions
 use Rack::Flash
 
+
+def print_ruby_exception(e)
+  stack=""
+  e.backtrace.take(20).each { |trace|
+    stack+="  >> #{trace}\n"
+  }
+  CC.logger.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+end
+
 #=========================================================================================
 get '/' do
  redirect('/projects')

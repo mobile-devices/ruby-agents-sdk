@@ -17,8 +17,10 @@ fi
 #launch admin server
 start_admin() {
   echo "starting admin server"
+  pushd . >> /dev/null
   cd web_shell/local_cloud_config
   ruby local_cloud_config.rb >>../../logs/daemon_server_config.log 2>&1 &
+  popd >> /dev/null
 }
 
 stop_admin() {
@@ -31,13 +33,17 @@ restart_admin() {
 }
 
 start() {
+  pushd . >> /dev/null
   cd web_shell/local_cloud
   ./local_cloud.sh restart
+  popd >> /dev/null
 }
 
 stop() {
+  pushd . >> /dev/null
   cd web_shell/local_cloud
   ./local_cloud.sh stop
+  popd >> /dev/null
 }
 
 restart() {

@@ -33,4 +33,4 @@ end
 
 Read the [whenever documentation](https://github.com/javan/whenever) to see how you can configure when your orders are called.
 
-Once you have edited this file and rebooted the serveur, you will be able to test the task by using the appropriate button in the 'Scheduled cron tasks' view in the project tab.
+Once you have edited this file and rebooted the server, you will be able to test the task by using the appropriate button in the 'Scheduled cron tasks' view in the project tab.

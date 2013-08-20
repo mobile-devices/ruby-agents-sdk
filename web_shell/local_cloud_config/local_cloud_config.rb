@@ -140,6 +140,9 @@ post '/create_agents' do
 end
 
 get '/restart_server' do
+
+  p "restart server with params=#{params}"
+
   if params['reset_logs'] == 'on'
     if File.exist?(log_server_path)
       File.delete(log_server_path)
@@ -157,7 +160,15 @@ get '/restart_server' do
   File.open('/tmp/should_mdi_server_run_id', 'w') { |file| file.write($server_run_id) }
 
   `cd ../local_cloud; ./local_cloud.sh restart`
-  redirect('/projects')
+
+
+  p "redirecting to #{params['redirect_to']}"
+  if params['redirect_to']
+    redirect(params['redirect_to'])
+  else
+    redirect('/projects')
+  end
+
 end
 
 #=========================================================================================

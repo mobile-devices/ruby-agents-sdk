@@ -200,19 +200,6 @@
 <% end %>
 <!-- End server stats advanced =================================================-->
 
-<!-- Reboot server form ========================================================-->
-<div class="row" >
-  <form action="/restart_server" method="get" class="form-inline">
-    <div class="pull-right">
-    <label class="checkbox">
-      <input name="reset_logs" type="checkbox" <% if is_reset_log_checked == 'true' %> checked <% end %> > Reset logs on reboot
-    </label>
-    <button class="btn btn-primary">reboot ruby agent sdk server</button>
-  </form>
-</div>
-<br/>
-<!-- End reboot server form ====================================================-->
-
 <!-- Agents Panel ==============================================================-->
 <div class="row-fluid">
   <div class="span12">

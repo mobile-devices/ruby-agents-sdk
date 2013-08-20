@@ -9,7 +9,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
     module API
       def self.gate
         @@msgGate ||= begin
-          MessageGate.new(@CHANNEL[0])
+          MessageGate.new(self.get_channels[0])
         end
       end
 
@@ -54,12 +54,81 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         end
       end
 
+      def self.get_channels
+        @@CHANNEL = SDK.API.config['Dynamic_channel_str']
+        @@CHANNEL = SDK.API.config['dynamic_channel_str'] if @CHANNEL == nil
+
+        if @@CHANNEL.is_a? String
+          @@CHANNEL = ["#{@CHANNEL}"]
+        end
+
+        if (@CHANNEL == nil) || (@CHANNEL.length == 0)
+          @@CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
+        end
+
+        return @@CHANNEL
+
+      end
+
       ############### Path ################################################
 
       def self.root_path()
         'XX_PROJECT_ROOT_PATH'
       end
     end
+
+    class MessageGate
+
+     def push(asset, account, content)
+      begin
+        PUNK.start('push','pushing msg ...')
+        msg = CCS::Message.new({
+          'meta' => {},
+          'payload' => {
+            'type' => 'message',
+            'sender' => '@@server@@',
+            'channel' =>  @CHANNEL,
+            'payload' => content
+          }
+          })
+
+        msg.push(asset, account)
+        # success !
+        PUNK.end('push','ok','out',"SERVER -> MSG[#{crop_ref(msg.id,4)}]")
+
+
+
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
+      rescue Exception => e
+        CC.logger.error("Error on push")
+        CCS.print_ruby_exception(e)
+        PUNK.end('push','ko','out',"SERVER -> MSG")
+        # stats:
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+      end
+    end
+
+    def reply(msg, content, cookies = nil)
+      begin
+        PUNK.start('reply','replying msg ...')
+        reply_id = msg.reply_content(content, cookies)
+        # success !
+        PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(reply_id,4)}] [reply of #{crop_ref(msg.id,4)}]")
+        # stats:
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
+      rescue Exception => e
+        CC.logger.error("Error on reply")
+        CCS.print_ruby_exception(e)
+        PUNK.end('reply','ko','out',"SERVER -> MSG (reply)")
+        # stats:
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+      end
+    end
+  end
 
     # Add CCS to the SDK module so the user has all of his tools in the SDK namespace
     # But to keep compatibility with existing code, do not move the CCS namespace into the SDK namespace

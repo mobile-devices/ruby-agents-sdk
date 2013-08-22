@@ -27,5 +27,9 @@ gem 'msgpack', '~> 0.4.7 ' # needed for protogen
 gem 'whenever', '~> 0.8.2', :require => false
 gem 'rufus-scheduler'
 
+# tests
+gem 'rack-test', require: 'rack/test'
+gem 'rspec'
+
 #################################################################
 

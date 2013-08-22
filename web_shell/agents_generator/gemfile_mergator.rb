@@ -5,6 +5,8 @@
 def merge_gem_file(master_gem_file, gemfiles_contents)
   master = []
 
+  master << "# GENERATED CODE. DON'T EDIT THIS FILE, YOUR CHANGES WILL BE LOST\n\n"
+
   master_gem_file.each_line { |line|
     master << line
   }

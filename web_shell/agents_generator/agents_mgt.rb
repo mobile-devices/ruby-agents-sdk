@@ -114,7 +114,7 @@ module AgentsGenerator
   end
 
   def generate_agents()
-    @AgentsGenerator_rapport_generation = ""
+    @AgentsGeneratorrapport_generation = ""
 
     FileUtils.mkdir_p("#{generated_rb_path}")
 
@@ -267,6 +267,13 @@ module AgentsGenerator
       agents_generated_code += "  end\n"
     }
     agents_generated_code += "end\n\n"
+
+    # Tests runner
+    # agents_generated_code += "def run_tests(agents)\n"
+    # agents_to_run.each do |agent|
+    #   agents_generated_code += "  results = $#{agent}_initial.run_tests\n"
+    # end
+    # agents_generated_code += "end\n\n"
 
     File.open("#{generated_rb_path}/generated.rb", 'w') { |file| file.write(agents_generated_code) }
 
@@ -627,6 +634,7 @@ module AgentsGenerator
   end
 
   #########################################################################################################
+
 
 end
 

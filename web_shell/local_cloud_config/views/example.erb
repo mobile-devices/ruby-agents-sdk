@@ -1,0 +1,48 @@
+<% @examples.each do |example| %>
+  <% case example.status
+    when "passed" %>
+    <tr class='success'>
+      <td> <%= h example.full_description  %> </td>
+      <td> <span class="label label-success"> passed </span>  </td>
+      <td> line <%= h example.line_number  %> of file <%= h example.file_path %> </td>
+    </tr>
+  <% when "pending" %>
+    <tr class='warning'>
+      <td> <%= h example.full_description  %> </td>
+      <td> <span class="label label-warning"> pending </span>  </td>
+      <td> line <%= h example.line_number  %> of file <%= h example.file_path %> </td>
+    </tr>
+  <% when "failed" %>
+    <tr class='error'>
+      <td> <%= h example.full_description  %> </td>
+      <td>
+        <div class="accordion-group">
+          <div class="accordion-heading">
+              <span class="accordion-toggle label label-important" data-parent="#accordion2" data-toggle="collapse" href="#error<%= example.index %>">
+                failed <br/> (click to show details)
+              </span>
+          </div>
+        </div>
+      </td>
+      <td> line <%= h example.line_number  %> of file <%= h example.file_path %> </td>
+    </tr>
+    <tr class='error'>
+      <td colspan="3" style="padding-top: 0px; padding-bottom: 0px;">
+        <div id="error<%= example.index %>" class="accordion-body collapse">
+          <div class="accordion-inner">
+            <div class="pull-left">
+              <p class="text-left"> <strong> <%= h example.exception[:class] %> ---  <%= h example.exception[:message] %> </strong> </p>
+              <p class="text-left">
+                <% example.exception[:backtrace].each do |line| %>
+                  <%= h line %> <br/>
+                <% end %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  <% else
+      raise ArgumentError("Test status can only be 'passed', 'pending' or 'failed'")
+     end %>
+<% end %>

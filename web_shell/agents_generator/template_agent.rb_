@@ -5,6 +5,7 @@
 #########################################################
 
 require 'yaml'
+require 'rspec'
 
 # Framework to be standalone
 require 'active_support/all'
@@ -18,6 +19,8 @@ require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
 # Generated SDK API (the folder is added to $LOAD_PATH in generated code so we
 # don't need require_relative)
 require 'sdk_api'
+
+require_relative '../../local_cloud/API/json_tests_writer'
 
 # XX_PROJECT_NAME agent
 class Agent_XX_CLEAN_PROJECT_NAME
@@ -148,6 +151,18 @@ class Agent_XX_CLEAN_PROJECT_NAME
     CC.logger.info("Server: handle_order: pushing order #{order.code} to agent 'XX_PROJECT_NAME' ---------------------")
     new_order(order)
   end
+
+  # def run_tests()
+  #   test_path = "#{SDK.API::root_path}/tests"
+  #   unless File.directory?(test_path)
+  #     CC.logger.info("No test directory found for agent 'XX_PROJECT_NAME', skipping tests.")
+  #     return
+  #   end
+  #   output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_XX_CLEAN_PROJECT_NAME.log"
+  #   RSpec::Core::Runner.run([test_path,
+  #       "--require", "/home/vagrant/ruby-agents-sdk/web_shell/local_cloud/API/json_tests_writer.rb", "--format", "JsonTestsWriter"],
+  #       $stderr, output_file_path)
+  # end
 
 # keep commented code until RAgent developped
 

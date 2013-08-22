@@ -22,6 +22,8 @@ $main_server_root_path = File.expand_path("..", __FILE__)
 
 $allow_non_protogen = true
 
+$tester_thread = Thread.new {}
+
 ## FAKE CLOUD LIB #################################################################################
 
 require 'active_support/all'
@@ -281,4 +283,60 @@ post '/remote_call' do
   hashData = welcome_new_data_from_outside(3, request)
   handle_msg_from_device('order', hashData)
   response.body = '{}'
+end
+
+# todo: POST is more meaningful for this
+# but then we have to deal with problems like CRSF and XSS
+# todo: refactor, method too long
+get '/start_tests' do
+  unless params.has_key?("agents")
+    halt(400, "'agents' parameter is mandatory")
+  end
+  agents_array = params['agents']
+  unless agents_array.size >= 1
+    halt(400, "'agents' parameters must include at least one agent")
+  end
+  CC.logger.info("Starting tests for agents " + agents_array.inspect)
+
+  # cancel previous tests
+
+  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
+  CC.logger.info("Killing previous tester thread ; aborting running tests.")
+  Thread.kill($tester_thread)
+  $tester_thread.join
+  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
+
+  # create files so we indicate we are going to test the agents
+  agents_array.each do |agent|
+    test_path = "/home/vagrant/ruby-agents-sdk/cloud_agents/#{agent}/tests"
+    output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{agent}.log"
+    if File.directory?(test_path)
+      CC.logger.info("Found test directory for agent #{agent} at #{test_path}")
+      File.delete(output_file_path) if File.exist?(output_file_path)
+      File.open(output_file_path, 'w') { |file| file.write({status: "scheduled"}.to_json) }
+    else
+      CC.logger.info("No test directory found for agent #{agent} at #{test_path}, skipping tests.")
+      File.delete(output_file_path) if File.exist?(output_file_path)
+      File.open(output_file_path, 'w') { |file| file.write({status: "no tests subfolder"}.to_json) }
+    end
+  end
+
+  $tester_thread = Thread.new {
+    CC.logger.debug(" --- in tester thread --- Starting tester thread.")
+    agents_array.each do |agent|
+      test_path = "/home/vagrant/ruby-agents-sdk/cloud_agents/#{agent}/tests"
+      output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{agent}.log"
+      if File.directory?(test_path)
+        CC.logger.debug(" --- in tester thread --- Starting tests for #{agent}.")
+        RSpec::Core::Runner.run([test_path,
+          "--require", "/home/vagrant/ruby-agents-sdk/web_shell/local_cloud/API/json_tests_writer.rb", "--format", "JsonTestsWriter"],
+          $stderr, output_file_path)
+        CC.logger.debug(" --- in tester thread --- Tests for #{agent} finished.")
+      end
+    end
+    CC.logger.debug(" --- in tester thread --- Tester thread returning.")
+  }
+  CC.logger.debug("Server thread started.")
+  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
+  "Starting tests for agents " + agents_array.inspect
 end

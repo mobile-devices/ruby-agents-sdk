@@ -112,7 +112,7 @@ Use Redis to cache data for faster reply.
 
 #### methods :
 
-This object matches the redis API (using redis 3.0.4), see documentation [on official redis webwite](http://redis.io/).
+This object matches the redis API (using redis 3.0.4), see documentation [on official redis webwite](http://redis.io/). The complete list of available commands is available [on redis-rb documentation](http://rdoc.info/github/redis/redis-rb/Redis).
 
 #### example :
 

@@ -7,7 +7,9 @@ require 'net/http'
 
 def http_get(address)
   url = URI.parse(address)
-  req = Net::HTTP::Get.new(url.path)
+  path = url.path
+  path += "?" + url.query if url.query
+  req = Net::HTTP::Get.new(path)
   res = Net::HTTP.start(url.host, url.port) {|http|
     http.request(req)
   }

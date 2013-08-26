@@ -82,8 +82,6 @@ rescue Exception => e
   raise e
 end
 
-# include generated code
-require_relative '../agents_generator/cloud_agents_generated/generated'
 
 ## bundle install #################################################################################
 
@@ -115,6 +113,9 @@ rescue Exception => e
 end
 
 #### Init server ##################################################################################
+
+# include generated code
+require_relative '../agents_generator/cloud_agents_generated/generated'
 
 # dynamic channel
 $dyn_channels = GEN.generated_get_dyn_channel

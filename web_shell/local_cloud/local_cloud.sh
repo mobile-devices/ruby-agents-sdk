@@ -19,6 +19,14 @@ stop() {
 restart() {
   stop
   sync;sync;sync
+
+  echo "restarttt local_cloud" >>  ../../logs/daemon_server.log 2>&1
+
+  # gen gemms
+  ruby gen_gemFile.rb >> ../../logs/daemon_server.log 2>&1
+  # install them
+  bundle install >> ../../logs/daemon_server.log 2>&1
+  # run sinatra server
   ruby local_cloud.rb >>../../logs/daemon_server.log 2>&1 &
 }
 

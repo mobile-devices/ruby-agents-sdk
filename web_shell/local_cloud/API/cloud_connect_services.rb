@@ -168,6 +168,11 @@ module CloudConnectServices
         # set acount is meta
         self.meta['account'] = account
 
+
+        # set received_at and recorded_at
+        self.received_at = Time.now
+        self.recorded_at = nil
+
         # Protogen encode
         if defined? ProtogenAPIs
           begin

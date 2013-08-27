@@ -14,6 +14,7 @@ module PUNK
   end
 
 
+
   #============================== METHODS ========================================
 
 
@@ -48,7 +49,7 @@ module PUNK
         # search if stack contain
         punks_pending.each { |pending|
           if pending['id'] == id
-                    puts "dropping! #{id}"
+                    puts "dropping! #{id} #{punks_pending.size} pending left"
 
             punks_pending.delete_at(punks_pending.index(pending))
           end
@@ -75,7 +76,7 @@ module PUNK
         # search if stack contain
         punks_pending.each { |pending|
           if pending['id'] == id
-            puts "found #{id} in pending with #{pending.lines.size} lines !"
+            puts "found #{id} in pending with #{pending.lines.size} lines !  #{punks_pending.size} pending left"
 
             punk_events << PunkEvent.new(json['type'], json['way'], json['title'], line[15..22], '', '', pending.lines)
             punks_pending.delete_at(punks_pending.index(pending))

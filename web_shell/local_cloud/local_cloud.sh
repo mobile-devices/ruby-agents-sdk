@@ -20,7 +20,7 @@ restart() {
   echo "restart local_cloud from sh" >>  ../../logs/daemon_server.log
 
   # stop server
-  echo 'PUNKabeNK_sys_stoping server' >>  ../../logs/ruby-agent-sdk-server.log
+  echo 'PUNKabeNK_sys_stopping server' >>  ../../logs/ruby-agent-sdk-server.log
   stop
   sync;sync;sync
   echo 'PUNKabeDROP_sys' >>  ../../logs/ruby-agent-sdk-server.log

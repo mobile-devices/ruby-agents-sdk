@@ -49,8 +49,6 @@ get '/projects' do
   @action_popup = check_version_change_to_user
   agents_altered
   @agents = agents
-  # stats
-  update_sdk_stats
   # cron
   update_cron_tasks
   # popup error
@@ -171,7 +169,7 @@ get '/gen_sdk_log_buttons' do
   erb :logSdkButtons, layout: false
 end
 
-get '/gen_uptime_display' do
+get '/gen_basic_stats' do
 
   # stats
   update_sdk_stats
@@ -190,7 +188,7 @@ get '/gen_uptime_display' do
     $uptime_str = '??'
   end
 
-  erb :uptime_display, layout: false
+  erb :project_basic_stats, layout: false
 end
 
 

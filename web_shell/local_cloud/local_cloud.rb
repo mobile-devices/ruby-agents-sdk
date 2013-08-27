@@ -147,8 +147,7 @@ CC.logger.info("\n\n+===========================================================
 CC.logger.info("ruby-agent-sdk-server ready to use !\n\n")
 
 
-PUNK.start('a')
-PUNK.end('a','ok','',"SERVER ready to use !")
+PUNK.end('sys','ok','','SERVER ready to use !')
 
 ###################################################################################################
 

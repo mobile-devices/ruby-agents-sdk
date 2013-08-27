@@ -77,11 +77,18 @@
                 <% if @active_tab=='patch_note'%>value="/patch_note"<% end %>
                 >
 
-                <% if PUNK.is_ruby_server_running %>
-                  <button class="btn btn-primary"><i class="icon-off large icon-white icon-large icon-spin"> </i> - reboot ruby server</button>
+                <% if PUNK.gen_server_crash_title == '' %>
+                  <button class="btn btn-primary">
                 <% else %>
-                  <button class="btn btn-primary"><i class="icon-off large icon-white icon-large"> </i> - start ruby server</button>
+                  <button class="btn btn-danger">
                 <% end %>
+
+                  <% if PUNK.is_ruby_server_running %>
+                    <i class="icon-off large icon-white icon-large icon-spin"> </i> - reboot ruby server
+                  <% else %>
+                    <i class="icon-off large icon-white icon-large"> </i> - start ruby server
+                  <% end %>
+                </button>
 
               </form>
             </li>

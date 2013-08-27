@@ -4,8 +4,8 @@
 #########################################################
 
 module PUNK
-  def self.start(id)
-    CC.logger.info("PUNKabeNK_#{id}")
+  def self.start(id, action="...")
+    CC.logger.info("PUNKabeNK_#{id}_#{action}")
   end
 
   def self.end(id, type, way, title)

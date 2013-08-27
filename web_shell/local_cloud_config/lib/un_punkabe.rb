@@ -10,7 +10,7 @@ module PUNK
   class PunkEvent < Struct.new(:type, :way, :title, :start_time, :end_time, :elaspe_time, :content)
   end
 
-  class PunkPendingStack < Struct.new(:id, :lines)
+  class PunkPendingStack < Struct.new(:id, :lines, :action)
   end
 
 
@@ -23,19 +23,20 @@ module PUNK
     punks_pending = []
 
     txt_src.each_line{ |line|
-      tak = line.index('PUNKabeNK_')
+      tak = line.index('PUNKabeNK_') # start
       if tak != nil
         puts "trig #{line}"
         p ''
         # get id
-        id = line.split('PUNKabeNK_')[1]
+        id = line.split('_')[1]
         id.delete!("\n")
+        action = line.split('PUNKabeNK_')[2]
 
-        puts "NEW ID '#{id}'"
+        puts "NEW ID '#{id}' with action '#{action}'"
         p ''
 
         # create new pending stack
-        punks_pending << PunkPendingStack.new(id, [])
+        punks_pending << PunkPendingStack.new(id, [], action)
         next
       end
       tak = line.index('PUNKabe_')

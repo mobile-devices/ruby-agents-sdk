@@ -82,21 +82,6 @@ rescue Exception => e
   raise e
 end
 
-
-## bundle install #################################################################################
-
-# bundle install
-PUNK.start('a')
-begin
-  rapport = `bundle install`
-  CC.logger.debug(rapport)
-  CC.logger.info("bundle install done")
-  PUNK.end('a','ok','','SERVER ruby gems bundle install done')
-rescue Exception => e
-  PUNK.end('a','ko','','SERVER ruby bundle install fail')
-  raise e
-end
-
 ## Generate cron tasks ############################################################################
 
 PUNK.start('a')

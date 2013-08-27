@@ -57,20 +57,6 @@ get '/projects' do
   @error_popup_msg = flash[:popup_error]
 
 
-  time = sdk_stats['uptime']
-  if time != nil
-    hours = (time/3600).to_i
-    minutes = (time/60 - hours * 60).to_i
-    seconds = (time - (minutes * 60 + hours * 3600))
-    hours = hours.to_i
-    minutes = minutes.to_i
-    seconds = seconds.to_i
-    $uptime_str = "#{hours}h #{minutes}min #{seconds}s"
-
-  else
-    $uptime_str = '??'
-  end
-
   p "Doing projects with #{is_show_more_stats} show more stat"
 
   erb :projects
@@ -184,6 +170,29 @@ end
 get '/gen_sdk_log_buttons' do
   erb :logSdkButtons, layout: false
 end
+
+get '/gen_uptime_display' do
+
+  # stats
+  update_sdk_stats
+
+  time = sdk_stats['uptime']
+  if time != nil
+    hours = (time/3600).to_i
+    minutes = (time/60 - hours * 60).to_i
+    seconds = (time - (minutes * 60 + hours * 3600))
+    hours = hours.to_i
+    minutes = minutes.to_i
+    seconds = seconds.to_i
+    $uptime_str = "#{hours}h #{minutes}min #{seconds}s"
+
+  else
+    $uptime_str = '??'
+  end
+
+  erb :uptime_display, layout: false
+end
+
 
 #=========================================================================================
 get '/reminder_show' do

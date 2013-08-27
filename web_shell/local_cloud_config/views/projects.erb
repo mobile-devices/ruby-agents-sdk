@@ -82,8 +82,7 @@
       </big></b></span></td>
     <% end %>
   </div>
-  <div class="pull-right">
-    <b>uptime: <%= $uptime_str %></b>
+  <div class="pull-right" id="server_uptime">
   </div>
 </div>
 
@@ -311,6 +310,29 @@
 <% if @action_popup != 0 || @error_popup_msg != ""%>
   <script>
     $(document).ready(function() {
+
+      // manage dynamic change of button list
+      (function projects() {
+        (function updater() {
+          $.ajax({
+            url: '/gen_uptime_display',
+            type: "GET",
+            success: function(data) {
+              $('#server_uptime').html(data);
+            },
+            error: function(xhr, status, errorThrown) {
+              console.error("Error: " + status + " (" + errorThrown + ") ---- " + xhr)
+            },
+            complete: function() {
+              setTimeout(updater, 1000);
+
+            }
+          });
+        })(); // function updater and run it
+      })(); // function layout and run it
+
+
+
       // Show popup
       var modal = $('#myModal').modal('show');
       // Focus on ok bouton

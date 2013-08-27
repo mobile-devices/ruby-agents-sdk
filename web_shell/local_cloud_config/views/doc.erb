@@ -5,13 +5,21 @@
 
 <div class="row">
  <div class="span3 bs-docs-sidebar" id="navbar">
-   <%= @toc_render %>
+    <%= @toc_render %>
+    <br/>
+
+    <form>
+      <input Type="button" class="btn btn-primary" value="View patch notes" onclick="window.location.href='http://localhost:5000/patch_note'">
+    </form>
+
  </div>
  <div class="span9">
   <h1>VM SDK Documentation</h1>
    <%= @html_render %>
  </div>
 </div>
+
+
 
 <script>hljs.initHighlightingOnLoad();</script>
 <script>

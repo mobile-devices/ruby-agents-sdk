@@ -57,7 +57,7 @@
             <li class="<% if @active_tab=='logSdkAgentsPunk'%><%= 'active' %><% end %>">
               <a href="./logSdkAgentsPunk#endlog"><i class="icon-medkit icon-white"></i> Server Log</a>
             </li>
-            <li class="<% if @active_tab=='doc'%><%= 'active' %><% end %>">
+            <li class="<% if @active_tab=='doc' or @active_tab=='patch_note'%><%= 'active' %><% end %>">
               <a href="./doc"><i class="icon-book icon-white"></i> Documentation</a>
             </li>
           </ul>

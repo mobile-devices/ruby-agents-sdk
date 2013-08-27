@@ -58,49 +58,6 @@
 <% end %>
 <!-- End modal ===================================================================-->
 
-<!-- Display menu ================================================================-->
-<div class="well row">
-  Display :
-
-  <% if is_reminder_hidden == 'false' %>
-    <a class="btn btn-success" href="/reminder_hide">Reminder</a>
-  <% else %>
-    <a class="btn btn-danger" href="/reminder_show">Reminder</a>
-  <% end %>
-
-  <% if is_show_more_stats == 'true' %>
-    <a class="btn btn-success" href="/extented_stats_hide">Extended stats</a>
-  <% else %>
-    <a class="btn btn-danger" href="/extented_stats_show">Extended stats</a>
-  <% end %>
-
-  <% if is_cron_tasks_visible == 'true' %>
-    <a class="btn btn-success" href="/cron_tasks_visible_hide">Scheduled cron tasks</a>
-  <% else %>
-    <a class="btn btn-danger" href="/cron_tasks_visible_show">Scheduled cron tasks</a>
-  <% end %>
-
-
-
-</div>
-<!-- End display menu ===========================================================-->
-
-<!-- Reminder ===================================================================-->
-<% if is_reminder_hidden == 'false' %>
-  <div class="well row">
-     <p>
-      <b>REMINDER:</b><br/>
-      Remember to click on the button <b>'reboot ruby server'</b> in the top bar after having modified an agent to take changes into consideration.<br/><br/>
-
-      <b>How to check if reboot went ok:</b><br/>
-      If the ruby parsing went ok, you will have a <b>'ruby-agent-sdk-server ready !'</b> message in the  <a href="/logSdkAgentsPunk">Traffic log tab</a>
-      If not, look for errors into the  <a href="/logSdk">SDK Server log tab</a> (daemon_server.log).<br/>
-    </p>
-  </div>
-  <br/>
-<% end %>
-<!-- End Reminder ==============================================================-->
-
 <!-- Server stats basic ========================================================-->
 <div class="well row">
   <div class="pull-left">
@@ -137,7 +94,7 @@
 <% if is_show_more_stats == 'true' %>
   <% p "doing more stats" %>
   <div class="row">
-    Server stats (<b>[presence, message, track, order]</b>):
+    Server stats (<b>[presence, message, track, order]</b>) </b>(<a href="/extented_stats_hide">show less</a>)</b>:
     <br/>
     <table class="table table-bordered table-striped">
       <thead>
@@ -215,7 +172,7 @@
           <th>#Message to device</th>
           <th>#Message error </th>
         <% else %>
-          <th> Stats</th>
+          <th> Stats (<a href="/extented_stats_show">show more</a>)</th>
         <% end %>
         <th>Active</th>
         <% if is_cron_tasks_visible == 'true' %>

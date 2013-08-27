@@ -66,8 +66,8 @@ def is_cron_tasks_visible
     if File.exist?('.cron_tasks_visible')
       File.read('.cron_tasks_visible')
     else
-      set_show_more_stats(false)
-      'false'
+      set_show_more_stats(true)
+      'true'
     end
   end
 end

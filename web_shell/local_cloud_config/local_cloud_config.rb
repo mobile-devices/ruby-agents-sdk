@@ -259,12 +259,12 @@ get '/log_show_error_hide' do
   redirect('/logSdkAgentsPunk')
 end
 
-post '/clear_daemon_log' do
+get '/clear_daemon_log' do
   if File.exist?(log_agents_path)
     `echo -ne ""> #{log_agents_path}`
   end
 
-  redirect('/projects')
+  redirect('/logSdkAgentsPunk#endlog')
 end
 
 post '/perform_cron_tasks' do

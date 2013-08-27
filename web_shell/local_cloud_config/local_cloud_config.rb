@@ -379,10 +379,47 @@ get '/update_test_status' do
    "pending_count" => test_status[:pending_count], "example_count" => test_status[:example_count], "start_time" => test_status[:start_time]}.to_json
  end
 
-
 # Possible test status for an agent
 # "not scheduled" -> test neither started nor scheduled
 # "no tests subfolders" -> test was shceduled but no 'tests' subfolfer was found
 # "scheduled" -> test scheduled, but not started
 # "started"
 # "finished"
+
+# read the log file containing tests results for the given agent
+# and write it on the disk as HTML
+# return the location where results were written
+post '/save_tests_results' do
+  unless params.has_key?('agent')
+    return halt(400, "'agent' parameter is mandatory")
+  end
+  output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{params['agent']}.log"
+  unless File.file?(output_file_path)
+    halt(400, "No tests results for agent #{params['agent']} at #{output_file_path}, impossible to save them.")
+  end
+  begin
+    test_status = JSON.parse(File.read(output_file_path), {symbolize_names: true})
+  rescue JSON::ParserError => e
+    halt(500, "Error when parsing tests results log file: #{e.message}")
+  end
+  unless (test_status[:status] == "finished" || test_status[:status] == "started")
+    halt(400, "tests must have started before saving their results (current status: #{test_status[:status]})")
+  end
+  @examples = get_examples_list(test_status)
+  if @examples.nil?
+    @examples = [] # to avoid errors in erb template
+  end
+  @summary = "#{test_status[:tested]} out of #{test_status[:example_count]} tests run (#{test_status[:failed_count]} failed, #{test_status[:pending_count]} pending)"
+  @agent = params['agent']
+  @date = test_status[:start_time]
+  @git_info = get_git_status("/home/vagrant/ruby-agents-sdk/cloud_agents/#{params['agent']}")
+  @failed = test_status[:failed_count] > 0
+  html = erb :export_tests, :layout => false
+  output_directory = "/home/vagrant/ruby_workspace/sdk_logs/tests_results/#{params['agent']}/"
+  output_path = output_directory + "#{sanitize_filename(@date)}_#{params['agent']}.html"
+  FileUtils.mkdir_p(output_directory)
+  File.open(output_path, 'w') do |file|
+    file.write(html)
+  end
+  output_path
+end

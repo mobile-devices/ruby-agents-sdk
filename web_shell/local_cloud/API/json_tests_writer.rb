@@ -18,7 +18,7 @@ class JsonTestsWriter < RSpec::Core::Formatters::BaseFormatter
     @output_hash = {}
     @writing_period = 5 # duration between two writings in the file in seconds.
     @time_last_write = Time.now.to_i - @writing_period
-    @output_hash[:start_time] = Time.now.utc.iso8601
+    @output_hash[:start_time] = Time.now.strftime "%Y-%m-%d %H:%M:%S UTC%z"
     @output_hash[:tested] = 0
     @output_hash[:examples] = []
     @example_index = 0

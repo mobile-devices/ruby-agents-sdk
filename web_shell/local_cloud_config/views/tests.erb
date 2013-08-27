@@ -8,9 +8,12 @@
   <div id="error_info">
   </div>
 
+  <div id="save-info">
+  </div>
+
   <div class="row-fluid">
     <span class="span8 pull-left"> <h3> Tests </h3> </span>
-    <span class="span4 pull-righ pull-downs"> <span id = "start-time"> </span> </span>
+    <span class="span4 pull-right pull-down"> <span id = "start-time"> </span> </span>
   </div>
 
   <div class="row-fluid">
@@ -22,19 +25,24 @@
 
       <h4><%= agent %></h4>
 
-      <div class="row-fluid well well-small">
+      <div class="well well-small">
         <div class="well well-small progress progress-striped active">
           <div class="bar bar-success" style="width: 1%;"></div>
           <div class="bar bar-info" style="width: 0%;"></div>
           <div class="bar bar-danger" style="width: 1%;"></div>
         </div>
-        <div class="row-fluid well well-small">
-          <span class="status pull-left" style="margin-right: +20px;"> <strong>Running tests</strong> </span>
-          <span class="summary pull-left"> Waiting for test suite to start... </span>
+        <div class="well well-small">
+          <div class="pull-left">
+            <span class="status" style="margin-right: +20px;"> <strong>Running tests</strong> </span>
+            <span class="summary"> Waiting for test suite to start... </span>
+          </div>
+          <div class="pull-right" align="center">
+              <button class="btn save disabled" disabled="disabled">Save results</button>
+          </div>
         </div>
       </div>
 
-      <div id="accordion2" class="row-fluid accordion">
+      <div id="accordion2" class="accordion">
         <table class="table table-bordered" style="word-wrap: break-word; table-layout: fixed;">
           <tbody class='results'>
 
@@ -50,33 +58,34 @@
 
 
   <script>
-  !function ($) { //ensure $ always references jQuery
-    $(function () { //when dom has finished loading
-        //make top text appear aligned to bottom: http://stackoverflow.com/questions/13841387/how-do-i-bottom-align-grid-elements-in-bootstrap-fluid-layout
-        function fixHeader() {
-            //for each element that is classed as 'pull-down'
-            //reset margin-top for all pull down items
-            $('.pull-down').each(function () {
-              $(this).css('margin-top', 0);
-            });
-
-            //set its margin-top to the difference between its own height and the height of its parent
-            $('.pull-down').each(function () {
-              if ($(window).innerWidth() >= 768) {
-                $(this).css('margin-top', $(this).parent().height() - $(this).height());
-              }
-            });
-          }
-
-          $(window).resize(function () {
-            fixHeader();
-          });
-
-          fixHeader();
-        });
-  }(window.jQuery);
 
   $( document ).ready(function() {
+
+      !function ($) { //ensure $ always references jQuery
+      $(function () { //when dom has finished loading
+          //make top text appear aligned to bottom: http://stackoverflow.com/questions/13841387/how-do-i-bottom-align-grid-elements-in-bootstrap-fluid-layout
+          function fixHeader() {
+              //for each element that is classed as 'pull-down'
+              //reset margin-top for all pull down items
+              $('.pull-down').each(function () {
+                $(this).css('margin-top', 0);
+              });
+
+              //set its margin-top to the difference between its own height and the height of its parent
+              $('.pull-down').each(function () {
+                if ($(window).innerWidth() >= 768) {
+                  $(this).css('margin-top', $(this).parent().height() - $(this).height());
+                }
+              });
+            }
+
+            $(window).resize(function () {
+              fixHeader();
+            });
+
+            fixHeader();
+          });
+    }(window.jQuery);
 
     var max_index = 0;
 
@@ -88,10 +97,33 @@
       <% end %>
 
     var current_agent_index = 0;
-    var next_request = 5000;
+    var next_request = 500;
+
+
+    (function save_button_setup() {
+      for (var i = 0; i < agents.length; i++) {
+        var current_agent = agents[i];
+        parent = "div#" + current_agent + " ";
+        $(parent + ".save").click( (function(agent) {
+            return function() {
+              $.ajax({url: '/save_tests_results',
+              data: {"agent": agent},
+              type: "POST",
+              success: function(data) {
+                $('#save-info').html("<div class='alert alert-success'>Tests results saved to " + data + "</div>")
+              },
+              error: function(xhr, status, errorThrown) {
+               $('#save-info').html("<div class='alert alert-error'> <strong>Impossible to save results for agent " + agent + " .</strong> More information: " + xhr.responseText + "</div>");
+              }
+              })
+            }
+          })(current_agent)
+        )
+      }
+    })();
 
     function update_progress_bars(passed, pending, failed, example, current_status) {
-      current_agent = agents[current_agent_index];
+      var current_agent = agents[current_agent_index];
       parent = "div#" + current_agent + " ";
       $(parent + ".bar-success").width(Math.floor(passed * 100 / example )+'%');
       $(parent + ".bar-info").width(Math.floor(pending * 100 / example )+'%');
@@ -111,12 +143,16 @@
         $(parent + ".status").html("<strong>Running tests</strong>.");
         tests_run = failed + pending + passed
         $(parent + ".summary").html("Current progress: " + tests_run + " run (" + failed + " failed, " + pending + " pending). Total number of tests to run: " + example);
-        $('#start-time').html("Tests started at " + start_time);
+        $('#start-time').html("Last tests started at " + start_time);
+        $(parent + '.save').removeClass("disabled")
+        $(parent + '.save').removeAttr("disabled")
       }
       else if(current_status == "finished") {
         $(parent + ".status").html("<strong>Tests complete</strong>.");
         $(parent + ".summary").html(example + " tests run (" + failed + " failed, " + pending + " pending).");
         $('#start-time').html("Tests started at " + start_time);
+        $(parent + '.save').removeClass("disabled")
+        $(parent + '.save').removeAttr("disabled")
       }
       else if(current_status == "not scheduled") {
         $(parent + ".status").html("No tests are currently scheduled for this agent.");
@@ -149,7 +185,7 @@
           update_status_display(data.passed_count, data.pending_count, data.failed_count, data.example_count, data.status, data.start_time);
           if (data.status == "finished") {
             /* if tests are finished for this agent, we no longer need to update
-               its status. We remove them from the list of agents and
+               its status. We remove it from the list of agents and
                ask for updates immediately (for the next agent). */
             agents.splice( $.inArray(agent,agents), 1 );
             next_request = 101;

@@ -37,6 +37,7 @@ def print_ruby_exception(e)
   CC.logger.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 end
 
+
 #=========================================================================================
 get '/' do
  redirect('/projects')
@@ -249,7 +250,13 @@ get '/log_show_error_hide' do
   redirect('/logSdkAgentsPunk')
 end
 
+post '/clear_daemon_log' do
+  if File.exist?(log_agents_path)
+    `echo -ne ""> #{log_agents_path}`
+  end
 
+  redirect('/projects')
+end
 
 post '/perform_cron_tasks' do
   begin

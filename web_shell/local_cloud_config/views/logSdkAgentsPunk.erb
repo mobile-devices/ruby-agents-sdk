@@ -72,7 +72,7 @@
               console.error("Error: " + status + " (" + errorThrown + ") ---- " + xhr)
             },
             complete: function() {
-              setTimeout(updater, 500);
+              setTimeout(updater, 2000);
 
               // re bind all button
               $("button[data-bind=btn]").bind('click', function() {

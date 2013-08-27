@@ -17,18 +17,24 @@ stop() {
 }
 
 restart() {
-  stop
-  sync;sync;sync
-
   echo "restart local_cloud from sh" >>  ../../logs/daemon_server.log
 
+  # stop server
+  echo 'PUNKabeNK_sys_stoping server' >>  ../../logs/ruby-agent-sdk-server.log
+  stop
+  sync;sync;sync
+  echo 'PUNKabeDROP_sys' >>  ../../logs/ruby-agent-sdk-server.log
+
+
   # gen gemms
+  echo 'PUNKabeNK_sys_merge ruby gems' >>  ../../logs/ruby-agent-sdk-server.log
   ruby gen_gemFile.rb >> ../../logs/daemon_server.log 2>&1
   if [ "$?" -ne 0 ] ; then
     echo 'PUNKabeNK_sys_merge gemfile' >>  ../../logs/ruby-agent-sdk-server.log
     echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{"type":"ko", "way":"", "title":"SERVER merge gemfile fail"}" >>  ../../logs/ruby-agent-sdk-server.log
     exit 1
   fi
+  echo 'PUNKabeDROP_sys' >>  ../../logs/ruby-agent-sdk-server.log
 
   # install them
   echo 'PUNKabeNK_sys_bundle gem install' >>  ../../logs/ruby-agent-sdk-server.log
@@ -38,6 +44,8 @@ restart() {
     exit 1
   fi
   echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ok\", \"way\":\"\", \"title\":\"SERVER ruby gems bundle install done\"}" >>  ../../logs/ruby-agent-sdk-server.log
+
+
 
   echo "PUNKabeNK_sys_booting server" >>  ../../logs/ruby-agent-sdk-server.log
   # run sinatra server

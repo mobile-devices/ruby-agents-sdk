@@ -159,8 +159,10 @@ get '/restart_server' do
 
   File.open('/tmp/should_mdi_server_run_id', 'w') { |file| file.write($server_run_id) }
 
-  `cd ../local_cloud; ./local_cloud.sh restart`
-
+  # launch in a new thread to avoid being stuck here
+  thread = Thread.start {
+    `cd ../local_cloud; ./local_cloud.sh restart`
+  }
 
   p "redirecting to #{params['redirect_to']}"
   if params['redirect_to']

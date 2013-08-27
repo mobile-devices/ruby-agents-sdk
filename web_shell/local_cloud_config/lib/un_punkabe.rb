@@ -100,6 +100,16 @@ module PUNK
       }
     }
 
+    # seek in an action is in progress
+    pend = punks_pending.first
+    if pend == nil
+      $pending_action = nil
+    else
+      $pending_action = pend.action
+      puts "pending_action loading with #{pend.inspect} (#{punks_pending.size} pending)"
+    end
+
+
     #puts "Reconstruct successful with :"
     #p punk_events
 
@@ -157,6 +167,19 @@ module PUNK
       p "SERVER is alive"
       ''
     end
+  end
+
+  def self.is_ruby_server_running()
+    `cd ../local_cloud; ./local_cloud.sh is_running`
+    false
+    if File.exist?('/tmp/local_cloud_running')
+      server_running =  File.read('/tmp/local_cloud_running')
+      true if server_running == 'yes'
+    end
+  end
+
+  def self.gen_loading_action()
+    $pending_action
   end
 
 end

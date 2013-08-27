@@ -77,18 +77,7 @@
                 <% if @active_tab=='patch_note'%>value="/patch_note"<% end %>
                 >
 
-                <% if PUNK.gen_server_crash_title == '' %>
-                  <button class="btn btn-primary">
-                <% else %>
-                  <button class="btn btn-danger">
-                <% end %>
-
-                  <% if PUNK.is_ruby_server_running %>
-                    <i class="icon-off large icon-white icon-large icon-spin"> </i> - reboot ruby server
-                  <% else %>
-                    <i class="icon-off large icon-white icon-large"> </i> - start ruby server
-                  <% end %>
-                </button>
+                <button id="btn-server-reboot"></button>
 
               </form>
             </li>
@@ -104,4 +93,47 @@
 
   <div style="padding-bottom:50px"></div>
 
+
+
+
+
 </body>
+
+
+<!-- Scripts ===================================================================-->
+  <script>
+
+    $( document ).ready(function() {
+      (function layout() {
+        (function updater() {
+          $.ajax({
+            url: '/gen_ruby_server_reboot',
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+              // bouton color
+              if (data.crash) {
+                $('#btn-server-reboot').attr("class","btn btn-danger");
+              } else {
+                $('#btn-server-reboot').attr("class","btn btn-primary");
+              }
+              // bouton content
+              if (data.running) {
+                $('#btn-server-reboot').html('<i class="icon-off large icon-white icon-large icon-spin"> </i> - reboot ruby server');
+              } else {
+                $('#btn-server-reboot').html('<i class="icon-off large icon-white icon-large"> </i> - start ruby server');
+              }
+            },
+            error: function(xhr, status, errorThrown) {
+              console.error("Error: " + status + " (" + errorThrown + ") ---- " + xhr)
+            },
+            complete: function() {
+              setTimeout(updater, 2000);
+            }
+          });
+        })(); // function updater and run it
+      })(); // function layout and run it
+    }); // $( document ).ready
+
+  </script>
+<!-- End scripts ===============================================================-->

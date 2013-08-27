@@ -173,6 +173,14 @@ get '/restart_server' do
 
 end
 
+#======================== AJAX DYN GEN ===================================================
+
+
+get '/gen_ruby_server_reboot' do
+  content_type :json
+  {crash:(PUNK.gen_server_crash_title != ''), running:(PUNK.is_ruby_server_running)}.to_json
+end
+
 #=========================================================================================
 get '/reminder_show' do
   set_reminder_hidden(false)

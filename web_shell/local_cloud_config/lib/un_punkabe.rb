@@ -30,7 +30,7 @@ module PUNK
         # get id
         id = line.split('_')[1]
         id.delete!("\n")
-        action = line.split('PUNKabeNK_')[2]
+        action = line.split('_')[2]
 
         puts "NEW ID '#{id}' with action '#{action}'"
         p ''
@@ -39,7 +39,24 @@ module PUNK
         punks_pending << PunkPendingStack.new(id, [], action)
         next
       end
-      tak = line.index('PUNKabe_')
+      tak = line.index('PUNKabeDROP_') # break
+      if tak != nil
+        id = line.split('_')[1]
+        id.delete!("\n")
+
+        puts "drop #{id}"
+        # search if stack contain
+        punks_pending.each { |pending|
+          if pending['id'] == id
+                    puts "dropping! #{id}"
+
+            punks_pending.delete_at(punks_pending.index(pending))
+          end
+        }
+        next
+      end
+
+      tak = line.index('PUNKabe_') # end
       if tak != nil
         puts "trig #{line}"
         p ''

@@ -8,6 +8,10 @@ module PUNK
     CC.logger.info("PUNKabeNK_#{id}_#{action}")
   end
 
+    def self.drop(id)
+    CC.logger.info("PUNKabeDROP_#{id}")
+  end
+
   def self.end(id, type, way, title)
     CC.logger.info("PUNKabe_#{id}_axd_{\"type\":\"#{type}\", \"way\":\"#{way}\", \"title\":\"#{title}\"}")
   end

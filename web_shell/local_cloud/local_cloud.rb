@@ -135,6 +135,7 @@ RH.running_agents.each { |agent|
     PUNK.end('a','system','',"AGENT:#{agent}TNEGA subscribe track")
   end
 
+  PUNK.drop('a')
 }
 
 agents_list_str=""
@@ -145,7 +146,6 @@ CC.logger.info("\n\n+===========================================================
 
 
 CC.logger.info("ruby-agent-sdk-server ready to use !\n\n")
-
 
 PUNK.end('sys','ok','','SERVER ready to use !')
 

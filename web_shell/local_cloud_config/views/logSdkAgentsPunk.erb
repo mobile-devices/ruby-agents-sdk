@@ -108,6 +108,10 @@
       </textarea>
     <% end %>
 
+    <% if PUNK.gen_loading_action != nil %>
+      <i class="icon-spinner icon-spin icon-2x"></i> <%= PUNK.gen_loading_action %>
+    <% end %>
+
   </div>
 
   <div class="span8">

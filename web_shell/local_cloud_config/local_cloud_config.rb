@@ -175,10 +175,13 @@ end
 
 #======================== AJAX DYN GEN ===================================================
 
-
 get '/gen_ruby_server_reboot' do
   content_type :json
   {crash:(PUNK.gen_server_crash_title != ''), running:(PUNK.is_ruby_server_running)}.to_json
+end
+
+get '/gen_sdk_log_buttons' do
+  erb :logSdkButtons, layout: false
 end
 
 #=========================================================================================

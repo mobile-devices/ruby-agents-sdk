@@ -1,0 +1,72 @@
+<% logs_agent_punked.each_with_index do | punk, index| %>
+
+  <% punk_kind = "" %>
+
+  <p>
+    <button type="button" data-bind="btn" data-content="btn_content_<%= index %>"
+      <% if punk.way == 'process' %>
+        <% if punk.type == 'ok' %>
+          class="btn btn-info btn-block"
+          <% punk_kind = "process" %>
+        <% elsif punk.type == 'ko' %>
+          class="btn btn-danger btn-block"
+          <% punk_kind = "error" %>
+        <% else %>
+          class="btn btn-inverse btn-block"
+        <% end %>
+      <% else %>
+        <% if punk.type == 'ok' %>
+          class="btn btn-success btn-block"
+          <% punk_kind = "com" %>
+        <% elsif punk.type == 'ko' %>
+          class="btn btn-danger btn-block"
+          <% punk_kind = "error" %>
+        <% elsif punk.type == 'system' %>
+          class="btn btn-info btn-block"
+          <% punk_kind = "process" %>
+        <% else %>
+          class="btn btn-inverse btn-block"
+        <% end %>
+      <% end %>
+
+      <% if is_log_show_com() != 'true' && punk_kind == "com" %>
+        style="display:none"
+      <% end %>
+      <% if is_log_show_process() != 'true' && punk_kind == "process" %>
+        style="display:none"
+      <% end %>
+      <% if is_log_show_error() != 'true' && punk_kind == "error" %>
+        style="display:none"
+      <% end %>
+      >
+
+      <p class="text-left"><b>
+        [<%= punk.start_time %>]
+         <%= PUNK.title_to_html(punk.title) %>
+      </b></p>
+
+    </button>
+
+    <textarea id="btn_content_<%= index %>" style="display:none">
+      <%= punk.content %>
+    </textarea>
+  </p>
+
+<% end %>
+
+
+<% crashed = PUNK.gen_server_crash_title %>
+<% if crashed != "" %>
+  <button type="button" data-bind="btn" data-content="btn_content_crash" class="btn btn-danger btn-block">
+    <p class="text-left"><b>
+       <%= crashed %>
+    </b></p>
+  </button>
+  <textarea id="btn_content_crash" style="display:none">
+    <%= logs_server %>
+  </textarea>
+<% end %>
+
+<% if PUNK.gen_loading_action != nil %>
+  <i class="icon-spinner icon-spin icon-2x"></i> <%= PUNK.gen_loading_action %>
+<% end %>

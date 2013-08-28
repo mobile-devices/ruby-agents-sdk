@@ -180,7 +180,7 @@ def welcome_new_data_from_outside(index_type, request)
     kind_tok = 'ORDER'
   end
 
-  PUNK.start('a')
+  PUNK.start('a','receiving something ...')
   SDK_STATS.stats['server']['received'][index_type] += 1
   SDK_STATS.stats['server']['total_received'] += 1
   jsonData = get_json_from_request(request)

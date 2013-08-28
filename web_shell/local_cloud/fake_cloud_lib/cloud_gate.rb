@@ -142,7 +142,7 @@ def handle_msg_from_device(type, params)
   CC.logger.debug("Server: handle_msg_from_device: success parse\n")
 
 
-  PUNK.start('handle')
+  PUNK.start('handle','handling from device')
 
   # Process the message
   case type

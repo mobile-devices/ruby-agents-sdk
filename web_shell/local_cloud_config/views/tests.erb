@@ -305,7 +305,7 @@
           if(current_status == "started") {
             $(parent + ".status").html("<strong>Running tests</strong>.");
             var tests_run = failed + pending + passed
-            $(parent + ".summary").html("Current progress: " + tests_run + " run (" + failed + " failed, " + pending + " pending). Total number of tests to run: " + example);
+            $(parent + ".summary").html("Current progress: " + tests_run + " run (" + failed + " failed, " + pending + " not implemented). Total number of tests to run: " + example);
             $(parent + '.start-time').html("Tests started at " + start_time);
             $(parent + '.save').removeClass("disabled")
             $(parent + '.save').removeAttr("disabled")
@@ -313,7 +313,7 @@
           else if(current_status == "finished") {
             $(parent + ".status").html("<strong>Tests complete</strong>.");
             var tests_run = failed + pending + passed
-            $(parent + ".summary").html(tests_run + " tests run (" + failed + " failed, " + pending + " pending).");
+            $(parent + ".summary").html(tests_run + " tests run (" + failed + " failed, " + pending + " not implemented).");
             $(parent + '.start-time').html("Tests started at " + start_time);
             $(parent + '.save').removeClass("disabled")
             $(parent + '.save').removeAttr("disabled")
@@ -335,7 +335,7 @@
           } else { // interrupted
             $(parent + ".status").html("<strong>Tests interrupted</strong>.");
             var tests_run = failed + pending + passed
-            $(parent + ".summary").html(tests_run + " tests run (" + failed + " failed, " + pending + " pending) out of " + example + ".");
+            $(parent + ".summary").html(tests_run + " tests run (" + failed + " failed, " + pending + " not implemented) out of " + example + ".");
             $(parent + '.start-time').html("Tests started at " + start_time);
             $(parent + '.save').removeClass("disabled")
             $(parent + '.save').removeAttr("disabled")

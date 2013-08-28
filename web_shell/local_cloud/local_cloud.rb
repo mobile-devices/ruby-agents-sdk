@@ -299,12 +299,13 @@ get '/start_tests' do
   CC.logger.info("Starting tests for agents " + agents_array.inspect)
 
   # cancel previous tests
-
+  # todo duplicate code refactor
   CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
   CC.logger.info("Killing previous tester thread ; aborting running tests.")
   Thread.kill($tester_thread)
   $tester_thread.join
   CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
+  "Tests stopped"
 
   # create files so we indicate we are going to test the agents
   agents_array.each do |agent|
@@ -339,4 +340,13 @@ get '/start_tests' do
   CC.logger.debug("Server thread started.")
   CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
   "Starting tests for agents " + agents_array.inspect
+end
+
+get '/stop_tests' do
+  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
+  CC.logger.info("Killing previous tester thread ; aborting running tests.")
+  Thread.kill($tester_thread)
+  $tester_thread.join
+  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
+  "Tests stopped"
 end

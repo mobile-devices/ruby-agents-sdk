@@ -94,7 +94,11 @@ class JsonTestsWriter < RSpec::Core::Formatters::BaseFormatter
   end
 
   def close
-    @output_hash[:status] = "finished"
+    if @output_hash[:tested] == @output_hash[:example_count]
+      @output_hash[:status] = "finished"
+    else
+      @output_hash[:status] = "interrupted"
+    end
     write_to_output(true)
   end
 

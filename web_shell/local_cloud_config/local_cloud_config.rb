@@ -300,12 +300,16 @@ post '/run_tests' do
   )
   # todo check HTTP return code before redirecting (risk of silencing an error)
   http_get("http://localhost:5001/start_tests?#{q}")
-  redirect("/tests_results?#{q}")
+end
+
+get '/stop_tests' do
+  http_get("http://localhost:5001/stop_tests")
 end
 
 
-get '/tests_results' do
-  @agents = params['agents']
+get '/unit_tests' do
+  @active_tab = "unit_tests"
+  @agents = agents
   erb :tests
 end
 
@@ -385,6 +389,7 @@ get '/update_test_status' do
 # "scheduled" -> test scheduled, but not started
 # "started"
 # "finished"
+# "interrupted"
 
 # read the log file containing tests results for the given agent
 # and write it on the disk as HTML
@@ -402,7 +407,7 @@ post '/save_tests_results' do
   rescue JSON::ParserError => e
     halt(500, "Error when parsing tests results log file: #{e.message}")
   end
-  unless (test_status[:status] == "finished" || test_status[:status] == "started")
+  unless (test_status[:status] == "finished" || test_status[:status] == "started" || test_status[:status] == "interrupted")
     halt(400, "tests must have started before saving their results (current status: #{test_status[:status]})")
   end
   @examples = get_examples_list(test_status)
@@ -422,4 +427,30 @@ post '/save_tests_results' do
     file.write(html)
   end
   output_path
+end
+
+# return a hash of agents with their current test status
+# if an agent is not in the array status is "not started"
+# assumption: logs that begin with "tests_" are logs produced
+# by the SDK
+get '/tests_status' do
+  content_type :json
+  logs_folder = "/home/vagrant/ruby_workspace/sdk_logs/"
+  log_pattern = "tests_*.log"
+  res = Dir.glob(logs_folder + log_pattern).inject({}) do |acc, current_log|
+    begin
+      File.open(current_log, 'r') do |file|
+        test_status = JSON.parse(file.read, {symbolize_names: true})
+        acc[current_log] = test_status[:status]
+        acc
+      end
+    rescue JSON::ParserError => e
+      puts "Error when parsing the content of " + current_log + ": " + e.message
+    end
+  end
+  # rename ".../tests_agent.log" keys to "agent" (in place)
+  res.keys.each do |k|
+    res[ k.gsub(logs_folder + "tests\_", "").gsub("\.log", "") ] = res.delete(k)
+  end
+  return res.to_json
 end

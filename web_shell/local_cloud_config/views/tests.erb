@@ -196,9 +196,11 @@
           agents_names = new Array();
           for (var i = 0; i < agents_to_test.length; i++) {
             agents_names[i] = agents_to_test[i].name
+            $('div#' + agents_names[i] + " .results").html(""); // delete previous tests results
           }
         } else {
           agents_names = new Array(agent.name);
+          $('div#' + agents_names + " .results").html(""); // delete previous tests results
           agents_to_test = new Array(agent);
         }
 

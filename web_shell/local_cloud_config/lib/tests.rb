@@ -40,9 +40,9 @@ end
 # its definition is dictated by the .erb template
 class Example
 
-  attr_reader :full_description, :status, :file_path, :line_number, :exception, :index
+  attr_reader :full_description, :status, :file_path, :line_number, :exception, :index, :duration
 
-  def initialize(full_description, status, file_path, line_number, index, exception = nil)
+  def initialize(full_description, status, file_path, line_number, index, duration, exception = nil)
     @full_description = full_description
      if status == "passed" || status == "failed" || status == "pending"
       @status = status
@@ -52,6 +52,7 @@ class Example
     @file_path = file_path
     @line_number = line_number.to_i
     @index = index.to_i
+    @duration = duration
 
     unless exception.nil?
       if status == "passed" || status == "pending"
@@ -68,7 +69,7 @@ def get_examples_list(tests_results)
   unless examples.nil?
     examples.map do |example|
       Example.new(example[:full_description], example[:status], example[:file_path],
-        example[:line_number], example[:example_index], example[:exception])
+        example[:line_number], example[:example_index], example[:duration], example[:exception])
     end
   end
 end

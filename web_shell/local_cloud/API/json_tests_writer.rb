@@ -51,10 +51,15 @@ class JsonTestsWriter < RSpec::Core::Formatters::BaseFormatter
     write_to_output
   end
 
+  def example_started(example)
+    examples << example
+    @example_started_time = Time.now
+  end
+
   def example_finished(example)
     @example_index += 1
     @output_hash[:tested] += 1
-    @output_hash[:examples] << format_example(example, @example_index)
+    @output_hash[:examples] << format_example(example, @example_index, (Time.now - @example_started_time).to_f)
     write_to_output
   end
 
@@ -128,13 +133,14 @@ class JsonTestsWriter < RSpec::Core::Formatters::BaseFormatter
   end
 
   private
-  def format_example(example, index)
+  def format_example(example, index, duration)
     hash = {
       :description => example.description,
       :full_description => example.full_description,
       :status => example.execution_result[:status],
       :file_path => example.metadata[:file_path],
       :line_number  => example.metadata[:line_number],
+      :duration => duration,
       :example_index => index
     }
     if e = example.exception

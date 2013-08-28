@@ -378,9 +378,13 @@ get '/update_test_status' do
   else
     html_to_append = erb :example, :layout => false
   end
-  return {"html" => html_to_append, "max_index" => test_status[:max_index], "status" => test_status[:status],
+  res = {"html" => html_to_append,
+    "max_index" => test_status[:max_index], "status" => test_status[:status],
    "failed_count" => test_status[:failed_count], "passed_count" => test_status[:passed_count],
-   "pending_count" => test_status[:pending_count], "example_count" => test_status[:example_count], "start_time" => test_status[:start_time]}.to_json
+   "pending_count" => test_status[:pending_count], "example_count" => test_status[:example_count],
+   "start_time" => test_status[:start_time]}
+   res.merge!({"duration" => test_status[:summary][:duration]}) unless test_status[:summary].nil?
+   res.to_json
  end
 
 # Possible test status for an agent

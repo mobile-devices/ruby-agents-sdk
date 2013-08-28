@@ -309,7 +309,7 @@ end
 
 get '/unit_tests' do
   @active_tab = "unit_tests"
-  @agents = agents
+  @agents = agents.select {|agent_name, agent| agent.running}
   erb :tests
 end
 

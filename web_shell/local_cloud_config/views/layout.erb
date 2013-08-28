@@ -74,7 +74,19 @@
                 <% if @active_tab=='patch_note'%>value="/patch_note"<% end %>
                 >
 
-                <button id="btn-server-reboot"></button>
+                <button id="btn-server-reboot"
+                <% if PUNK.gen_server_crash_title != '' %>
+                  class="btn btn-danger"
+                <% else %>
+                  class="btn btn-primary"
+                <% end %>
+                >
+                  <% if PUNK.is_ruby_server_running %>
+                    <i class="icon-off large icon-white icon-large icon-spin"> </i> - reboot ruby server
+                  <% else %>
+                    <i class="icon-off large icon-white icon-large"> </i> - start ruby server
+                  <% end %>
+                </button>
 
               </form>
             </li>

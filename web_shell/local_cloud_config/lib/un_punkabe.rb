@@ -75,15 +75,25 @@ module PUNK
         p ''
 
         # search if stack contain
+        linked = false
+        stk = 0
+        tmp_pending = []
         punks_pending.each { |pending|
+          puts "Search stack #{stk} in id=#{pending['id']}"
           if pending['id'] == id
-            puts "found #{id} in pending with #{pending.lines.size} lines !  #{punks_pending.size} pending left"
-
-            punk_events << PunkEvent.new(json['type'], json['way'], json['title'], line[15..22], '', '', pending.lines)
-            punks_pending.delete_at(punks_pending.index(pending))
-            break
+            if !linked
+              punk_events << PunkEvent.new(json['type'], json['way'], json['title'], line[15..22], '', '', pending.lines)
+              linked = true
+              puts "found '#{id}' in pending with #{pending.lines.size} lines !  #{punks_pending.size} pending left"
+            else
+              puts "delete '#{id}' #{punks_pending.size} pending left"
+            end
+          else
+            tmp_pending << pending
           end
+          stk+=1
         }
+        punks_pending = tmp_pending
         next
       end
 
@@ -100,6 +110,11 @@ module PUNK
           pending.lines << line
         end
       }
+    }
+
+    puts "We have #{punks_pending.size} pending with:"
+    punks_pending.each { |pending|
+      puts " > #{pending.id} (#{pending.action})"
     }
 
     # seek in an action is in progress

@@ -240,6 +240,7 @@
       function start_live_results(agents_to_test) {
         // generate template for all agents
         for( var i = 0; i < agents.length; i++) {
+          // add on click callbacks to save buttons
           $("div#" + agents[i].name + " .save").click( (function(agent_name) {
             return function() {
               $.ajax({
@@ -265,6 +266,22 @@
         }
 
         // --- helper functions ---
+
+        function update_status() {
+          $.ajax({
+            url: '/tests_status',
+            success: function (data) {
+              current_test_status = TEST_STATUS.STOPPED;
+              $.each(data, function(agent, status) {
+                if(status == "started" || status == "scheduled") {
+                  current_test_status = TEST_STATUS.STARTED;
+                }
+              })
+              update_run_tests_button();
+            }
+          })
+
+        }
 
         function update_progress_bars(current_agent, passed, pending, failed, example, current_status) {
           var parent = "div#" + current_agent.name + " ";
@@ -348,6 +365,7 @@
             },
             complete: function() {
               if (agent.status == "finished") {
+                update_status();
                 display_alert("success", "Tests for agent " + agent.name + " complete.");
                 return 1;
               } else if (agent.status == "not scheduled") {

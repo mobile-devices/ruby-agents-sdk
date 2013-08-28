@@ -32,6 +32,7 @@ module PUNK
         id = line.split('_')[1]
         id.delete!("\n")
         action = line.split('_')[2]
+        action.delete!("\n")
 
         puts "NEW ID '#{id}' with action '#{action}'"
         p ''

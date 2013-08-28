@@ -150,7 +150,6 @@
           <th> Stats (<a href="/extented_stats_show">show more</a>)</th>
         <% end %>
         <th>Active</th>
-        <th>Tests runner</th>
         <% if is_cron_tasks_visible == 'true' %>
           <th>Cron Tasks</th>
         <% end %>
@@ -241,15 +240,6 @@
               </form>
             </td>
 
-          <td>
-            <% if agent.running %>
-              <form action="/run_tests" method="post" class="form-inline">
-                  <input type="hidden" name='agents[]' value='<%= "#{agent_name}"%>' />
-                  <input class="btn btn-primary btn-small" type="submit" value="Run tests" />
-            </form>
-            <% end %>
-        </td>
-
           <% if is_cron_tasks_visible == 'true' %>
             <td>
             <% agent.cron_tasks.each do | task | %>
@@ -279,16 +269,6 @@
             <td></td>
           <% end %>
           <td><button class="btn btn-info">Create agent</button></td></form>
-          <td>
-            <form action="/run_tests" method="post" class="form-inline">
-                <% @agents.each do |agent_name, agent| %>
-                  <% if agent.running %>
-                    <input type="hidden" name='agents[]' value='<%= "#{agent_name}"%>' />
-                  <% end %>
-                <% end %>
-                <button class="btn btn-primary btn-small">Run all tests</button>
-            </form>
-          </td>
           <% if is_cron_tasks_visible == 'true' %>
             <td></td>
           <% end %>

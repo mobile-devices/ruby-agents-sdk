@@ -168,6 +168,7 @@ module AgentsGenerator
       if sub_p
         agents_generated_code += "  begin\n"
         agents_generated_code += "    \$#{agent}_initial.handle_presence(presence)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][0] += (Time.now - @time_start_presence)\n"
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback PRESENCE '\#{presence.type}'\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
@@ -196,6 +197,7 @@ module AgentsGenerator
       if sub_m
         agents_generated_code += "  begin\n"
         agents_generated_code += "    \$#{agent}_initial.handle_message(message)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][1] += (Time.now - @time_start_message)\n"
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback MSG[\#{crop_ref(message.id,4)}]\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
@@ -224,6 +226,7 @@ module AgentsGenerator
       if sub_t
         agents_generated_code += "  begin\n"
         agents_generated_code += "    \$#{agent}_initial.handle_track(track)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][2] += (Time.now - @time_start_track)\n"
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback TRACK\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
@@ -241,6 +244,7 @@ module AgentsGenerator
       agents_generated_code += "  if order.agent == '#{agent}'\n"
       agents_generated_code += "    begin\n"
       agents_generated_code += "      \$#{agent}_initial.handle_order(order)\n"
+      agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['proccess_time'][3] += (Time.now - @time_start_order)\n"
       agents_generated_code += "      PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback ORDER '\#{order.code}' \")\n"
       agents_generated_code += "    rescue => e\n"
       agents_generated_code += "      CC.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order.code}\")\n"

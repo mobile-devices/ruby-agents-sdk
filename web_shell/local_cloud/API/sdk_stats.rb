@@ -50,7 +50,8 @@ module SDK_STATS
         'push_sent_to_device' => 0,
         'err_on_push' => 0,
         'upstream_data' => [0,0,0,0],
-        'downstream_data' => [0,0,0,0]
+        'downstream_data' => [0,0,0,0],
+        'proccess_time' => [0.0,0.0,0.0,0.0]
         }
       }
   end

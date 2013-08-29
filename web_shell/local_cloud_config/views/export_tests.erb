@@ -19,7 +19,7 @@
     <% unless @git_info.nil? %>
       <p>Git last commit was: <%= @git_info %></p>
     <% end %>
-    <p <%="class='text-error'" if @failed %> > <strong> <%= @summary %> </strong> </p>
+    <p <%="class='text-error'" if @failed %> > <strong> <%= @summary %> </strong> <%= "in #{@duration} seconds" unless @duration.nil? %></p>
     <p class="muted">Mobile Devices SDK version: <%= get_sdk_version %><p>
 
     <table class="table table-bordered table-condensed" style="word-wrap: break-word; table-layout: fixed;">
@@ -29,7 +29,7 @@
           when "passed" %>
           <tr class='success'>
             <td> <%= h example.full_description  %> </td>
-            <td> <span class="label label-success"> passed </span>  </td>
+            <td> <span class="label label-success"> passed </span> <br/> <small> in <%= h example.duration %> seconds</small> </td>
             <td> line <%= h example.line_number  %> of file <%= h example.file_path %> </td>
           </tr>
           <% when "pending" %>

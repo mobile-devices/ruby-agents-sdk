@@ -418,7 +418,8 @@ post '/save_tests_results' do
   if @examples.nil?
     @examples = [] # to avoid errors in erb template
   end
-  @summary = "#{test_status[:tested]} out of #{test_status[:example_count]} tests run (#{test_status[:failed_count]} failed, #{test_status[:pending_count]} pending)"
+  @duration = test_status[:summary][:duration] unless test_status[:summary].nil?
+  @summary = "#{test_status[:tested]} out of #{test_status[:example_count]} tests run (#{test_status[:failed_count]} failed, #{test_status[:pending_count]} not implemented)"
   @agent = params['agent']
   @date = test_status[:start_time]
   @git_info = get_git_status("/home/vagrant/ruby-agents-sdk/cloud_agents/#{params['agent']}")

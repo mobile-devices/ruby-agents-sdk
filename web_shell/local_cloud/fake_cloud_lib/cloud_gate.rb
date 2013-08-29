@@ -3,9 +3,37 @@
 # Mobile Devices 2013
 #########################################################
 
+# An observable that enables setting callbacks when a message is sent ot a device
+# When a message is sent, the observers will receive the signal :message_sent with the
+# given message as a parameter (the message will be a hash)
+class CloudGate
+
+  # observer pattern
+  @@observers = []
+
+  def self.add_observer(obs)
+    @@observers << obs unless @@observers.include?(obs)
+  end
+
+  def self.remove_observer(obs)
+    @@observers.delete(obs)
+  end
+
+  def self.message_sent(msg)
+    @@observers.each { |obs| obs.message_sent(msg) if obs.respond_to?(:message_sent) }
+  end
+
+  def self.id_generated(id, tempId)
+    @@observers.each { |obs| obs.id_generated(id, tempId) if obs.respond_to?(:id_generated) }
+  end
+
+end
+
 
 def push_something_to_device(something)
   CC.logger.debug("Server: push_something_to_device:\n#{something}")
+
+  CloudGate.message_sent(something)
 
   # in fake mode, the content or a message must be base64 encode
   begin
@@ -24,7 +52,7 @@ def push_something_to_device(something)
   SDK_STATS.stats['server']['total_sent'] += 1
 end
 
-
+# side effect: set the true ID of the message
 def push_ack_to_device(message)
   begin
     CC.logger.debug("Server: push_ack_to_device: creating new ack message")
@@ -34,6 +62,8 @@ def push_ack_to_device(message)
     parent_id = CC.indigen_next_id
 
     message.id = parent_id
+
+    CloudGate.id_generated(message.id, tmp_id_from_device)
 
     channel_str = message.channel
 

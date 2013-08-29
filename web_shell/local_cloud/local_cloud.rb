@@ -333,11 +333,11 @@ get '/start_tests' do
           RSpec::Core::Runner.run([test_path,
             "--require", "/home/vagrant/ruby-agents-sdk/web_shell/local_cloud/API/json_tests_writer.rb", "--format", "JsonTestsWriter"],
             $stderr, output_file_path)
-        rescue => e
+        rescue Exception => e
           # the runner launched an exception itself
           # rspec doesn't catch exceptions that are not thrown in the body of a test
           # so for instance we could go here if a test file is incorectly formatted
-          CC.logger.debug(" --- in tester thread --- caught exception while runnig tests: " + e.message)
+          CC.logger.debug(" --- in tester thread --- caught exception while running tests: " + e.message)
           File.atomic_write(output_file_path) do |file|
             file.write({status: "aborted",
                   exception: {

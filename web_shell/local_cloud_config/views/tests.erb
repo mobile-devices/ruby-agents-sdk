@@ -376,7 +376,7 @@
               update_status_display(agent, data.passed_count, data.pending_count, data.failed_count, data.example_count, data.status, data.start_time);
               agent.status = data.status;
               if (next_request < 5000) {
-                next_request += 1000;
+                next_request = next_request + 1000;
               }
             },
             error: function(xhr, status, errorThrown) {
@@ -387,21 +387,25 @@
             complete: function() {
               console.log("Current status for agent " + agent.name + " is " + agent.status)
               if (agent.status == "finished") {
-                update_status();
                 display_alert("success", "Tests for agent " + agent.name + " complete.");
+                update_status();
                 return 1;
               } else if (agent.status == "not scheduled") {
+                update_status();
                 return 1;
               } else if (agent.status == "no tests subfolder") {
                 display_alert("info", "No 'tests' subfolders found for agent " + agent.name + ".");
+                update_status();
                 return 1;
               }
               else if (agent.status == "interrupted") {
                 display_alert("info", "Tests for agent " + agent.name + " were interrupted.");
+                update_status();
                 return 1;
               }
               else if (agent.status == "aborted") {
                 display_alert("error", "Tests for agent " + agent.name + " were aborted because of a problem in the test file.");
+                update_status();
                 return 1;
               }
               console.log("Next request for agent " + agent.name + " is scheduled in " + next_request + "ms with index " + max_index);

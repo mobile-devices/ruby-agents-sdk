@@ -1,0 +1,10 @@
+<tr class='error'>
+      <td> Error in test files. <strong><%= h @exception.class%></strong>: <%= h @exception[:message] %></td>
+      <td colspan="2">
+        <div class='pull-left text-left'>
+        <% @exception[:backtrace].each do |line| %>
+              <%= h line %> <br/>
+          <% end %>
+        </div>
+      </td>
+</tr>

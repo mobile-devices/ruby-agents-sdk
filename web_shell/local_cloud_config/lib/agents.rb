@@ -58,7 +58,7 @@ def update_sdk_stats
     stats = JSON.parse(jstats)
 
     $sdk_server_stats = stats['server']
-    puts "sdk_server_stats: \n #{@sdk_server_stats}"
+    puts "sdk_server_stats: \n #{$sdk_server_stats}"
 
     # agents
     agents_stats =  stats['agents']

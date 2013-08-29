@@ -47,12 +47,18 @@ get '/projects' do
   @active_tab='projects'
 
   @action_popup = check_version_change_to_user
+  # agents
   agents_altered
   @agents = agents
+  # stats
+  update_sdk_stats
+  @cur_sdk_stat = sdk_stats
   # cron
   update_cron_tasks
   # popup error
   @error_popup_msg = flash[:popup_error]
+
+  puts "TOTO: #{@agents.inspect}"
 
 
   p "Doing projects with #{is_show_more_stats} show more stat"
@@ -166,7 +172,7 @@ get '/gen_ruby_server_reboot' do
 end
 
 get '/gen_sdk_log_buttons' do
-  erb :logSdkButtons, layout: false
+  erb :gen_log_buttons, layout: false
 end
 
 get '/gen_basic_stats' do
@@ -188,9 +194,31 @@ get '/gen_basic_stats' do
     $uptime_str = '??'
   end
 
-  erb :project_basic_stats, layout: false
+  erb :gen_projects_basic_stats, layout: false
 end
 
+get '/gen_agents_basic_stats' do
+
+  # stats
+  update_sdk_stats
+
+end
+
+get '/gen_main_display' do
+
+  @agents = agents
+
+  update_sdk_stats
+  @cur_sdk_stat = sdk_stats
+  # cron
+  # update_cron_tasks
+
+  if is_show_more_stats == 'true'
+    erb :gen_sdk_stats_to_array, layout: false
+  else
+    erb :gen_agents_table, layout: false
+  end
+end
 
 #=========================================================================================
 get '/reminder_show' do

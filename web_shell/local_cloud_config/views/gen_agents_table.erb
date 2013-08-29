@@ -1,0 +1,69 @@
+<div class="pull-right">
+  <b>(<a href="/extented_stats_show">show raw stats view</a>)</b>
+</div>
+</br>
+
+<div class="row-fluid">
+  <div class="span12">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+        <th>Agent name</th>
+        <th> Stats</th>
+        <th>Active</th>
+        <% if is_cron_tasks_visible == 'true' %>
+          <th>Cron Tasks</th>
+        <% end %>
+
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @agents.each do |agent_name, agent| %>
+        <% @cur_agent = agent %>
+          <tr>
+            <td><%= agent.name %></td>
+              <td>
+              <% if @cur_agent.running %>
+                <%= erb :gen_stat_agent_basic, layout: false %>
+              <% end %>
+              </td>
+            <td>
+            <% if agent.running %>
+              <form action='<%= "/agents/#{agent_name}/stop" %>' method="post">
+                <button class="btn btn-success">Mounted</button>
+            <% else %>
+              <form action='<%= "/agents/#{agent_name}/start" %>' method="post">
+                <button class="btn btn-danger">Unmounted</button>
+            <% end %>
+              </form>
+            </td>
+
+          <% if is_cron_tasks_visible == 'true' %>
+            <td>
+            <% agent.cron_tasks.each do | task | %>
+                <form action='/perform_cron_tasks' method="post">
+                  <input type="hidden" name="task" value='<%= task.to_json %>'/>
+                  <button class="btn btn-info btn-small">Perform: '<%= task['order'] %>'</button>
+                </form>
+            <% end %>
+            </td>
+          <% end %>
+
+          </tr>
+        <% end %>
+
+        <tr>
+          <form action="/create_agents" method="post">
+          <td><input type="text" name="agent[name]"/></td>
+            <td></td>
+          <td><button class="btn btn-info">Create agent</button></td></form>
+          <% if is_cron_tasks_visible == 'true' %>
+            <td></td>
+          <% end %>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>

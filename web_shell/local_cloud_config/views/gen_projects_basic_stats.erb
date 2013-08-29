@@ -3,8 +3,8 @@
 <% if sdk_stats['total_received'] %>
   <span class="label label-error"><b><big>
     <%= sdk_stats['total_received'] %>
-    received
   </big></b></span></td>
+    received,
   <% if sdk_stats['total_error'] == 0 %>
     <%= '<span class="label label-error">' %>
   <% else %>
@@ -12,14 +12,17 @@
   <% end %>
     <b><big>
     <%= sdk_stats['total_error'] %>
-    errors
   </big></b></span></td>
+    error,
   <span class="label label-error"><b><big>
     <%= sdk_stats['total_sent'] %>
-    sent
   </big></b></span></td>
+    sent
 <% end %>
 </div>
 <div class="pull-right" id="server_uptime">
-	<b>uptime: <%= $uptime_str %></b>
+  uptime:
+  <span class="label label-error"><b><big>
+    <%= $uptime_str %>
+  </big></b></span></td>
 </div>

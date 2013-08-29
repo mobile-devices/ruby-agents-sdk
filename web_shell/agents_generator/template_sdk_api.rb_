@@ -79,6 +79,10 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
     class MessageGate
 
+      def initialize(channel)
+        @CHANNEL = channel
+      end
+
      def push(asset, account, content)
       begin
         PUNK.start('push','pushing msg ...')

@@ -2,7 +2,7 @@
 
 require 'rspec'
 require 'rspec/core/formatters/base_formatter'
-require_relative 'atomic_write'
+# require_relative 'atomic_write'
 require 'json'
 
 # Formatter for RSpec tests results

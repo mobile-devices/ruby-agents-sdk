@@ -350,6 +350,12 @@ get '/update_test_status' do
     return test_status.to_json
   end
 
+  if test_status[:status] == "aborted"
+    @exception = test_status[:exception]
+    html_to_append = erb :tests_aborted, :layout => false
+    return test_status.merge!({html: html_to_append}).to_json
+  end
+
   # todo edge cases (no examples run..)
 
   # If index parameter was given, we only keep the examples that were not sent before
@@ -394,6 +400,7 @@ get '/update_test_status' do
 # "started"
 # "finished"
 # "interrupted"
+# 'aborted' rspec threw an exception
 
 # read the log file containing tests results for the given agent
 # and write it on the disk as HTML
@@ -447,11 +454,11 @@ get '/tests_status' do
       File.open(current_log, 'r') do |file|
         test_status = JSON.parse(file.read, {symbolize_names: true})
         acc[current_log] = test_status[:status]
-        acc
       end
     rescue JSON::ParserError => e
       puts "Error when parsing the content of " + current_log + ": " + e.message
     end
+    acc
   end
   # rename ".../tests_agent.log" keys to "agent" (in place)
   res.keys.each do |k|

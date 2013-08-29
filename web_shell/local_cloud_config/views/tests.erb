@@ -274,6 +274,7 @@
         function update_status() {
           $.ajax({
             url: '/tests_status',
+            dataType: "json",
             success: function (data) {
               current_test_status = TEST_STATUS.STOPPED;
               $.each(data, function(agent, status) {
@@ -282,10 +283,14 @@
                 }
               })
               update_run_tests_button();
+            },
+            error: function(xhr, status, errorThrown) {
+              console.log("An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
+              display_alert("warning", "An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
             }
-          })
+          }) // ajax
 
-        }
+        } // update_status
 
         function update_progress_bars(current_agent, passed, pending, failed, example, current_status) {
           var parent = "div#" + current_agent.name + " ";
@@ -332,13 +337,19 @@
             $(parent + ".status").html("No 'tests' subfolders found, skipping tests.");
             $(parent + ".summary").html("");
             $(parent + '.start-time').html("");
-          } else { // interrupted
+          } else if(current_status == "interrupted") {
             $(parent + ".status").html("<strong>Tests interrupted</strong>.");
             var tests_run = failed + pending + passed
             $(parent + ".summary").html(tests_run + " tests run (" + failed + " failed, " + pending + " not implemented) out of " + example + ".");
             $(parent + '.start-time').html("Tests started at " + start_time);
             $(parent + '.save').removeClass("disabled")
             $(parent + '.save').removeAttr("disabled")
+          } else if(current_status == "aborted") {
+            $(parent + ".status").html("Can not run tests.");
+            $(parent + ".summary").html("");
+            $(parent + '.start-time').html("");
+          } else {
+            log.error("Can not update status display because " + current_status + " is an unknow status.");
           }
         } // function update_status_display
 
@@ -346,7 +357,7 @@
         // it will do so on a regular basis until no more updates are needed
         // it will update the page according to the received data
         function updater(agent, max_index) {
-          var next_request = 5000;
+          var next_request = 1000;
           $.ajax({
             url: '/update_test_status',
             data: {"index": max_index, "agent": agent.name},
@@ -364,7 +375,9 @@
               update_progress_bars(agent, data.passed_count, data.pending_count, data.failed_count, data.example_count, data.status);
               update_status_display(agent, data.passed_count, data.pending_count, data.failed_count, data.example_count, data.status, data.start_time);
               agent.status = data.status;
-              next_request = 5000;
+              if (next_request < 5000) {
+                next_request += 1000;
+              }
             },
             error: function(xhr, status, errorThrown) {
             console.error("Error when updating tests results: " + status + " (" + errorThrown + ") ---- " + xhr.responseText)
@@ -372,6 +385,7 @@
             next_request = 500;
             },
             complete: function() {
+              console.log("Current status for agent " + agent.name + " is " + agent.status)
               if (agent.status == "finished") {
                 update_status();
                 display_alert("success", "Tests for agent " + agent.name + " complete.");
@@ -386,7 +400,11 @@
                 display_alert("info", "Tests for agent " + agent.name + " were interrupted.");
                 return 1;
               }
-              console.log("Next request is scheduled in " + next_request + "ms, for agent " + agent.name + " with index " + max_index);
+              else if (agent.status == "aborted") {
+                display_alert("error", "Tests for agent " + agent.name + " were aborted because of a problem in the test file.");
+                return 1;
+              }
+              console.log("Next request for agent " + agent.name + " is scheduled in " + next_request + "ms with index " + max_index);
               setTimeout(function() {updater(agent, max_index)}, next_request);
             } // complete
           }); // ajax

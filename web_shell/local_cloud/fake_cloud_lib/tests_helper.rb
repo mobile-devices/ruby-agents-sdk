@@ -144,7 +144,7 @@ module TestsHelper
 
   class PresenceFromDevice < CCS::Presence
     def initialize(type = 'connect', reason = 'closed_by_server', asset = "123456789", account = 'tests', time = nil)
-      time = Time.now.to_f if time.nil?
+      time = Time.now.to_i if time.nil?
       super('meta' => {'account' => account},
         'payload' => {
           'type' => 'presence',

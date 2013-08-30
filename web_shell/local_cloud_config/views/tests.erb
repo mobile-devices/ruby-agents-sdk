@@ -222,6 +222,7 @@
         // generate template for all agents
         for( var i = 0; i < agents.length; i++) {
           // add on click callbacks to save buttons
+          $("div#" + agents[i].name + " .save").off("click");
           $("div#" + agents[i].name + " .save").click( (function(agent_name) {
             return function() {
               $.ajax({

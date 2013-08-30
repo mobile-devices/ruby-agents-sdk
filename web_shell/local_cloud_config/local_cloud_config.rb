@@ -167,8 +167,9 @@ end
 #======================== AJAX DYN GEN ===================================================
 
 get '/gen_ruby_server_reboot' do
+  code = Net::HTTP.get_response(URI.parse('http://localhost:5001/is_alive')).code
   content_type :json
-  {crash:(PUNK.gen_server_crash_title != ''), running:(PUNK.is_ruby_server_running)}.to_json
+  {crash:(PUNK.gen_server_crash_title != ''), running:("#{code}" == "200")}.to_json
 end
 
 get '/gen_sdk_log_buttons' do

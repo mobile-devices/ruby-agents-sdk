@@ -286,3 +286,8 @@ post '/remote_call' do
   handle_msg_from_device('order', hashData)
   response.body = '{}'
 end
+
+
+get '/is_alive' do
+  "I'm alive!"
+end

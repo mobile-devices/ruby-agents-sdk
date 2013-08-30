@@ -168,6 +168,28 @@
 
       // agent is either 'all' or an Agent object
       function run_tests(agent) {
+        // before doing anything lets check that the server is running
+        var server_alive = false;
+        $.ajax({
+          url: '/gen_ruby_server_reboot',
+          type: "GET",
+          async: false,
+          dataType: "json",
+          success: function(data) {
+            server_alive = true;
+            if (data.crash || !data.running) {
+              display_alert("warning", "The agents server must be running before running the tests.");
+              server_alive = false;
+            }
+          },
+          error: function(xhr, status, errorThrown) {
+            display_alert("warning", "Impossible to contact the agents server (" + xhr.responseText + " - " + status + " - " + errorThrown + ")");
+            server_alive = false;
+          }
+        });
+        if (!(server_alive)) {
+          return false;
+        }
         var agents_to_test = null;
         var agents_names = null;
         if(agent=='all') {

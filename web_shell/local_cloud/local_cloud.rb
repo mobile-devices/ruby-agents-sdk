@@ -330,6 +330,8 @@ get '/start_tests' do
       if File.directory?(test_path)
         CC.logger.debug(" --- in tester thread --- Starting tests for #{agent}.")
         begin
+          libdir = "/home/vagrant/ruby-agents-sdk/web_shell/local_cloud/fake_cloud_lib/"
+          $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
           RSpec::Core::Runner.run([test_path,
             "--require", "/home/vagrant/ruby-agents-sdk/web_shell/local_cloud/API/json_tests_writer.rb", "--format", "JsonTestsWriter"],
             $stderr, output_file_path)

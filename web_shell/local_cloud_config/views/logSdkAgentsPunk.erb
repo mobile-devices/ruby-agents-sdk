@@ -112,29 +112,25 @@
 
                 // colorise logs
 
-                spn_debug = ""
+                spn_debug = "label"
                 spn_info = "label label-info"
                 spn_warn = "label label-warning"
                 spn_err = "label label-important"
 
-
-                aDone = false
                 for (var i = 0; i < sanitizedLines.length; i++) {
-                  if (aDone) {
-                    sanitizedLines[i] = sanitizedLines[i].replace('D, [','</span><span class="' + spn_debug + '"> D, [')
-                    sanitizedLines[i] = sanitizedLines[i].replace('I, [','</span><span class="' + spn_info + '"> I, [')
-                    sanitizedLines[i] = sanitizedLines[i].replace('W, [','</span><span class="' + spn_warn + '"> W, [')
-                    sanitizedLines[i] = sanitizedLines[i].replace('E, [','</span><span class="' + spn_err + '"> E, [')
-                  } else {
-                    aDone = true
-                    sanitizedLines[i] = sanitizedLines[i].replace('D, [','<span class="' + spn_debug + '"> D, [')
-                    sanitizedLines[i] = sanitizedLines[i].replace('I, [','<span class="' + spn_info + '"> I, [')
-                    sanitizedLines[i] = sanitizedLines[i].replace('W, [','<span class="' + spn_warn + '"> W, [')
-                    sanitizedLines[i] = sanitizedLines[i].replace('E, [','<span class="' + spn_err + '"> E, [')
+                  sanitizedLines[i] = sanitizedLines[i].replace('D, [','<span class="' + spn_debug + '"> debug</span> ')
+                  sanitizedLines[i] = sanitizedLines[i].replace('I, [','<span class="' + spn_info + '"> info</span> ')
+                  sanitizedLines[i] = sanitizedLines[i].replace('W, [','<span class="' + spn_warn + '"> WARN</span> ')
+                  sanitizedLines[i] = sanitizedLines[i].replace('E, [','<span class="' + spn_err + '"> ERROR</span> ')
+
+                  // bolt if agent
+                  if (sanitizedLines[i].indexOf(' -- : Agent ') > 0) {
+                    sanitizedLines[i] = '<b>' + sanitizedLines[i] + '</b>'
                   }
+
                 }
                 // insert at the end
-                sanitizedLines.splice(sanitizedLines.length, 0, '</span>');
+//                sanitizedLines.splice(sanitizedLines.length, 0, '</span>');
 
 
                 $("#view_code").html(sanitizedLines.join('<br />'));

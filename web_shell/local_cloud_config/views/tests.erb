@@ -75,7 +75,7 @@
 
 
 
-  <script>
+<script>
 
   $( document ).ready(function() {
 
@@ -134,30 +134,7 @@
 
       })(); // function setup_event_listeners
 
-       (function set_status() {
-        $.ajax({
-          url: "/tests_status",
-          type: "GET",
-          async: false,
-          success: function(data) {
-            var agents_to_test = new Array();
-            var are_tests_running = false;
-            $.each(data, function(agent_name, status) {
-              if (status == "scheduled" || status == "started") {
-                are_tests_running = true;
-              }
-              agents_to_test.push(new Agent(agent_name, status));
-            }) // $.each
-            start_live_results(agents);
-            if (are_tests_running) {
-              current_test_status = TEST_STATUS.STARTED;
-            } else {
-              current_test_status = TEST_STATUS.STOPPED;
-            }
-            update_run_tests_button();
-          } // success
-        }) // ajax
-      })(); // set_status
+      start_live_results(agents);
 
       // ================= Helpers ================= //
 
@@ -262,6 +239,8 @@
           })(agents[i].name) // callback
           ) // click
         } // for( var i = 0; i < tested_agents.length; i++)
+
+        update_status();
 
         // run updater for all agents (cf below)
         var tested_agents = new Array();

@@ -27,13 +27,15 @@ class CloudGate
     @@observers.each { |obs| obs.id_generated(id, tempId) if obs.respond_to?(:id_generated) }
   end
 
+  def self.incoming_message(msg)
+    @@observers.each { |obs| obs.incoming_message(msg) if obs.respond_to?(:incoming_message) }
+  end
+
 end
 
 
 def push_something_to_device(something)
   CC.logger.debug("Server: push_something_to_device:\n#{something}")
-
-  CloudGate.message_sent(something)
 
   # in fake mode, the content or a message must be base64 encode
   begin
@@ -170,6 +172,8 @@ def handle_msg_from_device(type, params)
   end
 
   CC.logger.debug("Server: handle_msg_from_device: success parse\n")
+
+  CloudGate.incoming_message(msg)
 
 
   PUNK.start('handle','handling from device')

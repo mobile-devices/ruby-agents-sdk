@@ -48,6 +48,7 @@
 
   <div class="span8">
     <small>
+      Note : your log.debug('...') will be drop in production, avoid put useful logs as debug, put them as info instead.
       <div id="view_code" class="" data-spy="affix" data-offset-top="40" style="width:800px;height:700px;overflow-y: scroll">
         <i class="icon-arrow-left"></i><em> Click on buttons for details.</em>
       </div>
@@ -60,6 +61,7 @@
 <!-- Scripts ===================================================================-->
   <script>
     function escapeHTML(text) {   return text.replace(/[&<>"'`]/g, function (chr) {     return '&#' + chr.charCodeAt(0) + ';';   }); };
+
 
     $(document).ready(function() {
 

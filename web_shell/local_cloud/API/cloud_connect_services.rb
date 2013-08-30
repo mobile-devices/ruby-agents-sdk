@@ -172,7 +172,6 @@ module CloudConnectServices
         # set received_at and recorded_at
         self.received_at = Time.now
         self.recorded_at = Time.now
-        CC.logger.info(" +++++++++++++++++++++++++++++++++++++++ " + self.class.to_s)
         CloudGate.message_sent(self)
 
         # Protogen encode

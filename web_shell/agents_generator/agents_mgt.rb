@@ -145,8 +145,8 @@ module AgentsGenerator
       sub_m = get_agent_is_sub_message(agent)
       sub_t = get_agent_is_sub_track(agent)
       if sub_p != true && sub_m != true && sub_t != true
-        PUNK.start('subcription_none')
-        PUNK.end('subcription_p','ko','',"AGENT:#{agent}TNEGA didn't subscribe to anything")
+        PUNK.start('subcriptionPresence')
+        PUNK.end('subcriptionPresence','ko','',"AGENT:#{agent}TNEGA didn't subscribe to anything")
       end
     }
 
@@ -157,12 +157,12 @@ module AgentsGenerator
 
       sub_p = get_agent_is_sub_presence(agent)
       if sub_p != true && sub_p != false
-        PUNK.start('subcription_p')
+        PUNK.start('subcriptionPresence')
         sub_p = false
         CC.logger.info("Presence subcription configuration not found ! (sub_p=#{sub_p})")
         CC.logger.info("Please add a \n\"subscribe_presence: false\"\n or\n \"subscribe_presence: true\"\n line in your agent config file.")
         CC.logger.info("This parameter will allow or forbidden your agent to receive presence notification.")
-        PUNK.end('subcription_p','ko','',"AGENT:#{agent}TNEGA missing configuration")
+        PUNK.end('subcriptionPresence','ko','',"AGENT:#{agent}TNEGA missing configuration")
       end
 
       if sub_p
@@ -186,12 +186,12 @@ module AgentsGenerator
 
       sub_m = get_agent_is_sub_message(agent)
       if sub_m != true && sub_m != false
-        PUNK.start('subcription_m')
+        PUNK.start('subcriptionMsg')
         sub_m = false
         CC.logger.info("Message subcription configuration not found ! (sub_m=#{sub_m})")
         CC.logger.info("Please add a \n\"subscribe_message: false\"\n or\n \"subscribe_message: true\"\n line in your agent config file.")
         CC.logger.info("This parameter will allow or forbidden your agent to receive message notification.")
-        PUNK.end('subcription_m','ko','',"AGENT:#{agent}TNEGA missing configuration")
+        PUNK.end('subcriptionMsg','ko','',"AGENT:#{agent}TNEGA missing configuration")
       end
 
       if sub_m
@@ -215,12 +215,12 @@ module AgentsGenerator
 
       sub_t = get_agent_is_sub_track(agent)
       if  sub_t != true && sub_t != false
-        PUNK.start('subcription_t')
+        PUNK.start('subcriptionTrack')
         sub_t = false
         CC.logger.info("Track subcription configuration not found ! (sub_t=#{sub_t})")
         CC.logger.info("Please add a \n\"subscribe_track: false\"\n or\n \"subscribe_track: true\"\n line in your agent config file.")
         CC.logger.info("This parameter will allow or forbidden your agent to receive track notification.")
-        PUNK.end('subcription_t','ko','',"AGENT:#{agent}TNEGA missing configuration")
+        PUNK.end('subcriptionTrack','ko','',"AGENT:#{agent}TNEGA missing configuration")
       end
 
       if sub_t

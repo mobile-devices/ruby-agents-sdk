@@ -131,7 +131,7 @@
                   sanitizedLines[i] = sanitizedLines[i].replace('W, [','<span class="' + spn_warn + '"> WARN</span> ')
                   sanitizedLines[i] = sanitizedLines[i].replace('E, [','<span class="' + spn_err + '"> !! ERROR !!</span> ')
 
-                  // bolt if agent
+                  // bolt if agent debug line
                   if (sanitizedLines[i].indexOf(' -- : Agent ') > 0) {
                     sanitizedLines[i] = '<b>' + sanitizedLines[i] + '</b>'
                   }

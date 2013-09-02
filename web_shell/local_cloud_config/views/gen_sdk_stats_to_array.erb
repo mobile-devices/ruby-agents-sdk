@@ -1,0 +1,35 @@
+
+<div class="pull-right">
+  <b>(<a href="/extented_stats_hide">leave raw stats view</a>)</b>
+</div>
+</br>
+
+<b>Server</b>
+<table class="table table-bordered table-striped">
+  <tbody>
+    <% @cur_sdk_stat.each do |k,v| %>
+      <tr>
+        <td><%= k %></td>
+        <td><%= v %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+
+<% @agents.each do |agent_name, agent| %>
+  <% if agent.running %>
+    <b>Agent <%= agent_name %></b>
+
+    <table class="table table-bordered table-striped">
+      <tbody>
+        <% agent.agent_stats.each do |k,v| %>
+          <tr>
+            <td><%= k %></td>
+            <td><%= v %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+<% end %>

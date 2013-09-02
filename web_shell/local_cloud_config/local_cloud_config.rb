@@ -56,12 +56,18 @@ get '/projects' do
   @active_tab='projects'
 
   @action_popup = check_version_change_to_user
+  # agents
   agents_altered
   @agents = agents
+  # stats
+  update_sdk_stats
+  @cur_sdk_stat = sdk_stats
   # cron
   update_cron_tasks
   # popup error
   @error_popup_msg = flash[:popup_error]
+
+  puts "TOTO: #{@agents.inspect}"
 
 
   p "Doing projects with #{is_show_more_stats} show more stat"
@@ -170,12 +176,17 @@ end
 #======================== AJAX DYN GEN ===================================================
 
 get '/gen_ruby_server_reboot' do
+  begin
+    code = Net::HTTP.get_response(URI.parse('http://localhost:5001/is_alive')).code
+  rescue Exception => e
+    code = 503
+  end
   content_type :json
-  {crash:(PUNK.gen_server_crash_title != ''), running:(PUNK.is_ruby_server_running)}.to_json
+  {crash:(PUNK.gen_server_crash_title != ''), running:("#{code}" == "200")}.to_json
 end
 
 get '/gen_sdk_log_buttons' do
-  erb :logSdkButtons, layout: false
+  erb :gen_log_buttons, layout: false
 end
 
 get '/gen_basic_stats' do
@@ -197,9 +208,31 @@ get '/gen_basic_stats' do
     $uptime_str = '??'
   end
 
-  erb :project_basic_stats, layout: false
+  erb :gen_projects_basic_stats, layout: false
 end
 
+get '/gen_agents_basic_stats' do
+
+  # stats
+  update_sdk_stats
+
+end
+
+get '/gen_main_display' do
+
+  @agents = agents
+
+  update_sdk_stats
+  @cur_sdk_stat = sdk_stats
+  # cron
+  # update_cron_tasks
+
+  if is_show_more_stats == 'true'
+    erb :gen_sdk_stats_to_array, layout: false
+  else
+    erb :gen_agents_table, layout: false
+  end
+end
 
 #=========================================================================================
 get '/reminder_show' do
@@ -233,6 +266,15 @@ get '/cron_tasks_visible_hide' do
   redirect('/projects')
 end
 
+get '/log_show_server_show' do
+  set_log_show_server(true)
+  redirect('/logSdkAgentsPunk')
+end
+
+get '/log_show_server_hide' do
+  set_log_show_server(false)
+  redirect('/logSdkAgentsPunk')
+end
 
 get '/log_show_com_show' do
   set_log_show_com(true)

@@ -22,19 +22,6 @@ module SDK_STATS
         'total_queued' => 0,
         'remote_call_unused' => 0
         },
-        'default_agent' =>  {
-          'total_received' => 0,
-          'total_error' => 0,
-          'total_sent' => 0,
-          'received' => [0,0,0,0],
-          'err_while_process' => [0,0,0,0],
-          'reply_sent_to_device' => 0,
-          'err_on_reply' => 0,
-          'push_sent_to_device' => 0,
-          'err_on_push' => 0,
-          'upstream_data' => [0,0,0,0],
-          'downstream_data' => [0,0,0,0]
-          },
         'agents' => {}
       }
 
@@ -50,7 +37,8 @@ module SDK_STATS
         'push_sent_to_device' => 0,
         'err_on_push' => 0,
         'upstream_data' => [0,0,0,0],
-        'downstream_data' => [0,0,0,0]
+        'downstream_data' => [0,0,0,0],
+        'proccess_time' => [0.0,0.0,0.0,0.0]
         }
       }
   end

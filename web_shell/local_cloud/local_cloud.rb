@@ -250,6 +250,7 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"reconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"disconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 post '/presence' do
+  @time_start_presence = Time.now
   hashData = welcome_new_data_from_outside(0, request)
   handle_msg_from_device('presence', hashData)
   response.body = '{}'
@@ -264,6 +265,7 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.agps_agent", "recorded_at":78364, "payload":"Y2hlY2svYWFhYWFhYWFhYWJiYmJiYmJiYmJjY2NjY2NjY2NjMTI=", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 #protogen: curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d $'{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.protogen_fun_agent", "recorded_at":78364, "payload":"gqR0eXBlAaNtc2eCpG5hbWWvbXlsaXR0bGVyZXF1ZXN0p2xhdGxpc3STAQID", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 post '/message' do
+  @time_start_message = Time.now
   hashData = welcome_new_data_from_outside(1, request)
   handle_msg_from_device('message', hashData)
   response.body = '{}'
@@ -272,6 +274,7 @@ end
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"sender":"351777047016827", "id":19, "data":[{"reset":true, "3":"V", "14":"\u0001", "recorded_at":1368449272}, {"recorded_at":1368449279, "24":"", "23":""}, {"recorded_at":1368449340}, {"recorded_at":1368449400}, {"recorded_at":1368449460}, {"recorded_at":1368449520}, {"recorded_at":1368449580}, {"recorded_at":1368449640}, {"recorded_at":1368449766}, {"recorded_at":1368449826}, {"recorded_at":1368449886}, {"recorded_at":1368449946}, {"recorded_at":1368450006}, {"recorded_at":1368450066}, {"recorded_at":1368450310}, {"recorded_at":1368450369}, {"recorded_at":1368450429}, {"recorded_at":1368450489}, {"recorded_at":1368497096}, {"recorded_at":1368497276}, {"recorded_at":1368497336}, {"recorded_at":1368497396}, {"recorded_at":1368497456}, {"recorded_at":1368497576}, {"recorded_at":1368497637}, {"recorded_at":1368497697}, {"recorded_at":1368497757}, {"recorded_at":1368497817}, {"recorded_at":1368497877}, {"recorded_at":1368497996}, {"recorded_at":1368498116}], "asset":"351777047016827"}}' http://localhost:5001/track
 post '/track' do
+  @time_start_track = Time.now
   hashData = welcome_new_data_from_outside(2, request)
   handle_msg_from_device('track', hashData)
   response.body = '{}'
@@ -280,6 +283,7 @@ end
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"agent":"agps_agent", "order":"refresh_agps_files"}' http://localhost:5001/remote_call
 post '/remote_call' do
+    @time_start_order = Time.now
   hashData = welcome_new_data_from_outside(3, request)
   handle_msg_from_device('order', hashData)
   response.body = '{}'
@@ -367,4 +371,8 @@ get '/stop_tests' do
   $tester_thread.join
   CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
   "Tests stopped"
+end
+
+get '/is_alive' do
+  "I'm alive!"
 end

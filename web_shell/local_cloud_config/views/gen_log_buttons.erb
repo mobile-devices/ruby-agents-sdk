@@ -3,7 +3,7 @@
   <% punk_kind = "" %>
 
   <p>
-    <button type="button" data-bind="btn" data-content="btn_content_<%= index %>"
+    <button type="button" data-bind="btn" data-content="<%= index %>"
       <% if punk.way == 'process' %>
         <% if punk.type == 'ok' %>
           class="btn btn-info btn-block"
@@ -29,26 +29,54 @@
         <% end %>
       <% end %>
 
-      <% if is_log_show_com() != 'true' && punk_kind == "com" %>
+      <%
+        do_hide = false
+        if punk.msg_belong_to != "SERVER"
+
+        end
+
+        if is_log_show_server() != 'true' && punk.msg_belong_to == "SERVER"
+          do_hide = true
+        end
+        if is_log_show_com() != 'true' && punk_kind == "com"
+          do_hide = true
+        end
+        if is_log_show_process() != 'true' && punk_kind == "process"
+          do_hide = true
+        end
+        if is_log_show_error() != 'true' && punk_kind == "error"
+          do_hide = true
+        end
+        if do_hide == true
+      %>
         style="display:none"
       <% end %>
-      <% if is_log_show_process() != 'true' && punk_kind == "process" %>
-        style="display:none"
-      <% end %>
-      <% if is_log_show_error() != 'true' && punk_kind == "error" %>
-        style="display:none"
-      <% end %>
+
+
       >
 
-      <p class="text-left"><b>
+      <div class="text-left">
         [<%= punk.start_time %>]
-         <%= PUNK.title_to_html(punk.title) %>
-      </b></p>
-
+        <%= PUNK.title_to_html(punk.title) %>
+      </div>
     </button>
 
+    <div id="btn_title_<%= index %>" style="display:none">
+      <textarea>
+        <span class="label label-inverse">
+          [<%= punk.start_time %>]
+          <%= PUNK.title_to_html(punk.title) %>
+          (<%= punk.content.size %> lines of log)
+        </span>
+      </textarea>
+    </div>
+
     <textarea id="btn_content_<%= index %>" style="display:none">
-      <%= punk.content %>
+      <% if punk.content.size > 0 %>
+        <%= punk.content %>
+      <% else %>
+        ["No details available"]
+      <% end %>
     </textarea>
   </p>
 

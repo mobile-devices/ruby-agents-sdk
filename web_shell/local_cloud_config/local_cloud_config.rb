@@ -257,6 +257,15 @@ get '/cron_tasks_visible_hide' do
   redirect('/projects')
 end
 
+get '/log_show_server_show' do
+  set_log_show_server(true)
+  redirect('/logSdkAgentsPunk')
+end
+
+get '/log_show_server_hide' do
+  set_log_show_server(false)
+  redirect('/logSdkAgentsPunk')
+end
 
 get '/log_show_com_show' do
   set_log_show_com(true)

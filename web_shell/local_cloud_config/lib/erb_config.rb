@@ -102,6 +102,27 @@ def set_log_show_com(val)
 end
 
 
+def is_log_show_server
+  @log_show_server ||= begin
+    if File.exist?('.log_show_server')
+      File.read('.log_show_server')
+    else
+      set_log_show_server(true)
+      'true'
+    end
+  end
+end
+
+def set_log_show_server(val)
+  if (@previous_log_show_server != val)
+    File.open('.log_show_server', 'w') { |file| file.write(val) }
+    @previous_log_show_server = val
+    @log_show_server = val
+  end
+end
+
+
+
 def is_log_show_process
   @log_show_process ||= begin
     if File.exist?('.log_show_process')

@@ -20,6 +20,15 @@
 
   <div class="pull-right">
 
+
+    <% if is_log_show_server() == 'true' %>
+      <a class="btn btn-success" href="/log_show_server_hide">
+    <% else %>
+      <a class="btn btn-success disabled" href="/log_show_server_show">
+    <% end %>
+      <i class="icon-eye-open"></i> <i class="icon-th"></i>
+    </a>
+
     <% if is_log_show_com() == 'true' %>
       <a class="btn btn-success" href="/log_show_com_hide">
     <% else %>

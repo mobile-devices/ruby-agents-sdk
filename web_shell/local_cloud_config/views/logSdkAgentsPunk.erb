@@ -6,7 +6,7 @@
 <div class="well info row well-small">
 
   <div class="pull-left" >
-    <a class="btn btn-primary" href="/clear_daemon_log">clear server log</a>
+    <a class="btn btn-primary"  data-toggle="tooltip" title="Flush event log file" href="/clear_daemon_log">clear server log</a>
   </div>
 
   <div class="pull-left" style="margin-top:5px;margin-left:10px">
@@ -22,34 +22,34 @@
 
 
     <% if is_log_show_server() == 'true' %>
-      <a class="btn btn-success" href="/log_show_server_hide">
+      <a class="btn btn-success" data-toggle="tooltip" title="Hide all events about the SERVER itself" href="/log_show_server_hide">
     <% else %>
-      <a class="btn btn-success disabled" href="/log_show_server_show">
+      <a class="btn btn-success disabled" data-toggle="tooltip" title="Show all events about the SERVER itself" href="/log_show_server_show">
     <% end %>
       <i class="icon-eye-open"></i> <i class="icon-th"></i>
     </a>
 
     <% if is_log_show_com() == 'true' %>
-      <a class="btn btn-success" href="/log_show_com_hide">
+      <a class="btn btn-success" data-toggle="tooltip" title="Hide all events about communication" href="/log_show_com_hide">
     <% else %>
-      <a class="btn btn-success disabled" href="/log_show_com_show">
+      <a class="btn btn-success disabled" data-toggle="tooltip" title="Show all events about communication" href="/log_show_com_show">
     <% end %>
       <i class="icon-eye-open"></i>
     </a>
 
 
     <% if is_log_show_process() == 'true' %>
-      <a class="btn btn-info" href="/log_show_process_hide">
+      <a class="btn btn-info" data-toggle="tooltip" title="Hide all events about processing" href="/log_show_process_hide">
     <% else %>
-      <a class="btn btn-info disabled" href="/log_show_process_show">
+      <a class="btn btn-info disabled" data-toggle="tooltip" title="Show all events about processing" href="/log_show_process_show">
     <% end %>
       <i class="icon-eye-open"></i>
     </a>
 
     <% if is_log_show_error() == 'true' %>
-      <a class="btn btn-danger" href="/log_show_error_hide">
+      <a class="btn btn-danger" data-toggle="tooltip" title="Hide all events about errors" href="/log_show_error_hide">
     <% else %>
-      <a class="btn btn-danger disabled" href="/log_show_error_show">
+      <a class="btn btn-danger disabled" data-toggle="tooltip" title="Show all events about errors" href="/log_show_error_show">
     <% end %>
       <i class="icon-eye-open"></i>
     </a>

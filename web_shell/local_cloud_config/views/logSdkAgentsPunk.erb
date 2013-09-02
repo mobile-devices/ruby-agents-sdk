@@ -112,14 +112,15 @@
               // re bind all button to view content of an PUNK button
               $("button[data-bind=btn]").bind('click', function() {
                 console.log('click a button !!!')
-                var content = $('#' + $(this).data('content'));
-                var lines   = JSON.parse(content.text());
+                var title = $('#btn_title_' + $(this).data('content')).text();
+
+                var content = $('#btn_content_' + $(this).data('content'));
+                var lines = JSON.parse(content.text());
 
 
                 var sanitizedLines = lines.map(function(line){ return escapeHTML(line) });
 
                 // colorise logs
-
                 spn_debug = "label"
                 spn_info = "label label-info"
                 spn_warn = "label label-warning"
@@ -135,12 +136,9 @@
                   if (sanitizedLines[i].indexOf(' -- : Agent ') > 0) {
                     sanitizedLines[i] = '<b>' + sanitizedLines[i] + '</b>'
                   }
-
                 }
-                // insert at the end
-//                sanitizedLines.splice(sanitizedLines.length, 0, '</span>');
 
-
+                $("#view_title").html(title)
                 $("#view_code").html(sanitizedLines.join('<br />'));
               });
 

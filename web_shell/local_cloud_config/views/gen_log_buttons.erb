@@ -3,7 +3,7 @@
   <% punk_kind = "" %>
 
   <p>
-    <button type="button" data-bind="btn" data-content="btn_content_<%= index %>"
+    <button type="button" data-bind="btn" data-content="<%= index %>"
       <% if punk.way == 'process' %>
         <% if punk.type == 'ok' %>
           class="btn btn-info btn-block"
@@ -40,12 +40,21 @@
       <% end %>
       >
 
-      <p class="text-left"><b>
+      <div class="text-left">
         [<%= punk.start_time %>]
-         <%= PUNK.title_to_html(punk.title) %>
-      </b></p>
-
+        <%= PUNK.title_to_html(punk.title) %>
+      </div>
     </button>
+
+    <div id="btn_title_<%= index %>" style="display:none">
+      <textarea>
+        <span class="label label-inverse">
+          [<%= punk.start_time %>]
+          <%= PUNK.title_to_html(punk.title) %>
+          (<%= punk.content.size %> lines of log)
+        </span>
+      </textarea>
+    </div>
 
     <textarea id="btn_content_<%= index %>" style="display:none">
       <% if punk.content.size > 0 %>

@@ -7,7 +7,7 @@ module PUNK
 
   #============================== CLASSES ========================================
 
-  class PunkEvent < Struct.new(:type, :way, :title, :start_time, :end_time, :elaspe_time, :content)
+  class PunkEvent < Struct.new(:type, :way, :title, :start_time, :end_time, :elaspe_time, :msg_belong_to, :content)
   end
 
   class PunkPendingStack < Struct.new(:id, :lines, :action)
@@ -82,9 +82,19 @@ module PUNK
           puts "Search stack #{stk} in id=#{pending['id']}"
           if pending['id'] == id
             if !linked
-              punk_events << PunkEvent.new(json['type'], json['way'], json['title'], line[15..22], '', '', pending.lines)
+
+              #find belong type (server agent X)
+              title = json['title']
+              agent_title = extract_agent_name(title)
+              if agent_title != nil
+                belong_to = agent_title
+              else
+                belong_to = 'SERVER'
+              end
+
+              punk_events << PunkEvent.new(json['type'], json['way'], title, line[15..22], '', '', belong_to, pending.lines)
               linked = true
-              puts "found '#{id}' in pending with #{pending.lines.size} lines !  #{punks_pending.size} pending left"
+              puts "found '#{id}' #{json['title']} (belong to #{belong_to}) in pending with #{pending.lines.size} lines !  #{punks_pending.size} pending left"
             else
               puts "delete '#{id}' #{punks_pending.size} pending left"
             end
@@ -147,15 +157,11 @@ module PUNK
 
     title.gsub!('ACK','<i class="icon-share icon-white"></i>')
 
-    agent_pos = title.index('AGENT')
-    agent_end_pos = title.index('TNEGA')
-    if agent_pos != nil && agent_end_pos != nil
-      agent_name = title[(agent_pos+6)..(agent_end_pos-1)]
-
+    agent_name = extract_agent_name(title)
+    if agent_name != nil
+      agent_pos = title.index('AGENT')
+      agent_end_pos = title.index('TNEGA')
       title.gsub!(title[agent_pos..(agent_end_pos+4)], "<span class=\"label label-warning\">#{agent_name}</span>")
-
-      #title.gsub!(title[agent_pos..(agent_end_pos+4)], "[<i class=\"icon-th-large icon-white\"></i> #{agent_name}]")
-
     end
 
     title
@@ -198,5 +204,16 @@ module PUNK
   def self.gen_loading_action()
     $pending_action
   end
+
+  def self.extract_agent_name(txt)
+    agent_pos = txt.index('AGENT')
+    agent_end_pos = txt.index('TNEGA')
+    if agent_pos != nil && agent_end_pos != nil
+      txt[(agent_pos+6)..(agent_end_pos-1)]
+    else
+      nil
+    end
+  end
+
 
 end

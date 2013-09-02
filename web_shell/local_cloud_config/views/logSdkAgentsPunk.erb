@@ -21,22 +21,30 @@
   <div class="pull-right">
 
     <% if is_log_show_com() == 'true' %>
-      <a class="btn btn-success" href="/log_show_com_hide">com</a>
+      <a class="btn btn-success" href="/log_show_com_hide">
     <% else %>
-      <a class="btn btn-success disabled" href="/log_show_com_show">com</a>
+      <a class="btn btn-success disabled" href="/log_show_com_show">
     <% end %>
+      <i class="icon-eye-open"></i>
+    </a>
+
 
     <% if is_log_show_process() == 'true' %>
-      <a class="btn btn-info" href="/log_show_process_hide">processing</a>
+      <a class="btn btn-info" href="/log_show_process_hide">
     <% else %>
-      <a class="btn btn-info disabled" href="/log_show_process_show">processing</a>
+      <a class="btn btn-info disabled" href="/log_show_process_show">
     <% end %>
+      <i class="icon-eye-open"></i>
+    </a>
 
     <% if is_log_show_error() == 'true' %>
-      <a class="btn btn-danger" href="/log_show_error_hide">errors</a>
+      <a class="btn btn-danger" href="/log_show_error_hide">
     <% else %>
-      <a class="btn btn-danger disabled" href="/log_show_error_show">errors</a>
+      <a class="btn btn-danger disabled" href="/log_show_error_show">
     <% end %>
+      <i class="icon-eye-open"></i>
+    </a>
+
   </div>
 </div>
 

@@ -129,7 +129,7 @@
                   sanitizedLines[i] = sanitizedLines[i].replace('D, [','<span class="' + spn_debug + '"> debug</span> ')
                   sanitizedLines[i] = sanitizedLines[i].replace('I, [','<span class="' + spn_info + '"> info</span> ')
                   sanitizedLines[i] = sanitizedLines[i].replace('W, [','<span class="' + spn_warn + '"> WARN</span> ')
-                  sanitizedLines[i] = sanitizedLines[i].replace('E, [','<span class="' + spn_err + '"> ERROR</span> ')
+                  sanitizedLines[i] = sanitizedLines[i].replace('E, [','<span class="' + spn_err + '"> !! ERROR !!</span> ')
 
                   // bolt if agent
                   if (sanitizedLines[i].indexOf(' -- : Agent ') > 0) {

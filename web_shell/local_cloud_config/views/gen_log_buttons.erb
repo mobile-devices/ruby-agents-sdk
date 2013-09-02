@@ -29,15 +29,30 @@
         <% end %>
       <% end %>
 
-      <% if is_log_show_com() != 'true' && punk_kind == "com" %>
+      <%
+        do_hide = false
+        if punk.msg_belong_to != "SERVER"
+
+        end
+
+        if is_log_show_server() != 'true' && punk.msg_belong_to == "SERVER"
+          do_hide = true
+        end
+        if is_log_show_com() != 'true' && punk_kind == "com"
+          do_hide = true
+        end
+        if is_log_show_process() != 'true' && punk_kind == "process"
+          do_hide = true
+        end
+        if is_log_show_error() != 'true' && punk_kind == "error"
+          do_hide = true
+        end
+        if do_hide == true
+      %>
         style="display:none"
       <% end %>
-      <% if is_log_show_process() != 'true' && punk_kind == "process" %>
-        style="display:none"
-      <% end %>
-      <% if is_log_show_error() != 'true' && punk_kind == "error" %>
-        style="display:none"
-      <% end %>
+
+
       >
 
       <div class="text-left">

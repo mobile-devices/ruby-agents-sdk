@@ -48,7 +48,11 @@
     </button>
 
     <textarea id="btn_content_<%= index %>" style="display:none">
-      <%= punk.content %>
+      <% if punk.content.size > 0 %>
+        <%= punk.content %>
+      <% else %>
+        ["No details available"]
+      <% end %>
     </textarea>
   </p>
 

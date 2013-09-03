@@ -87,7 +87,7 @@ def is_log_show_com
     if File.exist?('.log_show_com')
       File.read('.log_show_com')
     else
-      set_show_more_stats(true)
+      set_log_show_com(true)
       'true'
     end
   end
@@ -128,7 +128,7 @@ def is_log_show_process
     if File.exist?('.log_show_process')
       File.read('.log_show_process')
     else
-      set_show_more_stats(true)
+      set_log_show_process(true)
       'true'
     end
   end
@@ -148,7 +148,7 @@ def is_log_show_error
     if File.exist?('.log_show_error')
       File.read('.log_show_error')
     else
-      set_show_more_stats(true)
+      set_log_show_process(true)
       'true'
     end
   end

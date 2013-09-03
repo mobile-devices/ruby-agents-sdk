@@ -31,7 +31,7 @@ restart() {
   ruby gen_gemFile.rb >> ../../logs/daemon_server.log 2>&1
   if [ "$?" -ne 0 ] ; then
     echo 'PUNKabeNK_sys_merge gemfile' >>  ../../logs/ruby-agent-sdk-server.log
-    echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{"type":"ko", "way":"", "title":"SERVER merge gemfile fail"}" >>  ../../logs/ruby-agent-sdk-server.log
+    echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ko\", \"way\":\"''\", \"title\":\"SERVER merge gemfile fail\"}" >>  ../../logs/ruby-agent-sdk-server.log
     exit 1
   fi
   echo 'PUNKabeDROP_sys' >>  ../../logs/ruby-agent-sdk-server.log
@@ -40,7 +40,7 @@ restart() {
   echo 'PUNKabeNK_sys_bundle gem install' >>  ../../logs/ruby-agent-sdk-server.log
   bundle install >> ../../logs/ruby-agent-sdk-server.log 2>&1
   if [ "$?" -ne 0 ] ; then
-      echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{"type":"ko", "way":"", "title":"SERVER ruby gems bundle install fail"}" >>  ../../logs/ruby-agent-sdk-server.log
+      echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ko\", \"way\":\"\", \"title\":\"SERVER ruby gems bundle install fail\"}" >>  ../../logs/ruby-agent-sdk-server.log
     exit 1
   fi
   echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ok\", \"way\":\"\", \"title\":\"SERVER ruby gems bundle install done\"}" >>  ../../logs/ruby-agent-sdk-server.log

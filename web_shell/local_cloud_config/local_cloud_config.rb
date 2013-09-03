@@ -226,16 +226,6 @@ get '/gen_main_display' do
 end
 
 #=========================================================================================
-get '/reminder_show' do
-  set_reminder_hidden(false)
-  redirect('/projects')
-end
-
-get '/reminder_hide' do
-  set_reminder_hidden(true)
-  redirect('/projects')
-end
-
 
 get '/extented_stats_show' do
   set_show_more_stats(true)

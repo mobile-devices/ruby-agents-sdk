@@ -23,25 +23,6 @@ def set_reset_log_checked(val)
 end
 
 
-def is_reminder_hidden
-  @reminder_hidden ||= begin
-    if File.exist?('.reminder_hidden')
-      File.read('.reminder_hidden')
-    else
-      set_reminder_hidden(false)
-      'false'
-    end
-  end
-end
-
-def set_reminder_hidden(val)
-  if (@previous_reminder_hidden != val)
-    File.open('.reminder_hidden', 'w') { |file| file.write(val) }
-    @previous_reminder_hidden = val
-    @reminder_hidden = val
-  end
-end
-
 def is_show_more_stats
   @show_more_stats ||= begin
     if File.exist?('.show_more_stats')
@@ -148,7 +129,7 @@ def is_log_show_error
     if File.exist?('.log_show_error')
       File.read('.log_show_error')
     else
-      set_log_show_process(true)
+      set_log_show_error(true)
       'true'
     end
   end

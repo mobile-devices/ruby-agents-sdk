@@ -117,6 +117,12 @@ get '/logSdkAgentsPunk' do
   erb :logSdkAgentsPunk
 end
 
+get '/unit_tests' do
+  @active_tab = "unit_tests"
+  @agents = agents.select {|agent_name, agent| agent.running}
+  erb :tests
+end
+
 
 
 get '/reset_daemon_server_log' do
@@ -349,13 +355,6 @@ end
 
 get '/stop_tests' do
   http_get("http://localhost:5001/stop_tests")
-end
-
-
-get '/unit_tests' do
-  @active_tab = "unit_tests"
-  @agents = agents.select {|agent_name, agent| agent.running}
-  erb :tests
 end
 
 # return a piece of HTML to insert in the table of results with AJAX

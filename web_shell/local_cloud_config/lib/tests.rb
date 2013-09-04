@@ -3,8 +3,6 @@
 # Mobile Devices 2013
 #########################################################
 
-require 'git'
-
 # defines the tests results for a given agent (identified by his name)
 class TestsResultsForAgent
 

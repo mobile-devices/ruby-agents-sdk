@@ -21,7 +21,6 @@ start_admin() {
   cd web_shell/local_cloud_config
   ruby local_cloud_config.rb >>../../logs/daemon_server_config.log 2>&1 &
   popd >> /dev/null
-  build_doc >> /dev/null &
 }
 
 stop_admin() {
@@ -63,13 +62,6 @@ read_log_server() {
 #todo: test if multitail available, multi tail only run agent
 read_log_agents() {
   tail -f logs/ruby-agent-sdk-server.log
-}
-
-build_doc() {
-  pushd . >> /dev/null
-  cd web_shell/local_cloud
-  bundle exec yardoc
-  popd >> /dev/null
 }
 
 $command $params

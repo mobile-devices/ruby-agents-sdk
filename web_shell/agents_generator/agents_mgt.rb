@@ -46,6 +46,13 @@ module AgentsGenerator
     @PROTOGEN_BIN_PATH ||= "#{source_path}/exts/protogen/protocol_generator/"
   end
 
+  def sdk_utils_path()
+    @SDK_UTILS_PATH ||= "#{generated_rb_path}/sdk_utils"
+  end
+
+  def clean_name(name)
+    name.gsub('-','_')
+  end
 
   #########################################################################################################
   ## compile
@@ -107,7 +114,7 @@ module AgentsGenerator
   end
 
   def generate_agents()
-    @AgentsGenerator_rapport_generation = ""
+    @AgentsGeneratorrapport_generation = ""
 
     FileUtils.mkdir_p("#{generated_rb_path}")
 
@@ -120,16 +127,24 @@ module AgentsGenerator
 
     agents_generated_code = ""
 
+    # add sdk_utils folder to $LOAD_PATH so the users can write directly
+    # "require 'sdk_utils'"" in their code
+     agents_generated_code += <<-CODE
+      libdir = File.expand_path("#{sdk_utils_path}")
+      $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
+    CODE
+
 
     template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
     # template generation
     agents_to_run.each { |agent|
-      clean_class_name = "#{agent}"
-      clean_class_name.gsub!('-','_')
+      clean_class_name = clean_name("#{agent}")
+      downcased_class_name = clean_class_name.downcase
 
       template_agent = template_agent_src.clone
       template_agent.gsub!('XX_PROJECT_NAME',"#{agent}")
+      template_agent.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
       template_agent.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
       template_agent.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
       agents_generated_code += template_agent
@@ -167,8 +182,9 @@ module AgentsGenerator
 
       if sub_p
         agents_generated_code += "  begin\n"
+        agents_generated_code += "    time_start_presence = Time.now\n"
         agents_generated_code += "    \$#{agent}_initial.handle_presence(presence)\n"
-        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][0] += (Time.now - @time_start_presence)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][0] += (Time.now - time_start_presence)\n"
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback PRESENCE '\#{presence.type}'\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /presence error on agent #{agent} while handle_presence')\n"
@@ -196,8 +212,9 @@ module AgentsGenerator
 
       if sub_m
         agents_generated_code += "  begin\n"
+        agents_generated_code += "    time_start_message = Time.now\n"
         agents_generated_code += "    \$#{agent}_initial.handle_message(message)\n"
-        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][1] += (Time.now - @time_start_message)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][1] += (Time.now - time_start_message)\n"
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback MSG[\#{crop_ref(message.id,4)}]\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /message error on agent #{agent} while handle_message')\n"
@@ -225,8 +242,9 @@ module AgentsGenerator
 
       if sub_t
         agents_generated_code += "  begin\n"
+        agents_generated_code += "    time_start_track = Time.now\n"
         agents_generated_code += "    \$#{agent}_initial.handle_track(track)\n"
-        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][2] += (Time.now - @time_start_track)\n"
+        agents_generated_code += "    SDK_STATS.stats['agents']['#{agent}']['proccess_time'][2] += (Time.now - time_start_track)\n"
         agents_generated_code += "    PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback TRACK\")\n"
         agents_generated_code += "  rescue => e\n"
         agents_generated_code += "    CC.logger.error('Server: /track error on agent #{agent} while handle_track')\n"
@@ -243,8 +261,9 @@ module AgentsGenerator
     agents_to_run.each { |agent|
       agents_generated_code += "  if order.agent == '#{agent}'\n"
       agents_generated_code += "    begin\n"
+      agents_generated_code += "      time_start_order = Time.now\n"
       agents_generated_code += "      \$#{agent}_initial.handle_order(order)\n"
-      agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['proccess_time'][3] += (Time.now - @time_start_order)\n"
+      agents_generated_code += "      SDK_STATS.stats['agents']['#{agent}']['proccess_time'][3] += (Time.now - time_start_order)\n"
       agents_generated_code += "      PUNK.end('handle','ok','process',\"AGENT:#{agent}TNEGA callback ORDER '\#{order.code}' \")\n"
       agents_generated_code += "    rescue => e\n"
       agents_generated_code += "      CC.logger.error(\"Server: /remote_call error on agent #{agent} while executing order \#{order.code}\")\n"
@@ -257,8 +276,37 @@ module AgentsGenerator
     }
     agents_generated_code += "end\n\n"
 
+    # Tests runner
+    # agents_generated_code += "def run_tests(agents)\n"
+    # agents_to_run.each do |agent|
+    #   agents_generated_code += "  results = $#{agent}_initial.run_tests\n"
+    # end
+    # agents_generated_code += "end\n\n"
 
     File.open("#{generated_rb_path}/generated.rb", 'w') { |file| file.write(agents_generated_code) }
+
+
+    # Generate sdk_api.rb
+    template_sdk_api_generated_code = ''
+    template_api_src = File.read("#{source_path}/template_sdk_api.rb_")
+    FileUtils.mkdir_p("#{sdk_utils_path}")
+
+    agents_to_run.each { |agent|
+      clean_class_name = clean_name("#{agent}")
+      downcased_class_name = clean_class_name.downcase
+      template_sdk_api = template_api_src.clone
+      template_sdk_api.gsub!('XX_PROJECT_NAME',"#{agent}")
+      template_sdk_api.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
+      template_sdk_api.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
+      template_sdk_api.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
+      template_sdk_api_generated_code += template_sdk_api
+      template_sdk_api_generated_code += "\n\n"
+    }
+
+    File.open("#{sdk_utils_path}/sdk_api.rb", 'w') { |file| file.write(template_sdk_api_generated_code)}
+
+
+
 
     add_to_rapport("Templates generated done\n")
 
@@ -594,6 +642,7 @@ module AgentsGenerator
   end
 
   #########################################################################################################
+
 
 end
 

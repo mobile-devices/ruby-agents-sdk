@@ -8,12 +8,13 @@
 require 'json'
 
 require 'redcarpet'
+require 'net/http'
 require_relative 'lib/readcarpet_overload'
 require_relative 'lib/agents'
-require_relative 'lib/documentation'
 require_relative 'lib/logs_getter'
 require_relative 'lib/net_http'
 require_relative 'lib/erb_config'
+require_relative 'lib/tests'
 
 require_relative 'lib/un_punkabe'
 
@@ -28,7 +29,6 @@ require 'rack/flash'
 enable :sessions
 use Rack::Flash
 
-
 def print_ruby_exception(e)
   stack=""
   e.backtrace.take(20).each { |trace|
@@ -37,6 +37,34 @@ def print_ruby_exception(e)
   CC.logger.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 end
 
+# define HTML escaping in templates
+# useful for displaying stack traces that can contain nasty HTML characters
+# see http://www.sinatrarb.com/faq.html#escape_html
+helpers do
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
+end
+
+def last_version_path
+  @last_version_launched_path ||= '.last_version'
+end
+# if the version has changed or first time, goto documentation or patch note page
+def check_version_change_to_user
+  action = 0
+  if !(File.exist?(last_version_path))
+    action = 1
+  else
+    current_v = File.read(last_version_path)
+    if (current_v.length > 5 && get_sdk_version.length > 5)
+      if current_v[0..5] != get_sdk_version[0..5]
+        action = 2
+      end
+    end
+  end
+  File.open(last_version_path, 'w') { |file| file.write(get_sdk_version) }
+  action
+end
 
 #=========================================================================================
 get '/' do
@@ -67,17 +95,11 @@ get '/projects' do
 end
 
 get '/doc' do
-  @active_tab='doc'
-
-  render_documentation(sdk_doc_md)
-  erb :doc
+  redirect('doc/_index.html')
 end
 
 get '/patch_note' do
-  @active_tab='patch_note'
-
-  render_documentation(sdk_patch_note_md)
-  erb :patch_note
+  redirect("doc/file.patch_notes.html")
 end
 
 get '/logSdk' do
@@ -310,4 +332,182 @@ post '/perform_cron_tasks' do
   end
 
   redirect('/projects')
+end
+
+# ====== Tests ==============
+
+post '/run_tests' do
+  unless params.has_key?('agents')
+    return halt(400, "'agents' parameter is mandatory")
+  end
+  q = Rack::Utils.build_nested_query(
+    agents: params['agents']
+  )
+  # todo check HTTP return code before redirecting (risk of silencing an error)
+  http_get("http://localhost:5001/start_tests?#{q}")
+end
+
+get '/stop_tests' do
+  http_get("http://localhost:5001/stop_tests")
+end
+
+
+get '/unit_tests' do
+  @active_tab = "unit_tests"
+  @agents = agents.select {|agent_name, agent| agent.running}
+  erb :tests
+end
+
+# return a piece of HTML to insert in the table of results with AJAX
+get '/update_test_status' do
+  content_type :json
+
+  # basic validation
+  unless params.has_key?('agent')
+    halt(400, "You must provide the 'agent' parameter")
+  end
+  if params.has_key?("index")
+    last_index = Integer(params["index"]) rescue nil
+    halt(400, "'last_index' parameter must be an integer") unless last_index
+    if last_index < 0
+      halt(400, "'last index' parameter must be a positive integer")
+    end
+  end
+
+  # read tests logs. As it is written with atomic_write there is no risk doing it even if RSpec is currenty writing to it.
+  output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{params['agent']}.log"
+
+  unless File.file?(output_file_path)
+    return {status: "not scheduled"}.to_json
+  end
+
+  begin
+    test_status = JSON.parse(File.read(output_file_path), {symbolize_names: true})
+  rescue JSON::ParserError => e
+    # this case may happen when the file exists but is empty
+    # todo: this case should not happen, but in practise in does -> why ?
+    # as a temporary fix I silently ignore this error, but it should return a 500 error instead:
+    # halt(500, "ERROR: can not parse tests log file at " + output_file_path + " because of the following problem: " + e.message)
+    return {status: "scheduled"}.to_json
+  end
+
+  if test_status[:status] == "scheduled" || test_status[:status] == "no tests subfolder"
+    return test_status.to_json
+  end
+
+  if test_status[:status] == "aborted"
+    @exception = test_status[:exception]
+    html_to_append = erb :tests_aborted, :layout => false
+    return test_status.merge!({html: html_to_append}).to_json
+  end
+
+  # todo edge cases (no examples run..)
+
+  # If index parameter was given, we only keep the examples that were not sent before
+  if params.has_key?("index")
+    test_status[:examples].delete_if do |example|
+      example[:example_index] <= last_index
+    end
+    # if there are no examples left, return immediately
+    if test_status[:examples].size == 0
+      test_status[:max_index] = last_index
+      return test_status.to_json
+    end
+  end
+
+  # find the maximum index of tests in the remaining examples
+  example_with_max_index = test_status[:examples].max_by do |example|
+    example[:example_index]
+  end
+  test_status[:max_index] = example_with_max_index[:example_index]
+
+  index = 0
+  index = params['index'] if params.has_key?('index')
+  @examples = get_examples_list(test_status)
+  if @examples.nil?
+    html_to_append = ''
+  else
+    html_to_append = erb :example, :layout => false
+  end
+  res = {"html" => html_to_append,
+    "max_index" => test_status[:max_index], "status" => test_status[:status],
+   "failed_count" => test_status[:failed_count], "passed_count" => test_status[:passed_count],
+   "pending_count" => test_status[:pending_count], "example_count" => test_status[:example_count],
+   "start_time" => test_status[:start_time]}
+   res.merge!({"duration" => test_status[:summary][:duration]}) unless test_status[:summary].nil?
+   res.to_json
+ end
+
+# Possible test status for an agent
+# "not scheduled" -> test neither started nor scheduled
+# "no tests subfolders" -> test was shceduled but no 'tests' subfolfer was found
+# "scheduled" -> test scheduled, but not started
+# "started"
+# "finished"
+# "interrupted"
+# 'aborted' rspec threw an exception
+
+# read the log file containing tests results for the given agent
+# and write it on the disk as HTML
+# return the location where results were written
+post '/save_tests_results' do
+  unless params.has_key?('agent')
+    return halt(400, "'agent' parameter is mandatory")
+  end
+  output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{params['agent']}.log"
+  unless File.file?(output_file_path)
+    halt(400, "No tests results for agent #{params['agent']} at #{output_file_path}, impossible to save them.")
+  end
+  begin
+    test_status = JSON.parse(File.read(output_file_path), {symbolize_names: true})
+  rescue JSON::ParserError => e
+    halt(500, "Error when parsing tests results log file: #{e.message}")
+  end
+  unless (test_status[:status] == "finished" || test_status[:status] == "started" || test_status[:status] == "interrupted")
+    halt(400, "tests must have started before saving their results (current status: #{test_status[:status]})")
+  end
+  @examples = get_examples_list(test_status)
+  if @examples.nil?
+    @examples = [] # to avoid errors in erb template
+  end
+  @duration = test_status[:summary][:duration] unless test_status[:summary].nil?
+  @summary = "#{test_status[:tested]} out of #{test_status[:example_count]} tests run (#{test_status[:failed_count]} failed, #{test_status[:pending_count]} not implemented)"
+  @agent = params['agent']
+  @date = test_status[:start_time]
+  @git_info = get_git_status("/home/vagrant/ruby-agents-sdk/cloud_agents/#{params['agent']}")
+  @failed = test_status[:failed_count] > 0
+  html = erb :export_tests, :layout => false
+  output_directory = "/home/vagrant/ruby_workspace/sdk_logs/tests_results/#{params['agent']}/"
+  output_path = output_directory + "#{sanitize_filename(@date)}_#{params['agent']}.html"
+  FileUtils.mkdir_p(output_directory)
+  File.open(output_path, 'w') do |file|
+    file.write(html)
+  end
+  output_path
+end
+
+# return a hash of agents with their current test status
+# if an agent is not in the array status is "not started"
+# assumption: logs that begin with "tests_" are logs produced
+# by the SDK
+get '/tests_status' do
+  content_type :json
+  logs_folder = "/home/vagrant/ruby_workspace/sdk_logs/"
+  log_pattern = "tests_*.log"
+  res = Dir.glob(logs_folder + log_pattern).inject({}) do |acc, current_log|
+    begin
+      File.open(current_log, 'r') do |file|
+        test_status = JSON.parse(file.read, {symbolize_names: true})
+        acc[current_log] = test_status[:status]
+      end
+    rescue JSON::ParserError => e
+      puts "Error when parsing the content of " + current_log + ": " + e.message
+    end
+    acc
+  end
+  # rename ".../tests_agent.log" keys to "agent" (in place)
+  res.keys.each do |k|
+    res[ k.gsub(logs_folder + "tests\_", "").gsub("\.log", "") ] = res.delete(k)
+  end
+  return res.to_json
 end

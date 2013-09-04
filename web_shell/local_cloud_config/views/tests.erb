@@ -1,0 +1,424 @@
+<!--
+  Xavier Demompion : xavier.demompion@mobile-devices.fr
+  Mobile Devices 2013
+-->
+
+<div>
+
+  <div id="info">
+  </div>
+
+  <div class="row-fluid">
+    <p class="muted">This page is automatically refreshed every 5 seconds.<p>
+  </div>
+
+  <div class="row-fluid">
+    <div class="pull-left">
+          Run tests for agent:
+    </div>
+    <div class="btn-group pull-left">
+      <a id="agent-to-test" class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        All agents
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <% @agents.each do |agent_name, agent| %>
+          <li><a id='<%= agent.name %>-element' tabindex="-1" href="#"><%= agent.name %></a></li>
+        <% end %>
+          <li><a id='all-agents-element' tabindex="-1" href="#">All agents</a></li>
+      </ul>
+    </div>
+    <div>
+      <button id="run-tests" class="btn btn-primary pull-left">Run tests</button>
+    </div>
+  </div>
+
+  <div id="tests-results" class='row-fluid'>
+    <% @agents.each do |agent_name, agent| %>
+      <div id='<%= agent.name %>'>
+        <h4> <%= agent.name %> </h4>
+          <div class='well well-small'>
+            <div class='well well-small progress progress-striped active'>
+                <div class='bar bar-success' style='width: 1%;'></div>
+                <div class='bar bar-info' style='width: 0%;'></div>
+                <div class='bar bar-danger' style='width: 1%;'></div>
+              </div>
+            <div class="row-fluid">
+              <div class='well well-small'>
+                <div class='pull-left'>
+                  <span class='status' style='margin-right: +20px;'> <strong></strong> </span>
+                  <span class='summary'> Waiting for status update. </span>
+                </div>
+                <div class='pull-right'>
+                  <button class='btn save disabled' disabled='disabled'>Save results</button>
+                </div>
+              </div>
+            </div>
+            <div class="row-fluid">
+              <div class='pull-left duration'>
+              </div>
+              <div class='pull-right start-time'>
+              </div>
+            </div>
+         </div>
+         <div id='accordion2' class='accordion'>
+           <table class='table table-bordered' style='word-wrap: break-word; table-layout: fixed;'>
+             <tbody class='results'>
+             </tbody>
+           </table>
+         </div>
+       </div>
+    <% end %>
+  </div>
+
+</div>
+
+
+
+<script>
+
+  $( document ).ready(function() {
+
+    (function () { // pseudo-namespace
+
+      function Agent(name,status) {
+        this.name = name;
+        this.status = status;
+      }
+
+      var agents = new Array();
+      <% index = 0
+        @agents.each do |agent_name, agent| %>
+           agents[<%= index %>] = new Agent("<%= agent.name %>", "not scheduled");
+           <% index += 1 %>
+        <% end %>
+
+      var selected_agent = 'all';
+      var TEST_STATUS = {
+        STOPPED: "stopped",
+        STARTED: "started"
+      };
+      var current_test_status = TEST_STATUS.STOPPED;
+
+      // ================= Set up the page =================
+      // The following methods are exectued as soon the page is started
+
+      // set up the drowpdown menu and the "run tests" button event listeners
+      // other (dynamic) event listeners are defined below
+      (function setup_event_listeners() {
+        // dropdown menu agent selector
+        for(var i = 0; i < agents.length; i++) {
+          $("#" + agents[i].name + "-element").click(
+            (function(agent) {
+                 return function () {
+                      selected_agent = agent;
+                      $("#agent-to-test").html(selected_agent.name + "\n <span class='caret'></span>");
+                    }
+              })(agents[i])
+          ); // ("#" + agents[i].name + "-element").click
+          $("#all-agents-element").click( function() {
+            selected_agent = "all";
+            $("#agent-to-test").html("All agents\n <span class='caret'></span>");
+          }) // $("#all-agents-element").click
+        } // for(var i = 0; i < agents.length; i++)
+
+        // run test button
+        $("#run-tests").click( function() {
+          if(current_test_status==TEST_STATUS.STOPPED) {
+            run_tests(selected_agent);
+          }
+          else {
+            stop_tests();
+          }
+        }) // $("#run-tests").click
+
+      })(); // function setup_event_listeners
+
+      start_live_results(agents);
+
+      // ================= Helpers ================= //
+
+      // alert type can be one of "info", "error", "warning", "success"
+      function display_alert(alert_type, message) {
+        if (!(alert_type == "info" || alert_type == "error" || alert_type == "success" || alert_type == "warning")) {
+          var alert_type = "info";
+        }
+        var html = "<div class='alert fade in alert-" + alert_type + "'> <button type='button' class='close' data-dismiss='alert'>&times;</button> " + message + " </div>";
+        if ($('#info').children("div").length < 3) {
+          $('#info').prepend(html);
+        } else {
+          $('#info').prepend(html);
+          $('#info > :last').remove();
+        }
+      }
+
+      function update_run_tests_button() {
+        if(current_test_status==TEST_STATUS.STARTED) {
+          $("#run-tests").html("Stop tests");
+          $("#run-tests").removeClass("btn-primary");
+          $("#run-tests").addClass("btn-danger");
+        } else {
+          $("#run-tests").html("Run tests");
+          $("#run-tests").removeClass("btn-danger");
+          $("#run-tests").addClass("btn-primary");
+        }
+      }
+
+      // ================= Main methods ================= //
+
+      // agent is either 'all' or an Agent object
+      function run_tests(agent) {
+        // before doing anything lets check that the server is running
+        var server_alive = false;
+        $.ajax({
+          url: '/gen_ruby_server_reboot',
+          type: "GET",
+          async: false,
+          dataType: "json",
+          success: function(data) {
+            server_alive = true;
+            if (data.crash || !data.running) {
+              display_alert("warning", "The agents server must be running before running the tests.");
+              server_alive = false;
+            }
+          },
+          error: function(xhr, status, errorThrown) {
+            display_alert("warning", "Impossible to contact the agents server (" + xhr.responseText + " - " + status + " - " + errorThrown + ")");
+            server_alive = false;
+          }
+        });
+        if (!(server_alive)) {
+          return false;
+        }
+        var agents_to_test = null;
+        var agents_names = null;
+        if(agent=='all') {
+          agents_to_test = agents
+          agents_names = new Array();
+          for (var i = 0; i < agents_to_test.length; i++) {
+            agents_names[i] = agents_to_test[i].name
+            $('div#' + agents_names[i] + " .results").html(""); // delete previous tests results
+            $('div#' + agents_names[i] + " .duration").html("");
+          }
+        } else {
+          agents_names = new Array(agent.name);
+          $('div#' + agents_names + " .results").html(""); // delete previous tests results
+          $('div#' + agents_names + " .duration").html("");
+          agents_to_test = new Array(agent);
+        }
+
+        $.ajax({url: '/run_tests',
+           data: {"agents": agents_names},
+           type: "POST",
+           async: false,
+           success: function(data) {
+            console.log("Starting tests; server responded: " + data); // TODO find why the server respond this strange hash
+            display_alert("info", "Tests started.");
+            current_test_status = TEST_STATUS.STARTED;
+            update_run_tests_button();
+           },
+           error: function(xhr, status, errorThrown) {
+             console.error("Error when starting the tests: " + status + " (" + errorThrown + ") ---- " + xhr.responseText);
+             display_alert("error", "<strong>An error occured when starting the tests.</strong> More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
+           }
+         }); // ajax
+        start_live_results(agents_to_test);
+      } // function run_tests
+
+      function stop_tests() {
+        $.ajax({url: '/stop_tests',
+          type: "GET",
+          async: false,
+          success: function(data) {
+            display_alert("info", "Stopping tests.");
+            current_test_status = TEST_STATUS.STOPPED;
+            update_run_tests_button();
+          }
+        }); // ajax
+      } // stop tests
+
+      // ================= Live update of the page with AJAX ================= //
+
+      // agents_to_test is an Array of agents
+      function start_live_results(agents_to_test) {
+        // generate template for all agents
+        for( var i = 0; i < agents.length; i++) {
+          // add on click callbacks to save buttons
+          $("div#" + agents[i].name + " .save").off("click");
+          $("div#" + agents[i].name + " .save").click( (function(agent_name) {
+            return function() {
+              $.ajax({
+                url: '/save_tests_results',
+                type: "POST",
+                data: {"agent": agent_name},
+                success: function (data) {
+                  display_alert("success", "Tests results saved to " + data);
+                },
+                error: function(xhr, status, errorThrown) {
+                  display_alert("error", "<strong>Error when saving tests results</strong>. More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
+                }
+              }) // ajax
+            } // inner function
+          })(agents[i].name) // callback
+          ) // click
+        } // for( var i = 0; i < tested_agents.length; i++)
+
+        update_status();
+
+        // run updater for all agents (cf below)
+        var tested_agents = new Array();
+        for(var i = 0; i < agents_to_test.length; i++) {
+          updater(agents_to_test[i], 0);
+        }
+
+        // --- helper functions ---
+
+        function update_status() {
+          $.ajax({
+            url: '/tests_status',
+            dataType: "json",
+            success: function (data) {
+              current_test_status = TEST_STATUS.STOPPED;
+              $.each(data, function(agent, status) {
+                if(status == "started" || status == "scheduled") {
+                  current_test_status = TEST_STATUS.STARTED;
+                }
+              })
+              update_run_tests_button();
+            },
+            error: function(xhr, status, errorThrown) {
+              console.log("An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
+              display_alert("warning", "An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
+            }
+          }) // ajax
+
+        } // update_status
+
+        function update_progress_bars(current_agent, passed, pending, failed, example, current_status) {
+          var parent = "div#" + current_agent.name + " ";
+          $(parent + ".bar-success").width(Math.floor(passed * 100 / example )+'%');
+          $(parent + ".bar-info").width(Math.floor(pending * 100 / example )+'%');
+          $(parent + ".bar-danger").width(Math.floor(failed * 100 / example )+'%');
+          if(current_status == "started" || current_status == "scheduled") {
+            $(parent + ".progress:not([class~='active'])").addClass("active progress-striped"); // add active to the class of the progress bar group only if it is not already active
+          }
+          else if(current_status == "finished" || current_status == "not scheduled" || current_status == "no tests subfolder" || current_status == "interrupted") {
+            $(parent + ".progress").removeClass("active progress-striped");
+          }
+        } // function update_progress_bars
+
+        function update_status_display(current_agent, passed, pending, failed, example, current_status, start_time) {
+          var parent = "div#" + current_agent.name + " ";
+          if(current_status == "started") {
+            $(parent + ".status").html("<strong>Running tests</strong>.");
+            var tests_run = failed + pending + passed
+            $(parent + ".summary").html("Current progress: " + tests_run + " run (" + failed + " failed, " + pending + " not implemented). Total number of tests to run: " + example);
+            $(parent + '.start-time').html("Tests started at " + start_time);
+            $(parent + '.save').removeClass("disabled")
+            $(parent + '.save').removeAttr("disabled")
+          }
+          else if(current_status == "finished") {
+            $(parent + ".status").html("<strong>Tests complete</strong>.");
+            var tests_run = failed + pending + passed
+            $(parent + ".summary").html(tests_run + " tests run (" + failed + " failed, " + pending + " not implemented).");
+            $(parent + '.start-time').html("Tests started at " + start_time);
+            $(parent + '.save').removeClass("disabled")
+            $(parent + '.save').removeAttr("disabled")
+          }
+          else if(current_status == "not scheduled") {
+            $(parent + ".status").html("No tests are currently scheduled for this agent.");
+            $(parent + ".summary").html("");
+            $(parent + '.start-time').html("");
+          }
+          else if(current_status == "scheduled") {
+            $(parent + ".status").html("Waiting for tests to start.");
+            $(parent + ".summary").html("");
+            $(parent + '.start-time').html("");
+          }
+          else if(current_status == "no tests subfolder") {
+            $(parent + ".status").html("No 'tests' subfolders found, skipping tests.");
+            $(parent + ".summary").html("");
+            $(parent + '.start-time').html("");
+          } else if(current_status == "interrupted") {
+            $(parent + ".status").html("<strong>Tests interrupted</strong>.");
+            var tests_run = failed + pending + passed
+            $(parent + ".summary").html(tests_run + " tests run (" + failed + " failed, " + pending + " not implemented) out of " + example + ".");
+            $(parent + '.start-time').html("Tests started at " + start_time);
+            $(parent + '.save').removeClass("disabled")
+            $(parent + '.save').removeAttr("disabled")
+          } else if(current_status == "aborted") {
+            $(parent + ".status").html("Can not run tests.");
+            $(parent + ".summary").html("");
+            $(parent + '.start-time').html("");
+          } else {
+            log.error("Can not update status display because " + current_status + " is an unknow status.");
+          }
+        } // function update_status_display
+
+        // this function regularly calls the "/update_test_status" URL for the given agent
+        // it will do so on a regular basis until no more updates are needed
+        // it will update the page according to the received data
+        function updater(agent, max_index) {
+          var next_request = 1000;
+          $.ajax({
+            url: '/update_test_status',
+            data: {"index": max_index, "agent": agent.name},
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+              if(data.max_index != null) {
+                max_index = data.max_index;
+              }
+              if(data.duration != null) {
+                // update duration
+                $("div#" + agent.name + " .duration").html("Duration: " +  data.duration + " seconds.");
+              }
+              $('div#' + agent.name + " .results").append(data.html);
+              update_progress_bars(agent, data.passed_count, data.pending_count, data.failed_count, data.example_count, data.status);
+              update_status_display(agent, data.passed_count, data.pending_count, data.failed_count, data.example_count, data.status, data.start_time);
+              agent.status = data.status;
+              if (next_request < 5000) {
+                next_request = next_request + 1000;
+              }
+            },
+            error: function(xhr, status, errorThrown) {
+            console.error("Error when updating tests results: " + status + " (" + errorThrown + ") ---- " + xhr.responseText)
+            display_alert("warning", "<strong>An unexpected error occured during the tests.</strong> More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
+            next_request = 500;
+            },
+            complete: function() {
+              console.log("Current status for agent " + agent.name + " is " + agent.status)
+              if (agent.status == "finished") {
+                display_alert("success", "Tests for agent " + agent.name + " complete.");
+                update_status();
+                return 1;
+              } else if (agent.status == "not scheduled") {
+                update_status();
+                return 1;
+              } else if (agent.status == "no tests subfolder") {
+                display_alert("info", "No 'tests' subfolders found for agent " + agent.name + ".");
+                update_status();
+                return 1;
+              }
+              else if (agent.status == "interrupted") {
+                display_alert("info", "Tests for agent " + agent.name + " were interrupted.");
+                update_status();
+                return 1;
+              }
+              else if (agent.status == "aborted") {
+                display_alert("error", "Tests for agent " + agent.name + " were aborted because of a problem in the test file.");
+                update_status();
+                return 1;
+              }
+              console.log("Next request for agent " + agent.name + " is scheduled in " + next_request + "ms with index " + max_index);
+              setTimeout(function() {updater(agent, max_index)}, next_request);
+            } // complete
+          }); // ajax
+        }; // function updater
+      } // function start_live_results
+    })(); // namespace
+  }); // document ready
+
+  </script>
+
+</div>

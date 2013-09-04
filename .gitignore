@@ -10,3 +10,7 @@ protogen_*
 .reminder_hidden
 .show_more_stats
 .cron_tasks_visible
+
+*.yardoc*
+ery
+doc

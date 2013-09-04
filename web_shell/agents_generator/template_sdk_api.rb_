@@ -17,6 +17,16 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
     # This module gives you objects that are already configured with your agent needs.
     module API
 
+      # Prints to the logs a nicely formatted Ruby exception
+      # @param [Class<Exception>] an exception
+      def self.print_ruby_exception(e)
+        stack=""
+        e.backtrace.take(20).each { |trace|
+          stack+="  >> #{trace}\n"
+        }
+        self.log.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+      end
+
       # Use this object to send messages to your devices.
       # @return [MessageGate] a MessageGate object configured for your agent.
       def self.gate

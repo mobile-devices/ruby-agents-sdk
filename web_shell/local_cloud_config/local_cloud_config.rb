@@ -11,7 +11,6 @@ require 'redcarpet'
 require 'net/http'
 require_relative 'lib/readcarpet_overload'
 require_relative 'lib/agents'
-require_relative 'lib/documentation'
 require_relative 'lib/logs_getter'
 require_relative 'lib/net_http'
 require_relative 'lib/erb_config'
@@ -47,6 +46,26 @@ helpers do
   end
 end
 
+def last_version_path
+  @last_version_launched_path ||= '.last_version'
+end
+# if the version has changed or first time, goto documentation or patch note page
+def check_version_change_to_user
+  action = 0
+  if !(File.exist?(last_version_path))
+    action = 1
+  else
+    current_v = File.read(last_version_path)
+    if (current_v.length > 5 && get_sdk_version.length > 5)
+      if current_v[0..5] != get_sdk_version[0..5]
+        action = 2
+      end
+    end
+  end
+  File.open(last_version_path, 'w') { |file| file.write(get_sdk_version) }
+  action
+end
+
 #=========================================================================================
 get '/' do
  redirect('/projects')
@@ -76,17 +95,11 @@ get '/projects' do
 end
 
 get '/doc' do
-  @active_tab='doc'
-
-  render_documentation(sdk_doc_md)
-  erb :doc
+  redirect('doc/_index.html')
 end
 
 get '/patch_note' do
-  @active_tab='patch_note'
-
-  render_documentation(sdk_patch_note_md)
-  erb :patch_note
+  redirect("doc/file.patch_notes.html")
 end
 
 get '/logSdk' do

@@ -31,5 +31,10 @@ gem 'rufus-scheduler'
 gem 'rack-test', require: 'rack/test'
 gem 'rspec'
 
+# doc generation
+gem 'redcarpet'
+gem 'yard'
+gem 'github-markup'
+
 #################################################################
 

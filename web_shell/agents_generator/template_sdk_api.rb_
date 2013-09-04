@@ -4,15 +4,29 @@
 # Mobile Devices 2013
 #########################################################
 
+# @api public
+# An agent-specific module whose role is to be a wrapper around the SDK module (generated code).
+# Including this module in your classes will grant you access to the SDK API already configured
+# with your agent.
 module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
+
+  # @api public
+  # This module gives you access to the SDK API.
   module SDK
+
+    # This module gives you objects that are already configured with your agent needs.
     module API
+
+      # Use this object to send messages to your devices.
+      # @return [MessageGate] a MessageGate object configured for your agent.
       def self.gate
         @@msgGate ||= begin
           MessageGate.new(self.get_channels[0])
         end
       end
 
+      # @return [CloudConnectServices::Log] a (singleton) instance of a logger configured for your agent.
+      # @see file:guides/guidelines.md#Logs the logs guidelines
       def self.log()
         @@agent_logger ||= begin
           CCS::Log.new('Agent XX_PROJECT_NAME: ')
@@ -20,24 +34,52 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
 
       ############### Redis ################################################
+
+      # Returns a (singleton) redis instance configured for your agent.
+      # You don't need to namespace your keys, this will be done automatically.
+      # The returned redis object gives you access to (nearly) all the redis API as documented [on the official Redis website](http://redis.io/commands).
+      # Use it as a fast cache.
+      # @return [Redis] a redis instance configured for your agent.
       def self.redis()
         @@redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
+      # Returns a (singleton) redis instance configured for your agent shared between multiple instances of your agent.
+      # You don't need to namespace your keys, this will be done automatically.
+      #
+      # In the cloud infrastructure of MDI, your agent may live through several instances.
+      # This redis object is shared between all these instances. You can use it for instance to track global stats.
+      # @return [Redis] a redis instance configured for your agent.
       def self.redis_shared()
         @@redis ||= Redis::Namespace.new("CCS:XX_PROJECT_NAME", :redis => CC.redis)
       end
 
+      # @api private
       def self.redis_internal()
         @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
+      # @api private
       def self.redis_internal_shared()
         @@redis_internal ||= Redis::Namespace.new("CCSI:XX_PROJECT_NAME", :redis => CC.redis)
       end
 
       ############### Config ###############################################
-      #note: real wrapper wille have a .yml for each agent in a same folder
+      #note: real wrapper will have a .yml for each agent in a same folder
+
+      # Returns the configuration of your agent stored in the file config/my-agent-name.yml.
+      #
+      # The configuration file must follow the YAML format.
+      # You can add in this file values that are specific to your agent, in addition to the
+      # channel and suscribing configuration, and access it with the hash returned by this method.
+      #
+      # Writing in the returned hash will not write in the configuration file.
+      # @example Retrieve your agent channels
+      #   def new_presence_from_device(presence)
+      #     # on each presence received, we read the config value of the param 'dynamic_channel_str'
+      #     puts "dynamic_channel_str value = #{config['dynamic_channel_str']}"
+      #   end
+      # @return [Hash] the configuration of your agent.
       def self.config()
         @@config ||= begin
           if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
@@ -50,10 +92,13 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           end
         rescue Exception => e
           log.error("ERROR while loading configuration")
-          CCS.print_ruby_exeption(e)
+          CCS.print_ruby_exception(e)
         end
       end
 
+      # Returns the channels your agent is listening to.
+      # Your agents send messages on the first configured chanel.
+      # @return [Array<String>] the channels your agent is listening to.
       def self.get_channels
         @@CHANNEL = SDK.API.config['Dynamic_channel_str']
         @@CHANNEL = SDK.API.config['dynamic_channel_str'] if @CHANNEL == nil
@@ -72,76 +117,93 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
       ############### Path ################################################
 
+      # Returns the path to the root directory of your agent. You can write files in this folder.
+      # @return [String] the path to the root directory of your agent.
       def self.root_path()
         'XX_PROJECT_ROOT_PATH'
       end
     end
 
+    # This class handles all outgoing communication with the devices.
+    # @note You don't have to instantiate this class yourself.
+    #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.gate} object which is already configured for your agent.
     class MessageGate
 
+      # @api private
+      # @param channel [String] the messages passing through this gate will be sent on this channel
       def initialize(channel)
         @CHANNEL = channel
       end
 
-     def push(asset, account, content)
-      begin
-        PUNK.start('push','pushing msg ...')
-        msg = CCS::Message.new({
-          'meta' => {},
-          'payload' => {
-            'type' => 'message',
-            'sender' => '@@server@@',
-            'channel' =>  @CHANNEL,
-            'payload' => content
-          }
-          })
+      # Creates a new {CloudConnectServices::Message message} based on the given content and send it to the given asset.
+      # This message will not be a response to another message.
+      # @param asset [Fixnum] the asset the message will be sent to
+      # @param account [String] account name to use
+      # @param content [String] content of the message
+      def push(asset, account, content)
+        begin
+          PUNK.start('push','pushing msg ...')
+          msg = CCS::Message.new({
+            'meta' => {},
+            'payload' => {
+              'type' => 'message',
+              'sender' => '@@server@@',
+              'channel' =>  @CHANNEL,
+              'payload' => content
+            }
+            })
 
-        msg.push(asset, account)
-        # success !
-        PUNK.end('push','ok','out',"SERVER -> MSG[#{crop_ref(msg.id,4)}]")
+          msg.push(asset, account)
+          # success !
+          PUNK.end('push','ok','out',"SERVER -> MSG[#{crop_ref(msg.id,4)}]")
 
 
 
-        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
-        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
-      rescue Exception => e
-        CC.logger.error("Error on push")
-        CCS.print_ruby_exception(e)
-        PUNK.end('push','ko','out',"SERVER -> MSG")
-        # stats:
-        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
-        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
+        rescue Exception => e
+          CC.logger.error("Error on push")
+          CCS.print_ruby_exception(e)
+          PUNK.end('push','ko','out',"SERVER -> MSG")
+          # stats:
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_push'] += 1
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+        end
+      end
+
+      # Creates a new {CloudConnectServices::Message message} to answer to a specific message and send it to the device.
+      # @param msg [CloudConnectServices::Message] message to reply to
+      # @param content [String] content of the message
+      # @param cookies [String] optional cookies, see the Protogen guide
+      def reply(msg, content, cookies = nil)
+        begin
+          PUNK.start('reply','replying msg ...')
+          reply_id = msg.reply_content(content, cookies)
+          # success !
+          PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(reply_id,4)}] [reply of #{crop_ref(msg.id,4)}]")
+          # stats:
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
+        rescue Exception => e
+          CC.logger.error("Error on reply")
+          CCS.print_ruby_exception(e)
+          PUNK.end('reply','ko','out',"SERVER -> MSG (reply)")
+          # stats:
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+        end
       end
     end
 
-    def reply(msg, content, cookies = nil)
-      begin
-        PUNK.start('reply','replying msg ...')
-        reply_id = msg.reply_content(content, cookies)
-        # success !
-        PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(reply_id,4)}] [reply of #{crop_ref(msg.id,4)}]")
-        # stats:
-        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
-        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
-      rescue Exception => e
-        CC.logger.error("Error on reply")
-        CCS.print_ruby_exception(e)
-        PUNK.end('reply','ko','out',"SERVER -> MSG (reply)")
-        # stats:
-        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_reply'] += 1
-        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
-      end
-    end
-  end
-
-    # Add CCS to the SDK module so the user has all of his tools in the SDK namespace
-    # But to keep compatibility with existing code, do not move the CCS namespace into the SDK namespace
+    # Add CCS to the SDK module so that all of the SDK tools are in the SDK namespace.
+    # CCS is not moved to the SDK namespace for backwards-compatibility reasons.
+    # @return [Module] the {CloudConnectServices CCS} module
     def self.CCS
       CCS
     end
 
-    # this enables us to write SDK.API (and not SDK::API)
-    # for symetry with SDK.CCS
+    # This method enables us to write SDK.API (and not SDK::API) for symmetry with SDK.CCS
+    # @return [Module] the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API SDK::API} module
     def self.API
       API
     end

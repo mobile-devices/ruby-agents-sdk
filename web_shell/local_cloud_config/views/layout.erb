@@ -57,15 +57,15 @@
             <li class="<% if @active_tab=='logSdkAgentsPunk'%><%= 'active' %><% end %>">
               <a href="./logSdkAgentsPunk#endlog"><i class="icon-medkit icon-white"></i> Server Log</a>
             </li>
-            <li class="<% if @active_tab=='doc' or @active_tab=='patch_note'%><%= 'active' %><% end %>">
-              <a href="./doc"><i class="icon-book icon-white"></i> Documentation</a>
-            </li>
             <li class="<% if @active_tab=='unit_tests'%><%= 'active' %><% end %>">
               <a href="./unit_tests"><i class="icon-check icon-white"></i> Unit tests</a>
             </li>
           </ul>
 
           <ul class="nav pull-right">
+            <li>
+              <a href="./doc/_index.html" target="_blank"><i class="icon-book icon-white"></i> Documentation</a>
+            </li>
             <li class="" style="height:40px">
               <form action="/restart_server" method="get" class="form-inline">
                 <input name="reset_logs" type="hidden" value="on">
@@ -73,7 +73,6 @@
                 <input name="redirect_to" type="hidden"
                 <% if @active_tab=='projects'%>value="/projects"<% end %>
                 <% if @active_tab=='logSdkAgentsPunk'%>value="/logSdkAgentsPunk#endlog"<% end %>
-                <% if @active_tab=='doc'%>value="/doc"<% end %>
                 <% if @active_tab=='patch_note'%>value="/patch_note"<% end %>
                 >
 

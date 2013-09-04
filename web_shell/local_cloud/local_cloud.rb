@@ -298,6 +298,10 @@ get '/start_tests' do
   end
   CC.logger.info("Starting tests for agents " + agents_array.inspect)
 
+  root_path = File.expand_path(File.dirname(__FILE__))
+  log_path = File.expand_path(File.join(root_path, "..", "..", "logs"))
+  cloud_agents_path = File.expand_path(File.join(root_path, "..", "..", "cloud_agents"))
+
   # cancel previous tests
   # todo duplicate code refactor
   CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
@@ -309,8 +313,8 @@ get '/start_tests' do
 
   # create files so we indicate we are going to test the agents
   agents_array.each do |agent|
-    test_path = "/home/vagrant/ruby-agents-sdk/cloud_agents/#{agent}/tests"
-    output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{agent}.log"
+    test_path = File.join(cloud_agents_path, "#{agent}", "tests")
+    output_file_path = File.join(log_path, "tests_#{agent}.log")
     if File.directory?(test_path)
       CC.logger.info("Found test directory for agent #{agent} at #{test_path}")
       File.delete(output_file_path) if File.exist?(output_file_path)
@@ -325,15 +329,18 @@ get '/start_tests' do
   $tester_thread = Thread.new {
     CC.logger.debug(" --- in tester thread --- Starting tester thread.")
     agents_array.each do |agent|
-      test_path = "/home/vagrant/ruby-agents-sdk/cloud_agents/#{agent}/tests"
-      output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{agent}.log"
+      root_path = File.expand_path(File.dirname(__FILE__))
+      log_path = File.expand_path(File.join(root_path, "..", "..", "logs"))
+      cloud_agents_path = File.expand_path(File.join(root_path, "..", "..", "cloud_agents"))
+      test_path = File.join(cloud_agents_path, "#{agent}", "tests")
+      output_file_path = File.join(log_path, "tests_#{agent}.log")
       if File.directory?(test_path)
         CC.logger.debug(" --- in tester thread --- Starting tests for #{agent}.")
         begin
-          libdir = "/home/vagrant/ruby-agents-sdk/web_shell/local_cloud/fake_cloud_lib/"
+          libdir = File.join(root_path, "fake_cloud_lib")
           $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
           RSpec::Core::Runner.run([test_path,
-            "--require", "/home/vagrant/ruby-agents-sdk/web_shell/local_cloud/API/json_tests_writer.rb", "--format", "JsonTestsWriter"],
+            "--require", File.join(root_path, "API", "json_tests_writer.rb"), "--format", "JsonTestsWriter"],
             $stderr, output_file_path)
         rescue Exception => e
           # the runner launched an exception itself

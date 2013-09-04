@@ -13,9 +13,7 @@
   </div>
 
   <div class="row-fluid">
-    <div class="pull-left"  style="margin-right: 10px">
-          Run tests for agent:
-    </div>
+    <div class="pull-left" style="margin-right: 10px">
     <div class="btn-group pull-left" style="margin-right: 10px">
       <a id="agent-to-test" class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         All agents
@@ -288,7 +286,7 @@
               update_run_tests_button();
             },
             error: function(xhr, status, errorThrown) {
-              console.log("An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
+              console.error("An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
               display_alert("warning", "An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
             }
           }) // ajax
@@ -352,7 +350,7 @@
             $(parent + ".summary").html("");
             $(parent + '.start-time').html("");
           } else {
-            log.error("Can not update status display because " + current_status + " is an unknow status.");
+            console.error("Can not update status display because " + current_status + " is an unknow status.");
           }
         } // function update_status_display
 

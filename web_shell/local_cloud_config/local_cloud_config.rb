@@ -7,9 +7,7 @@
 
 require 'json'
 
-require 'redcarpet'
 require 'net/http'
-require_relative 'lib/readcarpet_overload'
 require_relative 'lib/agents'
 require_relative 'lib/logs_getter'
 require_relative 'lib/net_http'
@@ -28,6 +26,14 @@ set :port, '5000'
 require 'rack/flash'
 enable :sessions
 use Rack::Flash
+
+`cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud && bundle install`
+`cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud && bundle exec yardoc`
+
+## Some initialisation
+unless File.directory?("./public/doc")
+  File.symlink("./public/doc", "../local_cloud/doc")
+end
 
 def print_ruby_exception(e)
   stack=""
@@ -375,7 +381,9 @@ get '/update_test_status' do
   end
 
   # read tests logs. As it is written with atomic_write there is no risk doing it even if RSpec is currenty writing to it.
-  output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{params['agent']}.log"
+  root_path = File.expand_path(File.dirname(__FILE__))
+  log_path = File.expand_path(File.join(root_path, "..", "..", "logs"))
+  output_file_path = File.join(log_path, "tests_#{params['agent']}.log")
 
   unless File.file?(output_file_path)
     return {status: "not scheduled"}.to_json
@@ -454,7 +462,10 @@ post '/save_tests_results' do
   unless params.has_key?('agent')
     return halt(400, "'agent' parameter is mandatory")
   end
-  output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_#{params['agent']}.log"
+  root_path = File.expand_path(File.dirname(__FILE__))
+  log_path = File.expand_path(File.join(root_path, "..", "..", "logs"))
+  output_file_path = File.join(log_path, "tests_#{params['agent']}.log")
+  cloud_agents_path = File.expand_path(File.join(root_path, "..", "..", "cloud_agents"))
   unless File.file?(output_file_path)
     halt(400, "No tests results for agent #{params['agent']} at #{output_file_path}, impossible to save them.")
   end
@@ -474,11 +485,11 @@ post '/save_tests_results' do
   @summary = "#{test_status[:tested]} out of #{test_status[:example_count]} tests run (#{test_status[:failed_count]} failed, #{test_status[:pending_count]} not implemented)"
   @agent = params['agent']
   @date = test_status[:start_time]
-  @git_info = get_git_status("/home/vagrant/ruby-agents-sdk/cloud_agents/#{params['agent']}")
+  @git_info = get_git_status(File.join("#{params['agent']}"))
   @failed = test_status[:failed_count] > 0
   html = erb :export_tests, :layout => false
-  output_directory = "/home/vagrant/ruby_workspace/sdk_logs/tests_results/#{params['agent']}/"
-  output_path = output_directory + "#{sanitize_filename(@date)}_#{params['agent']}.html"
+  output_directory = File.join(log_path, "tests_results", "#{params['agent']}")
+  output_path = File.join(output_directory, "#{sanitize_filename(@date)}_#{params['agent']}.html")
   FileUtils.mkdir_p(output_directory)
   File.open(output_path, 'w') do |file|
     file.write(html)
@@ -492,9 +503,10 @@ end
 # by the SDK
 get '/tests_status' do
   content_type :json
-  logs_folder = "/home/vagrant/ruby_workspace/sdk_logs/"
+  root_path = File.expand_path(File.dirname(__FILE__))
+  log_path = File.expand_path(File.join(root_path, "..", "..", "logs"))
   log_pattern = "tests_*.log"
-  res = Dir.glob(logs_folder + log_pattern).inject({}) do |acc, current_log|
+  res = Dir.glob(File.join(log_path, log_pattern)).inject({}) do |acc, current_log|
     begin
       File.open(current_log, 'r') do |file|
         test_status = JSON.parse(file.read, {symbolize_names: true})
@@ -507,7 +519,7 @@ get '/tests_status' do
   end
   # rename ".../tests_agent.log" keys to "agent" (in place)
   res.keys.each do |k|
-    res[ k.gsub(logs_folder + "tests\_", "").gsub("\.log", "") ] = res.delete(k)
+    res[ k.gsub(File.join(log_path, "tests\_"), "").gsub("\.log", "") ] = res.delete(k)
   end
   return res.to_json
 end

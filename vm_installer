@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#########################################################
+# Xavier Demompion : xavier.demompion@mobile-devices.fr
+# Mobile Devices 2013
+#########################################################
+
+# note exectued at each vm boot
+
+echo ""
+echo "init vm"
+
+
+# install sdk gems
+echo ""
+echo "sdk gem install"
+cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud;cp Gemfile.master Gemfile; bundle install
+cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud_config; bundle install
+
+# bind workspace
+echo ""
+echo "mouting workspace"
+run_as_vagrant "mkdir -p /home/vagrant/ruby-agents-sdk/cloud_agents"
+run_as_vagrant "sudo mount -o bind /home/vagrant/ruby_workspace /home/vagrant/ruby-agents-sdk/cloud_agents"
+run_as_vagrant "sudo mount -o bind /home/vagrant/ruby_workspace/sdk_logs /home/vagrant/ruby-agents-sdk/logs"

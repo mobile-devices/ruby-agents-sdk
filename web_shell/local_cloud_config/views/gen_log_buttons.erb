@@ -85,11 +85,20 @@
 
 <% crashed = PUNK.gen_server_crash_title %>
 <% if crashed != "" %>
-  <button type="button" data-bind="btn" data-content="btn_content_crash" class="btn btn-danger btn-block">
+  <button type="button" data-bind="btn" data-content="crash" class="btn btn-danger btn-block">
     <p class="text-left"><b>
        <%= crashed %>
     </b></p>
   </button>
+
+  <div id="btn_title_crash" style="display:none">
+    <textarea>
+      <span class="label label-important">
+        EPIK MASTER CRASH FAIL
+      </span>
+    </textarea>
+  </div>
+
   <textarea id="btn_content_crash" style="display:none">
     <%= logs_server %>
   </textarea>

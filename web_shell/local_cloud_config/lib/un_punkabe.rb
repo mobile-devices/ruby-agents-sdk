@@ -47,14 +47,16 @@ module PUNK
         id.delete!("\n")
 
         puts "drop #{id}"
-        # search if stack contain
+        # rebuild stack
+        tmp_pending = []
         punks_pending.each { |pending|
           if pending['id'] == id
-                    puts "dropping! #{id} #{punks_pending.size} pending left"
-
-            punks_pending.delete_at(punks_pending.index(pending))
+            puts "dropping! #{id} #{punks_pending.size} pending left"
+          else
+            tmp_pending << pending
           end
         }
+        punks_pending = tmp_pending
         next
       end
 

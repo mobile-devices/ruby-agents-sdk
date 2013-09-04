@@ -76,7 +76,8 @@
                 <% if @active_tab=='patch_note'%>value="/patch_note"<% end %>
                 >
 
-                <button id="btn-server-reboot"
+                <button id="btn-server-reboot"  data-toggle="tooltip" title="Reboot the ruby server.
+If the button is spinning, that means the ruby server is alive"
                 <% if PUNK.gen_server_crash_title != '' %>
                   class="btn btn-danger"
                 <% else %>

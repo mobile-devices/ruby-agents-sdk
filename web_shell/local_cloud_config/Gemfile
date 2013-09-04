@@ -4,3 +4,8 @@ gem 'sinatra'
 gem 'json'
 gem 'thin'
 gem 'rack-flash3'
+
+# doc generation
+gem 'redcarpet'
+gem 'yard'
+gem 'github-markup'

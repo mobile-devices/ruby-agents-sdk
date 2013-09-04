@@ -27,13 +27,7 @@ require 'rack/flash'
 enable :sessions
 use Rack::Flash
 
-`cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud && bundle install`
-`cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud && bundle exec yardoc`
-
-## Some initialisation
-unless File.directory?("./public/doc")
-  File.symlink("./public/doc", "../local_cloud/doc")
-end
+`bundle exec yardoc`
 
 def print_ruby_exception(e)
   stack=""

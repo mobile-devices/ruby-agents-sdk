@@ -30,10 +30,5 @@ gem 'whenever', '~> 0.8.2', :require => false
 gem 'rack-test', require: 'rack/test'
 gem 'rspec'
 
-# doc generation
-gem 'redcarpet'
-gem 'yard'
-gem 'github-markup'
-
 #################################################################
 

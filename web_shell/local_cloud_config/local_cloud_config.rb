@@ -7,9 +7,7 @@
 
 require 'json'
 
-require 'redcarpet'
 require 'net/http'
-require_relative 'lib/readcarpet_overload'
 require_relative 'lib/agents'
 require_relative 'lib/logs_getter'
 require_relative 'lib/net_http'

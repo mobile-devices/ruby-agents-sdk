@@ -60,7 +60,6 @@ class Agent_XX_CLEAN_PROJECT_NAME
 
   def handle_message(message)
 
-    PUNK.start('msgAgent')
     a_channel_is_valid = false
     @CHANNEL.each { |chan|
       if message.channel == chan
@@ -69,10 +68,10 @@ class Agent_XX_CLEAN_PROJECT_NAME
     }
 
     if !a_channel_is_valid
-      CC.logger.error("Channel #{message.channel} not found in #{@CHANNEL}")
-      PUNK.end('msgAgent','ko','in',"AGENT:XX_PROJECT_NAMETNEGA DROP MSG[#{crop_ref(message.id,4)}] '#{msg_type}' because channel is bad")
       return
     end
+
+    PUNK.start('msgAgent')
 
     msg_type = ""
     begin

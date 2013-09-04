@@ -129,6 +129,11 @@
       modal.on('shown', function () {
         $('#myModal_btn').focus();
       })
+
+      $('#myModal_btn').click(function(){
+        $('#myModal').modal('hide')
+      })
+
     });
   </script>
 <% end %>

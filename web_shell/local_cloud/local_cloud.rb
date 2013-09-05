@@ -7,7 +7,7 @@
 
 
 # server run id
-if File.exists?("../agents_generator/cloud_agents_generated")
+if File.exists?('/tmp/should_mdi_server_run_id')
   should_id = File.read('/tmp/should_mdi_server_run_id')
 else
   should_id = "??"

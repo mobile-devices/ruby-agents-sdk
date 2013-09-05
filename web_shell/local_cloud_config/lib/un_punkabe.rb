@@ -183,7 +183,7 @@ module PUNK
       server_running = nil
     end
 
-    p "server_run_id = '#{$server_run_id}'' and used_server_run_id = '#{used_server_run_id}'"
+    p "server_run_id = '#{$server_run_id}'' and used_server_run_id = '#{used_server_run_id}' and server_running=#{server_running}"
 
     if "#{$server_run_id}" == "#{used_server_run_id}" && server_running == 'no'
       p "SERVER is broken"

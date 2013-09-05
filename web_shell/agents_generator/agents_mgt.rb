@@ -85,8 +85,6 @@ module AgentsGenerator
       add_to_rapport(">>> Generating Protogen for #{agent} agent with config :\n #{compil_opt}")
       File.open('/tmp/protogen_conf.json', 'w') { |file| file.write(compil_opt.to_json)}
 
-      # create output dir for java jar
-      #FileUtils.mkdir_p(compil_opt['device_output_directory'])
       # create dir for ruby side code
       FileUtils.mkdir_p(compil_opt['server_output_directory'])
 
@@ -126,14 +124,6 @@ module AgentsGenerator
     add_to_rapport("generate_agents of #{agents_to_run.join(', ')}")
 
     agents_generated_code = ""
-
-    # add sdk_utils folder to $LOAD_PATH so the users can write directly
-    # "require 'sdk_utils'"" in their code
-     agents_generated_code += <<-CODE
-      libdir = File.expand_path("#{sdk_utils_path}")
-      $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
-    CODE
-
 
     template_agent_src = File.read("#{source_path}/template_agent.rb_")
 

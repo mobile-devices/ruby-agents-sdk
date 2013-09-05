@@ -13,14 +13,11 @@ if (require_relative '../../local_cloud/fake_cloud_lib/cloud_connect_sdk_module'
   include CC
 end
 
+# SDK framework
+require_relative '../../agents_generator/cloud_agents_generated/sdk_utils/sdk_api'
+
 # User code
 require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
-
-# Generated SDK API (the folder is added to $LOAD_PATH in generated code so we
-# don't need require_relative)
-require 'sdk_api'
-
-require_relative '../../local_cloud/API/json_tests_writer'
 
 # XX_PROJECT_NAME agent
 class Agent_XX_CLEAN_PROJECT_NAME
@@ -60,7 +57,6 @@ class Agent_XX_CLEAN_PROJECT_NAME
 
   def handle_message(message)
 
-    PUNK.start('msgAgent')
     a_channel_is_valid = false
     @CHANNEL.each { |chan|
       if message.channel == chan
@@ -69,10 +65,10 @@ class Agent_XX_CLEAN_PROJECT_NAME
     }
 
     if !a_channel_is_valid
-      CC.logger.error("Channel #{message.channel} not found in #{@CHANNEL}")
-      PUNK.end('msgAgent','ko','in',"AGENT:XX_PROJECT_NAMETNEGA DROP MSG[#{crop_ref(message.id,4)}] '#{msg_type}' because channel is bad")
       return
     end
+
+    PUNK.start('msgAgent')
 
     msg_type = ""
     begin
@@ -152,43 +148,13 @@ class Agent_XX_CLEAN_PROJECT_NAME
     new_order(order)
   end
 
-  # def run_tests()
-  #   test_path = "#{SDK.API::root_path}/tests"
-  #   unless File.directory?(test_path)
-  #     CC.logger.info("No test directory found for agent 'XX_PROJECT_NAME', skipping tests.")
-  #     return
-  #   end
-  #   output_file_path = "/home/vagrant/ruby_workspace/sdk_logs/tests_XX_CLEAN_PROJECT_NAME.log"
-  #   RSpec::Core::Runner.run([test_path,
-  #       "--require", "/home/vagrant/ruby-agents-sdk/web_shell/local_cloud/API/json_tests_writer.rb", "--format", "JsonTestsWriter"],
-  #       $stderr, output_file_path)
-  # end
-
-# keep commented code until RAgent developped
-
-  # def send_message_to_device(account, asset, content)
-  #   #todo add try catch
-  #   begin
-      # Message.new({
-      #   asset:     asset,
-      #   recipient: asset,
-      #   sender:    '@@server@@',
-      #   channel:   @CHANNEL[0],
-      #   payload:   content.to_json
-      #   }).push
-  #   #note: for real wrapper : mock up account as bellow :
-  #   #   account.messages.new({
-  #   #     asset:     asset.imei,
-  #   #     recipient: asset.imei,
-  #   #     sender:    '@@server@@',
-  #   #     channel:   @CHANNEL,
-  #   #     payload:   content.to_json
-  #   #     }, as: :agent).push
-
+  # SDK Framework
   include Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
+  # Protogen
   include ProtogenAPIs if defined? ProtogenAPIs
 
+  # User code
   include Initial_agent_XX_PROJECT_NAME
 
 end

@@ -7,7 +7,6 @@ require 'json-schema'
 require 'rakejava'
 require 'yard'
 
-
 $LOAD_PATH << "#{File.dirname(__FILE__)}/lib"
 require 'protocol_generator/environment'
 require 'protocol_generator/utils'
@@ -35,6 +34,3 @@ module ProtocolGenerator
   Parser.run
   Generator::Manager.run(Env['plugins'].map { |e| e.to_sym })
 end
-
-
-

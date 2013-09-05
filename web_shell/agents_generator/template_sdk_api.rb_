@@ -54,24 +54,9 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         @@redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
-      # Returns a (singleton) redis instance configured for your agent shared between multiple instances of your agent.
-      # You don't need to namespace your keys, this will be done automatically.
-      #
-      # In the cloud infrastructure of MDI, your agent may live through several instances.
-      # This redis object is shared between all these instances. You can use it for instance to track global stats.
-      # @return [Redis] a redis instance configured for your agent.
-      def self.redis_shared()
-        @@redis ||= Redis::Namespace.new("CCS:XX_PROJECT_NAME", :redis => CC.redis)
-      end
-
       # @api private
       def self.redis_internal()
         @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
-      end
-
-      # @api private
-      def self.redis_internal_shared()
-        @@redis_internal ||= Redis::Namespace.new("CCSI:XX_PROJECT_NAME", :redis => CC.redis)
       end
 
       ############### Config ###############################################

@@ -287,6 +287,12 @@
           return false;
         }
 
+        // now let's check that we actually want to start a test for an agent
+        if(agent_array.length == 0) {
+          display_alert('info', "No agents are currently running. Mount agents on the <a href='http://0.0.0.0:5000'>SDK agents tab</a> and restart the agents server.");
+          return false;
+        }
+
         var agents_names = new Array();
         for(var i = 0; i < agent_array.length; i++) {
           agents_names[i] = agent_array[i].name

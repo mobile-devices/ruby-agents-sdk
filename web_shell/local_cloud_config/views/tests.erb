@@ -29,6 +29,9 @@
     <div>
       <button id="run-tests" class="btn btn-primary pull-left">Run tests</button>
     </div>
+
+    <div id='current-state' class='pull-right well'>
+    </div>
   </div>
 
   <div id="tests-results" class='row-fluid'>
@@ -123,6 +126,7 @@
         // run test button
         $("#run-tests").click( function() {
           if(current_test_status==TEST_STATUS.STOPPED) {
+            flush_alerts();
             run_tests(selected_agent);
           }
           else {
@@ -150,6 +154,24 @@
         }
       }
 
+      function flush_alerts() {
+        $('#info').html("");
+      }
+
+      // type can be one of "info", "error", "warning", "success"
+      // ignored for now
+      function update_state_display(type, message) {
+        if (!(type == "info" || type == "error" || type == "success" || type == "warning")) {
+          var type = "info";
+        }
+        if (message == "") {
+          $("#current-state").removeClass("well");
+        } else {
+          $("#current-state:not([class~='well'])").addClass("well");
+        }
+        $("#current-state").html(message);
+      }
+
       function update_run_tests_button() {
         if(current_test_status==TEST_STATUS.STARTED) {
           $("#run-tests").html("Stop tests");
@@ -159,6 +181,7 @@
           $("#run-tests").html("Run tests");
           $("#run-tests").removeClass("btn-danger");
           $("#run-tests").addClass("btn-primary");
+          update_state_display("info", "");
         }
       }
 
@@ -211,7 +234,7 @@
            async: false,
            success: function(data) {
             console.log("Starting tests; server responded: " + data); // TODO find why the server respond this strange hash
-            display_alert("info", "Tests started.");
+            update_state_display("info", "Tests started.");
             current_test_status = TEST_STATUS.STARTED;
             update_run_tests_button();
            },
@@ -228,7 +251,7 @@
           type: "GET",
           async: false,
           success: function(data) {
-            display_alert("info", "Stopping tests.");
+            update_state_display("info", "Stopping tests.");
             current_test_status = TEST_STATUS.STOPPED;
             update_run_tests_button();
           }
@@ -387,14 +410,14 @@
             complete: function() {
               console.log("Current status for agent " + agent.name + " is " + agent.status)
               if (agent.status == "finished") {
-                display_alert("success", "Tests for agent " + agent.name + " complete.");
+                update_state_display("success", "Tests for agent " + agent.name + " complete.");
                 update_status();
                 return 1;
               } else if (agent.status == "not scheduled") {
                 update_status();
                 return 1;
               } else if (agent.status == "no tests subfolder") {
-                display_alert("info", "No 'tests' subfolders found for agent " + agent.name + ".");
+                update_state_display("info", "No 'tests' subfolders found for agent " + agent.name + ".");
                 update_status();
                 return 1;
               }

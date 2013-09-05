@@ -70,6 +70,7 @@ module CloudConnectServices
     # Returns a hash representation of the event.
     # See the constructor documentation for the format.
     # @return a hash representation of the event.
+    # @api private
     def to_hash
       r_hash = {}
       r_hash['meta'] = self.meta
@@ -151,6 +152,7 @@ module CloudConnectServices
     #   }
     #   ```
     #
+    # @api private
     def initialize(struct = nil)
       if struct.blank?
         self.meta = {}
@@ -227,6 +229,7 @@ module CloudConnectServices
     #   ```
     #
     # @return [Hash] a hash representing this message.
+    # @api private
     def to_hash
       r_hash = {}
       r_hash['meta'] = self.meta
@@ -249,6 +252,7 @@ module CloudConnectServices
 
     # Pushes the message to the device without any preliminary setup.
     # Useful if you want to do all the setup yourself.
+    # @api private
     def fast_push()
       CC.push(self.to_hash)
     end
@@ -256,7 +260,7 @@ module CloudConnectServices
     # Sends this message to the device, using the current message configuration.
     #
     # This method will set the `received_at` and `recorded_at` fields to `Time.now` and
-    # encode the message with Protogen if necessary. Will also set the sender to `@@server`.
+    # encode the message with Protogen if necessary. Will also set the sender to `@@server@@`.
     #
     # If the method parameters are not defined the current values stored in the message will be used.
     #
@@ -380,6 +384,7 @@ module CloudConnectServices
     end
 
     # @return [Hash] a hash representation of this event. See constructor documentation for the format.
+    # @api private
     def to_hash
       r_hash = {}
       r_hash['meta'] = self.meta
@@ -416,6 +421,7 @@ module CloudConnectServices
     # }
     # ```
     #
+    # @api private
     def initialize(struct)
       self.agent = struct['agent']
       self.code = struct['order']
@@ -429,6 +435,7 @@ module CloudConnectServices
     end
 
     # @return a hash representation of this order. See constructor documentation for format.
+    # @api private
     def to_hash
       r_hash = {}
       r_hash['agent'] = self.agent

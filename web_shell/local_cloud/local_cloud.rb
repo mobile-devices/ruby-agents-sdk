@@ -7,7 +7,11 @@
 
 
 # server run id
-should_id = File.read('/tmp/should_mdi_server_run_id')
+if File.exists?("../agents_generator/cloud_agents_generated")
+  should_id = File.read('/tmp/should_mdi_server_run_id')
+else
+  should_id = "??"
+end
 File.open('/tmp/mdi_server_run_id', 'w') { |file| file.write(should_id) }
 
 $local_cloud_start_time = Time.now

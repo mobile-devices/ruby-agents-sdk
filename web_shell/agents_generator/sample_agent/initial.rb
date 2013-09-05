@@ -1,5 +1,7 @@
 module Initial_agent_XXProjectName
 
+  include Sdk_api_XXProjectName
+
   def new_presence_from_device(presence)
     # Write your code here
   end

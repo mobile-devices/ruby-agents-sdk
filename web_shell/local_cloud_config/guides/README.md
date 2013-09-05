@@ -33,10 +33,12 @@ Here is the base agent structure:
     `-- my_agent
         |-- initial.rb
         |-- Gemfile
-        |-- config
+        |-- config/
         |   |-- protogen.json
         |   |-- scheduled.rb
-        |   `-- my_agent.yml
+        |   `-- my_agent.yml.example
+        |-- doc/
+        |-- modules/
         `-- README.md
 
 ```
@@ -44,10 +46,10 @@ Here is the base agent structure:
 So, what are these files for?
 
 - *initial.rb* is where the callbacks that allow communicating with the device are defined (more on this below). Consider it the entry point of your agent. You can not rename this file nor move it.
-- *Gemfile* is a standard... gemfile where you put the gems you want to use with your agent.
+- *Gemfile* is a standard... gemfile where you put the ruby gems you want to use with your agent.
 - *protogen.json* is where you define the communication protocol between your devices and the server. See the Protogen guide for more information.
 - *scheduled.rb* is where you define some tasks to be executed on a regular basis (see the "Scheduled tasks" guide for more information).
-- *my_agent.yml* is your configuration file, using YAML (the YAML reference can be found [here](http://www.yaml.org/) and a more user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML)).
+- *my_agent.yml.example* is your configuration file, using YAML (the YAML reference can be found [here](http://www.yaml.org/) and a more user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML)).
 - *README.md* is a place where you can put information on your agent, because documentation is mandatory, isn't it?
 
 ## Writing callbacks to interact with a device ##

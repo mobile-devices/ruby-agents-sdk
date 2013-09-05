@@ -94,7 +94,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Returns the channels your agent is listening to.
       # Your agents send messages on the first configured chanel.
       # @return [Array<String>] the channels your agent is listening to.
-      def self.get_channels
+      def self.get_channels()
         @@CHANNEL = SDK.API.config['Dynamic_channel_str']
         @@CHANNEL = SDK.API.config['dynamic_channel_str'] if @CHANNEL == nil
 

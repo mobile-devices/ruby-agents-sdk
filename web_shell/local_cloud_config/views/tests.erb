@@ -81,7 +81,8 @@
                  return function () {
                       selected_agents = new Array(agent);
                       set_up_tests_display(selected_agents);
-                      $("#agent-to-test").html(agent.name + "\n <span class='caret'></span>"); //update currently displayed agent
+                      $.cookie('mdi_sdk_selected_agent', agent.name, { expires: 1 });
+                      set_dropdown_menu_item(agent.name);
                       start_live_results(selected_agents);
                     }
               })(agents[i])
@@ -89,7 +90,8 @@
         } // for(var i = 0; i < agents.length; i++)
         $("#all-agents-element").click( function() {
            selected_agents = agents;
-           $("#agent-to-test").html("All agents\n <span class='caret'></span>");
+           set_dropdown_menu_item('All agents');
+           $.cookie('mdi_sdk_selected_agent', "all", { expires: 1 });
            set_up_tests_display(selected_agents);
            start_live_results(selected_agents);
          }) // $("#all-agents-element").click
@@ -107,10 +109,44 @@
 
       })(); // function setup_event_listeners
 
-      set_up_tests_display(agents);
-      start_live_results(agents);
+      (function initialize() {
+        // retrieve the agent(s) the user wants to display
+        var selected_agent = $.cookie('mdi_sdk_selected_agent');
+        if(selected_agent == null) {
+          selected_agent = 'all';
+        }
+        var selected_array = null;
+        if(selected_agent == 'all') {
+          selected_array  = agents;
+          set_dropdown_menu_item('All agents');
+        } else {
+          agents_name = new Array()
+          var agent_index = -1;
+          for(var i=0; i < agents.length; i++) {
+            if (agents[i].name == selected_agent) {
+              agent_index = i;
+            }
+          }
+          if(agent_index == -1) { // unknown agent, default to 'all'
+            selected_array = agents;
+            set_dropdown_menu_item('All agents');
+          } else {
+            var agent = agents[agent_index];
+            set_dropdown_menu_item(agent.name);
+            selected_array = new Array(agent);
+          }
+        }
+        set_up_tests_display(selected_array);
+        start_live_results(selected_array);
+      })(); // function initialize
+
+
 
       // ================= Helpers ================= //
+
+      function set_dropdown_menu_item(agent_name) {
+        $("#agent-to-test").html(agent_name + "\n <span class='caret'></span>");
+      }
 
       // alert type can be one of "info", "error", "warning", "success"
       function display_alert(alert_type, message) {

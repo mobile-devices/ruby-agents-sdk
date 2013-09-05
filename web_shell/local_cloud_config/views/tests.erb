@@ -247,7 +247,7 @@
                 type: "POST",
                 data: {"agent": agent_name},
                 success: function (data) {
-                  display_alert("success", "Tests results saved to " + data);
+                  display_alert("success", "Tests results saved to <em>" + data + "</em>");
                 },
                 error: function(xhr, status, errorThrown) {
                   display_alert("error", "<strong>Error when saving tests results</strong>. More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);

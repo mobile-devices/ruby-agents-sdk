@@ -151,6 +151,8 @@ module AgentsGenerator
       sub_t = get_agent_is_sub_track(agent)
       if sub_p != true && sub_m != true && sub_t != true
         PUNK.start('subcriptionPresence')
+        CC.logger.info("Your agent didn't subscribe to receive presence, message or track")
+        CC.logger.info("Your need to configure your 'config/#{agent}.yml.example config' file and edit folling lines with what you need tu subcribe to :\nsubscribe_presence: false\nsubscribe_message: false\nsubscribe_track: false")
         PUNK.end('subcriptionPresence','ko','',"AGENT:#{agent}TNEGA didn't subscribe to anything")
       end
     }

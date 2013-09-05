@@ -96,8 +96,6 @@ end
 
 - {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.redis SDK.API.redis} gives you access to a Redis database. Redis is a database living in RAM that you can use to cache data for faster access. More information [on the official Redis website](http://redis.io/).
 
-- {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.redis_shared SDK.API.redis_shared} gives you access to a Redis instance. What is special about this instance is that it is shared between multiple instances of your agent dispatched in the cloud.
-
 - {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.root_path SDK.API.root_path} gives you the path of your agent root directory. You can use this folder to write files for instance. **Example:**
 
 ``` ruby

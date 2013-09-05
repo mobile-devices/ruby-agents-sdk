@@ -39,3 +39,15 @@ You should use the correct log level to have useful and helpful logs:
 - `log.fatal` is used to log errors that your agent can not handle (so your agent will abort its processing after encountering such an error).
 
 Correct usage of logs will greatly help you debug your agent both in your development phase and in the production phase.
+
+### Exceptions ###
+
+Any exception raised by your agent and not caught by your code will be caught by the SDK and displayed in the logs. In a real cloud environment, such exceptions indicate a critical failure of your agent and will send an alert so it is possible to detect it early.
+
+You can use this process to manage your error handling: catch only the exceptions your agent can recover from. If your agent encounters a situation it can not handle, let the exceptions pass so it will be easy to detect the failure.
+
+For instance, let's say you have an agent that queries an external web API by HTTP. If this query fails because the web API is down, you could handle this error by looking in a cache. If you can not access this cache, then you could decide to raise an exception. Your agent will fail and it will be clear that an error needing an imediate fix had happened.
+
+Bottom line: do not worry too much about catching your exceptions.
+
+On the other hand, *never* silence exceptions (silencing an exception is catching it then not acting upon it). At least log the exception before moving on (there is a nice method to display an exception with its stack trace: {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.print_ruby_exception SDK.API.print_ruby_exception}) along with information about why this exception can be ignored. Not doing so will make your agent very difficult to debug when it will encounter an unusual situation in a production environment.

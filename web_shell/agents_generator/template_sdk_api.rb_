@@ -18,7 +18,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
     module API
 
       # Prints to the logs a nicely formatted Ruby exception
-      # @param [Class<Exception>] an exception
+      # @param [Class<Exception>] e an exception
       def self.print_ruby_exception(e)
         stack=""
         e.backtrace.take(20).each { |trace|

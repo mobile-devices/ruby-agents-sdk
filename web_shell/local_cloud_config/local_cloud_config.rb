@@ -47,7 +47,7 @@ helpers do
 end
 
 def current_sdk_vm_base_version
-  @current_sdk_vm_base_version_value || = begin
+  @current_sdk_vm_base_version_value ||= begin
     if File.exist?('/home/vagrant/.base_sdk_vm_version')
       File.read('/home/vagrant/.base_sdk_vm_version')
     else

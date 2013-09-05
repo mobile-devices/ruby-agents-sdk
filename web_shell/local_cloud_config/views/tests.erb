@@ -19,8 +19,8 @@
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <% @agents.each do |agent_name, agent| %>
-          <li><a id='<%= agent.name %>-element' tabindex="-1" href="#"><%= agent.name %></a></li>
+        <% @agents.each do |agent_name| %>
+          <li><a id='<%= agent_name %>-element' tabindex="-1" href="#"><%= agent_name %></a></li>
         <% end %>
           <li><a id='all-agents-element' tabindex="-1" href="#">All agents</a></li>
       </ul>
@@ -55,8 +55,8 @@
 
       var agents = new Array();
       <% index = 0
-        @agents.each do |agent_name, agent| %>
-           agents[<%= index %>] = new Agent("<%= agent.name %>", "not scheduled", false);
+        @agents.each do |agent_name| %>
+           agents[<%= index %>] = new Agent("<%= agent_name %>", "not scheduled", false);
            <% index += 1 %>
         <% end %>
 

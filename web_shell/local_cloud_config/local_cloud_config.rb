@@ -119,7 +119,7 @@ end
 
 get '/unit_tests' do
   @active_tab = "unit_tests"
-  @agents = agents.select {|agent_name, agent| agent.running}
+  @agents = get_last_mounted_agents
   erb :tests
 end
 

@@ -14,3 +14,8 @@ protogen_*
 *.yardoc*
 ery
 doc
+
+# Generated specific file
+web_shell/local_cloud/Gemfile
+web_shell/local_cloud/Gemfile.lock
+web_shell/local_cloud/config/schedule.rb

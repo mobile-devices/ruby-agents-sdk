@@ -479,7 +479,7 @@ post '/save_tests_results' do
   @summary = "#{test_status[:tested]} out of #{test_status[:example_count]} tests run (#{test_status[:failed_count]} failed, #{test_status[:pending_count]} not implemented)"
   @agent = params['agent']
   @date = test_status[:start_time]
-  @git_info = get_git_status(File.join("#{params['agent']}"))
+  @git_info = get_git_status(File.join(cloud_agents_path, "#{params['agent']}"))
   @failed = test_status[:failed_count] > 0
   html = erb :export_tests, :layout => false
   output_directory = File.join(log_path, "tests_results", "#{params['agent']}")

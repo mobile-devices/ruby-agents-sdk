@@ -46,6 +46,16 @@ helpers do
   end
 end
 
+def current_sdk_vm_base_version
+  @current_sdk_vm_base_version_value || = begin
+    if File.exist?('/home/vagrant/.base_sdk_vm_version')
+      File.read('/home/vagrant/.base_sdk_vm_version')
+    else
+      'abs'
+    end
+  end
+end
+
 def last_version_path
   @last_version_launched_path ||= '.last_version'
 end
@@ -65,6 +75,9 @@ def check_version_change_to_user
   File.open(last_version_path, 'w') { |file| file.write(get_sdk_version) }
   action
 end
+
+
+p "local_cloud_config started ! with vm base version = #{current_sdk_vm_base_version} and sdk version = #{get_sdk_version}"
 
 #=========================================================================================
 get '/' do

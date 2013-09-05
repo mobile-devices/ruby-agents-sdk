@@ -17,7 +17,7 @@ Your workspace is the **ruby-workspace** folder found in your VM folder. You can
 
 ## Creating your first agent ##
 
-1. Start your VM
+1. Start your VM with vagrant, you must have done it to view this page :)
 2. Open the page <http://0.0.0.0:5000/> in your favorite browser.
 3. In the empty field in the column "Agent name", enter your agent name, then click "Create agent".
 

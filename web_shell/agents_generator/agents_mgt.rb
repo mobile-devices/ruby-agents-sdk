@@ -85,8 +85,6 @@ module AgentsGenerator
       add_to_rapport(">>> Generating Protogen for #{agent} agent with config :\n #{compil_opt}")
       File.open('/tmp/protogen_conf.json', 'w') { |file| file.write(compil_opt.to_json)}
 
-      # create output dir for java jar
-      #FileUtils.mkdir_p(compil_opt['device_output_directory'])
       # create dir for ruby side code
       FileUtils.mkdir_p(compil_opt['server_output_directory'])
 

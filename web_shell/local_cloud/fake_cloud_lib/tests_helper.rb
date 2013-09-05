@@ -118,12 +118,70 @@ module TestsHelper
   end
 
   # @api private
+  # A key-value simple cache with a limited size
+  # http://stackoverflow.com/questions/1933866/efficient-ruby-lru-cache
+  class Cache
+    attr_accessor :max_size
+
+    def initialize(max_size = 20)
+      @data = {}
+      @max_size = max_size
+    end
+
+    def store(key, value)
+      @data.store key, [0, value]
+      age_keys
+      prune
+    end
+
+    def []=(key, value)
+      store(key, value)
+    end
+
+    def [](key)
+      read(key)
+    end
+
+    def read(key)
+      if value = @data[key]
+        renew(key)
+        age_keys
+      end
+      value[1]
+    end
+
+    def inspect
+      "Max cache size: #{max_size} ; data: #{@data.inspect}"
+      @data.inspect
+    end
+
+    private
+
+    def renew(key)
+      @data[key][0] = 0
+    end
+
+    def delete_oldest
+      m = @data.values.map{ |v| v[0] }.max
+      @data.reject!{ |k,v| v[0] == m }
+    end
+
+    def age_keys
+      @data.each{ |k,v| @data[k][0] += 1 }
+    end
+
+    def prune
+      delete_oldest if @data.size > @max_size
+    end
+  end
+
+  # @api private
   @@messages = RingBuffer.new(100)
   # @api private
   @@device_msg = RingBuffer.new(100)
   # @api private
   # Mappings between devices temporary message IDs and the IDs set by the server.
-  @@mappings = {}
+  @@mappings = Cache.new(100)
 
   # @!endgroup
 
@@ -138,10 +196,6 @@ module TestsHelper
   # @api private
   # Callback called everytime an ACK is pushed to the device.
   def self.id_generated(id, tempId)
-    # quick but dirty way to avoid running out of memory (todo improve that - will make tests fail without reason)
-    if @@mappings.length > 100
-      @@mappings = {}
-    end
     @@mappings[tempId] = id
   end
 

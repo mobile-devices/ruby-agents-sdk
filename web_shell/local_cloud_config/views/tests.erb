@@ -35,41 +35,6 @@
   </div>
 
   <div id="tests-results" class='row-fluid'>
-    <% @agents.each do |agent_name, agent| %>
-      <div id='<%= agent.name %>'>
-        <h4> <%= agent.name %> </h4>
-          <div class='well well-small'>
-            <div class='well well-small progress progress-striped active'>
-                <div class='bar bar-success' style='width: 1%;'></div>
-                <div class='bar bar-info' style='width: 0%;'></div>
-                <div class='bar bar-danger' style='width: 1%;'></div>
-              </div>
-            <div class="row-fluid">
-              <div class='well well-small'>
-                <div class='pull-left'>
-                  <span class='status' style='margin-right: +20px;'> <strong></strong> </span>
-                  <span class='summary'> Waiting for status update. </span>
-                </div>
-                <div class='pull-right'>
-                  <button class='btn save disabled' disabled='disabled'>Save results</button>
-                </div>
-              </div>
-            </div>
-            <div class="row-fluid">
-              <div class='pull-left duration'>
-              </div>
-              <div class='pull-right start-time'>
-              </div>
-            </div>
-         </div>
-         <div id='accordion2' class='accordion'>
-           <table class='table table-bordered' style='word-wrap: break-word; table-layout: fixed;'>
-             <tbody class='results'>
-             </tbody>
-           </table>
-         </div>
-       </div>
-    <% end %>
   </div>
 
 </div>
@@ -85,16 +50,17 @@
       function Agent(name,status) {
         this.name = name;
         this.status = status;
+        this.is_updated = false;
       }
 
       var agents = new Array();
       <% index = 0
         @agents.each do |agent_name, agent| %>
-           agents[<%= index %>] = new Agent("<%= agent.name %>", "not scheduled");
+           agents[<%= index %>] = new Agent("<%= agent.name %>", "not scheduled", false);
            <% index += 1 %>
         <% end %>
 
-      var selected_agent = 'all';
+      var selected_agents = agents;
       var TEST_STATUS = {
         STOPPED: "stopped",
         STARTED: "started"
@@ -112,22 +78,26 @@
           $("#" + agents[i].name + "-element").click(
             (function(agent) {
                  return function () {
-                      selected_agent = agent;
-                      $("#agent-to-test").html(selected_agent.name + "\n <span class='caret'></span>");
+                      selected_agents = new Array(agent);
+                      set_up_tests_display(selected_agents);
+                      $("#agent-to-test").html(agent.name + "\n <span class='caret'></span>"); //update currently displayed agent
+                      start_live_results(selected_agents);
                     }
               })(agents[i])
           ); // ("#" + agents[i].name + "-element").click
-          $("#all-agents-element").click( function() {
-            selected_agent = "all";
-            $("#agent-to-test").html("All agents\n <span class='caret'></span>");
-          }) // $("#all-agents-element").click
         } // for(var i = 0; i < agents.length; i++)
+        $("#all-agents-element").click( function() {
+           selected_agents = agents;
+           $("#agent-to-test").html("All agents\n <span class='caret'></span>");
+           set_up_tests_display(selected_agents);
+           start_live_results(selected_agents);
+         }) // $("#all-agents-element").click
 
         // run test button
         $("#run-tests").click( function() {
           if(current_test_status==TEST_STATUS.STOPPED) {
             flush_alerts();
-            run_tests(selected_agent);
+            run_tests(selected_agents);
           }
           else {
             stop_tests();
@@ -136,6 +106,7 @@
 
       })(); // function setup_event_listeners
 
+      set_up_tests_display(agents);
       start_live_results(agents);
 
       // ================= Helpers ================= //
@@ -185,10 +156,77 @@
         }
       }
 
+      // ================= Template generation ============== //
+
+      function generate_template(agent) {
+    tmpl = "<div id=" + agent.name + ">\n"
+ + "       <h4>" + agent.name + "</h4>\n"
+ + "         <div class='well well-small'>\n"
+ + "           <div class='well well-small progress progress-striped active'>\n"
+ + "               <div class='bar bar-success' style='width: 1%;'></div>\n"
+ + "               <div class='bar bar-info' style='width: 0%;'></div>\n"
+ + "               <div class='bar bar-danger' style='width: 1%;'></div>\n"
+ + "             </div>\n"
+ + "           <div class='row-fluid'>\n"
+ + "             <div class='well well-small'>\n"
+ + "               <div class='pull-left'>\n"
+ + "                 <span class='status' style='margin-right: +20px;'> <strong></strong> </span>\n"
+ + "                 <span class='summary'> Waiting for status update. </span>\n"
+ + "               </div>\n"
+ + "               <div class='pull-right'>\n"
+ + "                 <button class='btn save disabled' disabled='disabled'>Save results</button>\n"
+ + "               </div>\n"
+ + "             </div>\n"
+ + "           </div>\n"
+ + "           <div class='row-fluid'>\n"
+ + "             <div class='pull-left duration'>\n"
+ + "             </div>\n"
+ + "             <div class='pull-right start-time'>\n"
+ + "             </div>\n"
+ + "           </div>\n"
+ + "        </div>\n"
+ + "        <div id='accordion2' class='accordion'>\n"
+ + "          <table class='table table-bordered' style='word-wrap: break-word; table-layout: fixed;'>\n"
+ + "            <tbody class='results'>\n"
+ + "            </tbody>\n"
+ + "          </table>\n"
+ + "        </div>\n"
+ + "      </div>\n"
+        return tmpl;
+      }
+
+      // agents is an Array of Agents
+      function set_up_tests_display(agents_array) {
+        $("#tests-results").html("");
+        for (var i = 0; i < agents_array.length; i++) {
+          // append html
+          $("#tests-results").append(generate_template(agents_array[i]));
+          // add save button callback
+          $("div#" + agents_array[i].name + " .save").off("click");
+          $("div#" + agents_array[i].name + " .save").click( (function(agent_name) {
+            return function() {
+              $.ajax({
+                url: '/save_tests_results',
+                type: "POST",
+                data: {"agent": agent_name},
+                success: function (data) {
+                  display_alert("success", "Tests results saved to " + data);
+                },
+                error: function(xhr, status, errorThrown) {
+                  display_alert("error", "<strong>Error when saving tests results</strong>. More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
+                }
+              }) // ajax
+            } // inner function
+          })(agents_array[i].name) // callback
+          ) // click
+        }
+
+      }
+
       // ================= Main methods ================= //
 
-      // agent is either 'all' or an Agent object
-      function run_tests(agent) {
+      // agent_array is an array of agents
+      function run_tests(agent_array) {
         // before doing anything lets check that the server is running
         var server_alive = false;
         $.ajax({
@@ -211,23 +249,13 @@
         if (!(server_alive)) {
           return false;
         }
-        var agents_to_test = null;
-        var agents_names = null;
-        if(agent=='all') {
-          agents_to_test = agents
-          agents_names = new Array();
-          for (var i = 0; i < agents_to_test.length; i++) {
-            agents_names[i] = agents_to_test[i].name
-            $('div#' + agents_names[i] + " .results").html(""); // delete previous tests results
-            $('div#' + agents_names[i] + " .duration").html("");
-          }
-        } else {
-          agents_names = new Array(agent.name);
-          $('div#' + agents_names + " .results").html(""); // delete previous tests results
-          $('div#' + agents_names + " .duration").html("");
-          agents_to_test = new Array(agent);
+
+        var agents_names = new Array();
+        for(var i = 0; i < agent_array.length; i++) {
+          agents_names[i] = agent_array[i].name
         }
 
+        // query the server to start tests
         $.ajax({url: '/run_tests',
            data: {"agents": agents_names},
            type: "POST",
@@ -243,7 +271,7 @@
              display_alert("error", "<strong>An error occured when starting the tests.</strong> More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
            }
          }); // ajax
-        start_live_results(agents_to_test);
+        start_live_results(agent_array);
       } // function run_tests
 
       function stop_tests() {
@@ -261,35 +289,17 @@
       // ================= Live update of the page with AJAX ================= //
 
       // agents_to_test is an Array of agents
+      // this method assumes that set_up_tests_display was previously called
       function start_live_results(agents_to_test) {
-        // generate template for all agents
-        for( var i = 0; i < agents.length; i++) {
-          // add on click callbacks to save buttons
-          $("div#" + agents[i].name + " .save").off("click");
-          $("div#" + agents[i].name + " .save").click( (function(agent_name) {
-            return function() {
-              $.ajax({
-                url: '/save_tests_results',
-                type: "POST",
-                data: {"agent": agent_name},
-                success: function (data) {
-                  display_alert("success", "Tests results saved to " + data);
-                },
-                error: function(xhr, status, errorThrown) {
-                  display_alert("error", "<strong>Error when saving tests results</strong>. More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
-                }
-              }) // ajax
-            } // inner function
-          })(agents[i].name) // callback
-          ) // click
-        } // for( var i = 0; i < tested_agents.length; i++)
-
         update_status();
 
-        // run updater for all agents (cf below)
-        var tested_agents = new Array();
+        // run updater for all agents
         for(var i = 0; i < agents_to_test.length; i++) {
-          updater(agents_to_test[i], 0);
+          if(!agents_to_test[i].is_updated) {
+            $('div#' + agents_to_test[i].name + " .results").html(""); // delete previous tests results
+            $('div#' + agents_to_test[i].name + " .duration").html("");
+            updater(agents_to_test[i], 0);
+          }
         }
 
         // --- helper functions ---
@@ -408,6 +418,7 @@
             next_request = 500;
             },
             complete: function() {
+              agent.is_updated = false;
               console.log("Current status for agent " + agent.name + " is " + agent.status)
               if (agent.status == "finished") {
                 update_state_display("success", "Tests for agent " + agent.name + " complete.");
@@ -431,6 +442,7 @@
                 update_status();
                 return 1;
               }
+              agent.is_updated = true;
               console.log("Next request for agent " + agent.name + " is scheduled in " + next_request + "ms with index " + max_index);
               setTimeout(function() {updater(agent, max_index)}, next_request);
             } // complete

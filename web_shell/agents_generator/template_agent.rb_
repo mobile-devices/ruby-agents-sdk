@@ -148,11 +148,13 @@ class Agent_XX_CLEAN_PROJECT_NAME
     new_order(order)
   end
 
-
+  # SDK Framework
   include Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
+  # Protogen
   include ProtogenAPIs if defined? ProtogenAPIs
 
+  # User code
   include Initial_agent_XX_PROJECT_NAME
 
 end

@@ -77,6 +77,29 @@
 </div>
 <!-- End Main display ==========================================================-->
 
+<!-- Create agent display ======================================================-->
+<div id="create_display">
+
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Agent name</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <form action="/create_agents" method="post">
+        <td><input type="text" name="agent[name]"/></td>
+        <td><button class="btn btn-info">Create agent</button></td></form>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+<!-- End Create agent display ==================================================-->
+
 
 <!-- Scripts ===================================================================-->
 <% if @action_popup != 0 || @error_popup_msg != ""%>

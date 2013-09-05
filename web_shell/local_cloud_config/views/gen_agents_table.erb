@@ -53,16 +53,6 @@
           </tr>
         <% end %>
 
-        <tr>
-          <form action="/create_agents" method="post">
-          <td><input type="text" name="agent[name]"/></td>
-            <td></td>
-          <td><button class="btn btn-info">Create agent</button></td></form>
-          <% if is_cron_tasks_visible == 'true' %>
-            <td></td>
-          <% end %>
-        </tr>
-
       </tbody>
     </table>
   </div>

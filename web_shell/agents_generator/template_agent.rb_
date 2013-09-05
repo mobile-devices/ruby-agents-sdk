@@ -13,14 +13,11 @@ if (require_relative '../../local_cloud/fake_cloud_lib/cloud_connect_sdk_module'
   include CC
 end
 
+# SDK framework
+require_relative '../../agents_generator/cloud_agents_generated/sdk_utils/sdk_api'
+
 # User code
 require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'
-
-# Generated SDK API (the folder is added to $LOAD_PATH in generated code so we
-# don't need require_relative)
-require 'sdk_api'
-
-require_relative '../../local_cloud/API/json_tests_writer'
 
 # XX_PROJECT_NAME agent
 class Agent_XX_CLEAN_PROJECT_NAME

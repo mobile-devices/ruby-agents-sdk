@@ -127,14 +127,6 @@ module AgentsGenerator
 
     agents_generated_code = ""
 
-    # add sdk_utils folder to $LOAD_PATH so the users can write directly
-    # "require 'sdk_utils'"" in their code
-     agents_generated_code += <<-CODE
-      libdir = File.expand_path("#{sdk_utils_path}")
-      $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
-    CODE
-
-
     template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
     # template generation

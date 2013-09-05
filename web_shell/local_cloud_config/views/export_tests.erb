@@ -20,7 +20,6 @@
       <p>Git last commit was: <%= @git_info %></p>
     <% end %>
     <p <%="class='text-error'" if @failed %> > <strong> <%= @summary %> </strong> <%= "in #{@duration} seconds" unless @duration.nil? %></p>
-    <p class="muted">Mobile Devices SDK version: <%= get_sdk_version %><p>
 
     <table class="table table-bordered table-condensed" style="word-wrap: break-word; table-layout: fixed;">
       <tbody>
@@ -70,6 +69,9 @@
           <% end %> <!-- example.each do |example| -->
         </tbody>
       </table>
+
+      <p class="muted">Mobile Devices SDK version: <%= get_sdk_version %><p>
+      <p class="muted">Mobile Devices development VM version: <%= @vm_version %><p>
     </div>
   </body>
   </html>

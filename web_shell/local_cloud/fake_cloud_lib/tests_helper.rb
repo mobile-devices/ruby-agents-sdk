@@ -181,11 +181,9 @@ module TestsHelper
     def send_to_server
       params = self.to_hash
       # handle_message_from_device needs a base64 encoded content
-      # so we encode it manually
-      # the way it is done in push_something_to_device
-      # all these methods are defined in cloud_gate.rb
+      # indeed, in generated.rb (from template_agent.rb_) handle_message decode64 the payload
       params['payload']['payload'] = Base64.encode64(params['payload']['payload'])
-      handle_msg_from_device('message', params)
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{params.to_json}' http://localhost:5001/message`
     end
 
   end
@@ -214,7 +212,7 @@ module TestsHelper
 
     # Send this presence to the server.
     def send_to_server
-      handle_msg_from_device('presence', self.to_hash)
+       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{self.to_hash.to_json}' http://localhost:5001/presence`
     end
   end
 
@@ -237,7 +235,7 @@ module TestsHelper
 
     # Send this track to the server.
     def send_to_server
-      handle_msg_from_device('track', self.to_hash)
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{self.to_hash.to_json}' http://localhost:5001/track`
     end
 
   end

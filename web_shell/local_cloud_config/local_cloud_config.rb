@@ -488,7 +488,7 @@ post '/save_tests_results' do
   File.open(output_path, 'w') do |file|
     file.write(html)
   end
-  output_path.gsub("/home/vagrant/", "")
+  output_path.gsub("/home/vagrant/ruby-agents-sdk/logs", "sdk_logs")
 end
 
 # return a hash of agents with their current test status

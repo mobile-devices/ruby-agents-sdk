@@ -160,7 +160,7 @@ end
 
 get '/restart_server' do
 
-  p "restart server with params=#{params}"
+
 
   if params['reset_logs'] == 'on'
     if File.exist?(log_server_path)
@@ -175,6 +175,7 @@ get '/restart_server' do
   end
 
   $server_run_id = rand
+  p "restart server with params=#{params} and id #{$server_run_id}"
 
   File.open('/tmp/should_mdi_server_run_id', 'w') { |file| file.write($server_run_id) }
 

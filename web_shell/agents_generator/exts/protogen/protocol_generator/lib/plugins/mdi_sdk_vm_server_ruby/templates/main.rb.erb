@@ -15,8 +15,8 @@ module ProtogenAPIs
   #   message object.
   # @return [String] Encoded protogen object
   def self.encode(message)
-    Protogen::Splitter.init($<%= Env['agent_name'] %>_initial.redis_internal)
-    Protogen::CookiePasswdMgr.init($<%= Env['agent_name'] %>_initial.redis_internal)
+    Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API..redis_internal)
+    Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API..redis_internal)
     cookies = message.meta['protogen_cookies'] || []
     Protogen::Codec.encode(message.content, cookies, message.asset)
   end
@@ -28,16 +28,16 @@ module ProtogenAPIs
   #   correspond to any protogen message
   # @return [Protogen::Message::MessageClass, Protogen::Cookies]
   def self.decode(message)
-    Protogen::Splitter.init($<%= Env['agent_name'] %>_initial.redis_internal)
-    Protogen::CookiePasswdMgr.init($<%= Env['agent_name'] %>_initial.redis_internal)
+    Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API..redis_internal)
+    Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API..redis_internal)
     Protogen::Codec.decode(message.content, message.asset)
   end
 
   # Check the message protogen type, and call the defined callback accordingly.
   # @param [CCS::Message] message message.content must be a protogen message object.
   def self.process(message_class_owner, message)
-    Protogen::Splitter.init($<%= Env['agent_name'] %>_initial.redis_internal)
-    Protogen::CookiePasswdMgr.init($<%= Env['agent_name'] %>_initial.redis_internal)
+    Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API..redis_internal)
+    Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API..redis_internal)
     case message.content<% Env['msg_seq_dev'].each do |msg,seq| %>
     when Protogen::Messages::<%= msg %> # <%= seq %> sequence
       message_class_owner.<%= "#{Env['sequences'][seq]['callback'] || seq}(message)" %><% end %>

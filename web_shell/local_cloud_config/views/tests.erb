@@ -54,6 +54,8 @@
         this.is_updated = false;
       }
 
+      // A global array of agents whose content is built when ERB renders the page
+      // The array itself should not be modified, however the state of the agents inside it may be modified
       var agents = new Array();
       <% index = 0
         @agents.each do |agent_name| %>
@@ -61,7 +63,10 @@
            <% index += 1 %>
         <% end %>
 
+      // An array of the currently selected agents (via the dropdown menu)
+      // Used by the callback on the "run tests" button
       var selected_agents = agents;
+
       var TEST_STATUS = {
         STOPPED: "stopped",
         STARTED: "started"
@@ -136,6 +141,7 @@
             selected_array = new Array(agent);
           }
         }
+        selected_agents = selected_array;
         set_up_tests_display(selected_array);
         start_live_results(selected_array);
       })(); // function initialize

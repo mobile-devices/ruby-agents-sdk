@@ -488,6 +488,7 @@ post '/save_tests_results' do
   if @examples.nil?
     @examples = [] # to avoid errors in erb template
   end
+  @vm_version = current_sdk_vm_base_version
   @duration = test_status[:summary][:duration] unless test_status[:summary].nil?
   @summary = "#{test_status[:tested]} out of #{test_status[:example_count]} tests run (#{test_status[:failed_count]} failed, #{test_status[:pending_count]} not implemented)"
   @agent = params['agent']

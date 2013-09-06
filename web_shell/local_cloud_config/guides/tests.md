@@ -10,7 +10,7 @@ We advise you to use [Rspec](http://rspec.info/) to automate your tests. Rspec d
 
 The SDK GUI has a [tab](http://0.0.0.0:5000/unit_tests) dedicated to running and displaying Rspec tests. Rspec is already integrated in the SDK VM.
 
-Additionnally, the SDK API exposes a couple of utilities that you can use to simulate communication with a device. You can find these utilities in the module `TestHelper` (you need to `require 'tests_helper' first). Read the {TestsHelper TestsHelper module documentation} to see what helpers are available.
+Additionnally, the SDK API exposes a couple of utilities that you can use to simulate communication with a device. You can find these utilities in the module `TestHelper` (you need to `require 'tests_helper'` first). Read the {TestsHelper TestsHelper module documentation} to see what helpers are available.
 
 ## Writing tests with Rspec ##
 
@@ -96,6 +96,6 @@ If your source code in under revision control by [Git](http://git-scm.com/), inf
 
 * The test environement is not isolated, so for instance the log tab will display simulated messages exchanged between the simulated devices and the server. It also means that you could potentially have interferences between your tests and tasks you are executing while your tests are running. We highly recommand you don't do anything with the VM while you are running tests.
 
-* Use the Rspec mock capabilities if your agent relies on external APIs but you don't want them to interfere in your tests. Still, it is a good idea to have tests that mock as little as possible so they represent better the real environement of your agent.
+* Use the Rspec mock capabilities if your agent relies on external APIs but you don't want them to interfere in your tests. Still, it is a good idea to have tests that mock as little as possible so they represent better the real environment of your agent.
 
 * Passing tests don't guarantee that your code works.

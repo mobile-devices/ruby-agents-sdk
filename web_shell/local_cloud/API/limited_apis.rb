@@ -11,12 +11,12 @@ module LimitedApi
   # This class points what commands should not be used by your agent to help you
   # develop agents that will be accepted.
   #
-  # Internally, this object use a blacklist (and not a whitelist) for simplicity
+  # Internally, this object uses a blacklist (and not a whitelist) for simplicity
   # and because real security issues are out of the scope of this class.
   # @api private
   class RedisNamespaced
 
-    # The default explanation of why a command is forbideen.
+    # The default explanation of why a command is forbidden.
     @@DEFAULT = "This Redis command must not be used by your agent."
 
     # A Hash whose keys are the name (as symbols) of the forbidden methods

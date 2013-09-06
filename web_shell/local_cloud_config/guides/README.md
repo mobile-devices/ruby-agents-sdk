@@ -49,7 +49,7 @@ So, what are these files for?
 - *Gemfile* is a standard... gemfile where you put the ruby gems you want to use with your agent.
 - *protogen.json* is where you define the communication protocol between your devices and the server. See the Protogen guide for more information.
 - *scheduled.rb* is where you define some tasks to be executed on a regular basis (see the "Scheduled tasks" guide for more information).
-- *my_agent.yml.example* is an example configuration file. Your own configuration file will be `my_agent.yml`. This file uses the YAML (the YAML reference can be found [here](http://www.yaml.org/) and a more user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML)).
+- *my_agent.yml.example* is an example configuration file. This file uses the YAML (the YAML reference can be found [here](http://www.yaml.org/) and a more user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML)).
 - *doc* contains generated docs for your agent (notably generated Protogen documentation).
 - *modules* is where you put your additional modules.
 - *README.md* is a place where you can put information about your agent, because documentation is mandatory, isn't it?

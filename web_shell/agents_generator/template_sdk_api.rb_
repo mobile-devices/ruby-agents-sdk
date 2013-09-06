@@ -99,13 +99,13 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # @return [Array<String>] the channels your agent is listening to.
       def self.get_channels()
         @@CHANNEL = SDK.API.config['Dynamic_channel_str']
-        @@CHANNEL = SDK.API.config['dynamic_channel_str'] if @CHANNEL == nil
+        @@CHANNEL = SDK.API.config['dynamic_channel_str'] if @@CHANNEL == nil
 
         if @@CHANNEL.is_a? String
-          @@CHANNEL = ["#{@CHANNEL}"]
+          @@CHANNEL = ["#{@@CHANNEL}"]
         end
 
-        if (@CHANNEL == nil) || (@CHANNEL.length == 0)
+        if (@@CHANNEL == nil) || (@@CHANNEL.length == 0)
           @@CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
         end
 

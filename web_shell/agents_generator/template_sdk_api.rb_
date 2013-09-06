@@ -4,6 +4,9 @@
 # Mobile Devices 2013
 #########################################################
 
+# Limited Redis
+require_relative '../../../local_cloud/API/limited_apis'
+
 # @api public
 # An agent-specific module whose role is to be a wrapper around the SDK module (generated code).
 # Including this module in your classes will grant you access to the SDK API already configured
@@ -49,14 +52,16 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # You don't need to namespace your keys, this will be done automatically.
       # The returned redis object gives you access to (nearly) all the redis API as documented [on the official Redis website](http://redis.io/commands).
       # Use it as a fast cache.
+      # @note Your agent should not use some Redis commands (such as `shutdown`). The SDK will raise an exception if you try to do so,
+      #   and an agent using these commands will not be accepted by Mobile Devices.
       # @return [Redis] a redis instance configured for your agent.
       def self.redis()
-        @@redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
+        @@redis ||= LimitedApi::RedisNamespaced.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
       # @api private
       def self.redis_internal()
-        @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
+        @@redis_internal ||= LimitedApi::RedisNamespaced.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
       ############### Config ###############################################

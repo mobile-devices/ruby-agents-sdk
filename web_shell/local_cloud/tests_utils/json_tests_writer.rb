@@ -2,6 +2,8 @@
 
 require 'rspec'
 require 'rspec/core/formatters/base_formatter'
+# the active_support gem also defines an atomic write
+# shloud we remove this gem, we'd need to have this feature
 # require_relative 'atomic_write'
 require 'json'
 

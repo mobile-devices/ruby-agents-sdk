@@ -344,7 +344,7 @@ get '/start_tests' do
           libdir = File.join(root_path, "fake_cloud_lib")
           $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
           RSpec::Core::Runner.run([test_path,
-            "--require", File.join(root_path, "API", "json_tests_writer.rb"), "--format", "JsonTestsWriter"],
+            "--require", File.join(root_path, "tests_utils", "json_tests_writer.rb"), "--format", "JsonTestsWriter"],
             $stderr, output_file_path)
         rescue Exception => e
           # the runner launched an exception itself

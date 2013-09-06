@@ -1,16 +1,32 @@
+# Mobile Devices SDK for developing cloud agents #
 
-start admin server (http://localhost:5000):
-```
+This SDK is an open source project by [Mobile Devices](http://www.mobile-devices.com/) intended to make development of agents in our cloud environment quick and easy.
+
+## Installation ##
+
+To save you from installing and managing the dependencies of this SDK, we advise you to use our VM (virtual machine) which contains all you need to run this SDK.
+
+## Usage ##
+
+The VM will automatically start the admin server on [http://localhost:5000](http://localhost:5000). If not, use the `ruby-agents-sdk` script:
+
+``` bash
 ./ruby-agents-sdk start_admin
 ```
 
+Once the admin server is started, access the nice GUI at [http://localhost:5000](http://localhost:5000) with your favorite browser. More documentation is available from this GUI.
 
-stop admin server (http://localhost:5000):
+## Need help? ##
 
-```
-./ruby-agents-sdk stop_admin
-```
+### IRC ###
+`irc.freenode.org`,  channel `#mdisdkvm`
 
+## `ruby_agents_sdk` script
 
+- Start the admin server: `./ruby-agents-sdk start_admin`
+- Stop the admin server: `./ruby-agents-sdk stop_admin`
+- Restart the admin server: `./ruby-agents-sdk restart_admin`
 
-irc : irc.freenode.org  channel #mdisdkvm
+## License ##
+
+This work is released under the GPLv2 license. See LICENSE.txt for details.

@@ -4,8 +4,8 @@
 # Mobile Devices 2013
 #########################################################
 
+# To read configuration files
 require 'yaml'
-require 'rspec'
 
 # Framework to be standalone
 require 'active_support/all'
@@ -14,7 +14,7 @@ if (require_relative '../../local_cloud/fake_cloud_lib/cloud_connect_sdk_module'
 end
 
 # SDK framework
-require_relative '../../agents_generator/cloud_agents_generated/sdk_utils/sdk_api'
+require_relative 'sdk_utils/sdk_api'
 
 # User code
 require_relative '../../../cloud_agents/XX_PROJECT_NAME/initial'

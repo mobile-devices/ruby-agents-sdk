@@ -26,15 +26,15 @@ module Initial_agent_tester
   # Store all connection events in a redis database
   def new_presence_from_device(presence)
     if presence.type == "connect"
-      SDK.API::redis[presence.asset] =  presence.time
+      SDK.API.redis[presence.asset] =  presence.time
     elsif presence.type == "disconnect"
-      SDK.API::redis[presence.asset] = nil
+      SDK.API.redis[presence.asset] = nil
     end
   end
 
   # Echo all received messages twice.
   def new_msg_from_device(msg)
-    3.times { SDK.API::gate.reply(msg, msg.content) # Error here, let's see if the tests will reveal it...
+    3.times { SDK.API.gate.reply(msg, msg.content) # Error here, let's see if the tests will reveal it...
   end
 
 end
@@ -50,14 +50,12 @@ We create a subfolder named `tests` in `ruby_workspace/tester/`. In this subfold
 require 'rspec'
 require 'tests_helper' # to access the TestsHelper module
 
-include Sdk_api_tester # to access the SDK namesapce
-
 describe 'tester agent' do
 
   it 'should store all connection events in a redis database' do
     presence = TestsHelper::PresenceFromDevice.new("connect", "1234")
     presence.send_to_server
-    TestsHelper.wait_for { SDK.API::redis.get(presence.asset).should == presence.time.to_s}
+    TestsHelper.wait_for { SDK_api_tester::SDK.API.redis.get(presence.asset).should == presence.time.to_s}
   end
 
   it 'should echo all received messages twice' do
@@ -76,7 +74,7 @@ Read the [Rspec documentation](http://rubydoc.info/gems/rspec/file/README.md) fo
 
 ## Running your tests ##
 
-Go to the ["Unit tests"](http://0.0.0.0:5000/unit_tests) tab of the SDK GUI. This tab display the status of the last tests which were executed for all mounted agents.
+Go to the ["Unit tests"](http://0.0.0.0:5000/unit_tests) tab of the SDK GUI. This tab displays the status of the last tests which were executed for all mounted agents.
 
 Make sure your agent is mounted (tab ["SDK agents"](http://0.0.0.0:5000)), restart the agents server (top-right button), select your agent in the dropdown menu and click the blue "run tests" button.
 
@@ -89,6 +87,31 @@ It is a good idea to regularly save your tests results to know which tests passe
 To do this, just click on the "save results" button. It will create a human-readable HTML file in `ruby_workspace/sdk_logs/tests_results/<your_agent_name>/` with the results of your tests. The file name includes the date at which you run your tests.
 
 If your source code in under revision control by [Git](http://git-scm.com/), information about the latest commit will be included in this file as well.
+
+## Use `shared_context` to tidy your tests ##
+
+If you're using the `SDK` namespace a lot in your tests, it may be a good idea to put it in a [RSpec shared context](https://www.relishapp.com/rspec/rspec-core/docs/example-groups/shared-context). Let's rewrite the first test:
+
+``` ruby
+require 'rspec'
+require 'tests_helper'
+
+shared_context 'tester_agent_context' do
+  SDK = Sdk_api_sdk_tester::SDK
+end
+
+describe 'tester agent' do
+
+  include_context 'tester_agent_context'
+
+  it 'should store all connection events in a redis database' do
+    presence = TestsHelper::PresenceFromDevice.new("connect", "1234")
+    presence.send_to_server
+    TestsHelper.wait_for {SDK.API.redis.get(presence.asset).should == presence.time.to_s}
+  end
+
+end
+```
 
 ## Caveat ##
 

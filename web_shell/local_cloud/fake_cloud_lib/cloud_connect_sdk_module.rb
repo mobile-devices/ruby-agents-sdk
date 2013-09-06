@@ -4,7 +4,7 @@
 #########################################################
 
 require 'logger'
-require 'redis'
+require_relative 'limited_apis'
 require 'redis-namespace'
 
 # Cloud connect SDK Side Implementation
@@ -42,7 +42,7 @@ module CloudConnectSDK
   end
 
   def self.redis()
-    @redis ||= Redis.new(:host => 'localhost', :port =>  '7879')
+    @redis ||= LimitedApis::SafeRedis.new(:host => 'localhost', :port =>  '7879')
   end
 
   # send outside the cloud

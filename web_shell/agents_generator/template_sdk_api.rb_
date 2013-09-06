@@ -4,8 +4,6 @@
 # Mobile Devices 2013
 #########################################################
 
-# Limited Redis
-require_relative '../../../local_cloud/API/limited_apis'
 
 # @api public
 # An agent-specific module whose role is to be a wrapper around the SDK module (generated code).
@@ -56,12 +54,12 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       #   and an agent using these commands will not be accepted by Mobile Devices.
       # @return [Redis] a redis instance configured for your agent.
       def self.redis()
-        @@redis ||= LimitedApi::RedisNamespaced.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
+        @@redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
       # @api private
       def self.redis_internal()
-        @@redis_internal ||= LimitedApi::RedisNamespaced.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
+        @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
       ############### Config ###############################################

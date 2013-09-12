@@ -56,6 +56,12 @@
   </div>
 </div>
 <% end %>
+<% if flash[:notice] %>
+    <div class="alert alert-info">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <%=flash[:notice]%>
+    </div>
+<% end %>
 <!-- End modal ===================================================================-->
 
 <!-- Server stats basic ========================================================-->
@@ -141,8 +147,7 @@
           });
         })(); // function updater and run it
 
-
-      })(); // function layout and run it
+      })(); // function projects and run it
 
 
 

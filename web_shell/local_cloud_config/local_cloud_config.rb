@@ -531,3 +531,12 @@ get '/tests_status' do
   end
   return res.to_json
 end
+
+get '/export' do
+  if params["agent"].nil?
+    halt(400, "'agent' parameter is mandatory")
+  end
+  path = export(params["agent"])
+  flash[:notice] = "Agent dumped to #{path}"
+  redirect("/projects")
+end

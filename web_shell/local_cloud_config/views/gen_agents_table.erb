@@ -11,6 +11,7 @@
         <th>Agent name</th>
         <th> Stats</th>
         <th>Active</th>
+        <th>Export</th>
         <% if is_cron_tasks_visible == 'true' %>
           <th>Cron Tasks</th>
         <% end %>
@@ -38,6 +39,10 @@
             <% end %>
               </form>
             </td>
+
+          <td>
+                <a class="btn btn-info" href="/export?agent=<%=agent_name%>">Dump</a>
+          </td>
 
           <% if is_cron_tasks_visible == 'true' %>
             <td>

@@ -199,6 +199,10 @@
         }
       }
 
+      function format_server_response(xhr, status, errorThrown) {
+        return ("The server responded: " + status + " (" + errorThrown + ") - " + xhr.responseText + " </br>");
+      }
+
       // ================= Template generation ============== //
 
       function generate_template(agent) {
@@ -256,7 +260,11 @@
                   display_alert("success", "Tests results saved to <em>" + data + "</em>");
                 },
                 error: function(xhr, status, errorThrown) {
-                  display_alert("error", "<strong>Error when saving tests results</strong>. More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
+                  if(xhr.status == 0) {
+                    display_alert("error", "<strong>Error when saving tests results</strong>. Impossible to contact the admin server, refresh the page and retry.");
+                  } else {
+                  display_alert("error", "<strong>Error when saving tests results</strong>." + format_server_response(xhr, status, errorThrown));
+                  }
                 }
               }) // ajax
             } // inner function
@@ -285,7 +293,11 @@
             }
           },
           error: function(xhr, status, errorThrown) {
-            display_alert("warning", "Impossible to contact the agents server (" + xhr.responseText + " - " + status + " - " + errorThrown + ")");
+            if (xhr.status == 0) {
+              display_alert("warning", "Impossible to contact the admin server (try refreshing the page).");
+            } else {
+              display_alert("warning", "Error when checking if agents server is running." + format_server_response(xhr, status, errorThrown));
+            }
             server_alive = false;
           }
         });
@@ -316,8 +328,11 @@
             update_run_tests_button();
            },
            error: function(xhr, status, errorThrown) {
+             if (xhr.status == 0) {
+              display_alert("warning", "<strong>Tests not started.</strong> Impossible to contact the admin server, refresh the page and retry.");
+            }
              console.error("Error when starting the tests: " + status + " (" + errorThrown + ") ---- " + xhr.responseText);
-             display_alert("error", "<strong>An error occured when starting the tests.</strong> More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
+             display_alert("error", "<strong>An error occured when starting the tests.</strong>" + format_server_response(xhr, status, errorThrown));
            }
          }); // ajax
         start_live_results(agent_array);
@@ -331,6 +346,13 @@
             update_state_display("info", "Stopping tests.");
             current_test_status = TEST_STATUS.STOPPED;
             update_run_tests_button();
+          },
+          error: function(data) {
+             if (xhr.status == 0) {
+              display_alert("warning", "<strong>Tests not stopped.</strong> Impossible to contact the admin server, refresh the page and retry.");
+            } else {
+              display_alert("warning", "Error when stopping the tests." + format_server_response(xhr, status, errorThrown));
+            }
           }
         }); // ajax
       } // stop tests
@@ -368,7 +390,11 @@
             },
             error: function(xhr, status, errorThrown) {
               console.error("An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
-              display_alert("warning", "An error occured when checking for test status update: " + status + " (" + errorThrown + ") with message " + xhr.responseText);
+              if (xhr.status == 0) {
+                display_alert("warning", "Can not contact admin server to update test status, try refreshing the page.")
+              } else {
+              display_alert("warning", "An error occured when checking for test status update. " + format_server_response(xhr, status, errorThrown));
+              }
             }
           }) // ajax
 
@@ -431,7 +457,7 @@
             $(parent + ".summary").html("");
             $(parent + '.start-time').html("");
           } else {
-            console.error("Can not update status display because " + current_status + " is an unknow status.");
+            console.error("Can not update status display because " + current_status + " is an unknown status.");
           }
         } // function update_status_display
 
@@ -463,8 +489,13 @@
             },
             error: function(xhr, status, errorThrown) {
             console.error("Error when updating tests results: " + status + " (" + errorThrown + ") ---- " + xhr.responseText)
-            display_alert("warning", "<strong>An unexpected error occured during the tests.</strong> More information: " + status + " (" + errorThrown + "). </br>" + xhr.responseText);
-            next_request = 500;
+            if (xhr.status == 0) {
+              display_alert("warning", "Error when updating test status (can not contact admin server).")
+              next_request = 500;
+            } else {
+              display_alert("warning", "<strong>An unexpected error occured during the tests.</strong>" + format_server_response(xhr, status, errorThrown));
+              next_request = 500;
+              }
             },
             complete: function() {
               agent.is_updated = false;

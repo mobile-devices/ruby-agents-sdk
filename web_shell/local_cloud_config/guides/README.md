@@ -193,7 +193,7 @@ You can test your agent without using a device thanks to the test utilities of t
 
 The SDK gives you tests helpers that should work with any testing framework. These helpers enables you to simulate sending messages to the server and verifying your agent send the appropriate response.
 
-Additionally, we strongly encourages you to use the [Rspec](http://rubydoc.info/gems/rspec-core/file/README.md) testing framework. The web interface has a tab named ["Unit tests"](http://0.0.0.0:5000/unit_tests) where you can easily run your Rspec tests, see the results live, and saving them for future reference. Plus using Rspec will allow your tests to be run by Mobile Devices on the real development servers so we will be able to check if your agent works in a more realistic environment.
+Additionally, we strongly encourage you to use the [Rspec](http://rubydoc.info/gems/rspec-core/file/README.md) testing framework. The web interface has a tab named ["Unit tests"](http://0.0.0.0:5000/unit_tests) where you can easily run your Rspec tests, see the results live, and saving them for future reference. Plus using Rspec will allow your tests to be run by Mobile Devices on the real development servers so we will be able to check if your agent works in a more realistic environment.
 
 As an added bonus, the SDK testing framework also enables you to send a message to a device and check that your device answers correctly.
 

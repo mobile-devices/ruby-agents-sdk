@@ -92,7 +92,7 @@ end
 
 ### Other useful SDK.API tools ###
 
-- {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.config SDK.API.config} allows you to you access to your configuration defined in the file `config/<your_agent_name>.yml.example`.
+- {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.config SDK.API.config} allows you to access to your configuration defined in the file `config/<your_agent_name>.yml.example`.
 
 - {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.redis SDK.API.redis} gives you access to a Redis database. Redis is a database living in RAM that you can use to cache data for faster access. More information [on the official Redis website](http://redis.io/).
 

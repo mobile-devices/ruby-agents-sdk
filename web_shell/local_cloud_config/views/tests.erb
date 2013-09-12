@@ -335,6 +335,7 @@
              display_alert("error", "<strong>An error occured when starting the tests.</strong>" + format_server_response(xhr, status, errorThrown));
            }
          }); // ajax
+        console.log("Tests started.")
         start_live_results(agent_array);
       } // function run_tests
 
@@ -355,6 +356,7 @@
             }
           }
         }); // ajax
+        console.log("Tests stopped.")
       } // stop tests
 
       // ================= Live update of the page with AJAX ================= //

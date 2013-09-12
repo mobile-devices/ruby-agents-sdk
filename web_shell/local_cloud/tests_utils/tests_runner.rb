@@ -92,6 +92,23 @@ class TestsRunner
         @tester_thread = nil
         CC.logger.debug("Tester thread killed.")
       end
+      # make sure we don't have any "scheduled" tests
+      # the JSON tests writer will set the status of the current test to "interrupted"
+      # but other scheduled tests wont be marked as cancelled
+      log_pattern = "tests_*.log"
+      res = Dir.glob(File.join(@log_path, log_pattern)).each do |current_log|
+        begin
+          file = File.open(current_log, 'r')
+          test_status = JSON.parse(file.read, {symbolize_names: true})
+        rescue JSON::ParserError => e
+          CC.logger.warn("Error when parsing the content of " + current_log + ": " + e.message)
+        ensure
+          file.close
+        end
+        if test_status[:status] == "scheduled"
+          File.delete(file)
+        end
+      end
     end
   end
 

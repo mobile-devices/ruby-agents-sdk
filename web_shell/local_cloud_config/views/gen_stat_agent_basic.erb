@@ -20,8 +20,8 @@ sent
 <br>
 Average process time :
 <span class="label label-error">
-  <% if @cur_agent && @cur_agent.agent_stats['proccess_time'] %>
-    <%= "%5.1f" % (1000.0 * (@cur_agent.agent_stats['proccess_time'].inject(0){|sum,item| sum + item}) / (@cur_agent.agent_stats['total_received'] - @cur_agent.agent_stats['total_error'])) %>
+  <% if @cur_agent && @cur_agent.agent_stats['process_time'] %>
+    <%= "%5.1f" % (1000.0 * (@cur_agent.agent_stats['process_time'].inject(0){|sum,item| sum + item}) / (@cur_agent.agent_stats['total_received'] - @cur_agent.agent_stats['total_error'])) %>
   <% else %>
     ??
   <% end %>

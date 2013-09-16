@@ -21,6 +21,7 @@ set :bind, '0.0.0.0'
 set :port, '5001'
 require 'json'
 require 'base64'
+require 'rspec'
 
 $main_server_root_path = File.expand_path("..", __FILE__)
 

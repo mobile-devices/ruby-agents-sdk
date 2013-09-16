@@ -43,6 +43,9 @@ require_relative 'API/sdk_stats'
 require_relative 'API/cloud_connect_services'
 require_relative 'API/cloud_connect_services_internal'
 
+# tests
+require_relative 'tests_utils/tests_runner'
+
 #### Agent generation #############################################################################
 require_relative '../agents_generator/agents_mgt'
 include GEN
@@ -301,82 +304,12 @@ get '/start_tests' do
     halt(400, "'agents' parameters must include at least one agent")
   end
   CC.logger.info("Starting tests for agents " + agents_array.inspect)
-
-  root_path = File.expand_path(File.dirname(__FILE__))
-  log_path = File.expand_path(File.join(root_path, "..", "..", "logs"))
-  cloud_agents_path = File.expand_path(File.join(root_path, "..", "..", "cloud_agents"))
-
-  # cancel previous tests
-  # todo duplicate code refactor
-  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
-  CC.logger.info("Killing previous tester thread ; aborting running tests.")
-  Thread.kill($tester_thread)
-  $tester_thread.join
-  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
-  "Tests stopped"
-
-  # create files so we indicate we are going to test the agents
-  agents_array.each do |agent|
-    test_path = File.join(cloud_agents_path, "#{agent}", "tests")
-    output_file_path = File.join(log_path, "tests_#{agent}.log")
-    if File.directory?(test_path)
-      CC.logger.info("Found test directory for agent #{agent} at #{test_path}")
-      File.delete(output_file_path) if File.exist?(output_file_path)
-      File.open(output_file_path, 'w') { |file| file.write({status: "scheduled"}.to_json) }
-    else
-      CC.logger.info("No test directory found for agent #{agent} at #{test_path}, skipping tests.")
-      File.delete(output_file_path) if File.exist?(output_file_path)
-      File.open(output_file_path, 'w') { |file| file.write({status: "no tests subfolder"}.to_json) }
-    end
-  end
-
-  $tester_thread = Thread.new {
-    CC.logger.debug(" --- in tester thread --- Starting tester thread.")
-    agents_array.each do |agent|
-      root_path = File.expand_path(File.dirname(__FILE__))
-      log_path = File.expand_path(File.join(root_path, "..", "..", "logs"))
-      cloud_agents_path = File.expand_path(File.join(root_path, "..", "..", "cloud_agents"))
-      test_path = File.join(cloud_agents_path, "#{agent}", "tests")
-      output_file_path = File.join(log_path, "tests_#{agent}.log")
-      if File.directory?(test_path)
-        CC.logger.debug(" --- in tester thread --- Starting tests for #{agent}.")
-        begin
-          libdir = File.join(root_path, "fake_cloud_lib")
-          $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
-          RSpec::Core::Runner.run([test_path,
-            "--require", File.join(root_path, "tests_utils", "json_tests_writer.rb"), "--format", "JsonTestsWriter"],
-            $stderr, output_file_path)
-        rescue Exception => e
-          # the runner launched an exception itself
-          # rspec doesn't catch exceptions that are not thrown in the body of a test
-          # so for instance we could go here if a test file is incorectly formatted
-          CC.logger.debug(" --- in tester thread --- caught exception while running tests: " + e.message)
-          File.atomic_write(output_file_path) do |file|
-            file.write({status: "aborted",
-                  exception: {
-                    :class => e.class.name,
-                    :message => e.message,
-                    :backtrace => e.backtrace,
-                  }
-                }.to_json)
-          end
-        end
-        CC.logger.debug(" --- in tester thread --- Tests for #{agent} finished.")
-      end
-    end
-    CC.logger.debug(" --- in tester thread --- Tester thread returning.")
-  }
-  CC.logger.debug("Server thread started.")
-  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
-  "Starting tests for agents " + agents_array.inspect
+  TestsRunner.instance.start_tests(agents_array)
+  "Tests started for agents " + agents_array.inspect
 end
 
 get '/stop_tests' do
-  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
-  CC.logger.info("Killing previous tester thread ; aborting running tests.")
-  Thread.kill($tester_thread)
-  $tester_thread.join
-  CC.logger.debug("tester thread status: " + $tester_thread.status.to_s)
+  TestsRunner.instance.stop_tests
   "Tests stopped"
 end
 

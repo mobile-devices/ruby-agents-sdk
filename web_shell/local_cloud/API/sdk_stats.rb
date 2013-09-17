@@ -36,6 +36,8 @@ module SDK_STATS
         'err_on_reply' => 0,
         'push_sent_to_device' => 0,
         'err_on_push' => 0,
+        'inject_to_cloud' => 0,
+        'err_on_inject' => 0,
         'upstream_data' => [0,0,0,0],
         'downstream_data' => [0,0,0,0],
         'process_time' => [0.0,0.0,0.0,0.0]

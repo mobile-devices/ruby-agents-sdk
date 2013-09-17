@@ -46,12 +46,17 @@ module CloudConnectSDK
   end
 
   # send outside the cloud
-  def self.push(hash_msg)
+  def self.push(hash_msg,queue = nil)
 
     # set the recorded at like the read server would do
     hash_msg['recorded_at'] = Time.now
 
-    push_something_to_device(hash_msg)
+    # inject case
+    if queue = 'messages'
+        handle_msg_from_device('message', hash_msg)
+    else
+      push_something_to_device(hash_msg)
+    end
   end
 
 end

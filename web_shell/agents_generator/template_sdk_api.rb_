@@ -208,7 +208,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
             "payload" => {
               "id" =>           CC.indigen_next_id,     # Indigen integer
               "asset" =>        "ragent",
-              "sender" =>       "ragent",               # Sender identifier (can be the same as the asset)
+              "sender" =>       @CHANNEL,               # Sender identifier (can be the same as the asset)
               "recipient" =>    "ragent",               # Recipient identifier (can be the same as the asset)
               "type" =>        "message",
               "recorded_at" => Time.now,                # timestamp integer in seconds

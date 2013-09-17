@@ -278,9 +278,9 @@ module CloudConnectServices
         self.meta['account'] = account if account.nil?
 
 
-        # set received_at and recorded_at
+        # set received_at
         self.received_at = Time.now
-        self.recorded_at = Time.now
+
         CloudGate.message_sent(self)
 
         # Protogen encode

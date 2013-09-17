@@ -282,6 +282,7 @@ module CloudConnectServices
         # set received_at
         self.received_at = Time.now
 
+        # fire event for unit test engine
         CloudGate.message_sent(self)
 
         # Protogen encode

@@ -260,7 +260,7 @@ module CloudConnectServices
     # Sends this message to the device, using the current message configuration.
     #
     # This method will set the `received_at` and `recorded_at` fields to `Time.now` and
-    # encode the message with Protogen if necessary. Will also set the sender to `@@server@@`.
+    # encode the message with Protogen if necessary. Will also set the sender to `@@server@@` if not exists.
     #
     # If the method parameters are not defined the current values stored in the message will be used.
     #

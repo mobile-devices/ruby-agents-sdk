@@ -266,6 +266,7 @@ module CloudConnectServices
     #
     # @param [String] asset the IMEI of the device or other similar unique identifier.
     # @param [Account] account name to use.
+    # @api private
     def push(asset = nil, account = nil)
         # set asset
         self.asset = asset if asset.nil?
@@ -328,6 +329,7 @@ module CloudConnectServices
     # Reply to this message with the given content.
     # @param [String] content content to reply with.
     # @param [String] cookies Protogen cookies.
+    # @api private
     def reply_content(content, cookies)
       msg = self.clone # todo : check si on clone bien récursivement les table de hash
       msg.parent_id = self.id

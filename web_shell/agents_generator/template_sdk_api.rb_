@@ -38,7 +38,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
       # @return [CloudConnectServices::Log] a (singleton) instance of a logger configured for your agent.
       # @see file:guides/guidelines.md#Logs the logs guidelines
-      def self.log()
+      def self.log
         @@agent_logger ||= begin
           CCS::Log.new('Agent XX_PROJECT_NAME: ')
         end
@@ -53,12 +53,12 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # @note Your agent should not use some Redis commands (such as `shutdown`). The SDK will raise an exception if you try to do so,
       #   and an agent using these commands will not be accepted by Mobile Devices.
       # @return [Redis] a redis instance configured for your agent.
-      def self.redis()
+      def self.redis
         @@redis ||= Redis::Namespace.new('CCS:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
       # @api private
-      def self.redis_internal()
+      def self.redis_internal
         @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
       end
 
@@ -78,7 +78,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       #     puts "dynamic_channel_str value = #{config['dynamic_channel_str']}"
       #   end
       # @return [Hash] the configuration of your agent.
-      def self.config()
+      def self.config
         @@config ||= begin
           if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
             @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
@@ -117,7 +117,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
       # Returns the path to the root directory of your agent. You can write files in this folder.
       # @return [String] the path to the root directory of your agent.
-      def self.root_path()
+      def self.root_path
         'XX_PROJECT_ROOT_PATH'
       end
     end

@@ -1,6 +1,6 @@
 require_relative "../API/cloud_connect_services"
 require_relative "../API/cloud_connect_services_internal"
-require_relative "cloud_gate"
+require_relative "../fake_cloud_lib/cloud_gate"
 require 'base64'
 require 'json'
 
@@ -146,8 +146,8 @@ module TestsHelper
       if value = @data[key]
         renew(key)
         age_keys
+        value[1]
       end
-      value[1]
     end
 
     def inspect
@@ -184,6 +184,81 @@ module TestsHelper
   @@mappings = Cache.new(100)
 
   # @!endgroup
+
+  # @api private
+  # Outgoing messages are sent though this method (see cloud_gate.rb, push_something_to_device)
+  # @param [Hash] hash_data a hash representing a message, with content NOT base64-encoded
+  # @return true if the message was correctly handled, false otherwise
+  def self.push_to_test_gate(hash_data)
+
+
+    # Handle ACK
+    if hash_data['payload']['type'] == 'ackmessage'
+      content = JSON.parse(hash_data['payload']['payload'])
+      self.id_generated(content['msgId'], content['tmpId'])
+      return true
+    end
+
+    # Handle regular message
+    message = CCS::Message.new(hash_data)
+    # Rebuild Protogen object
+    # Find a channel the sender is listening to
+    if message.sender == "@@server@@" # message is from an agent (server) to device
+      channel = message.channel # the channel the sender is listening to is the same the sender is sending to
+    elsif message.asset.downcase == "ragent" # message from an agent (server) to another agent
+      channel = message.sender # sender field was set by ragent to the channel the message came from before being redirected
+    else
+      CC.logger.debug("Message is not sent to device neither to server. Can not process it in tests utilities. Message data : #{hash_data}")
+      return false
+    end # this assumes agents do only "enrichment + redirection" of messages and do not send new messages to the cloud
+
+    # Look for the agent who is listening on the identified channel
+    # We store its name in the variable "sender_agent"
+    cloud_agents_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "cloud_agents"))
+    agents = get_last_mounted_agents
+    sender_agent = nil
+    agents.each do |agent_name|
+      config_file = File.join(cloud_agents_path, agent_name, "config", "sdk_tester.yml.example")
+      config = YAML.load_file(config_file)
+      if config["development"]["dynamic_channel_str"] == channel
+        sender_agent = agent_name
+        break
+      end
+    end
+    if sender_agent.nil?
+      CC.logger.debug("(tests helper) Impossible to find the agent (among currently running agents) who sent #{hash_data}")
+      return false
+    end
+
+    # Use this agent protocol to decode Protogen
+    # As of today the Protogen namespace is not namespaced differently between agents
+    protogen_decoder_path = File.join(cloud_agents_path, "..", "web_shell", "agents_generator","cloud_agents_generated", "protogen_#{sender_agent}", "protogen_apis.rb")
+    # Require the agent protogen API (only way to have the correct decoder)
+    require_relative protogen_decoder_path
+    # Decode the message
+    msg_type = ""
+    begin
+      # As we intercepted the message before it was Base64 encoded, we don't have to base64-decode it
+      # We use our specific decoder ID not to interfere with the normal protogen decoding process
+      msg, cookies = ProtogenAPIs.decode(message, "tests_helper")
+      message.content = msg
+      message.meta['protogen_cookies'] = cookies
+      msg_type = msg.class
+      if msg_type == Protogen::MessagePartNotice
+        # This is only a part of a message, nothing else to do
+        return true
+      end
+    rescue Protogen::UnknownMessageType => e
+        # Protogen could not handle the message, so we store it as a regular one
+        content = JSON.parse(hash_data['payload']['payload'])
+    rescue MessagePack::UnpackError => e
+      # Protogen could not handle the message, so we store it as a regular one
+      content = JSON.parse(hash_data['payload']['payload'])
+    end
+    self.message_sent(message)
+    return true
+
+  end
 
   # @!group Callbacks
 
@@ -242,6 +317,19 @@ module TestsHelper
 
   end
 
+  # A wrapper around one of your Protogen object used to simulate Protogen messages from a device.
+  class ProtogenFromDevice < CCS::Message
+
+    # @param [Protogen::Message::] protogen_object Protogen object coming from the simulated device
+    def initialize(protogen_object)
+      @protogen_object = protogen_object
+    end
+
+    # Send the protogen object to the server
+    def send_to_server
+    end
+  end
+
   # A simulated message that comes from a device.
   # @see CloudConnectServices::Presence
   class PresenceFromDevice < CCS::Presence
@@ -297,6 +385,3 @@ module TestsHelper
   # @!endgroup
 
 end
-
-# register the test helper
-CloudGate.add_observer(TestsHelper)

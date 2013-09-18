@@ -53,7 +53,9 @@ module CloudConnectSDK
 
     # inject case
     if queue = 'messages'
-        handle_msg_from_device('message', hash_msg)
+      handle_msg_from_device('message', hash_msg)
+    elsif queue = 'tracks'
+      handle_msg_from_device('track', hash_msg)
     else
       push_something_to_device(hash_msg)
     end

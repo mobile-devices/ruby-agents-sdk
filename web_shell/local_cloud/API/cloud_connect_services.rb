@@ -301,8 +301,8 @@ module CloudConnectServices
     # @api private
     def push(asset = nil, account = nil)
         # set asset
-        self.asset = asset if asset.nil?
-        self.recipient = asset if asset.nil?
+        self.asset = asset unless asset.nil?
+        self.recipient = asset unless asset.nil?
 
         # set sender if not defined (ie a direct push)
         self.sender ||= '@@server@@'

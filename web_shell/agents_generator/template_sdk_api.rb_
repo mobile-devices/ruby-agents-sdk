@@ -36,6 +36,15 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         end
       end
 
+      # Use this object to send messages to the cloud.
+      # @return [CloudGate] a CloudGate object configured for your agent.
+      def self.cloudGate
+        @@msgGate ||= begin
+          CloudGate.new(self.get_channels[0])
+        end
+      end
+
+
       # @return [CloudConnectServices::Log] a (singleton) instance of a logger configured for your agent.
       # @see file:guides/guidelines.md#Logs the logs guidelines
       def self.log
@@ -191,19 +200,31 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         end
       end
 
+    end
+
+
+    # This class handles all cloud to itself communication
+    # @note You don't have to instantiate this class yourself.
+    #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.cloudGate} object which is already configured for your agent.
+    class CloudGate
+
+      # @api private
+      # @param channel [String] the messages passing through this gate will be sent on this channel
+      def initialize(channel)
+        @CHANNEL = channel
+      end
+
 
       # Inject a message in the server queue (ie push a message to the server)
-      # @param content [Object] content of the message
-      # @param channel [String] channel to push the message to
-      # @param cookies [String] optional cookies, see the Protogen guide
-      def inject_in_cloud(content, account, channel, cookies = nil)
+      # @param msg [Message]
+      def inject_message(msg)
         begin
-          PUNK.start('inject','inject in cloud ...')
+          PUNK.start('inject','inject message in cloud ...')
 
           inject_hash = {
             "meta" => {
-              "account" => account,
-              "cookies" => cookies
+              "account" => msg.account,
+              "cookies" => msg.cookies
               },
             "payload" => {
               "id" =>           CC.indigen_next_id,     # Indigen integer
@@ -213,8 +234,8 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
               "type" =>        "message",
               "recorded_at" => Time.now,                # timestamp integer in seconds
               "received_at" => Time.now,                # timestamp integer in seconds
-              "channel" =>     channel,
-              "payload" =>     content,
+              "channel" =>     msg.channel,
+              "payload" =>     msg.content,
               "parent_id" =>   nil,                     # nil | message_identifier
               "timeout" =>     0                        # -1 | 0 | timeout integer. 0 -> instant
             }
@@ -222,6 +243,42 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
           # todo: put some limitation
           CC.push(inject_hash,'messages')
+
+          # success !
+          PUNK.end('inject','ok','out',"SERVER <- SERVER MSG[#{crop_ref(inject_hash['payload']['id'],4)}]")
+
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['inject_to_cloud'] += 1
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
+        rescue Exception => e
+          CC.logger.error("Error on push")
+          CCS.print_ruby_exception(e)
+          PUNK.end('push','ko','out',"SERVER <- SERVER MSG")
+          # stats:
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_inject'] += 1
+          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+        end
+      end
+
+      # Inject a track in the server queue (ie push a message to the server)
+      # @param msg [Track]
+      def inject_track(track)
+        begin
+          PUNK.start('inject','inject in cloud ...')
+
+          inject_hash = {
+            "meta" => {
+              "account" => track.account
+              },
+            "payload" => {
+              "id" =>           CC.indigen_next_id,
+              "sender" =>       @CHANNEL,               # Sender identifier, special for tracks injection
+              "asset" =>        "ragent",
+              "data" => track.data
+            }
+          }
+
+          # todo: put some limitation
+          CC.push(inject_hash,'tracks')
 
           # success !
           PUNK.end('inject','ok','out',"SERVER <- SERVER MSG[#{crop_ref(msg.id,4)}]")
@@ -237,7 +294,6 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
         end
       end
-
     end
 
     # Add CCS to the SDK module so that all of the SDK tools are in the SDK namespace.

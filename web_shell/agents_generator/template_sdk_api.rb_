@@ -210,6 +210,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
       # @api private
       # @param channel [String] the messages passing through this gate will be sent on this channel
+      # @api private
       def initialize(channel)
         @CHANNEL = channel
       end

@@ -31,7 +31,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Use this object to send messages to your devices.
       # @return [DeviceGate] a DeviceGate object configured for your agent.
       def self.gate  # todo: rename it deviceGate
-        @@msgGate ||= begin
+        @@deviceGate ||= begin
           DeviceGate.new(self.get_channels[0])
         end
       end
@@ -39,7 +39,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Use this object to send messages to the cloud.
       # @return [CloudGate] a CloudGate object configured for your agent.
       def self.cloudGate
-        @@msgGate ||= begin
+        @@cloudGate ||= begin
           CloudGate.new(self.get_channels[0])
         end
       end

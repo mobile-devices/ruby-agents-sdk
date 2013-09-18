@@ -219,7 +219,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # @param channel [String] channel to post the message to
       def inject_message(msg, channel)
         begin
-          PUNK.start('inject','inject message in cloud ...')
+          PUNK.start('injectmsg','inject message in cloud ...')
 
           inject_hash = {
             "meta" => {
@@ -245,14 +245,14 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           CC.push(inject_hash,'messages')
 
           # success !
-          PUNK.end('inject','ok','out',"SERVER <- SERVER MSG[#{crop_ref(inject_hash['payload']['id'],4)}]")
+          PUNK.end('injectmsg','ok','out',"SERVER <- SERVER MSG[#{crop_ref(inject_hash['payload']['id'],4)}]")
 
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['inject_to_cloud'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
         rescue Exception => e
           CC.logger.error("Error on inject message")
           CCS.print_ruby_exception(e)
-          PUNK.end('push','ko','out',"SERVER <- SERVER MSG")
+          PUNK.end('injectmsg','ko','out',"SERVER <- SERVER MSG")
           # stats:
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_inject'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
@@ -263,7 +263,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # @param msg [Track]
       def inject_track(track)
         begin
-          PUNK.start('inject','inject in cloud ...')
+          PUNK.start('injecttrack','inject in cloud ...')
 
           inject_hash = {
             "meta" => {
@@ -281,14 +281,14 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           CC.push(inject_hash,'tracks')
 
           # success !
-          PUNK.end('inject','ok','out',"SERVER <- SERVER Track")
+          PUNK.end('injecttrack','ok','out',"SERVER <- SERVER Track")
 
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['inject_to_cloud'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
         rescue Exception => e
           CC.logger.error("Error on inject track")
           CCS.print_ruby_exception(e)
-          PUNK.end('push','ko','out',"SERVER <- SERVER MSG")
+          PUNK.end('injecttrack','ko','out',"SERVER <- SERVER MSG")
           # stats:
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_on_inject'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1

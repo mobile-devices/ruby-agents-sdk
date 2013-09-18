@@ -52,9 +52,9 @@ module CloudConnectSDK
     hash_msg['recorded_at'] = Time.now
 
     # inject case
-    if queue = 'messages'
+    if queue == 'messages'
       handle_msg_from_device('message', hash_msg)
-    elsif queue = 'tracks'
+    elsif queue == 'tracks'
       handle_msg_from_device('track', hash_msg)
     else
       push_something_to_device(hash_msg)

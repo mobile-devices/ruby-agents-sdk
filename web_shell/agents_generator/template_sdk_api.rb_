@@ -11,6 +11,12 @@
 # with your agent.
 module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
+  # Protogen
+  if File.exist?("#{RH.generated_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
+    require_relative '../protogen_XX_PROJECT_NAME/protogen_apis'
+  end
+
+
   # @api public
   # This module gives you access to the SDK API.
   module SDK
@@ -139,6 +145,56 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
     #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.gate} object which is already configured for your agent.
     class DeviceGate
 
+      include Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME if defined? Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME
+
+      # @api private
+      # Encode a given message with Protogen. Protogen will encode the content of the message and separate it into
+      # smaller messages if needed.
+      # @param [CloudConnectServices::Message] message message to encode (will not be modified)
+      # @return [Array<CloudConnectServices::Message>] an array of Protogen-compliant messages ready to be pushed.
+      # @raise Protogen::UnknownMessageType
+      # @note If the global $allow_non_protogen is set to false and you call this methd with a non-Protogen message,
+      #    this method will return a 1-element array with the given non-Protogen message without raising an exception.
+      def protogen_encode(message)
+        msg = message.clone
+        if defined? ProtogenAPIs
+          begin
+            encoded = ProtogenAPIs.encode(msg)
+
+            if encoded.is_a? String
+              msg.content = encoded
+              CC.logger.info("Protogen content is simple string")
+              return [msg]
+            elsif encoded.is_a? Array
+              CC.logger.info("Protogen content is an array of size #{encoded.size}")
+              return encoded.map do |content|
+                frg = msg.clone
+                frg.id = CC.indigen_next_id
+                frg.content = content
+                frg
+              end
+            else
+              raise "message push protogen unknown encoded type : #{encoded.type}"
+            end
+
+          rescue Protogen::UnknownMessageType => e
+            if $allow_non_protogen
+              CC.logger.warn("CloudConnectServices:Messages.push: unknown protogen message type because #{e.inspect}")
+              return [msg]
+            else
+              raise e
+            end
+          end
+        else
+          if $allow_non_protogen
+            CC.logger.warn('CloudConnectServices:Messages.push: ProtogenAPIs not defined')
+            return [msg]
+          else
+            raise "No Protogen defined"
+          end
+        end
+      end
+
       # @api private
       # @param channel [String] the messages passing through this gate will be sent on this channel
       def initialize(channel)
@@ -158,14 +214,14 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
               'type' => 'message',
               'sender' => '@@server@@',
               'channel' =>  @CHANNEL,
-              'payload' => content
+              'payload' => content,
+              'asset' => asset,
+              'account' => account
             }
           })
-
-          msg.push(asset, account)
+          protogen_encode(msg).each {|message| message.push}
           # success !
           PUNK.end('push','ok','out',"SERVER -> MSG[#{crop_ref(msg.id,4)}]")
-
 
 
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
@@ -187,9 +243,15 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       def reply(msg, content, cookies = nil)
         begin
           PUNK.start('reply','replying msg ...')
-          reply_id = msg.reply_content(content, cookies)
+          response = msg.clone # todo : check si on clone bien récursivement les table de hash
+          response.parent_id = msg.id
+          response.id = CC.indigen_next_id
+          response.content = content
+          response.meta['protogen_cookies'] = cookies
+          response.sender = msg.recipient
+          protogen_encode(response).each {|message| message.push}
           # success !
-          PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(reply_id,4)}] [reply of #{crop_ref(msg.id,4)}]")
+          PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(response.id,4)}] [reply of #{crop_ref(msg.id,4)}]")
           # stats:
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1

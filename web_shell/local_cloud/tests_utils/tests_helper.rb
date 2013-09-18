@@ -4,7 +4,14 @@ require_relative "../fake_cloud_lib/cloud_gate"
 require 'base64'
 require 'json'
 
-# WARNING: to port this to Ragent, you must set the hooks correctly
+# Require the protogen APIS
+# Will be useful in this code but also enables the user to use them just by requiring tests_helper
+Dir.glob(File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "agents_generator", "cloud_agents_generated", "protogen*"))) do |filename|
+  if File.exist?(File.join(filename, "protogen_apis.rb"))
+    require_relative File.join(filename, "protogen_apis")
+  end
+end
+
 
 # @api public
 # Provides several utilities to write unit tests inside the SDK.
@@ -191,7 +198,6 @@ module TestsHelper
   # @return true if the message was correctly handled, false otherwise
   def self.push_to_test_gate(hash_data)
 
-
     # Handle ACK
     if hash_data['payload']['type'] == 'ackmessage'
       content = JSON.parse(hash_data['payload']['payload'])
@@ -205,10 +211,10 @@ module TestsHelper
     # Find a channel the sender is listening to
     if message.sender == "@@server@@" # message is from an agent (server) to device
       channel = message.channel # the channel the sender is listening to is the same the sender is sending to
-    elsif message.asset.downcase == "ragent" # message from an agent (server) to another agent
+    elsif message.asset == "ragent" # message from an agent (server) to another agent
       channel = message.sender # sender field was set by ragent to the channel the message came from before being redirected
     else
-      CC.logger.debug("Message is not sent to device neither to server. Can not process it in tests utilities. Message data : #{hash_data}")
+      CC.logger.warn("Message is not sent to device neither to server. Can not process it in tests utilities. Message data : #{hash_data}")
       return false
     end # this assumes agents do only "enrichment + redirection" of messages and do not send new messages to the cloud
 
@@ -218,7 +224,7 @@ module TestsHelper
     agents = get_last_mounted_agents
     sender_agent = nil
     agents.each do |agent_name|
-      config_file = File.join(cloud_agents_path, agent_name, "config", "sdk_tester.yml.example")
+      config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml.example")
       config = YAML.load_file(config_file)
       if config["development"]["dynamic_channel_str"] == channel
         sender_agent = agent_name
@@ -226,29 +232,29 @@ module TestsHelper
       end
     end
     if sender_agent.nil?
-      CC.logger.debug("(tests helper) Impossible to find the agent (among currently running agents) who sent #{hash_data}")
+      CC.logger.warn("(tests helper) Impossible to find the agent (among currently running agents) who sent #{hash_data}")
       return false
     end
 
     # Use this agent protocol to decode Protogen
-    # As of today the Protogen namespace is not namespaced differently between agents
-    protogen_decoder_path = File.join(cloud_agents_path, "..", "web_shell", "agents_generator","cloud_agents_generated", "protogen_#{sender_agent}", "protogen_apis.rb")
-    # Require the agent protogen API (only way to have the correct decoder)
-    require_relative protogen_decoder_path
+    protogenAPIs = Object.const_get("Protogen_#{sender_agent}").const_get("ProtogenAPIs")
+    protogen = Object.const_get("Protogen_#{sender_agent}").const_get("Protogen")
+
+
     # Decode the message
     msg_type = ""
     begin
       # As we intercepted the message before it was Base64 encoded, we don't have to base64-decode it
       # We use our specific decoder ID not to interfere with the normal protogen decoding process
-      msg, cookies = ProtogenAPIs.decode(message, "tests_helper")
+      msg, cookies = protogenAPIs.decode(message, "tests_helper")
       message.content = msg
       message.meta['protogen_cookies'] = cookies
       msg_type = msg.class
-      if msg_type == Protogen::MessagePartNotice
+      if msg_type == protogen::MessagePartNotice
         # This is only a part of a message, nothing else to do
         return true
       end
-    rescue Protogen::UnknownMessageType => e
+    rescue protogen::UnknownMessageType => e
         # Protogen could not handle the message, so we store it as a regular one
         content = JSON.parse(hash_data['payload']['payload'])
     rescue MessagePack::UnpackError => e

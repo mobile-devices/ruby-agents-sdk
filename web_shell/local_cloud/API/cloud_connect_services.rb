@@ -290,8 +290,9 @@ module CloudConnectServices
 
     # Sends this message to the device, using the current message configuration.
     #
-    # This method will set the `received_at` and `recorded_at` fields to `Time.now` and
-    # encode the message with Protogen if necessary. Will also set the sender to `@@server@@` if not exists.
+    # It will not do any Protogen-related stuff before sending the message.
+    #
+    # This method will set the `received_at` field to `Time.now`. Will also set the sender to `@@server@@` if not exists.
     #
     # If the method parameters are not defined the current values stored in the message will be used.
     #
@@ -309,48 +310,8 @@ module CloudConnectServices
         # set acount is meta
         self.meta['account'] = account if account.nil?
 
-
         # set received_at
         self.received_at = Time.now
-
-        # Protogen encode
-        if defined? ProtogenAPIs
-          begin
-            encoded = ProtogenAPIs.encode(self)
-
-            if encoded.is_a? String
-              self.content = encoded
-              CC.logger.info("Protogen content is simple string")
-            elsif encoded.is_a? Array
-              CC.logger.info("Protogen content is an array of size #{encoded.size}")
-              self.content = encoded[-1]
-              # remove last fragment from list
-              encoded.slice!(-1)
-              # let create X fragment
-              encoded.each { |content|
-                frg = self.clone
-                frg.id = CC.indigen_next_id
-                frg.content = content
-                frg.fast_push
-              }
-            else
-              raise "message push protogen unknown encoded type : #{encoded.type}"
-            end
-
-          rescue Protogen::UnknownMessageType => e
-            if $allow_non_protogen
-              CC.logger.warn("CloudConnectServices:Messages.push: unknown protogen message type because #{e.inspect}")
-            else
-              raise e
-            end
-          end
-        else
-          if $allow_non_protogen
-            CC.logger.warn('CloudConnectServices:Messages.push: ProtogenAPIs not defined')
-          else
-            raise "No Protogen defined"
-          end
-        end
 
         self.fast_push
     end
@@ -359,15 +320,15 @@ module CloudConnectServices
     # @param [String] content content to reply with.
     # @param [String] cookies Protogen cookies.
     # @api private
-    def reply_content(content, cookies)
-      msg = self.clone # todo : check si on clone bien récursivement les table de hash
-      msg.parent_id = self.id
-      msg.id = CC.indigen_next_id
-      msg.content = content
-      msg.meta['protogen_cookies'] = cookies
-      msg.sender = self.recipient
-      msg.push(self.asset, self.account)
-    end
+    # def reply_content(content, cookies)
+    #   msg = self.clone # todo : check si on clone bien récursivement les table de hash
+    #   msg.parent_id = self.id
+    #   msg.id = CC.indigen_next_id
+    #   msg.content = content
+    #   msg.meta['protogen_cookies'] = cookies
+    #   msg.sender = self.recipient
+    #   msg.push(self.asset, self.account)
+    # end
 
   end
 

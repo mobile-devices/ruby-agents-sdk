@@ -148,7 +148,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
               'channel' =>  @CHANNEL,
               'payload' => content
             }
-            })
+          })
 
           msg.push(asset, account)
           # success !

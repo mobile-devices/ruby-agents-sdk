@@ -448,6 +448,12 @@ module CloudConnectServices
       }
       r_hash.delete_if { |k, v| v.nil? }
     end
+
+    # @return true on success
+    def add_data(key, value)
+      return false if self.data[key]
+      self.data[key] = value
+    end
   end
 
   # An event sent when a scheduled order is going to be executed.

@@ -11,8 +11,22 @@ module CloudConnectServices
 
   # @!group Events
 
-  # An event received when a device is connected or disconnected.
+  #============================== CLASSES ========================================
+
+  # An event received when a device change it's connection status
   class Presence < Struct.new(:asset, :time, :bs, :type, :reason, :account, :meta)
+
+    # ---
+    # Presence hash :
+    # "meta", a map with some meta data, generally none.
+    # "payload", a map with :
+    #   asset : imei of the device
+    #   time : timestamp of the event
+    #   bs : binary server source
+    #   type : 'connect' or 'reconnect' or 'disconnect'
+    #   reason : reason for the event
+    # "account" (account name type String).
+    # +++
 
     # @!attribute [rw] asset
     #   @return [String] the IMEI of the device or other similar unique identifier.
@@ -41,14 +55,15 @@ module CloudConnectServices
     #
     #   ``` ruby
     #   {
-    #   meta => self.meta,
+    #   meta => {
+    #     'account' => self.account,
+    #   },
     #   payload => {
     #     'asset' => self.asset,
     #     'time' => self.time,
     #     'bs' => self.bs,
     #     'type' => self.type,
-    #     'reason' => self.reason,
-    #     'account' => self.account
+    #     'reason' => self.reason
     #   }
     #   ```
     #
@@ -79,16 +94,33 @@ module CloudConnectServices
         'time' => self.time,
         'bs' => self.bs,
         'type' => self.type,
-        'reason' => self.reason,
-        'account' => self.account
+        'reason' => self.reason
       }
       r_hash.delete_if { |k, v| v.nil? }
     end
 
   end
 
-  # Holds data sent by the device to the server or data sent by the server to a device.
+  # Standard message class used in messagegates API.
   class Message < Struct.new(:id, :parent_id, :thread_id, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content)
+
+    # ---
+    # Message Source
+    # "meta", a map with some meta data, generally none.
+    # "payload", a map with :
+    #   id : tmp id from the device
+    #   asset : imei of device
+    #   sender : Sender identifier (can be the same as the asset)
+    #   recipient : Recipient identifier (can be the same as the asset)
+    #   type : 'message'
+    #   recorded_at : timestamp
+    #   received_at : timestamp
+    #   channel : string channel
+    #   payload : content
+    # "account" (account name type String).
+    # +++
+
+
     # @!attribute [rw] id
     #   The unique ID of the message. If the message comes from the device, this is a temporary ID set by the device.
     #   The server do not use those temporary IDs; instead, it will generate a new ID
@@ -345,6 +377,25 @@ module CloudConnectServices
 
   # Track data sent by a device.
   class Track < Struct.new(:id, :asset, :data, :account, :meta)
+
+    # ---
+    # Track Source :
+    # "meta", a map with some meta data, generally none.
+    # "payload", a map with :
+    #    id : tmp id from the device
+    #    asset : imei of device
+    #    data map, with :
+    #    latitude
+    #    longitude
+    #    recorded_at
+    #    received_at
+    #    field1
+    #    field2
+    #    ...
+    # "account" (account name type String).
+    # +++
+
+
     # @!attribute [rw] id
     #   @return [Fixnum] the temporary message ID sent by the device.
 

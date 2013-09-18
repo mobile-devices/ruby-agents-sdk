@@ -198,11 +198,10 @@ module CloudConnectServices
         self.recorded_at = 007
         self.received_at = 007
 
-        #todo : marche pas tel quel
-        if @CHANNEL && @CHANNEL[0]
-          self.channel = @CHANNEL[0]
-        else
-          self.channel = nil
+        begin
+          self.channel = SDK.API.get_channels[0]
+        rescue Exception => e
+          self.channel = "unknown"
         end
 
         self.content = nil

@@ -250,7 +250,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['inject_to_cloud'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
         rescue Exception => e
-          CC.logger.error("Error on push")
+          CC.logger.error("Error on inject message")
           CCS.print_ruby_exception(e)
           PUNK.end('push','ko','out',"SERVER <- SERVER MSG")
           # stats:
@@ -281,12 +281,12 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           CC.push(inject_hash,'tracks')
 
           # success !
-          PUNK.end('inject','ok','out',"SERVER <- SERVER MSG[#{crop_ref(msg.id,4)}]")
+          PUNK.end('inject','ok','out',"SERVER <- SERVER Track")
 
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['inject_to_cloud'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
         rescue Exception => e
-          CC.logger.error("Error on push")
+          CC.logger.error("Error on inject track")
           CCS.print_ruby_exception(e)
           PUNK.end('push','ko','out',"SERVER <- SERVER MSG")
           # stats:

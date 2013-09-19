@@ -250,7 +250,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Reply a message to the device.
       # @param msg [CloudConnectServices::Message] message to reply to
       # @param content [Object] content of the message
-      # @param cookies [String] optional cookies, see the Protogen guide
+      # @param cookies [String] optional cookies, see the {file:guide/protogen.md Protogen guide}
       def reply(msg, content, cookies = nil)
         begin
           PUNK.start('reply','replying msg ...')

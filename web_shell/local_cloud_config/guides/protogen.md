@@ -4,61 +4,119 @@
 
 # Protogen, the MDI protocol generator #
 
-The MDI protocol generator, based on *msgpack*, aims to simplify the communication protocol between MDI devices and servers. It generates the server and device code that will serialize/deserialize messages and deal with calling appropriate methods when receiving a message.
+## Introduction ##
 
-Its usage is not mandatory but will help you building more robust communication between your device and the server.
+The MDI protocol generator, based on *msgpack*, aims to simplify the communication protocol between MDI devices and servers.
+It generates the server and device code that will efficiently serialize/deserialize messages, deal with calling appropriate methods when receiving a message, handle large messages, and so on.
 
-## Example ##
+Here are the tasks that Protogen takes care of so you don't have to:
 
-The following example implements most of the available features of the protogen within your *config/protogen.json* file:
+* enforce a unified description of a communication protocol
+* send large objects through the network by splitting them into small messages, and assemble them back on the receiver
+* implement useful helpers mechanics such as encrypted cookies
+* define and call appropriate callbacks each time a message is received
 
-    {
-      "protocol_version": 1,
+While its usage is not mandatory, it is simple to use and should help you focus on the actual exchanged content rather than on writing a communication layer.
 
-      "messages": {
+## Basic usage ##
 
-        "PoiRequest": {
-          "_description":"This is a message sent by the device that asks for a list of POIs.",
-          "_way": "toServer",
-          "_server_callback": "treat_poi_request",
-          "name": {"type":"string", "modifier":"required", "docstring":"Name of the wanted poi"},
-          "latlist": {"type":"int", "modifier":"required", "array":true, "docstring":"List of the possible latitudes"},
-        },
+Your `config/protogen.json` file contains your protocol description using the [JSON](http://en.wikipedia.org/wiki/JSON#JSON_Schema) format. This file declares the list of Protogen messages and some metadata. For instance, a very simple protocol file could be:
 
-        "Category": {
-          "_description":"This is nested object that describe a category of POI (car park, gas station, etc)",
-          "_way": "none",
-          "id": {"type":"int", "modifier":"required", "docstring":"Category id, given by a guy."},
-          "name": {"type":"string", "modifier":"required", "docstring":"Name, given by a provider (do NOT use as an index!)"},
-          "popularity": {"type":"int", "modifier":"optional", "docstring":"Value computed with the Like button on the fanpage of the category"}
-        },
+```javascript
+{
+  "protocol_version": 1,
 
-        "Poi": {
-          "_description":"A POI (Point of Interest)",
-          "_way": "none",
-          "name": {"type":"string", "modifier":"required", "docstring":"Name (example: 'Parking Villejuif')"},
-          "latitude": {"type":"int", "modifier":"required", "docstring":"Latitude"},
-          "longitude": {"type":"int", "modifier":"required", "docstring":"Longitude"},
-          "category": {"type":"Category", "modifier":"optional", "docstring":"Category of the POI"}
-        },
+  "messages": {
 
-        "PoiList": {
-          "_description": "A list of POI that answers a PoiRequest",
-          "_way":"toDevice",
-          "_device_callback":"treatPoi",
-          "_timeout_calls": ["ack", "send"],
-          "_timeouts" : { "send":10000},
-          "pois": {"type":"Poi", "modifier":"required", "array":true, "docstring":"List of POIs"}
-        }
-      },
+    "Question": {
+      "_description":"Sent when the ignorant device wants to know something",
+      "_way": "toServer",
+      "_server_callback":"question_callback"
+      "my_question": {"type":"string", "modifier":"required", "docstring":"the question string"}
+    },
 
-      "cookies":{}
+    "Answer": {
+      "_description":"The answer to a device query",
+      "_way": "toDevice",
+      "_device_callback":"responseCallback"
+      "my_answer": {"type":"string", "modifier":"required", "docstring":"content of the answer"}
     }
+
+  },
+
+  cookies: {}
+}
+```
+
+A Protogen message is defined by a (unique) name and its fields. Fields that begin with an underscore are configuration fields.
+
+In the above example, we declare two Protogen messages: a `Question`, with a required field of type `String` named `my_question`, and an `Answer`, with a required field of type `String` named `content`.
+
+In our example, the Question message can only be sent from a device to a server. It will trigger the `question_callback` method on the server.
+
+Let's write an `initial.rb` for this protocol:
+
+```ruby
+module Initial_my_protogen_agent
+
+  include Sdk_api_my_protogen_agent
+
+  include Protogen_my_protogen_agent # Unique namespace for your agent Protogen stuff
+
+  def new_msg_from_device(msg)
+    raise "Received a regular message... but I refuse to handle it because using Protogen is better! Send me Protogen messages instead!"
+  end
+
+  def question_callback(question_msg)
+    question = msg.content # Retrieve the protogen object from the message
+    SDK.API.log.debug(question.class.name) # Will output "Protogen_my_protogen_agent::Protogen::Messages:Question"
+    answer = Protogen::Messages::Answer.new
+    answer.my_answer = "I don't know the response to #{question.my_question}. Sorry!"
+    SDK.API.gate.reply(question_msg, answer)
+  end
+
+end
+```
+
+Here we create a new `Response` object, set its fields, and send it as a response to the incoming message. This object is defined in the code generated by Protogen. All the code Protogen generates for your agent is included in a module named `Protogen_<your_agent_name>`. You can `include` this module (as in the above example) in your code if you wish so. You do not need to require any file to use Protogen, it is done for you.
+
+To retrieve the Protogen content of an incomming message, just use the attribute {CloudConnectServices::Message#content CCS::Message#content}.
+
+As you can see the Protogen message is sent directly to your callback and will not trigger `new_msg_from_device`.
+
+On the device, the callback code would look like:
+
+```java
+
+package com.mdi.services.example;
+
+import com.mdi.services.example.protogen.IMessageController;
+import com.mdi.services.example.protogen.MDIMessages.Answer;
+import com.mdi.tools.dbg.Debug;
+
+public class CustomMessageController implements IMessageController {
+
+  public void responseCallback(Answer answer) {
+    Debug dbg = Component.getInstance().getDebug();
+
+    dbg.debug("Response received!");
+    dbg.debug("Response content: " + answer.my_answer);
+
+  }
+
+}
+
+```
+
+More on the device-side implementation in the {file:guide/device.md device} guide
+
 
 
 ## Minimal template file ##
 
 This is the minimal template of a protocol file:
+
+```javascript
 
     {
       "protocol_version": 1,
@@ -71,75 +129,117 @@ This is the minimal template of a protocol file:
 
       }
     }
+```
 
+
+## Protocol file description ##
+
+This section explains the structure of a protocol file (found in `config/protocol.json`).
+
+You can use the example below for a quick reference of the available features.
+
+```javascript
+{
+  "protocol_version": 1,
+
+  "messages": {
+
+    "PoiRequest": {
+      "_description":"This is a message sent by the device that asks for a list of POIs.",
+      "_way": "toServer",
+      "_server_callback": "treat_poi_request",
+      "name": {"type":"string", "modifier":"required", "docstring":"Name of the wanted poi"},
+      "latlist": {"type":"int", "modifier":"required", "array":true, "docstring":"List of the possible latitudes"},
+    },
+
+    "Category": {
+      "_description":"This is nested object that describe a category of POI (car park, gas station, etc)",
+      "_way": "none",
+      "id": {"type":"int", "modifier":"required", "docstring":"Category id, given by a guy."},
+      "name": {"type":"string", "modifier":"required", "docstring":"Name, given by a provider (do NOT use as an index!)"},
+      "popularity": {"type":"int", "modifier":"optional", "docstring":"Value computed with the Like button on the fanpage of the category"}
+    },
+
+    "Poi": {
+      "_description":"A POI (Point of Interest)",
+      "_way": "none",
+      "name": {"type":"string", "modifier":"required", "docstring":"Name (example: 'Parking Villejuif')"},
+      "latitude": {"type":"int", "modifier":"required", "docstring":"Latitude"},
+      "longitude": {"type":"int", "modifier":"required", "docstring":"Longitude"},
+      "category": {"type":"Category", "modifier":"optional", "docstring":"Category of the POI"}
+    },
+
+    "PoiList": {
+      "_description": "A list of POI that answers a PoiRequest",
+      "_way":"toDevice",
+      "_device_callback":"treatPoi",
+      "_timeout_calls": ["ack", "send"],
+      "_timeouts" : { "send":10000},
+      "pois": {"type":"Poi", "modifier":"required", "array":true, "docstring":"List of POIs"}
+    }
+  },
+
+  "cookies": {
+    "LastRequest": {
+      "_secure":"low",
+      "_send_with":["PoiList"],
+      "name": {"type":"string", "modifier":"required"},
+      "time":   {"type":"int", "modifier":"required"}
+    }
+
+  }
+}
+```
+
+See the {file:guides/device.md device guide} for the corresponding Java code.
 
 ### Protocol version ###
 
-The "protocol\_version" field contains an *int*. Each time you change the protocol of an agent that has already been released, you should increment this value.
-
+The "protocol\_version" field contains an `int`. Each time you change the protocol of an agent that has already been released, you must increment this value.
 
 ### Data structure ("messages") ###
 
-Each entry in "messages" will be a new message. It MUST start with an upcase letter ("\^[A-Z]").
+Each entry in "messages" will be a new message. It MUST start with an uppercase letter ("\^[A-Z]").
 
-A field of a message may start with:
+A field of a message must start with either:
 
-* an underscore ("\^_") . It is then a configuration of the message. See below for examples of message configuration.
-* a downcase letter ("\^[a-z]"). It then defines an attribute of a message.
+* an underscore ("\^_") for a configuration field. Some are mandatory, other are optional. See below for the list of available configuration fields.
+* a lowercase letter ("\^[a-z]") for an attribute of the message.
 
 Example:
 
     "MyMessage":{
-      "_my_conf1":"stuff",
-      "_my_conf2":2,
+      "_way":"both",
+      "_description":"err...",
       "myfirstvariable":{ ... },
       "mysecondvariable":{ ... }
     },
 
 
-#### Message configuration ####
+### Configuration fields ###
 
-* "\_description" (optional string): Describes in the protocol documentation the purpose of this message
-* "\_way" (required string): Tells who will send the message. Possible : "none", "toServer", "toDevice", "both",
-* "\_server\_callback" (required string if message received by the server ("toServer" or "both")): Name of the callback to implement when a server receive a new message
-* "\_device\_callback" (required string if message received by the device ("toDevice" or "both")): Name of the callback to implement when a device receive a new message
-* "\_timeout\_calls" and "\_timeout" (optional): see Timeout section.
+* "\_way" (required string): Indicates who is the receiver of the message. Possible values: "none", "toServer", "toDevice", "both",
+* "\_server\_callback" (required string for messages received by the server :"\_way" set to "toServer" or "both"): Name of the callback called when a server receive a new message
+* "\_device\_callback" (required string if message received by the device :"\_way" set to "toDevice" or "both"): Name of the callback to implement when a device receive a new message
+* "\_description" (optional string): Describes the purpose of this message (used when generating the protocol documentation).
+* "\_timeout\_calls" and "\_timeout" (optional): see the "Timeout" section.
 
 
-#### Attributes ####
+### Attributes ###
 
 Example:
 
     "myfirstvariable":{"type":"int", "modifier":"required", "docstring":"This variable is an example."}
 
 
-* "type" (required): It can either be a basic type (int, bool, string…), or a nested message name (see below). It can also be "msgpack", to declare a unmessagepacked type, allowing dynamic fields (use with caution).
+* "type" (required): It can either be a basic type (int, bool, string...), or a message type (see the "Nested messages" section below). It can also be "msgpack", to declare an unmessagepacked type, allowing dynamic fields (use with caution).
 * "modifier" (required): specifies if the field is mandatory, can be "required" or "optional".
-* "array" (optional boolean): If true, means that we will deal with a list of objects rather than only one.
+* "array" (optional boolean): If true, means that we will deal with a list of objects rather than only one (the corresponding field in the Ruby/Java code will be an array).
 * "docstring" (optional string): This field will describe the attribute in the generated documentation of the protocol.
 
+### Nested messages ###
 
-#### Timeout ####
-
-When a problem occurs while a message is being sent by a device ("toServer" or "both"), you may define specific timeout behaviours:
-
-* "send": if the message wasn't sent to the communication server. You may also configure the timeout length for this event (in milliseconds).
-* "ack": if the communication did not send any acknowledgment for receiving the message (no length configuration).
-
-The callback thus created in the IMessageController will be called &lt;sequencename&gt;\_&lt;timeout&gt;\_timeout .
-
-Example:
-
-    "Request": {
-      "_way":"toServer",
-      "_server_callback":"treatPoiRequest",
-      "_timeout_calls":["send", "ack"],
-      "_timeouts":{"send":10000},
-      "question": {"type":"string", "modifier":"required"}
-    }
-
-
-#### Nested messages ####
+A message can have a field which is another message.
 
 Example:
 
@@ -150,35 +250,47 @@ Example:
     },
 
     "Person": {
-      "_way":"toDevice",
-      "_server_callback":"treatPerson",
+      "_way":"toServer",
+      "_server_callback":"person_callback",
       "name": {"type":"string", "modifier":"required"},
       "id":   {"type":"int", "modifier":"required"},
       "email":{"type":"string", "modifier":"optional"},
       "phone": {"type":"PhoneNumber", "modifier":"optional"}
     }
 
-Note that a nested message may be sendable (if \_way is anything other than "none"). However, if not necessary, we recommend leaving it unsendable.
+It is a good idea to have inner messages that can not be independantly sent (set their `_way` field to `none`) to keep your protocol simple and clean (and avoid errors).
 
+The corresponding Ruby code would be:
+
+```ruby
+
+  def person_callback(person_msg)
+    person = msg.content
+    phone_number = person.phone.number
+    # ...
+  end
+
+```
 
 ### Session information ("cookies") ###
 
-In many cases, the server you will have to deal with runs stateless services, meaning that when treating a request, it won't know what previous requests have been received (authentification requests for example). You may overcome this by sending cookies with your messages. Cookies are pieces of data generated by a server that are sent in a message metadata, are stored on a device, and then sent with appropriate devices messages. They are encrypted data (enabled by default), and may only be decrypted by the server itself.
+The server you will have to deal with runs stateless services, meaning that when treating a request, it won't know what previous requests have been received (authentification requests for example). You may overcome this by sending cookies with your messages. Cookies are pieces of data generated by a server that are sent in a message metadata, are stored on a device, and then sent with appropriate device messages. They are encrypted data (enabled by default), and may only be decrypted by the server itself.
 
 They are defined the same way messages are. Note however that you may not create nested cookies: they are supposed to be very small pieces of data (with (2/3 fields max).
 
-Cookies share the same convention as messages ("\^\_" for conf, "\^[a-z] for fields"). Cookie fields share the same properties as messages (except for nested messages).
+Cookies definitions share the same convention as messages. Cookie fields share the same properties as messages (except for nested messages).
 
-Mandatory conf fields:
-* "\_send\_with" : list all messages that may carry this type of cookie.
+Mandatory configuration field:
+
+* "\_send\_with": list all messages that may carry this type of cookie.
 
 Other possible fields:
 
-* "_secure" :
-  * "high" (default): cookies are encrypted and may not be seen by the devices
-  * "low" : cookies aren't encrypted, but carry a signature that asserts their authenticity (not implemented)
-  * "none" : no encryption, no signature.
-* "\_validity\_time" : (in seconds, int) duration of the validity period of the cookie. At the end of this duration, it will be discarded by the server when received, and by the device when sent. Default: 3600s .
+* "_secure":
+  * "high" (default): cookies are encrypted and can not be read by the devices
+  * "low":  cookies aren't encrypted, but carry a signature that asserts their authenticity (not implemented)
+  * "none": no encryption, no signature.
+* "\_validity\_time": (in seconds, integer) duration of the validity period of the cookie. At the end of this duration, it will be discarded by the server when received, and by the device when sent. Default: 3600s.
 
 Example:
 

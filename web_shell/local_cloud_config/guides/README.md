@@ -195,6 +195,10 @@ The SDK gives you tests helpers that should work with any testing framework. The
 
 Additionally, we strongly encourage you to use the [Rspec](http://rubydoc.info/gems/rspec-core/file/README.md) testing framework. The web interface has a tab named ["Unit tests"](http://0.0.0.0:5000/unit_tests) where you can easily run your Rspec tests, see the results live, and saving them for future reference. Plus using Rspec will allow your tests to be run by Mobile Devices on the real development servers so we will be able to check if your agent works in a more realistic environment.
 
-As an added bonus, the SDK testing framework also enables you to send a message to a device and check that your device answers correctly.
-
 You can find more information on how to test your agents {file:guide/tests.md in this guide}.
+
+### Protogen ###
+
+Protogen is the MDI protocol generator tool. You give it a description of the communication protocol between a device and a server, and it generates all the communication layer code for you (taking care of all the little pesky details such as controlling the size of the messages or serializing your data).
+
+And it is simple to use: see {file:guides/protogen.md this guide} for details.

@@ -185,6 +185,10 @@ module CloudConnectServices
     #   @api public
     #   @return Protogen cookies (may be `nil`)
 
+    # @!attribute [rw] content
+    #   @api public
+    #   @return content of the message. Can be a Protogen object, or a regular String.
+
     # @param [Hash] struct messages can be represented as a raw hash with the following format:
     #
     #   ``` ruby

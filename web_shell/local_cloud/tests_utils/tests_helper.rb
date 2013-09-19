@@ -193,7 +193,8 @@ module TestsHelper
   # @!endgroup
 
   # @api private
-  # Outgoing messages are sent though this method (see cloud_gate.rb, push_something_to_device)
+  # Outgoing messages are sent through this method (see cloud_gate.rb, push_something_to_device)
+  # This method then fires relevant events depending on the received data.
   # @param [Hash] hash_data a hash representing a message, with content NOT base64-encoded
   # @return true if the message was correctly handled, false otherwise
   def self.push_to_test_gate(hash_data)
@@ -270,6 +271,7 @@ module TestsHelper
 
   # @api private
   # Callback called everytime a message is sent.
+  # @param [CloudConnectServices::Message] msg the outgoing message
   def self.message_sent(msg)
     @@messages << msg
   end
@@ -324,17 +326,60 @@ module TestsHelper
   end
 
   # A wrapper around one of your Protogen object used to simulate Protogen messages from a device.
-  class ProtogenFromDevice < CCS::Message
+  class ProtogenFromDevice < MessageFromDevice
 
     # @param [Protogen::Message::] protogen_object Protogen object coming from the simulated device
-    def initialize(protogen_object)
+    # @param [String] asset IMEI or other unique device identifier
+    # @param [String] account account name to use
+    # @param [String] channel the Protogen object will be received on this channel
+    def initialize(protogen_object, channel, asset = "123456789", account = "tests")
       @protogen_object = protogen_object
+      super(nil, channel, asset, account)
     end
 
-    # Send the protogen object to the server
+    # Send the protogen object to the server, in several small messages if neededs
     def send_to_server
-    end
-  end
+      # Find the correct encoder
+      # todo: factorize
+      cloud_agents_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "cloud_agents"))
+      agents = get_last_mounted_agents
+      sender_agent = nil
+      agents.each do |agent_name|
+        config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml.example")
+        config = YAML.load_file(config_file)
+        if config["development"]["dynamic_channel_str"] == self.channel
+          sender_agent = agent_name
+          break
+        end
+      end
+      if sender_agent.nil?
+        raise ArgumentError.new("Impossible to find the correct protocol for the channel #{self.channel} to decode #{@protogen_object.class.name}. Make sure your configuration files (channels + Protogen) are correct.")
+      end
+
+      protogenAPIs = Object.const_get("Protogen_#{sender_agent}").const_get("ProtogenAPIs")
+      self.content = @protogen_object
+
+      encoded = protogenAPIs.encode(self)
+
+      if encoded.is_a? String
+        self.content = encoded
+        super.send_to_server
+      elsif encoded.is_a? Array
+        encoded.each_with_index do |content, index|
+          frg = MessageFromDevice.new(content, self.channel, self.asset, self.account)
+          # The index of the last message sent must be the index of the original message
+          # because it allows correct detection of the response of the message
+          if index != encoded.length - 1
+            frg.id = CC.indigen_next_id
+          else # last element
+            frg.id = self.id
+          end
+          frg.content = content
+          frg.send_to_server
+        end
+      end
+    end # def send_to_server
+  end # class ProtogenFromDevice
 
   # A simulated message that comes from a device.
   # @see CloudConnectServices::Presence

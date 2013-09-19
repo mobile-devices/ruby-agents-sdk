@@ -127,7 +127,12 @@
                 var title = $('#btn_title_' + $(this).data('content')).text();
 
                 var content = $('#btn_content_' + $(this).data('content'));
-                var lines = JSON.parse(content.text());
+                try{
+                  var lines = JSON.parse(content.text());
+                } catch (err) {
+                  console.error("Trying to parse \n" + content.text() + "\n\n");
+                  console.error("but failed with " + err + "\n");
+                }
 
 
                 var sanitizedLines = lines.map(function(line){ return escapeHTML(line) });

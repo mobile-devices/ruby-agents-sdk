@@ -96,7 +96,11 @@ module AgentsGenerator
 
       command = "cd #{protogen_bin_path}; bundle exec ruby protogen.rb #{workspace_path}/#{agent}/config/protogen.json /tmp/protogen_conf.json"
       add_to_rapport "running command #{command} :"
-      output = `#{command}`
+      output = `#{command} 2>&1` #redirect STDERR to STDOUT so output actually contain errors
+
+      if $? != 0 # non-0 exit code means error
+        raise "Protogen could not generate protocol for #{agent}. \n Double-check your protocol.json file. \n\n Protogen said: \n #{output}"
+      end
 
       add_to_rapport("")
       add_to_rapport("\n[[----------------------------------------------\nProtogen output:\n #{output}\n----------------------------------------------]]\n")

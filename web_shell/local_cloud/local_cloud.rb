@@ -74,6 +74,7 @@ begin
   CC.logger.info("protogen generation successful")
   PUNK.end('a','ok','','SERVER generated Protogen')
 rescue Exception => e
+  CCS.print_ruby_exception(e)
   PUNK.end('a','ko','','SERVER generation Protogen fail')
   raise e
 end

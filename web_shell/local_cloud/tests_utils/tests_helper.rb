@@ -23,7 +23,7 @@ module TestsHelper
 
   # Helper to test asynchronous behaviour.
   #
-  # This method execute the given block at given time intervals until the block returns without raising an exception.
+  # This method executes the given block at given time intervals until the block returns without raising an exception.
   # If an exception is raised, it will catch it and ignore it unless elapsed time since the first attempt exceeds the given duration.
   # @param [Block] block a block to execute.
   # @param [Fixnum] elapsed_time internal use.
@@ -36,7 +36,7 @@ module TestsHelper
   #   presence = TestsHelper::PresenceFromDevice.new("connect", "1234")
   #   presence.send_to_server
   #   TestsHelper.wait_for { SDK.API::redis.get(presence.asset).should == presence.time.to_s}
-  #
+  # @api public
   def self.wait_for(time = 5, increment = 1, elapsed_time = 0, &block)
     begin
       yield
@@ -54,12 +54,13 @@ module TestsHelper
   # This is (obviously) a blocking call.
   # @param [CloudConnectServices::Message] message the message sent by the device
   # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
-  #   If a `Fixnum`, returns as soon as `number_of_responses` responses are sent.
+  #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
   # @param [Fixnum] timeout this method will return after `timeout` seconds.
   # @return [Array<CloudConnectServices::Message>] messages sent by the server in response to the given message
   # @note Protogen messages are sent as multiple messages by the server.
   #   However, this method will consider all these small messages as a big one, so you don't have to worry
   #   about using Protogen or not.
+  # @api public
   def self.wait_for_responses(message, number_of_responses = 1, timeout = 5)
     if (not number_of_responses.nil?) && number_of_responses <= 0
       raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
@@ -78,11 +79,12 @@ module TestsHelper
   # Returns the next messages sent by a device with the given asset.
   # @param [Fixnum] asset the IMEI or similar unique identifier of the device.
   # @param [Fixnum, nil] number_of_messages if `nil`, wait until timeout and return all messages.
-  #   If a `Fixnum`, returns as soon as `number_of_messages` messages are sent.
+  #   If a `Fixnum`, return as soon as `number_of_messages` messages are sent.
   # @param timeout (see TestsHelper.wait_for_responses).
   # @param [Array] type class of messages to be retrieved.
   # @return [Array] messages sent by the device
   # @note Will also trigger on messages created from the code and sent with {TestsHelper::MessageFromDevice#send_to_server}.
+  # @api public
   def self.wait_for_device_msg(asset, number_of_messages = 1, timeout = 5, type=[CCS::Message, CCS::Track, CCS::Presence])
     if (not number_of_messages.nil?) && number_of_messages <= 0
       raise ArgumentError.new("You must wait for at least 1 message (given: #{number_of_messages})")

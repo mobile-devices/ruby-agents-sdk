@@ -9,11 +9,10 @@
 # This module does not have any agent-specific configuration.
 module CloudConnectServices
 
-  # @!group Events
-
   #============================== CLASSES ========================================
 
-  # An event received when a device change it's connection status
+  # An event received when a device change its connection status
+  # @api public
   class Presence < Struct.new(:asset, :time, :bs, :type, :reason, :account, :meta)
 
     # ---
@@ -29,25 +28,32 @@ module CloudConnectServices
     # +++
 
     # @!attribute [rw] asset
-    #   @return [String] the IMEI of the device or other similar unique identifier.
+    #   @api public
+    #   @return [String] the IMEI of the device or other similar unique identifier.
 
     # @!attribute [rw] time
+    #   @api public
     #   @return [Fixnum] a timestamp indicating when this event was received.
 
     # @!attribute [rw] bs
-    #   @return [String] identifier of the source binary server (entry point of the MDI cloud).
+    #   @api public
+    #   @return [String] the identifier of the source binary server (entry point of the MDI cloud).
 
     # @!attribute [rw] type
+    #   @api public
     #   @return [String] 'connect', 'reconnect' or 'disconnect'.
 
     # @!attribute [rw] reason
+    #   @api public
     #   @return [String] the reason for the event.
 
     # @!attribute [rw] meta
-    #   @return [Hash] some meta data associated with the event (often empty).
+    #   @api public
+    #   @return [Hash] some meta data associated with the event (may be empty).
 
     # @!attribute [rw] account
-    #   @return [String] account name used.
+    #   @api public
+    #   @return [String] the account name used.
 
     # Constructor.
     #
@@ -101,7 +107,7 @@ module CloudConnectServices
 
   end
 
-  # Standard message class used in messagegates API.
+  # A class that represents a standard message. Used in the DeviceGate and CloudGate APIs for instance.
   class Message < Struct.new(:id, :parent_id, :thread_id, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content, :cookies)
 
     # ---
@@ -122,6 +128,7 @@ module CloudConnectServices
 
 
     # @!attribute [rw] id
+    #   @api public
     #   The unique ID of the message. If the message comes from the device, this is a temporary ID set by the device.
     #   The server do not use those temporary IDs; instead, it will generate a new ID
     #   and will inform the device of this new ID in the ACK message.
@@ -129,41 +136,53 @@ module CloudConnectServices
     #   @return [Fixnum] the unique ID of the message.
 
     # @!attribute [rw] asset
+    #   @api public
     #   @return [String] the IMEI (or similar unique identification number) of the device who
     #     either sent this message or to whom this message is destined.
 
     # @!attribute [rw] sender
+    #   @api public
     #   @return [String] the sender identifier; will often be the same as the asset if this message comes
     #     from a device, or `@@server` if the message comes from the server.
 
     # @!attribute [rw] recipient
-    #   @return [String] Recipient identifier, often the same as the asset.
+    #   @api public
+    #   @return [String] recipient identifier, often the same as the asset.
 
     # @!attribute [r] type
+    #   @api public
     #   @return [String] always "message".
 
     # @!attribute [rw] recorded_at
+    #   @api public
     #   @return [Fixnum] a timestamp indicating when this message was created.
 
     # @!attribute [rw] received_at
+    #   @api public
     #   @return [Fixnum] a timestamp indicating when this message was received.
 
     # @!attribute [rw] channel
+    #   @api public
     #   @return [String] the channel on which this message was received or will be emitted.
 
     # @!attribute [rw] payload
+    #   @api public
     #   @return [String] the content of the message.
 
     # @!attribute [rw] account
+    #   @api public
     #   @return [String] the account name used by the sender.
 
     # @!attribute [rw] meta
+    #   @api public
     #   @return [Hash] meta data associated with this message; often empty or `nil`.
 
     # @!attribute [rw] parent_id
+    #   @api public
     #   @return the ID of the parent message if this message is a response to another message.
 
     # @!attribute [rw] cookies
+    #   @api public
     #   @return Protogen cookies (may be `nil`)
 
     # @param [Hash] struct messages can be represented as a raw hash with the following format:
@@ -301,7 +320,7 @@ module CloudConnectServices
     # If the method parameters are not defined the current values stored in the message will be used.
     #
     # @param [String] asset the IMEI of the device or other similar unique identifier.
-    # @param [Account] account name to use.
+    # @param [Account] account the account name to use.
     # @api private
     def push(asset = nil, account = nil)
         # set asset
@@ -356,20 +375,24 @@ module CloudConnectServices
     # "account" (account name type String).
     # +++
 
-
     # @!attribute [rw] id
-    #   @return [Fixnum] the temporary message ID sent by the device.
+    #   @api public
+    #   @return [Fixnum] the temporary message ID sent by the device.
 
     # @!attribute [rw] asset
-    #   @return [String] the IMEI of the device who sent the message.
+    #   @api public
+    #   @return [String] the IMEI of the device who sent the message.
 
     # @!attribute [rw] meta
+    #   @api public
     #   @return [Hash] meta data associated with the track, generally empty or `nil`.
 
     # @!attribute [rw] data
+    #   @api public
     #   @return [Hash] a hash of track data with the following fields: latitude, longitude, recorded_at, received_at, field1, field2, ...
 
     # @!attribute [rw] account
+    #   @api public
     #   @return [String] the account name used.
 
     # Constructor.
@@ -422,12 +445,15 @@ module CloudConnectServices
   class Order < Struct.new(:agent, :code, :params)
 
     # @!attribute [rw] agent
+    #   @api public
     #   @return [String] the name of the agent which requested this order
 
     # @!attribute [rw] code
+    #   @api public
     #   @return [String] the order name
 
     # @!attribute [rw] params
+    #   @api public
     #   @return [Hash] parameters of the order
 
     # Constructor.
@@ -465,8 +491,6 @@ module CloudConnectServices
       r_hash.delete_if { |k, v| v.nil? }
     end
   end
-
-  # @!endgroup
 
   # @api private
   class Log

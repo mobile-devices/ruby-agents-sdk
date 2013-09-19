@@ -39,10 +39,10 @@ Read the full {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK SDK module documenta
 
 ### Send messages to devices with `SDK.API.gate` ###
 
-The key object for responding to your device messages is the `SDK.API.gate` object, an instance of the class {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::MessageGate MessageGate} already configured for your agent with the following methods:
+The key object for responding to your device messages is the `SDK.API.gate` object, an instance of the class {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::CloudGate CloudGate} already configured for your agent with the following methods:
 
-- {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::MessageGate#reply gate.reply(msg, content)} will reply to a message with the given content
-- {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::MessageGate#push gate.push(asset, account, content)} will push a message to the device identified by the given asset
+- {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::DeviceGate#reply gate.reply(msg, content)} will reply to a message with the given content
+- {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::DeviceGate#push gate.push(asset, account, content)} will push a message to the device identified by the given asset
 
 **Examples**
 

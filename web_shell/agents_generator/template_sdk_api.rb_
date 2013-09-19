@@ -22,6 +22,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
   module SDK
 
     # This module gives you objects that are already configured with your agent needs.
+    # @api public
     module API
 
       # Prints to the logs a nicely formatted Ruby exception
@@ -197,6 +198,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
     end
 
+    # @api public
     # This class handles all outgoing communication with the devices.
     # @note You don't have to instantiate this class yourself.
     #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.gate} object which is already configured for your agent.
@@ -276,10 +278,10 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
     end
 
-
+    # @api public
     # This class handles all cloud to itself communication
     # @note You don't have to instantiate this class yourself.
-    # Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.cloudGate} object which is already configured for your agent.
+    #    Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.cloudGate SDK.API.cloudGate} object which is already configured for your agent.
     class CloudGate
 
       include ProtogenHelper
@@ -292,8 +294,9 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
 
       # Inject a message in the server queue on a specific channel (ie push a message to the server)
-      # @param msg [Message]
-      # @param channel [String] channel to post the message to
+      # @param [CloudConnectServices::Message] msg the message to inject
+      # @param [String] channel channel the message will be posted to
+      # @note Be wary of "infinite message loops" with this method.
       def inject_message(msg, channel)
         begin
           PUNK.start('injectmsg','inject message in cloud ...')
@@ -343,7 +346,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
 
       # Inject a track in the server queue (ie push a message to the server)
-      # @param msg [Track]
+      # @param [CloudConnectServices::Track] track the track to send
       def inject_track(track)
         begin
           PUNK.start('injecttrack','inject in cloud ...')

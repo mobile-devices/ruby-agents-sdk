@@ -79,7 +79,7 @@ class TestsRunner
         end # mutex.synchronize do
       end # tester_thread = ...
       CC.logger.debug("TestRunner instance: tests started.")
-    end # @start_mutex.synchronize do
+    end # --- @start_mutex.synchronize do +++
   end #  def start_tests
 
   def stop_tests

@@ -92,7 +92,7 @@ To process messages sent by your device, you must implement these callbacks in a
 
 Consult the documentation of each class to see what data is associated which each event.
 
-If you want to reply to a message, you need to use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::MessageGate SDK.API::gate} object.
+If you want to reply to a message, you need to use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::CloudGate SDK.API::gate} object.
 
 So for instance, if we were to write an agent that respond to each message it receives with the same content, the code would be:
 

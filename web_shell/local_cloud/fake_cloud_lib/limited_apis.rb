@@ -39,7 +39,7 @@ module LimitedApis
         }
 
     # Initializes the Redis object then overrides its methods
-    # @param *params Parameters to pass to the {Redis::Namespace} constructor
+    # @param [Array] params Parameters to pass to the {Redis::Namespace} constructor
     def initialize(*params)
       # Initialize the Redis client as usual
       super(*params)

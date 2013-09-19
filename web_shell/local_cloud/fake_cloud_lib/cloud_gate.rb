@@ -201,15 +201,17 @@ def handle_msg_from_device(type, params)
     PUNK.end('a','ok','in',"SERVER <- MSG[#{crop_ref(msg.id, 4)}]")
 
     # Ack mesage
-    PUNK.start('ack')
-    if !(push_ack_to_device(msg))
-      SDK_STATS.stats['server']['err_while_send_ack'][1] += 1
-      SDK_STATS.stats['server']['total_error'] += 1
-      PUNK.end('ack','ko','out',"SERVER -> ACK : fail")
-      return
+    if msg.asset != 'ragent' # we don't ack if it comes from ragent
+      PUNK.start('ack')
+      if !(push_ack_to_device(msg))
+        SDK_STATS.stats['server']['err_while_send_ack'][1] += 1
+        SDK_STATS.stats['server']['total_error'] += 1
+        PUNK.end('ack','ko','out',"SERVER -> ACK : fail")
+        return
+      end
+      SDK_STATS.stats['server']['ack_sent_to_device'][1] += 1
+      PUNK.end('ack','ok','out',"SERVER -> ACK")
     end
-    SDK_STATS.stats['server']['ack_sent_to_device'][1] += 1
-    PUNK.end('ack','ok','out',"SERVER -> ACK")
 
     handle_message(msg)
   when 'track'

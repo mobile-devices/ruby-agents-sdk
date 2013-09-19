@@ -167,12 +167,16 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
               return [msg]
             elsif encoded.is_a? Array
               CC.logger.info("Protogen content is an array of size #{encoded.size}")
-              return encoded.map do |content|
+              fragments = encoded.map do |content|
                 frg = msg.clone
                 frg.id = CC.indigen_next_id
                 frg.content = content
                 frg
               end
+              # the last fragment id must be the original message id
+              # for proper response detection
+              fragments.last.id = msg.id
+              return fragments
             else
               raise "message push protogen unknown encoded type : #{encoded.type}"
             end

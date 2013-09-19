@@ -102,7 +102,7 @@ module CloudConnectServices
   end
 
   # Standard message class used in messagegates API.
-  class Message < Struct.new(:id, :parent_id, :thread_id, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content)
+  class Message < Struct.new(:id, :parent_id, :thread_id, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content, :cookies)
 
     # ---
     # Message Source
@@ -162,6 +162,9 @@ module CloudConnectServices
 
     # @!attribute [rw] parent_id
     #   @return the ID of the parent message if this message is a response to another message.
+
+    # @!attribute [rw] cookies
+    #   @return Protogen cookies (may be `nil`)
 
     # @param [Hash] struct messages can be represented as a raw hash with the following format:
     #
@@ -225,6 +228,7 @@ module CloudConnectServices
 
         if meta.is_a? Hash
           self.account = meta['account']
+          self.cookies = meta['cookies']
         end
 
         if self.type != 'message' && self.type != 'ack'

@@ -140,11 +140,8 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
     end
 
-    # This class handles all outgoing communication with the devices.
-    # @note You don't have to instantiate this class yourself.
-    #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.gate} object which is already configured for your agent.
-    class DeviceGate
-
+    # @api private
+    module ProtogenHelper
       include Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME if defined? Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
       # @api private
@@ -198,6 +195,14 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           end
         end
       end
+    end
+
+    # This class handles all outgoing communication with the devices.
+    # @note You don't have to instantiate this class yourself.
+    #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.gate} object which is already configured for your agent.
+    class DeviceGate
+
+      include ProtogenHelper
 
       # @api private
       # @param channel [String] the messages passing through this gate will be sent on this channel
@@ -277,6 +282,8 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
     # Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.cloudGate} object which is already configured for your agent.
     class CloudGate
 
+      include ProtogenHelper
+
       # @api private
       # @param channel [String] the messages passing through this gate will be sent on this channel
       # @api private
@@ -291,31 +298,37 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         begin
           PUNK.start('injectmsg','inject message in cloud ...')
 
-          inject_hash = {
-            "meta" => {
-              "account" =>     msg.account,
-              "cookies" =>     msg.cookies
-              },
-            "payload" => {
-              "id" =>          CC.indigen_next_id,     # Indigen integer
-              "asset" =>       "ragent",
-              "sender" =>      @CHANNEL,               # Sender identifier (can be the same as the asset)
-              "recipient" =>   "ragent",               # Recipient identifier (can be the same as the asset)
-              "type" =>        "message",
-              "recorded_at" => Time.now,               # timestamp integer in seconds
-              "received_at" => Time.now,               # timestamp integer in seconds
-              "channel" =>     channel,
-              "payload" =>     msg.content,
-              "parent_id" =>   nil,                    # nil | message_identifier
-              "timeout" =>     0                       # -1 | 0 | timeout integer. 0 -> instant
-            }
-          }
+          out_id = nil
 
-          # todo: put some limitation
-          CC.push(inject_hash,'messages')
+          protogen_encode(msg).each do |message|
+
+            out_id = CC.indigen_next_id
+
+            inject_hash = {
+              "meta" => {
+                "account" =>     message.account,
+                "cookies" =>     message.cookies
+                },
+              "payload" => {
+                "id" =>          out_id,     # Indigen integer
+                "asset" =>       "ragent",
+                "sender" =>      @CHANNEL,               # Sender identifier (can be the same as the asset)
+                "recipient" =>   "ragent",               # Recipient identifier (can be the same as the asset)
+                "type" =>        "message",
+                "recorded_at" => Time.now,               # timestamp integer in seconds
+                "received_at" => Time.now,               # timestamp integer in seconds
+                "channel" =>     channel,
+                "payload" =>     message.content,
+                "parent_id" =>   nil,                    # nil | message_identifier
+                "timeout" =>     0                       # -1 | 0 | timeout integer. 0 -> instant
+              }
+            }
+            # todo: put some limitation
+            CC.push(inject_hash,'messages')
+          end
 
           # success !
-          PUNK.end('injectmsg','ok','out',"SERVER <- SERVER MSG[#{crop_ref(inject_hash['payload']['id'],4)}]")
+          PUNK.end('injectmsg','ok','out',"SERVER <- SERVER MSG[#{crop_ref(out_id,4)}]")
 
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['inject_to_cloud'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1

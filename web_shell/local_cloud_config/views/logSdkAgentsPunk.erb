@@ -128,10 +128,11 @@
 
                 var content = $('#btn_content_' + $(this).data('content'));
                 try{
-                  var lines = JSON.parse(content.text());
+                  var lines = $.parseJSON(content.text());
                 } catch (err) {
                   console.error("Trying to parse \n" + content.text() + "\n\n");
                   console.error("but failed with " + err + "\n");
+                  return null;
                 }
 
 

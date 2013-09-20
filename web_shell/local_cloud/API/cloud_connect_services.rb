@@ -251,7 +251,7 @@ module CloudConnectServices
 
         if meta.is_a? Hash
           self.account = meta['account']
-          self.cookies = meta['cookies']
+          self.cookies = meta['protogen_cookies']
         end
 
         if self.type != 'message' && self.type != 'ack'

@@ -193,4 +193,7 @@ def handle_msg_from_device(type, params)
   end
 
   CC.logger.info("Server: handle_msg_from_device: success")
+
+  PUNK.drop('handle')
+
 end

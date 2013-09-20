@@ -67,17 +67,9 @@ File.open("#{$main_server_root_path}/../agents_generator/cloud_agents_generated/
 # gen
 
 #progen generation
-PUNK.start('a')
-begin
-  rapport = GEN.generate_agents_protogen
-  CC.logger.debug(rapport)
-  CC.logger.info("protogen generation successful")
-  PUNK.end('a','ok','','SERVER generated Protogen')
-rescue Exception => e
-  CCS.print_ruby_exception(e)
-  PUNK.end('a','ko','','SERVER generation Protogen fail')
-  raise e
-end
+GEN.generate_agents_protogen
+CC.logger.info("Protogen generation finished.")
+
 
 # main code generation
 PUNK.start('a')

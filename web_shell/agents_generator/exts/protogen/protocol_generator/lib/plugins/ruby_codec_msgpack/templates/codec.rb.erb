@@ -1,116 +1,120 @@
 ### Do not edit
 require 'msgpack'
 
-module Protogen
+module Protogen_<%= Env['agent_name'] %>
 
-  # Exception raised by the Codec in case of an invalid message input
-  # @see Codec
-  # @api private
-  class UnknownMessageType < Exception
-  end
+  module Protogen
 
-  # Exception raised by the Codec when there is a mismatch between of the protocol version of the server and the device
-  # @see Codec
-  # @api private
-  class InvalidProtocolVersion < Exception
-  end
-
-  # object returned by the Codec when a big message was split on the device, and there are still missing pieces on the server
-  # @see Codec
-  # @api private
-  class MessagePartNotice
-  end
-
-
-# @api private
-module Codec
-
-
-  PROTOCOL_VERSION = <%= Env['protocol_version'] %>
-  PG_VERSION = "<%= ::ProtocolGenerator.version %>"
-
-  def self.encode(object, cookies, asset, validity_length=Array.new(cookies.size))
-
-    msg_hash = {'v' => PROTOCOL_VERSION }
-
-    msg_hash['type'] = case object <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
-    when Messages::<%= type %> then Messages::ID_<%= type.upcase %> <% end %>
-    else
-      raise UnknownMessageType, "The following object is not sendable: #{object.class}."
+    # Exception raised by the Codec in case of an invalid message input
+    # @see Codec
+    # @api private
+    class UnknownMessageType < Exception
     end
 
-    msg_hash['msg'] = object.to_hash
-    <% if Env['use_cookies'] %>
-    unless cookies.nil?
-      cookies.each_with_index do |cookie,i|
-        vl_i = validity_length[i] || cookie.class.validity_time # validity_length must contain an integer or nil for default value
-        passwd_i = CookiePasswdMgr.get_passwd(cookie.class, vl_i, 10)
+    # Exception raised by the Codec when there is a mismatch between of the protocol version of the server and the device
+    # @see Codec
+    # @api private
+    class InvalidProtocolVersion < Exception
+    end
 
-        case cookie<% Env['cookie_names'].each do |cookie_name| %>
-        when Cookies::<%= cookie_name %> then msg_hash['_<%= cookie_name %>'] = CookieMgr.encrypt(cookie.to_hash.to_json,passwd_i,asset,vl_i) <% end %>
+    # object returned by the Codec when a big message was split on the device, and there are still missing pieces on the server
+    # @see Codec
+    # @api private
+    class MessagePartNotice
+    end
+
+
+  # @api private
+  module Codec
+
+
+    PROTOCOL_VERSION = <%= Env['protocol_version'] %>
+    PG_VERSION = "<%= ::ProtocolGenerator.version %>"
+
+    def self.encode(object, cookies, asset, validity_length=Array.new(cookies.size))
+
+      msg_hash = {'v' => PROTOCOL_VERSION }
+
+      msg_hash['type'] = case object <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
+      when Messages::<%= type %> then Messages::ID_<%= type.upcase %> <% end %>
+      else
+        raise UnknownMessageType, "The following object is not sendable: #{object.class}."
+      end
+
+      msg_hash['msg'] = object.to_hash
+      <% if Env['use_cookies'] %>
+      unless cookies.nil?
+        cookies.each_with_index do |cookie,i|
+          vl_i = validity_length[i] || cookie.class.validity_time # validity_length must contain an integer or nil for default value
+          passwd_i = CookiePasswdMgr.get_passwd(cookie.class, vl_i, 10)
+
+          case cookie<% Env['cookie_names'].each do |cookie_name| %>
+          when Cookies::<%= cookie_name %> then msg_hash['_<%= cookie_name %>'] = CookieMgr.encrypt(cookie.to_hash.to_json,passwd_i,asset,vl_i) <% end %>
+          end
         end
       end
-    end
-    <% end %>
+      <% end %>
 
-    enc_msg = msg_hash.to_msgpack
-    raise 'OverMessageSizeLimit' if enc_msg.size > <%= Env['message_size_limit'] %>
-    if enc_msg.size > <%= Env['message_part_size'] %>
-      sha1_hash, parts = Splitter.split(enc_msg, <%= Env['message_part_size'] %>)
-      if parts.size > 1
-        output = []
-        parts.each_with_index do |part, i|
-          output << {'m' => part, 'h' => sha1_hash, 'f' => i, 't' => parts.size}.to_msgpack
+      enc_msg = msg_hash.to_msgpack
+      raise 'OverMessageSizeLimit' if enc_msg.size > <%= Env['message_size_limit'] %>
+      if enc_msg.size > <%= Env['message_part_size'] %>
+        sha1_hash, parts = Splitter.split(enc_msg, <%= Env['message_part_size'] %>)
+        if parts.size > 1
+          output = []
+          parts.each_with_index do |part, i|
+            output << {'m' => part, 'h' => sha1_hash, 'f' => i, 't' => parts.size}.to_msgpack
+          end
+          output
+        else
+          [enc_msg]
         end
-        output
       else
         [enc_msg]
       end
-    else
-      [enc_msg]
     end
-  end
 
-  def self.decode(msg, asset<%if !Env['use_cookies']%>=nil<%end%>)
-    msg_hash = MessagePack.unpack(msg)
+    def self.decode(msg, asset<%if !Env['use_cookies']%>=nil<%end%>)
+      msg_hash = MessagePack.unpack(msg)
 
-    unless msg_hash['h'].nil? # if this is only part of a message
-      # Retrieve from storage all the other parts.
-      other_parts = Splitter.get_stored_parts(msg_hash['h'], asset)
-      if other_parts.size + 1 == msg_hash['t']
-        other_parts["#{msg_hash['f']}"] = msg_hash['m']
-        enc_msg = Splitter.assemble(other_parts, msg_hash['h'], asset)
-        msg_hash = MessagePack.unpack(enc_msg)
+      unless msg_hash['h'].nil? # if this is only part of a message
+        # Retrieve from storage all the other parts.
+        other_parts = Splitter.get_stored_parts(msg_hash['h'], asset)
+        if other_parts.size + 1 == msg_hash['t']
+          other_parts["#{msg_hash['f']}"] = msg_hash['m']
+          enc_msg = Splitter.assemble(other_parts, msg_hash['h'], asset)
+          msg_hash = MessagePack.unpack(enc_msg)
+        else
+          Splitter.put(msg_hash['m'], msg_hash['h'], msg_hash['f'], asset)
+          # still missing parts -> nothing else to excecute
+          return [MessagePartNotice.new,nil]
+        end
+      end
+
+      <% if Env['check_protocol_version'] == 'yes' %>
+        if msg_hash['v'] != PROTOCOL_VERSION
+          raise InvalidProtocolVersion, "Protocol message version: #{msg_hash['v']}, protocol server version: #{PROTOCOL_VERSION}"
+        end
+      <% end %>
+
+      obj = case msg_hash['type'] <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
+      when Messages::ID_<%= type.upcase %> then Messages::<%= type %>.from_hash(msg_hash['msg']) <% end %>
       else
-        Splitter.put(msg_hash['m'], msg_hash['h'], msg_hash['f'], asset)
-        # still missing parts -> nothing else to excecute
-        return [MessagePartNotice.new,nil]
+        raise UnknownMessageType, "The following object type is not decodable: #{msg_hash['type']}."
       end
+      cookies = []
+      <% if Env['use_cookies'] %>
+      passwd_list = CookiePasswdMgr.get_all_passwd(msg_hash['type'])
+      <% Env['cookie_names'].each do |cookie_name| %>
+      cookie = msg_hash['_<%= cookie_name %>']
+      valid = false
+      valid,raw_cookie = CookieMgr.decrypt(cookie[0],cookie[1],cookie[2],passwd_list,asset) unless cookie.nil?
+      cookies << Cookies::<%= cookie_name %>.from_hash(JSON.load(raw_cookie)) if valid
+      <% end %>
+      <% end %>
+      [obj, cookies]
     end
 
-    <% if Env['check_protocol_version'] == 'yes' %>
-      if msg_hash['v'] != PROTOCOL_VERSION
-        raise InvalidProtocolVersion, "Protocol message version: #{msg_hash['v']}, protocol server version: #{PROTOCOL_VERSION}"
-      end
-    <% end %>
-
-    obj = case msg_hash['type'] <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
-    when Messages::ID_<%= type.upcase %> then Messages::<%= type %>.from_hash(msg_hash['msg']) <% end %>
-    else
-      raise UnknownMessageType, "The following object type is not decodable: #{msg_hash['type']}."
-    end
-    cookies = []
-    <% if Env['use_cookies'] %>
-    passwd_list = CookiePasswdMgr.get_all_passwd(msg_hash['type'])
-    <% Env['cookie_names'].each do |cookie_name| %>
-    cookie = msg_hash['_<%= cookie_name %>']
-    valid = false
-    valid,raw_cookie = CookieMgr.decrypt(cookie[0],cookie[1],cookie[2],passwd_list,asset) unless cookie.nil?
-    cookies << Cookies::<%= cookie_name %>.from_hash(JSON.load(raw_cookie)) if valid
-    <% end %>
-    <% end %>
-    [obj, cookies]
+  end
   end
 
-end
 end

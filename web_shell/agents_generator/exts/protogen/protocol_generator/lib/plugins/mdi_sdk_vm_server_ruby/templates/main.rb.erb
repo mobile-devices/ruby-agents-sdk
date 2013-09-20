@@ -2,48 +2,51 @@
   next unless /.rb$/.match(file) %>
 require_relative '<%= file %>'<% end %>
 
-# Contains all the apis called by the Server SDK.
-# @protogen_version <%= ::ProtocolGenerator.version %>
-# @protocol_version <%= Env['protocol_version'] %>
-# @api private
-module ProtogenAPIs
+module Protogen_<%= Env['agent_name'] %>
 
-  # Encodes a protogen message object into a string, and join cookies
-  # @param [CCS::Message] message contains all information related to the
-  #   message. message.content must contain a Protogen::Message object.
-  # @raise [Protogen::UnknownMessageType] if message.content is not a protogen
-  #   message object.
-  # @return [String] Encoded protogen object
-  def self.encode(message)
-    Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
-    Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
-    cookies = message.meta['protogen_cookies'] || []
-    Protogen::Codec.encode(message.content, cookies, message.asset)
-  end
+  module ProtogenAPIs
 
-  # Decodes a protogen encoded string, and cast it in the appropriate object
-  # @param [CCS::Message] message contains all information related to the
-  #   message (meta + payloads, protogen encoded string is in message.content)
-  # @raise [Protogen::UnknownMessageType] if the message content does not
-  #   correspond to any protogen message
-  # @return [Protogen::Message::MessageClass, Protogen::Cookies]
-  def self.decode(message)
-    Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
-    Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
-    Protogen::Codec.decode(message.content, message.asset)
-  end
-
-  # Check the message protogen type, and call the defined callback accordingly.
-  # @param [CCS::Message] message message.content must be a protogen message object.
-  def self.process(message_class_owner, message)
-    Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
-    Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
-    case message.content<% Env['msg_seq_dev'].each do |msg,seq| %>
-    when Protogen::Messages::<%= msg %> # <%= seq %> sequence
-      message_class_owner.<%= "#{Env['sequences'][seq]['callback'] || seq}(message)" %><% end %>
-    when Protogen::MessagePartNotice
-      CC.logger.info("Message part received")
+    # Encodes a protogen message object into a string, and join cookies
+    # @param [CCS::Message] message contains all information related to the
+    #   message. message.content must contain a Protogen::Message object.
+    # @raise [Protogen::UnknownMessageType] if message.content is not a protogen
+    #   message object.
+    # @return [String] Encoded protogen object
+    def self.encode(message)
+      Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
+      Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
+      cookies = message.meta['protogen_cookies'] || []
+      Protogen::Codec.encode(message.content, cookies, message.asset)
     end
+
+    # Decodes a protogen encoded string, and cast it in the appropriate object
+    # @param [CCS::Message] message contains all information related to the
+    #   message (meta + payloads, protogen encoded string is in message.content)
+    # @param [Fixnum] id ID of the decoder to use. Different decoders do not share message parts,
+    #   so you must send all parts of a message to the same decoder (ID),
+    #   and you must not send twice the same part of a message to the same decoder.
+    # @raise [Protogen::UnknownMessageType] if the message content does not
+    #   correspond to any protogen message
+    # @return [Protogen::Message::MessageClass, Protogen::Cookies]
+    def self.decode(message, id = "")
+      Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal(id))
+      Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
+      Protogen::Codec.decode(message.content, message.asset)
+    end
+
+    # Check the message protogen type, and call the defined callback accordingly.
+    # @param [CCS::Message] message message.content must be a protogen message object.
+    def self.process(message_class_owner, message)
+      Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
+      Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
+      case message.content<% Env['msg_seq_dev'].each do |msg,seq| %>
+      when Protogen::Messages::<%= msg %> # <%= seq %> sequence
+        message_class_owner.<%= "#{Env['sequences'][seq]['callback'] || seq}(message)" %><% end %>
+      when Protogen::MessagePartNotice
+        CC.logger.info("Message part received")
+      end
+    end
+
   end
 
 end

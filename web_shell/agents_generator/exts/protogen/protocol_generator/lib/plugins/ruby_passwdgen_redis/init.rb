@@ -2,7 +2,9 @@ module ProtocolGenerator
   module Generator
     class PasswordGeneratorRedis < GeneratorPlugin
       def self.run
-        FileUtils.cp(File.join('lib', 'plugins', 'ruby_passwdgen_redis', 'templates', 'password-manager.rb'), File.join(Env['output_directory'], 'server', 'ruby'))
+        directory = File.join(Env['output_directory'], 'server', 'ruby')
+        FileUtils.mkdir_p(directory) if !File.directory?(directory)
+        Utils.render(File.join(@templates_dir,'password-manager.rb.erb'), File.join(directory,'password-manager.rb'))
       end
 
       @dependencies = []

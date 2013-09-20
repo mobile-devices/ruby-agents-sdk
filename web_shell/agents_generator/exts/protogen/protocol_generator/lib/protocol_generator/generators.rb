@@ -32,7 +32,7 @@ module ProtocolGenerator
         @@done = []
         generator_list.sort{|a,b| GENERATORS[b].priority <=> GENERATORS[a].priority }.each do |generator|
           missing_deps = GENERATORS[generator].dependencies-GENERATORS.keys
-          raise "Missing plugin(s): #{missing_deps} for #{generator}" unless missing_deps.size == 0
+          raise Error::PluginError.new("Missing dependancy: plugin(s) #{missing_deps} for #{generator}") unless missing_deps.size == 0
           launch_generator(generator)
         end
       end

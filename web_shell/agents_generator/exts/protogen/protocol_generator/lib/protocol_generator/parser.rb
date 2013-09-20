@@ -139,18 +139,39 @@ module ProtocolGenerator
     # This function will ensure that the json input document was correctly formed
 
     def self.run
-      default_conf = JSON.parse(File.open(File.join('config', 'config.json')).read)['default']
+      default_conf_file = File.join('config', 'config.json')
+      unless File.exist?(default_conf_file)
+        raise Error::ConfigurationFileError.new("Can not find the default configuration file at #{default_conf_file}")
+      end
+      begin
+        default_conf = JSON.parse(File.open(default_conf_file).read)['default']
+      rescue JSON::ParserError => e
+        raise Error::ConfigurationFileError.new("Error when JSON-parsing the default configuration file at #{default_conf_file}: #{e.message}")
+      end
       Env.merge!(default_conf)
 
-      configuration = JSON.parse(File.open(Env['conf_file_path']).read)
+      unless File.exist?(Env['conf_file_path'])
+        raise Error::ConfigurationFileError.new("Can not find configuration file at #{Env['conf_file_path']}")
+      end
+      conf_file = File.open(Env['conf_file_path'])
+
+      begin
+        configuration = JSON.parse(conf_file.read)
+      rescue JSON::ParserError => e
+        raise Error::ConfigurationFileError.new("Error when JSON-parsing the configuration file at #{Env['conf_file_path']}: #{e.message}")
+      end
 
       # Configuration validation
       if configuration['server_output_directory']
-        JSON::Validator.validate!(SERVER_CONF_SCHEMA, configuration, :validate_schema => true)
+        unless JSON::Validator.validate(SERVER_CONF_SCHEMA, configuration, :validate_schema => true)
+          raise ConfigurationFileError.new("The configuration file do not follow the correct schema: #{SERVER_CONF_SCHEMA.inspect}")
+        end
       elsif configuration['device_output_directory']
-        JSON::Validator.validate!(DEVICE_CONF_SCHEMA, configuration, :validate_schema => true)
+        unless JSON::Validator.validate(DEVICE_CONF_SCHEMA, configuration, :validate_schema => true)
+          raise ConfigurationFileError.new("The configuration file do not follow the correct schema: #{DEVICE_CONF_SCHEMA.inspect}")
+        end
       else
-        raise 'no output directory was given'
+        raise Error::ConfigurationFileError.new("No output directory was given (set the 'server_output_directory' or 'device_output_directory' key in the configuration file)")
       end
       Env.merge!(configuration)
       use_protobuf, use_msgpack = false,false
@@ -159,19 +180,36 @@ module ProtocolGenerator
         use_msgpack = true if /msgpack/.match(plugin_name)
       end
       if use_protobuf && use_msgpack
-        raise 'Conflict: two plugins found using msgpack and protobuf'
+        Error::PluginError.new('Conflict: two plugins found using msgpack and protobuf. You can use only one or the other.')
       elsif use_protobuf
         Env['ser_lang'] = 'protobuf'
-        JSON::Validator.validate!(PROTOBUF_CONF_SCHEMA, configuration, :validate_schema => true)
+        unless JSON::Validator.validate(PROTOBUF_CONF_SCHEMA, configuration, :validate_schema => true)
+          raise ConfigurationFileError.new("The configuration file do not follow the correct Protobuf schema: #{PROTOBUF_CONF_SCHEMA.inspect}")
+        end
       elsif use_msgpack
         Env['ser_lang'] = 'msgpack'
-        JSON::Validator.validate!(MSGPACK_CONF_SCHEMA, configuration, :validate_schema => true)
+        unless JSON::Validator.validate(MSGPACK_CONF_SCHEMA, configuration, :validate_schema => true)
+          raise ConfigurationFileError.new("The configuration file do not follow the correct msgpack schema: #{PROTOBUF_CONF_SCHEMA.inspect}")
+        end
       end
 
-      input = JSON.parse(File.open(Env['input_path']).read)
+      unless File.exist?(Env['input_path'])
+        raise Error::ProtocolFileNotFound.new("Can not find protocol definition file at #{Env['input_path']}")
+      end
+      if File.zero?(Env['input_path'])
+        raise Error::ProtocolFileEmpty.new("Found empty protocol definition file at #{Env['input_path']}")
+      end
+
+      begin
+        input = JSON.parse(File.open(Env['input_path']).read)
+      rescue JSON::ParserError => e
+        raise Error::ProtocolFileParserError.new("Error when JSON-parsing the protocol definition file at #{Env['input_path']}: #{e.message}")
+      end
 
       # Messages validation
-      JSON::Validator.validate!(MESSAGES_SCHEMA, input['messages'], :validate_schema => true)
+      unless JSON::Validator.validate(MESSAGES_SCHEMA, input['messages'], :validate_schema => true)
+        raise Error::ProtocolDefinitionError.new("Bad messages protocol definition: check that you provide the required fields.")
+      end
       Env['messages'] = input['messages']
       declared_messages = []
       Env['fields'] = {}
@@ -180,27 +218,29 @@ module ProtocolGenerator
         fields = []
         msg_content.each do |field_name, field_content|
           next if /^[a-z]/.match(field_name).nil?
-          raise "Unknown message type: #{field_content['type']}" unless [BASIC_TYPES, 'msgpack', declared_messages].flatten.include?(field_content['type'])
+          raise Error::ProtocolDefinitionError.new("Unknown message type: '#{field_content['type']}' (in field '#{field_name}' of message '#{msg_name}')") unless [BASIC_TYPES, 'msgpack', declared_messages].flatten.include?(field_content['type'])
           fields << field_name
         end
-        raise "Type already declared: #{msg_name}" if [BASIC_TYPES, 'msgpack', declared_messages].flatten.include?(msg_name)
+        raise Error::ProtocolDefinitionError.new("Type declared more than once: '#{msg_name}'.") if [BASIC_TYPES, 'msgpack', declared_messages].flatten.include?(msg_name)
         declared_messages << msg_name
         Env['fields'][msg_name] = fields
         Env['sendable_messages'] << msg_name if msg_content['_way'] != 'none'
 
         # Only validation
         if ['toServer', 'both'].include?(msg_content['_way']) && msg_content['_server_callback'].nil?
-          raise "Missing field _server_callback in #{msg_name}"
+          raise Error::ProtocolDefinitionError.new("Missing mandatory field _server_callback in #{msg_name}")
         end
 
         if ['toDevice', 'both'].include?(msg_content['_way']) && msg_content['_device_callback'].nil?
-          raise "Missing field _device_callback in #{msg_name}" if msg_content['_device_callback'].nil?
+          raise Error::ProtocolDefinitionError.new("Missing mandatory field _device_callback in #{msg_name}")
         end
-      end
+      end # Env['messages'].each do |msg_name, msg_content|
       Env['declared_types'] = declared_messages
 
       # Cookies validation
-      JSON::Validator.validate!(COOKIES_SCHEMA, input['cookies'], :validate_schema => true)
+      unless JSON::Validator.validate(COOKIES_SCHEMA, input['cookies'], :validate_schema => true)
+        raise Error::ProtocolDefinitionError("Bad cookies definition (check that your 'cookies' field is correct).")
+      end
       Env['cookies'] = input['cookies']
       Env['use_cookies'] = !Env['cookies'].nil? && !Env['cookies'].empty?
       if Env['use_cookies']
@@ -209,7 +249,7 @@ module ProtocolGenerator
           fields = []
           cookie_content.each do |field_name, field_content|
             next if /^[a-z]/.match(field_name).nil?
-            raise "Unknown type: #{field_content['type']}" unless (BASIC_TYPES.include?(field_content['type'])) # || declared_types.include?(field_content['type']))
+            raise Error::ProtocolDefinitionError.new("Unknown type: '#{field_content['type']}' (in cookie '#{cookie_name}')") unless (BASIC_TYPES.include?(field_content['type'])) # || declared_types.include?(field_content['type']))
             fields << field_name
           end
           Env['fields'][cookie_name] = fields
@@ -281,7 +321,9 @@ module ProtocolGenerator
       end
 
       # General validation, just to be sure
-      JSON::Validator.validate!(GENERAL_SCHEMA, input, :validate_schema => true)
+      unless JSON::Validator.validate(GENERAL_SCHEMA, input, :validate_schema => true)
+        raise Error::ProtocolDefinitionError.new("General schema validation failed, check your input file.")
+      end
 
       Env['protocol_version'] = compute_version_string
       puts "Protocol version: #{Env['protocol_version']}"

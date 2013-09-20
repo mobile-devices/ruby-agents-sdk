@@ -112,52 +112,54 @@ def update_cron_tasks
   p ''
 end
 
-# Export all data related to the given agent in a .tar.gz placed in the sdk_logs folder
-# Warning: string manipulation in this method is done without any concern for performance
-def export(agent_name)
+# Export all data related to all agents with "active" set to true to project page
+def dump_state()
   # copy everything in a folder in logs
+  # todo: copy only relevant agents
+  agents_to_save = GEN.get_run_agents
   time = Time.now
-  random = Random.rand(1000) # quick-and-dirty way to ensure uniqueness of the file if several requests are simultaneously treated
-  file_name = time.utc.strftime("%Y_%m_%d_%H%M%Sutc_#{agent_name}_dump_#{random}")
-  save_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "logs", file_name))
-  FileUtils.mkdir_p(save_path)
-  agent_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "..", "ruby_workspace", agent_name))
+  random = Random.rand(1000) # quick-and-dirty way to ensure uniqueness of the file if several requests are simultaneously treated in the same second
+  folder_name = time.utc.strftime("%Y_%m_%d_%H%M%Sutc_sdk_dump_#{random}")
   log_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "logs"))
-
-  # copy source (but ignore .svn, .git)
-  target = File.join(save_path, "src")
-  source = agent_path
-  FileUtils.mkdir_p(target)
-  Dir.glob("#{source}/**/*").reject{|f| f['.svn'] || f['.git']}.each do |oldfile|
-    newfile = target + oldfile.sub(source, '')
-    File.file?(oldfile) ? FileUtils.copy(oldfile, newfile) : FileUtils.mkdir(newfile)
-  end
-
-  # copy versions
-  File.open(File.join(save_path, "info"), 'w') do |file|
-    file.write("Dumped on #{time.to_s}\n")
-    file.write("Agent: #{agent_name} \n")
-    file.write("VM version: #{current_sdk_vm_base_version}\n")
-    file.write("SDK version: #{get_sdk_version}\n")
+  save_path = File.expand_path(File.join(log_path, folder_name))
+  FileUtils.mkdir_p(save_path)
+  FileUtils.mkdir_p(File.join(save_path, "src"))
+  rapport = []
+  rapport << "Dumped on #{time.to_s}"
+  rapport << "VM version: #{current_sdk_vm_base_version}"
+  rapport << "SDK version: #{get_sdk_version}"
+  rapport << ""
+  agents_to_save.each do |agent_name|
+    agent_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "..", "ruby_workspace", agent_name))
+    unless File.directory?(agent_path)
+      rapport << "Agent #{agent_name} folder not found at #{agent_path}, skipping this agent"
+      next
+    end
+    # copy source (but ignore .svn, .git, .hg)
+    target = File.join(save_path, "src", agent_name)
+    source = agent_path
+    FileUtils.mkdir_p(target)
+    Dir.glob("#{source}/**/*").reject{|f| f['.svn'] || f['.git'] || f['.hg']}.each do |oldfile|
+      newfile = target + oldfile.sub(source, '')
+      File.file?(oldfile) ? FileUtils.copy(oldfile, newfile) : FileUtils.mkdir(newfile)
+    end
+    rapport << "Agent #{agent_name} included"
   end
 
   # copy logs
   # As these logs can become pretty big during long sessions, (several 10 * Mbytes) we limit their size before copying
-  # limit to 30 000 lines
   FileUtils.mkdir_p(File.join(save_path, "logs"))
   %w(daemon_server_config.log daemon_server.log ruby-agent-sdk-server.log).each do |log_file|
-    File.open(File.join(log_path, log_file)) do |file|
-      # if performance becomes an issue, use IO#seek instead
-      lines = file.readlines
-      if(lines.size) > 30000
-        lines = lines[-30000..-1]
-      end
-      File.open(File.join(save_path, "logs", log_file), 'w') {|file| file.write(lines.join("\n"))}
-    end
+    File.open(File.join(save_path, "logs", log_file), 'w') {|file| file.write(`cd #{log_path} && tail -n 10000 #{log_file}`)}
   end
 
+  # add rapport
+  rapport << ""
+  rapport << "Export finished"
+  File.open(File.join(save_path, "info"), 'w') {|file| file.write(rapport.join("\n"))}
+
   # tar the results
-  `cd #{save_path}/.. && tar -czf #{save_path}.tar.gz #{file_name}`
+  `cd #{save_path}/.. && tar -czf #{save_path}.tar.gz #{folder_name}`
   FileUtils.rm_rf(save_path)
-  return "sdk_logs/#{file_name}.tar.gz"
+  return "sdk_logs/#{folder_name}.tar.gz"
 end

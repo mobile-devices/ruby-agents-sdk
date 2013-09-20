@@ -532,11 +532,8 @@ get '/tests_status' do
   return res.to_json
 end
 
-get '/export' do
-  if params["agent"].nil?
-    halt(400, "'agent' parameter is mandatory")
-  end
-  path = export(params["agent"])
-  flash[:notice] = "Agent dumped to #{path}"
+get '/report_issue' do
+  path = dump_state()
+  flash[:notice] = "Rapport and files dumped to #{path}."
   redirect("/projects")
 end

@@ -12,10 +12,7 @@
         <th> Stats</th>
         <th>Active</th>
         <th>Export</th>
-        <% if is_cron_tasks_visible == 'true' %>
-          <th>Cron Tasks</th>
-        <% end %>
-
+        <th>Cron Tasks</th>
         </tr>
       </thead>
 
@@ -44,16 +41,14 @@
                 <a class="btn btn-info" href="/export?agent=<%=agent_name%>">Dump</a>
           </td>
 
-          <% if is_cron_tasks_visible == 'true' %>
-            <td>
-            <% agent.cron_tasks.each do | task | %>
-                <form action='/perform_cron_tasks' method="post">
-                  <input type="hidden" name="task" value='<%= task.to_json %>'/>
-                  <button class="btn btn-info btn-small">Perform: '<%= task['order'] %>'</button>
-                </form>
-            <% end %>
-            </td>
+          <td>
+          <% agent.cron_tasks.each do | task | %>
+              <form action='/perform_cron_tasks' method="post">
+                <input type="hidden" name="task" value='<%= task.to_json %>'/>
+                <button class="btn btn-info btn-small">Perform: '<%= task['order'] %>'</button>
+              </form>
           <% end %>
+          </td>
 
           </tr>
         <% end %>

@@ -300,3 +300,7 @@ Example:
       "lastitem": {"type":"int", "modifier":"required"},
       "purchased":   {"type":"bool", "modifier":"required"}
     }
+
+## Protogen in your tests ##
+
+It is possible to use Protogen objects in your tests. See {file:guides/tests.md#Protogen_in_your_tests the tests guide} for more information.

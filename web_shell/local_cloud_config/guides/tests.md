@@ -113,6 +113,57 @@ describe 'tester agent' do
 end
 ```
 
+## Protogen in your tests
+
+If you don't know what Protogen is, look {file:guides/protogen.md here} (or skip this section).
+
+You can use Protogen objects in your tests the same way you do with regular messages. Don't forget to use the proper namespace.
+
+``` ruby
+
+require 'rspec'
+require 'tests_helper'
+
+shared_context 'protogen_tester_context' do
+  Protogen = Protogen_my_protogen_agent::Protogen
+  SDK = Sdk_api_my_protogen_agent::SDK
+end
+
+describe "my_protogen_agent"
+
+  context "when using Protogen messages" do
+
+    include_context 'protogen_tester_context'
+
+    it "should be able to create and send Protogen messages without errors" do
+      test = Protogen::Messages::SimpleTest.new
+      test.a_field = "hello!"
+      SDK.API.gate.push(12345, "my_account", msg)
+    end
+
+    it "should respond to Question Protogens by one Response Protogen" do
+      # Create a false device message, using a Protogen object, and send it to the server
+      # Declare the Protogen object
+      question = Protogen::Messages::Question.new
+      # Set its fields
+      question.my_question = "How are you? " * 9000 # let's use a big message so Protogen have to split it
+      # Create a false device message using this object
+      msg = TestsHelper::ProtogenFromDevice.new(question,"com.mdi.services.py_protogen_agent")
+      # Send the message to the server
+      msg.send_to_server
+
+      # Let's check that our agent correctly responded to this message
+      responses = TestsHelper::wait_for_responses(msg, nil, 1)
+      responses.should have(1).message
+      responses.first.content.class.should == Protogen::Messages::Answer
+      responses.first.content.my_answer.should include("don't know")
+    end
+
+  end
+
+end
+```
+
 ## Caveat ##
 
 * The version of your agent which is effectively tested is the one currently mounted i.e. the last version you had before restarting the agents server. To test the latest version of your code, restart the agents server. Note that this comment also applies to your testing code (so modifying your testing code will not have any effect on your tests until you reboot the agents server).

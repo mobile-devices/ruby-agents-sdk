@@ -34,7 +34,7 @@ module CloudConnectSDK
         log_path = './daemon_ruby.log'
       end
 
-      @logger = Logger.new(log_path, 50, 1 * 1024 * 1024)
+      @logger = Logger.new(log_path, 50, 4 * 1024 * 1024)
       @logger.datetime_format = "%Y-%m-%d %H:%M:%S"
       @logger.formatter = Logger::Formatter.new
       @logger

@@ -1,8 +1,8 @@
 --query '@api.text == "public"'
 ../local_cloud/API/*.rb
 ../local_cloud/fake_cloud_lib/*.rb
+../local_cloud/tests_utils/*.rb
 ../**/*.rb_
--p templates
 --markup=markdown
 -M redcarpet
 --title "Mobile Devices SDK VM documentation"

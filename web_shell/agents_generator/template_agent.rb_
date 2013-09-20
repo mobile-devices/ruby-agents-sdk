@@ -152,7 +152,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
   include Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
   # Protogen
-  include ProtogenAPIs if defined? ProtogenAPIs
+  include Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME if defined? Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
   # User code
   include Initial_agent_XX_PROJECT_NAME

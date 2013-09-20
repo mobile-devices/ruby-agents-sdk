@@ -11,11 +11,18 @@
 # with your agent.
 module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
+  # Protogen
+  if File.exist?("#{RH.generated_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
+    require_relative '../protogen_XX_PROJECT_NAME/protogen_apis'
+  end
+
+
   # @api public
   # This module gives you access to the SDK API.
   module SDK
 
     # This module gives you objects that are already configured with your agent needs.
+    # @api public
     module API
 
       # Prints to the logs a nicely formatted Ruby exception
@@ -67,8 +74,11 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
 
       # @api private
-      def self.redis_internal
-        @@redis_internal ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME', :redis => CC.redis)
+      # @param [String] id an ID (different IDs mean different namespaces)
+      # @return [Redis] a namespaced Redis instance
+      def self.redis_internal(id = "")
+        @@redis_internal ||= {}
+        @@redis_internal[id] ||= Redis::Namespace.new('CCSI:XX_PROJECT_NAME_#{id}', :redis => CC.redis)
       end
 
       ############### Config ###############################################
@@ -131,10 +141,70 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
     end
 
+    # @api private
+    module ProtogenHelper
+      include Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME if defined? Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME
+
+      # @api private
+      # Encode a given message with Protogen. Protogen will encode the content of the message and separate it into
+      # smaller messages if needed.
+      # @param [CloudConnectServices::Message] message message to encode (will not be modified)
+      # @return [Array<CloudConnectServices::Message>] an array of Protogen-compliant messages ready to be pushed.
+      # @raise Protogen::UnknownMessageType
+      # @note If the global $allow_non_protogen is set to false and you call this methd with a non-Protogen message,
+      #    this method will return a 1-element array with the given non-Protogen message without raising an exception.
+      def protogen_encode(message)
+        msg = message.clone
+        if defined? ProtogenAPIs
+          begin
+            encoded = ProtogenAPIs.encode(msg)
+
+            if encoded.is_a? String
+              msg.content = encoded
+              CC.logger.info("Protogen content is simple string")
+              return [msg]
+            elsif encoded.is_a? Array
+              CC.logger.info("Protogen content is an array of size #{encoded.size}")
+              fragments = encoded.map do |content|
+                frg = msg.clone
+                frg.id = CC.indigen_next_id
+                frg.content = content
+                frg
+              end
+              # the last fragment id must be the original message id
+              # for proper response detection
+              fragments.last.id = msg.id
+              return fragments
+            else
+              raise "message push protogen unknown encoded type : #{encoded.type}"
+            end
+
+          rescue Protogen::UnknownMessageType => e
+            if $allow_non_protogen
+              CC.logger.warn("CloudConnectServices:Messages.push: unknown protogen message type because #{e.inspect}")
+              return [msg]
+            else
+              raise e
+            end
+          end
+        else
+          if $allow_non_protogen
+            CC.logger.warn('CloudConnectServices:Messages.push: ProtogenAPIs not defined')
+            return [msg]
+          else
+            raise "No Protogen defined"
+          end
+        end
+      end
+    end
+
+    # @api public
     # This class handles all outgoing communication with the devices.
     # @note You don't have to instantiate this class yourself.
     #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.gate} object which is already configured for your agent.
     class DeviceGate
+
+      include ProtogenHelper
 
       # @api private
       # @param channel [String] the messages passing through this gate will be sent on this channel
@@ -155,14 +225,14 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
               'type' => 'message',
               'sender' => '@@server@@',
               'channel' =>  @CHANNEL,
-              'payload' => content
+              'payload' => content,
+              'asset' => asset,
+              'account' => account
             }
           })
-
-          msg.push(asset, account)
+          protogen_encode(msg).each {|message| message.push}
           # success !
           PUNK.end('push','ok','out',"SERVER -> MSG[#{crop_ref(msg.id,4)}]")
-
 
 
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['push_sent_to_device'] += 1
@@ -180,13 +250,19 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Reply a message to the device.
       # @param msg [CloudConnectServices::Message] message to reply to
       # @param content [Object] content of the message
-      # @param cookies [String] optional cookies, see the Protogen guide
+      # @param cookies [String] optional cookies, see the {file:guide/protogen.md Protogen guide}
       def reply(msg, content, cookies = nil)
         begin
           PUNK.start('reply','replying msg ...')
-          reply_id = msg.reply_content(content, cookies)
+          response = msg.clone # todo : check si on clone bien récursivement les table de hash
+          response.parent_id = msg.id
+          response.id = CC.indigen_next_id
+          response.content = content
+          response.meta['protogen_cookies'] = cookies
+          response.sender = msg.recipient
+          protogen_encode(response).each {|message| message.push}
           # success !
-          PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(reply_id,4)}] [reply of #{crop_ref(msg.id,4)}]")
+          PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(response.id,4)}] [reply of #{crop_ref(msg.id,4)}]")
           # stats:
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['reply_sent_to_device'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
@@ -202,11 +278,13 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
     end
 
-
+    # @api public
     # This class handles all cloud to itself communication
     # @note You don't have to instantiate this class yourself.
-    # Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.cloudGate} object which is already configured for your agent.
+    #    Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.cloudGate SDK.API.cloudGate} object which is already configured for your agent.
     class CloudGate
+
+      include ProtogenHelper
 
       # @api private
       # @param channel [String] the messages passing through this gate will be sent on this channel
@@ -216,37 +294,44 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
 
       # Inject a message in the server queue on a specific channel (ie push a message to the server)
-      # @param msg [Message]
-      # @param channel [String] channel to post the message to
+      # @param [CloudConnectServices::Message] msg the message to inject
+      # @param [String] channel channel the message will be posted to
+      # @note Be wary of "infinite message loops" with this method.
       def inject_message(msg, channel)
         begin
           PUNK.start('injectmsg','inject message in cloud ...')
 
-          inject_hash = {
-            "meta" => {
-              "account" =>     msg.account,
-              "cookies" =>     msg.cookies
-              },
-            "payload" => {
-              "id" =>          CC.indigen_next_id,     # Indigen integer
-              "asset" =>       "ragent",
-              "sender" =>      @CHANNEL,               # Sender identifier (can be the same as the asset)
-              "recipient" =>   "ragent",               # Recipient identifier (can be the same as the asset)
-              "type" =>        "message",
-              "recorded_at" => Time.now,               # timestamp integer in seconds
-              "received_at" => Time.now,               # timestamp integer in seconds
-              "channel" =>     channel,
-              "payload" =>     msg.content,
-              "parent_id" =>   nil,                    # nil | message_identifier
-              "timeout" =>     0                       # -1 | 0 | timeout integer. 0 -> instant
-            }
-          }
+          out_id = nil
 
-          # todo: put some limitation
-          CC.push(inject_hash,'messages')
+          protogen_encode(msg).each do |message|
+
+            out_id = CC.indigen_next_id
+
+            inject_hash = {
+              "meta" => {
+                "account" =>     message.account,
+                "cookies" =>     message.cookies
+                },
+              "payload" => {
+                "id" =>          out_id,     # Indigen integer
+                "asset" =>       "ragent",
+                "sender" =>      @CHANNEL,               # Sender identifier (can be the same as the asset)
+                "recipient" =>   "ragent",               # Recipient identifier (can be the same as the asset)
+                "type" =>        "message",
+                "recorded_at" => Time.now,               # timestamp integer in seconds
+                "received_at" => Time.now,               # timestamp integer in seconds
+                "channel" =>     channel,
+                "payload" =>     message.content,
+                "parent_id" =>   nil,                    # nil | message_identifier
+                "timeout" =>     0                       # -1 | 0 | timeout integer. 0 -> instant
+              }
+            }
+            # todo: put some limitation
+            CC.push(inject_hash,'messages')
+          end
 
           # success !
-          PUNK.end('injectmsg','ok','out',"SERVER <- SERVER MSG[#{crop_ref(inject_hash['payload']['id'],4)}]")
+          PUNK.end('injectmsg','ok','out',"SERVER <- SERVER MSG[#{crop_ref(out_id,4)}]")
 
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['inject_to_cloud'] += 1
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
@@ -261,7 +346,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       end
 
       # Inject a track in the server queue (ie push a message to the server)
-      # @param msg [Track]
+      # @param [CloudConnectServices::Track] track the track to send
       def inject_track(track)
         begin
           PUNK.start('injecttrack','inject in cloud ...')

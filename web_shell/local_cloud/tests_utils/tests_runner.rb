@@ -46,15 +46,14 @@ class TestsRunner
       @tester_thread = Thread.new(agents_array, @root_path, @cloud_agents_path, @log_path, @thread_mutex) do |agents, root_path, cloud_agents_path, log_path, mutex|
         mutex.synchronize do # todo is this mutex actually useful?
           CC.logger.debug(" --- in tester thread --- Starting tester thread.")
+          libdir = File.join(root_path, "tests_utils") # so the user can write "require 'test_helper'"
+          $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
           agents.each do |agent|
             test_path = File.join(cloud_agents_path, "#{agent}", "tests")
             output_file_path = File.join(log_path, "tests_#{agent}.log")
             if File.directory?(test_path)
               CC.logger.debug(" --- in tester thread --- Starting tests for #{agent}.")
               begin
-                # todo: why do we need to do this??????
-                libdir = File.join(root_path, "fake_cloud_lib")
-                $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
                 RSpec::Core::Runner.run([test_path,
                   "--require", File.join(root_path, "tests_utils", "json_tests_writer.rb"), "--format", "JsonTestsWriter"],
                   $stderr, output_file_path)
@@ -80,7 +79,7 @@ class TestsRunner
         end # mutex.synchronize do
       end # tester_thread = ...
       CC.logger.debug("TestRunner instance: tests started.")
-    end # @start_mutex.synchronize do
+    end # --- @start_mutex.synchronize do +++
   end #  def start_tests
 
   def stop_tests

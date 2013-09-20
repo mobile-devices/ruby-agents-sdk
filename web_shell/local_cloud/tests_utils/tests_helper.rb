@@ -1,10 +1,17 @@
 require_relative "../API/cloud_connect_services"
 require_relative "../API/cloud_connect_services_internal"
-require_relative "cloud_gate"
+require_relative "../fake_cloud_lib/cloud_gate"
 require 'base64'
 require 'json'
 
-# WARNING: to port this to Ragent, you must set the hooks correctly
+# Require the protogen APIS
+# Will be useful in this code but also enables the user to use them just by requiring tests_helper
+Dir.glob(File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "agents_generator", "cloud_agents_generated", "protogen*"))) do |filename|
+  if File.exist?(File.join(filename, "protogen_apis.rb"))
+    require_relative File.join(filename, "protogen_apis")
+  end
+end
+
 
 # @api public
 # Provides several utilities to write unit tests inside the SDK.
@@ -16,7 +23,7 @@ module TestsHelper
 
   # Helper to test asynchronous behaviour.
   #
-  # This method execute the given block at given time intervals until the block returns without raising an exception.
+  # This method executes the given block at given time intervals until the block returns without raising an exception.
   # If an exception is raised, it will catch it and ignore it unless elapsed time since the first attempt exceeds the given duration.
   # @param [Block] block a block to execute.
   # @param [Fixnum] elapsed_time internal use.
@@ -29,7 +36,7 @@ module TestsHelper
   #   presence = TestsHelper::PresenceFromDevice.new("connect", "1234")
   #   presence.send_to_server
   #   TestsHelper.wait_for { SDK.API::redis.get(presence.asset).should == presence.time.to_s}
-  #
+  # @api public
   def self.wait_for(time = 5, increment = 1, elapsed_time = 0, &block)
     begin
       yield
@@ -47,12 +54,13 @@ module TestsHelper
   # This is (obviously) a blocking call.
   # @param [CloudConnectServices::Message] message the message sent by the device
   # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
-  #   If a `Fixnum`, returns as soon as `number_of_responses` responses are sent.
+  #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
   # @param [Fixnum] timeout this method will return after `timeout` seconds.
   # @return [Array<CloudConnectServices::Message>] messages sent by the server in response to the given message
   # @note Protogen messages are sent as multiple messages by the server.
   #   However, this method will consider all these small messages as a big one, so you don't have to worry
   #   about using Protogen or not.
+  # @api public
   def self.wait_for_responses(message, number_of_responses = 1, timeout = 5)
     if (not number_of_responses.nil?) && number_of_responses <= 0
       raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
@@ -71,11 +79,12 @@ module TestsHelper
   # Returns the next messages sent by a device with the given asset.
   # @param [Fixnum] asset the IMEI or similar unique identifier of the device.
   # @param [Fixnum, nil] number_of_messages if `nil`, wait until timeout and return all messages.
-  #   If a `Fixnum`, returns as soon as `number_of_messages` messages are sent.
+  #   If a `Fixnum`, return as soon as `number_of_messages` messages are sent.
   # @param timeout (see TestsHelper.wait_for_responses).
   # @param [Array] type class of messages to be retrieved.
   # @return [Array] messages sent by the device
   # @note Will also trigger on messages created from the code and sent with {TestsHelper::MessageFromDevice#send_to_server}.
+  # @api public
   def self.wait_for_device_msg(asset, number_of_messages = 1, timeout = 5, type=[CCS::Message, CCS::Track, CCS::Presence])
     if (not number_of_messages.nil?) && number_of_messages <= 0
       raise ArgumentError.new("You must wait for at least 1 message (given: #{number_of_messages})")
@@ -146,8 +155,8 @@ module TestsHelper
       if value = @data[key]
         renew(key)
         age_keys
+        value[1]
       end
-      value[1]
     end
 
     def inspect
@@ -185,10 +194,86 @@ module TestsHelper
 
   # @!endgroup
 
+  # @api private
+  # Outgoing messages are sent through this method (see cloud_gate.rb, push_something_to_device)
+  # This method then fires relevant events depending on the received data.
+  # @param [Hash] hash_data a hash representing a message, with content NOT base64-encoded
+  # @return true if the message was correctly handled, false otherwise
+  def self.push_to_test_gate(hash_data)
+
+    # Handle ACK
+    if hash_data['payload']['type'] == 'ackmessage'
+      content = JSON.parse(hash_data['payload']['payload'])
+      self.id_generated(content['msgId'], content['tmpId'])
+      return true
+    end
+
+    # Handle regular message
+    message = CCS::Message.new(hash_data)
+    # Rebuild Protogen object
+    # Find a channel the sender is listening to
+    if message.sender == "@@server@@" # message is from an agent (server) to device
+      channel = message.channel # the channel the sender is listening to is the same the sender is sending to
+    elsif message.asset == "ragent" # message from an agent (server) to another agent
+      channel = message.sender # sender field was set by ragent to the channel the message came from before being redirected
+    else
+      CC.logger.warn("Message is not sent to device neither to server. Can not process it in tests utilities. Message data : #{hash_data}")
+      return false
+    end # this assumes agents do only "enrichment + redirection" of messages and do not send new messages to the cloud
+
+    # Look for the agent who is listening on the identified channel
+    # We store its name in the variable "sender_agent"
+    cloud_agents_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "cloud_agents"))
+    agents = get_last_mounted_agents
+    sender_agent = nil
+    agents.each do |agent_name|
+      config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml.example")
+      config = YAML.load_file(config_file)
+      if config["development"]["dynamic_channel_str"] == channel
+        sender_agent = agent_name
+        break
+      end
+    end
+    if sender_agent.nil?
+      CC.logger.warn("(tests helper) Impossible to find the agent (among currently running agents) who sent #{hash_data}")
+      return false
+    end
+
+    # Use this agent protocol to decode Protogen
+    protogenAPIs = Object.const_get("Protogen_#{sender_agent}").const_get("ProtogenAPIs")
+    protogen = Object.const_get("Protogen_#{sender_agent}").const_get("Protogen")
+
+
+    # Decode the message
+    msg_type = ""
+    begin
+      # As we intercepted the message before it was Base64 encoded, we don't have to base64-decode it
+      # We use our specific decoder ID not to interfere with the normal protogen decoding process
+      msg, cookies = protogenAPIs.decode(message, "tests_helper")
+      message.content = msg
+      message.meta['protogen_cookies'] = cookies
+      msg_type = msg.class
+      if msg_type == protogen::MessagePartNotice
+        # This is only a part of a message, nothing else to do
+        return true
+      end
+    rescue protogen::UnknownMessageType => e
+        # Protogen could not handle the message, so we store it as a regular one
+        content = JSON.parse(hash_data['payload']['payload'])
+    rescue MessagePack::UnpackError => e
+      # Protogen could not handle the message, so we store it as a regular one
+      content = JSON.parse(hash_data['payload']['payload'])
+    end
+    self.message_sent(message)
+    return true
+
+  end
+
   # @!group Callbacks
 
   # @api private
   # Callback called everytime a message is sent.
+  # @param [CloudConnectServices::Message] msg the outgoing message
   def self.message_sent(msg)
     @@messages << msg
   end
@@ -241,6 +326,62 @@ module TestsHelper
     end
 
   end
+
+  # A wrapper around one of your Protogen object used to simulate Protogen messages from a device.
+  class ProtogenFromDevice < MessageFromDevice
+
+    # @param [Protogen::Message::] protogen_object Protogen object coming from the simulated device
+    # @param [String] asset IMEI or other unique device identifier
+    # @param [String] account account name to use
+    # @param [String] channel the Protogen object will be received on this channel
+    def initialize(protogen_object, channel, asset = "123456789", account = "tests")
+      @protogen_object = protogen_object
+      super(nil, channel, asset, account)
+    end
+
+    # Send the protogen object to the server, in several small messages if neededs
+    def send_to_server
+      # Find the correct encoder
+      # todo: factorize
+      cloud_agents_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "cloud_agents"))
+      agents = get_last_mounted_agents
+      sender_agent = nil
+      agents.each do |agent_name|
+        config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml.example")
+        config = YAML.load_file(config_file)
+        if config["development"]["dynamic_channel_str"] == self.channel
+          sender_agent = agent_name
+          break
+        end
+      end
+      if sender_agent.nil?
+        raise ArgumentError.new("Impossible to find the correct protocol for the channel #{self.channel} to decode #{@protogen_object.class.name}. Make sure your configuration files (channels + Protogen) are correct.")
+      end
+
+      protogenAPIs = Object.const_get("Protogen_#{sender_agent}").const_get("ProtogenAPIs")
+      self.content = @protogen_object
+
+      encoded = protogenAPIs.encode(self)
+
+      if encoded.is_a? String
+        self.content = encoded
+        super.send_to_server
+      elsif encoded.is_a? Array
+        encoded.each_with_index do |content, index|
+          frg = MessageFromDevice.new(content, self.channel, self.asset, self.account)
+          # The index of the last message sent must be the index of the original message
+          # because it allows correct detection of the response of the message
+          if index != encoded.length - 1
+            frg.id = CC.indigen_next_id
+          else # last element
+            frg.id = self.id
+          end
+          frg.content = content
+          frg.send_to_server
+        end
+      end
+    end # def send_to_server
+  end # class ProtogenFromDevice
 
   # A simulated message that comes from a device.
   # @see CloudConnectServices::Presence
@@ -297,6 +438,3 @@ module TestsHelper
   # @!endgroup
 
 end
-
-# register the test helper
-CloudGate.add_observer(TestsHelper)

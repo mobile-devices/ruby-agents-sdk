@@ -84,26 +84,26 @@
 <!-- End Main display ==========================================================-->
 
 <!-- Create agent display ======================================================-->
-<div id="create_display">
+<% if is_show_more_stats != 'true' %>
+  <div id="create_display">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Agent name</th>
+          <th>Action</th>
+        </tr>
+      </thead>
 
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th>Agent name</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr>
-        <form action="/create_agents" method="post">
-        <td><input type="text" name="agent[name]"/></td>
-        <td><button class="btn btn-info">Create agent</button></td></form>
-      </tr>
-    </tbody>
-  </table>
-
-</div>
+      <tbody>
+        <tr>
+          <form action="/create_agents" method="post">
+          <td><input type="text" name="agent[name]"/></td>
+          <td><button class="btn btn-info">Create agent</button></td></form>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+<% end %>
 <!-- End Create agent display ==================================================-->
 
 

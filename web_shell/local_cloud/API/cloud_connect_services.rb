@@ -227,7 +227,7 @@ module CloudConnectServices
           self.account = meta['account']
         end
 
-        if self.type != 'message'
+        if self.type != 'message' && self.type != 'ack'
           raise "Message: wrong type of message : '#{type}'"
           return
         end

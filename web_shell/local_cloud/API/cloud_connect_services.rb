@@ -343,20 +343,6 @@ module CloudConnectServices
         self.fast_push
     end
 
-    # Reply to this message with the given content.
-    # @param [String] content content to reply with.
-    # @param [String] cookies Protogen cookies.
-    # @api private
-    # def reply_content(content, cookies)
-    #   msg = self.clone # todo : check si on clone bien récursivement les table de hash
-    #   msg.parent_id = self.id
-    #   msg.id = CC.indigen_next_id
-    #   msg.content = content
-    #   msg.meta['protogen_cookies'] = cookies
-    #   msg.sender = self.recipient
-    #   msg.push(self.asset, self.account)
-    # end
-
   end
 
   # Track data sent by a device.

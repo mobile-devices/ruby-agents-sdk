@@ -189,7 +189,7 @@ def handle_msg_from_device(type, params)
   when 'order'
     handle_order(msg)
   else
-    CC.logger.error('Server: handle_msg_from_device: type unknown')
+    CC.logger.error("Server: handle_msg_from_device: type '#{type}' unknown")
   end
 
   CC.logger.info("Server: handle_msg_from_device: success")

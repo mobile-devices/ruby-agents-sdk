@@ -22,8 +22,8 @@
 
 
 require 'fileutils'
-require 'securerandom'
 require 'yaml'
+require 'securerandom'
 
 
 module AgentsGenerator

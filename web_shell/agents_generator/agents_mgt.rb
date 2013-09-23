@@ -115,7 +115,7 @@ module AgentsGenerator
   end
 
   def generate_agents()
-    @AgentsGeneratorrapport_generation = ""
+    @AgentsGenerator_rapport_generation = ""
 
     FileUtils.mkdir_p("#{generated_rb_path}")
 

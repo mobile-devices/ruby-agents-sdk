@@ -180,7 +180,7 @@ module AgentsGenerator
 
     # forward messages to agent
     agents_generated_code += "\n"
-    agents_generated_code += "def handle_presence(presence)\n"
+    agents_generated_code += "def generated_handle_presence(presence)\n"
     agents_to_run.each { |agent|
 
       sub_p = get_agent_is_sub_presence(agent)
@@ -210,7 +210,7 @@ module AgentsGenerator
     }
     agents_generated_code += "end\n\n"
 
-    agents_generated_code += "def handle_message(message)\n"
+    agents_generated_code += "def generated_handle_message(message)\n"
     agents_to_run.each { |agent|
 
       sub_m = get_agent_is_sub_message(agent)
@@ -240,7 +240,7 @@ module AgentsGenerator
     }
     agents_generated_code += "end\n\n"
 
-    agents_generated_code += "def handle_track(track)\n"
+    agents_generated_code += "def generated_handle_track(track)\n"
     agents_to_run.each { |agent|
 
       sub_t = get_agent_is_sub_track(agent)
@@ -270,7 +270,7 @@ module AgentsGenerator
     }
     agents_generated_code += "end\n\n"
 
-    agents_generated_code += "def handle_order(order)\n"
+    agents_generated_code += "def generated_handle_order(order)\n"
     agents_to_run.each { |agent|
       agents_generated_code += "  if order.agent == '#{agent}'\n"
       agents_generated_code += "    begin\n"
@@ -298,7 +298,6 @@ module AgentsGenerator
 
     File.open("#{generated_rb_path}/generated.rb", 'w') { |file| file.write(agents_generated_code) }
 
-
     # Generate sdk_api.rb
     template_sdk_api_generated_code = ''
     template_api_src = File.read("#{source_path}/template_sdk_api.rb_")
@@ -317,8 +316,6 @@ module AgentsGenerator
     }
 
     File.open("#{sdk_utils_path}/sdk_api.rb", 'w') { |file| file.write(template_sdk_api_generated_code)}
-
-
 
 
     add_to_rapport("Templates generated done\n")

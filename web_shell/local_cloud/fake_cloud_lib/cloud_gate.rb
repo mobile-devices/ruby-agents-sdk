@@ -152,7 +152,7 @@ def handle_msg_from_device(type, params)
   # Process the message
   case type
   when 'presence'
-    handle_presence(msg)
+    generated_handle_presence(msg)
   when 'message'
     # let's drop all message with channel 0 :
     if (msg.channel == '0')
@@ -183,11 +183,11 @@ def handle_msg_from_device(type, params)
       PUNK.end('ack','ok','out',"SERVER -> ACK")
     end
 
-    handle_message(msg)
+    generated_handle_message(msg)
   when 'track'
-    handle_track(msg)
+    generated_handle_track(msg)
   when 'order'
-    handle_order(msg)
+    generated_handle_order(msg)
   else
     CC.logger.error("Server: handle_msg_from_device: type '#{type}' unknown")
   end

@@ -18,6 +18,7 @@ Here are some configuration commands you may have to run on the device console:
 - s jbinaryGate port 5001
 - s jbinaryGate forceSerialUse 0
 - s jbinaryGate refreshPeriod 3
+- s jbinaryGate enablePing 1
 
 note : "192.168.10.4" is the IP address of the VM host side of the network built between the device and the VM host.
 

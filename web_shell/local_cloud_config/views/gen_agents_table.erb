@@ -9,10 +9,10 @@
       <thead>
         <tr>
         <th>Agent name</th>
-        <th> Stats</th>
+        <th>Stats</th>
         <th>Active</th>
-        <th>Export</th>
-        <th>Cron Tasks</th>
+        <th>Call Cron Tasks</th>
+        <th>Release package</th>
         </tr>
       </thead>
 
@@ -38,16 +38,18 @@
             </td>
 
           <td>
-            <a class="btn btn-info" href="/export?agent=<%=agent_name%>">Dump</a>
-          </td>
-
-          <td>
           <% agent.cron_tasks.each do | task | %>
               <form action='/perform_cron_tasks' method="post">
                 <input type="hidden" name="task" value='<%= task.to_json %>'/>
                 <button class="btn btn-info btn-small">Perform: '<%= task['order'] %>'</button>
               </form>
           <% end %>
+          </td>
+
+          <td>
+            <form action='<%= "/make_package/#{agent_name}" %>' method="post">
+              <button class="btn btn-info">Generate</button>
+            </form>
           </td>
 
           </tr>

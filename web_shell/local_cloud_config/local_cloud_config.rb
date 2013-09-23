@@ -152,6 +152,14 @@ get '/reset_ruby_agent_sdk_server_log' do
   redirect('/logSdkAgents')
 end
 
+post '/make_package/:agent_name' do
+  agent = agents.fetch(params[:agent_name])
+  p "Make package of #{agent.name}"
+  path = make_package_agent(agent)
+  flash[:notice] = "Package generation successful for agent #{:agent_name} in file #{path}."
+  redirect("/projects")
+end
+
 #=========================================================================================
 post '/agents/:agent_name/start' do
   agent = agents.fetch(params[:agent_name])
@@ -172,8 +180,6 @@ post '/create_agents' do
 end
 
 get '/restart_server' do
-
-
 
   if params['reset_logs'] == 'on'
     if File.exist?(log_server_path)

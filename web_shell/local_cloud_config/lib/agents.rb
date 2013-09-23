@@ -163,3 +163,19 @@ def dump_state()
   FileUtils.rm_rf(save_path)
   "sdk_logs/#{folder_name}.tar.gz"
 end
+
+def make_package_agent(agent)
+  agent_path = "#{GEN.workspace_path}/#{agent.name}"
+  date = Time.now.utc.strftime("%Y_%m_%d_%H%M%S")
+  random = Random.rand(1000)
+  package_name = "PKG_Agent_Ruby_4RAgent_#{agent.name}_#{date}_#{random}.tar.gz"
+  FileUtils.mkdir_p(GEN.package_output_path)
+
+  command = "tar -czf #{GEN.package_output_path}/#{package_name} #{agent_path}"
+  p "running command #{command}"
+
+  # make the package (todo test if error)
+  `#{command}`
+
+  "output/#{package_name}"
+end

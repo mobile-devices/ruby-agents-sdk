@@ -38,6 +38,10 @@ module AgentsGenerator
     @ROOT_PATH_WORKSPACE ||= "#{source_path}/../../cloud_agents"
   end
 
+  def package_output_path()
+    @ROOT_PATH_OUTPUT_PACKAGE ||= "#{source_path}/../../output"
+  end
+
   def generated_rb_path()
     @GENERATED_PATH = File.expand_path("#{source_path}/cloud_agents_generated")
   end

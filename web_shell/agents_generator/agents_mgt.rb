@@ -3,24 +3,6 @@
 # Mobile Devices 2013
 #########################################################
 
-# rm -rf ~/workServ/SDK/ruby-agents-sdk/web_shell/agents_generator/exts/protogen/protocol_generator; cp -r protocol_generator ~/workServ/SDK/ruby-agents-sdk/web_shell/agents_generator/exts/protogen/
-
-
-# gem
-# see java generated
-# agps portage with protogen
-# who to communicate outside / need store ? db agent kind of fonctionnement
-# message type stat
-# gen doc protocol
-# doc général review
-# make a general agent example visible in the workspace
-
-# temps/process/mémoire, chaque message est traité // -> oui
-
-# sandjeeeb : what to give him
-# how to release services in dev (flow)
-
-
 require 'fileutils'
 require 'yaml'
 require 'securerandom'

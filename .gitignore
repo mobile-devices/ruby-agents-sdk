@@ -19,3 +19,6 @@ doc
 web_shell/local_cloud/Gemfile
 web_shell/local_cloud/Gemfile.lock
 web_shell/local_cloud/config/schedule.rb
+
+# package output
+*.tar.gz

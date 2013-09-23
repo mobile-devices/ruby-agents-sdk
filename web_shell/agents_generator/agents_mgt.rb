@@ -25,7 +25,7 @@ module AgentsGenerator
   end
 
   def generated_rb_path()
-    @GENERATED_PATH = File.expand_path("#{source_path}/cloud_agents_generated")
+    @GENERATED_PATH ||= File.expand_path("#{source_path}/cloud_agents_generated")
   end
 
   def protogen_bin_path()

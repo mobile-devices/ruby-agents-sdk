@@ -161,5 +161,5 @@ def dump_state()
   # tar the results
   `cd #{save_path}/.. && tar -czf #{save_path}.tar.gz #{folder_name}`
   FileUtils.rm_rf(save_path)
-  return "sdk_logs/#{folder_name}.tar.gz"
+  "sdk_logs/#{folder_name}.tar.gz"
 end

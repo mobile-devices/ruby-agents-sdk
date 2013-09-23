@@ -130,7 +130,7 @@ def dump_state()
   rapport << "SDK version: #{get_sdk_version}"
   rapport << ""
   agents_to_save.each do |agent_name|
-    agent_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "..", "ruby_workspace", agent_name))
+    agent_path = "#{GEN.workspace_path}/#{agent.name}"
     unless File.directory?(agent_path)
       rapport << "Agent #{agent_name} folder not found at #{agent_path}, skipping this agent"
       next

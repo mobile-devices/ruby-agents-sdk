@@ -139,7 +139,6 @@ module AgentsGenerator
       template_agent.gsub!('XX_PROJECT_NAME',"#{agent}")
       template_agent.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
       template_agent.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
-      template_agent.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
       agents_generated_code += template_agent
 
       agents_generated_code += "\$#{clean_class_name}_initial = Agent_#{clean_class_name}.new\n\n\n"

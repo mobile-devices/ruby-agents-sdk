@@ -239,7 +239,7 @@ module ProtocolGenerator
 
       # Cookies validation
       unless JSON::Validator.validate(COOKIES_SCHEMA, input['cookies'], :validate_schema => true)
-        raise Error::ProtocolDefinitionError("Bad cookies definition (check that your 'cookies' field is correct).")
+        raise Error::ProtocolDefinitionError.new("Bad cookies definition (check that your 'cookies' field is correct).")
       end
       Env['cookies'] = input['cookies']
       Env['use_cookies'] = !Env['cookies'].nil? && !Env['cookies'].empty?

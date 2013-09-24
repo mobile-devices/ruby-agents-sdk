@@ -155,6 +155,6 @@ class Agent_XX_CLEAN_PROJECT_NAME
   include Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME if defined? Protogen_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
   # User code
-  include Initial_agent_XX_PROJECT_NAME
+  include Initial_agent_XX_CLEAN_PROJECT_NAME
 
 end

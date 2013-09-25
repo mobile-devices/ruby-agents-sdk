@@ -101,8 +101,6 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         @@config ||= begin
           if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
             @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
-          elsif File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml.example")
-            @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml.example"))['development']
           else
             log.warn("NO CONFIG FILE FOUND in #{root_path}/config")
             @@config = Hash.new

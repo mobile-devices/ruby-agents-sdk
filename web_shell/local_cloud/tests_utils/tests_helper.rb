@@ -227,7 +227,7 @@ module TestsHelper
     agents = get_last_mounted_agents
     sender_agent = nil
     agents.each do |agent_name|
-      config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml.example")
+      config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml")
       config = YAML.load_file(config_file)
       if config["development"]["dynamic_channel_str"] == channel
         sender_agent = agent_name
@@ -347,7 +347,7 @@ module TestsHelper
       agents = get_last_mounted_agents
       sender_agent = nil
       agents.each do |agent_name|
-        config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml.example")
+        config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml")
         config = YAML.load_file(config_file)
         if config["development"]["dynamic_channel_str"] == self.channel
           sender_agent = agent_name

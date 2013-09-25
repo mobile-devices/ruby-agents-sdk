@@ -154,7 +154,7 @@ module AgentsGenerator
       if sub_p != true && sub_m != true && sub_t != true
         PUNK.start('subcriptionPresence')
         CC.logger.info("Your agent didn't subscribe to receive presence, message or track")
-        CC.logger.info("Your need to configure your 'config/#{agent}.yml.example config' file and edit folling lines with what you need tu subcribe to :\nsubscribe_presence: false\nsubscribe_message: false\nsubscribe_track: false")
+        CC.logger.info("Your need to configure your 'config/#{agent}.yml config' file and edit folling lines with what you need tu subcribe to :\nsubscribe_presence: false\nsubscribe_message: false\nsubscribe_track: false")
         PUNK.end('subcriptionPresence','ko','',"AGENT:#{agent}TNEGA didn't subscribe to anything")
       end
     }
@@ -313,7 +313,7 @@ module AgentsGenerator
 
     # check config exist
     agents_to_run.each { |agent|
-      if !(File.exist?("#{workspace_path}/#{agent}/config/#{agent}.yml.example"))
+      if !(File.exist?("#{workspace_path}/#{agent}/config/#{agent}.yml"))
         restore_default_config(agent)
       end
     }
@@ -410,7 +410,7 @@ module AgentsGenerator
     FileUtils.cp_r(Dir["#{source_path}/sample_agent/*"],"#{project_path}")
 
     #rename config file
-    FileUtils.mv("#{project_path}/config/config.yml.example", "#{project_path}/config/#{name}.yml.example")
+    FileUtils.mv("#{project_path}/config/config.yml", "#{project_path}/config/#{name}.yml")
 
     # Match and replace name project stuff in content
     match_and_replace_in_folder(project_path,"XXProjectName",name)
@@ -421,7 +421,7 @@ module AgentsGenerator
   def restore_default_config(name)
     puts "restore_default_config for agent #{name}"
     project_path = "#{workspace_path}/#{name}"
-    FileUtils.cp("#{source_path}/sample_agent/config/config.yml.example", "#{project_path}/config/#{name}.yml.example")
+    FileUtils.cp("#{source_path}/sample_agent/config/config.yml", "#{project_path}/config/#{name}.yml")
     match_and_replace_in_folder("#{project_path}/config","XXProjectName", name)
   end
 
@@ -462,8 +462,6 @@ module AgentsGenerator
     cnf = {}
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
-    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
-      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
     end
 
     channels = cnf['Dynamic_channel_str']
@@ -484,8 +482,6 @@ module AgentsGenerator
     cnf = {}
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
-    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
-      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
     end
 
     cnf['subscribe_presence']
@@ -496,8 +492,6 @@ module AgentsGenerator
     cnf = {}
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
-    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
-      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
     end
 
     cnf['subscribe_message']
@@ -508,8 +502,6 @@ module AgentsGenerator
     cnf = {}
     if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
       cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
-    elsif File.exist?("#{workspace_path}/#{name}/config/#{name}.yml.example")
-      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml.example"))['development']
     end
 
     cnf['subscribe_track']

@@ -354,7 +354,7 @@ module CloudConnectServices
     # "payload", a map with :
     #    id : tmp id from the device
     #    asset : imei of device
-    #    data map, with :
+    #    add_data map, with :
     #    latitude
     #    longitude
     #    recorded_at

@@ -37,7 +37,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
       # Use this object to send messages to your devices.
       # @return [DeviceGate] a DeviceGate object configured for your agent.
-      def self.gate  # todo: rename it deviceGate
+      def self.deviceGate
         @@deviceGate ||= begin
           DeviceGate.new(self.get_channels[0])
         end
@@ -199,7 +199,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
     # @api public
     # This class handles all outgoing communication with the devices.
     # @note You don't have to instantiate this class yourself.
-    #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.gate SDK.API.gate} object which is already configured for your agent.
+    #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.deviceGate SDK.API.deviceGate} object which is already configured for your agent.
     class DeviceGate
 
       include ProtogenHelper

@@ -427,7 +427,13 @@ module CloudConnectServices
     # @return true on success
     def add_data(key, value)
       return false if self.data[key]
+      begin
+        key = Integer(key)
+      rescue Exception => e
+        return false
+      end
       self.data[key] = value
+      true
     end
   end
 

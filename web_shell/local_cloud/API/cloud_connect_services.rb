@@ -424,6 +424,12 @@ module CloudConnectServices
       r_hash.delete_if { |k, v| v.nil? }
     end
 
+    # empty the data map attribute
+    def flush_data!
+      self.data = {}
+    end
+
+
     # @return true on success
     def add_data(key, value)
       return false if self.data[key]

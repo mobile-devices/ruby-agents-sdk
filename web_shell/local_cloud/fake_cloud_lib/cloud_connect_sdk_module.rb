@@ -53,9 +53,21 @@ module CloudConnectSDK
 
     # inject case
     if queue == 'messages'
-      handle_msg_from_device('message', hash_msg)
+      Thread.start {
+        json_msg = hash_msg.to_json
+        sleep(1)
+        command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/message"
+        `#{command}`
+      }
+
     elsif queue == 'tracks'
-      handle_msg_from_device('track', hash_msg)
+      Thread.start {
+        json_msg = hash_msg.to_json
+        sleep(1)
+        command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/track"
+        `#{command}`
+      }
+
     else
       push_something_to_device(hash_msg)
     end

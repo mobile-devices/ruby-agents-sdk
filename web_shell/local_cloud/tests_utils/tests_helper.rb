@@ -217,7 +217,7 @@ module TestsHelper
       elsif message.asset == "ragent" # message from an agent (server) to another agent
         channel = message.sender # sender field was set by ragent to the channel the message came from before being redirected
       else
-        CC.logger.warn("Message is not sent to device neither to server. Can not process it in tests utilities. Message data : #{hash_data}")
+        CC.logger.warn("TestsHelper: Message is not sent to device neither to server. Can not process it in tests utilities. Message data : #{hash_data}")
         return false
       end # this assumes agents do only "enrichment + redirection" of messages and do not send new messages to the cloud
 
@@ -228,6 +228,7 @@ module TestsHelper
       sender_agent = nil
       agents.each do |agent_name|
         config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml")
+        next unless File.exist?(config_file)
         config = YAML.load_file(config_file)
         if config["development"]["dynamic_channel_str"] == channel
           sender_agent = agent_name
@@ -235,17 +236,16 @@ module TestsHelper
         end
       end
       if sender_agent.nil?
-        CC.logger.warn("(tests helper) Impossible to find the agent (among currently running agents) who sent #{hash_data}")
+        CC.logger.warn("TestsHelper: Impossible to find the agent (among currently running agents) who sent #{hash_data}.\nIf you are running unit tests, some tests that check for a server response may fail because of this error.")
         return false
       end
 
       # Use this agent protocol to decode Protogen
-      protogenAPIs = Object.const_get("Protogen_#{sender_agent}").const_get("ProtogenAPIs")
-      protogen = Object.const_get("Protogen_#{sender_agent}").const_get("Protogen")
-
-      # Decode the message
-      msg_type = ""
       begin
+        protogenAPIs = Object.const_get("Protogen_#{sender_agent}").const_get("ProtogenAPIs")
+        protogen = Object.const_get("Protogen_#{sender_agent}").const_get("Protogen")
+        # Decode the message
+        msg_type = ""
         # As we intercepted the message before it was Base64 encoded, we don't have to base64-decode it
         # We use our specific decoder ID not to interfere with the normal protogen decoding process
         msg, cookies = protogenAPIs.decode(message, "tests_helper")
@@ -256,9 +256,12 @@ module TestsHelper
           # This is only a part of a message, nothing else to do
           return true
         end
+      rescue NameError => e # raised by Object.const_get if Protogen for this agent is not defined
+        CC.logger.info("TestsHelper: Protogen failed when trying to decode an outgoing message from agent #{sender_agent} (#e.class.name}: #{e.message}), defaulting to a non-Protogen message")
+        content = JSON.parse(hash_data['payload']['payload']) # Protogen could not handle the message, so we store it as a regular one
       rescue protogen::UnknownMessageType => e
-          # Protogen could not handle the message, so we store it as a regular one
-          content = JSON.parse(hash_data['payload']['payload'])
+        # Protogen could not handle the message, so we store it as a regular one
+        content = JSON.parse(hash_data['payload']['payload'])
       rescue MessagePack::UnpackError => e
         # Protogen could not handle the message, so we store it as a regular one
         content = JSON.parse(hash_data['payload']['payload'])

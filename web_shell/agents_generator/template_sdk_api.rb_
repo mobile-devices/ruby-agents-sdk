@@ -303,7 +303,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         begin
           PUNK.start('injectmsg','inject message in cloud ...')
 
-          out_id = nil
+          out_id = 00000
 
           protogen_encode(msg).each do |message|
 

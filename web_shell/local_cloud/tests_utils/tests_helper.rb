@@ -200,73 +200,79 @@ module TestsHelper
   # @param [Hash] hash_data a hash representing a message, with content NOT base64-encoded
   # @return true if the message was correctly handled, false otherwise
   def self.push_to_test_gate(hash_data)
-
-    # Handle ACK
-    if hash_data['payload']['type'] == 'ackmessage'
-      content = JSON.parse(hash_data['payload']['payload'])
-      self.id_generated(content['msgId'], content['tmpId'])
-      return true
-    end
-
-    # Handle regular message
-    message = CCS::Message.new(hash_data)
-    # Rebuild Protogen object
-    # Find a channel the sender is listening to
-    if message.sender == "@@server@@" # message is from an agent (server) to device
-      channel = message.channel # the channel the sender is listening to is the same the sender is sending to
-    elsif message.asset == "ragent" # message from an agent (server) to another agent
-      channel = message.sender # sender field was set by ragent to the channel the message came from before being redirected
-    else
-      CC.logger.warn("Message is not sent to device neither to server. Can not process it in tests utilities. Message data : #{hash_data}")
-      return false
-    end # this assumes agents do only "enrichment + redirection" of messages and do not send new messages to the cloud
-
-    # Look for the agent who is listening on the identified channel
-    # We store its name in the variable "sender_agent"
-    cloud_agents_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "cloud_agents"))
-    agents = get_last_mounted_agents
-    sender_agent = nil
-    agents.each do |agent_name|
-      config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml")
-      config = YAML.load_file(config_file)
-      if config["development"]["dynamic_channel_str"] == channel
-        sender_agent = agent_name
-        break
-      end
-    end
-    if sender_agent.nil?
-      CC.logger.warn("(tests helper) Impossible to find the agent (among currently running agents) who sent #{hash_data}")
-      return false
-    end
-
-    # Use this agent protocol to decode Protogen
-    protogenAPIs = Object.const_get("Protogen_#{sender_agent}").const_get("ProtogenAPIs")
-    protogen = Object.const_get("Protogen_#{sender_agent}").const_get("Protogen")
-
-
-    # Decode the message
-    msg_type = ""
     begin
-      # As we intercepted the message before it was Base64 encoded, we don't have to base64-decode it
-      # We use our specific decoder ID not to interfere with the normal protogen decoding process
-      msg, cookies = protogenAPIs.decode(message, "tests_helper")
-      message.content = msg
-      message.meta['protogen_cookies'] = cookies
-      msg_type = msg.class
-      if msg_type == protogen::MessagePartNotice
-        # This is only a part of a message, nothing else to do
+      # Handle ACK
+      if hash_data['payload']['type'] == 'ackmessage'
+        content = JSON.parse(hash_data['payload']['payload'])
+        self.id_generated(content['msgId'], content['tmpId'])
         return true
       end
-    rescue protogen::UnknownMessageType => e
+
+      # Handle regular message
+      message = CCS::Message.new(hash_data)
+      # Rebuild Protogen object
+      # Find a channel the sender is listening to
+      if message.sender == "@@server@@" # message is from an agent (server) to device
+        channel = message.channel # the channel the sender is listening to is the same the sender is sending to
+      elsif message.asset == "ragent" # message from an agent (server) to another agent
+        channel = message.sender # sender field was set by ragent to the channel the message came from before being redirected
+      else
+        CC.logger.warn("Message is not sent to device neither to server. Can not process it in tests utilities. Message data : #{hash_data}")
+        return false
+      end # this assumes agents do only "enrichment + redirection" of messages and do not send new messages to the cloud
+
+      # Look for the agent who is listening on the identified channel
+      # We store its name in the variable "sender_agent"
+      cloud_agents_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "cloud_agents"))
+      agents = get_last_mounted_agents
+      sender_agent = nil
+      agents.each do |agent_name|
+        config_file = File.join(cloud_agents_path, agent_name, "config", "#{agent_name}.yml")
+        config = YAML.load_file(config_file)
+        if config["development"]["dynamic_channel_str"] == channel
+          sender_agent = agent_name
+          break
+        end
+      end
+      if sender_agent.nil?
+        CC.logger.warn("(tests helper) Impossible to find the agent (among currently running agents) who sent #{hash_data}")
+        return false
+      end
+
+      # Use this agent protocol to decode Protogen
+      protogenAPIs = Object.const_get("Protogen_#{sender_agent}").const_get("ProtogenAPIs")
+      protogen = Object.const_get("Protogen_#{sender_agent}").const_get("Protogen")
+
+      # Decode the message
+      msg_type = ""
+      begin
+        # As we intercepted the message before it was Base64 encoded, we don't have to base64-decode it
+        # We use our specific decoder ID not to interfere with the normal protogen decoding process
+        msg, cookies = protogenAPIs.decode(message, "tests_helper")
+        message.content = msg
+        message.meta['protogen_cookies'] = cookies
+        msg_type = msg.class
+        if msg_type == protogen::MessagePartNotice
+          # This is only a part of a message, nothing else to do
+          return true
+        end
+      rescue protogen::UnknownMessageType => e
+          # Protogen could not handle the message, so we store it as a regular one
+          content = JSON.parse(hash_data['payload']['payload'])
+      rescue MessagePack::UnpackError => e
         # Protogen could not handle the message, so we store it as a regular one
         content = JSON.parse(hash_data['payload']['payload'])
-    rescue MessagePack::UnpackError => e
-      # Protogen could not handle the message, so we store it as a regular one
-      content = JSON.parse(hash_data['payload']['payload'])
+      end
+      self.message_sent(message)
+      return true
+    rescue Exception => e
+      # we don't want this method to propagate any exception, so we catch them and display a warning instead
+      CC.logger.warn("TestsHelper: failed to handle an outgoing message.\nIf you are running unit tests, some tests that check for a server response may fail because of this error.")
+      CC.logger.warn("TestsHelper: caught exception #{e.class.name}: #{e.message}")
+      trace = e.backtrace.join("\n")
+      CC.logger.warn("TestsHelper: trace was \n #{trace}")
+      return false
     end
-    self.message_sent(message)
-    return true
-
   end
 
   # @!group Callbacks

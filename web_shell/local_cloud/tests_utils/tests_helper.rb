@@ -336,7 +336,7 @@ module TestsHelper
 
   end
 
-  # A wrapper around one of your Protogen object used to simulate Protogen messages from a device.
+  # A wrapper around a Protogen object used to simulate Protogen messages from a device.
   class ProtogenFromDevice < MessageFromDevice
 
     # @param [Protogen::Message::] protogen_object Protogen object coming from the simulated device
@@ -348,7 +348,7 @@ module TestsHelper
       super(nil, channel, asset, account)
     end
 
-    # Send the protogen object to the server, in several small messages if neededs
+    # Send the protogen object to the server, in several small messages if needed.
     def send_to_server
       # Find the correct encoder
       # todo: factorize

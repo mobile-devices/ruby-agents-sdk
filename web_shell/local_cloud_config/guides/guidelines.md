@@ -16,7 +16,7 @@ You must not use global variables or similar patterns (class variables, module v
 
 The reason for this is that your agent will live in a cloud where multiple instances of your agent will run simultaneously. These instances can not share data between themselves.
 
-If you need some kind of "history" in your agent, you must attach this history to the messages exchanged. Cookies in messages (see the Protogen guide) are a way of implementing this.
+If you need some kind of "history" in your agent, you must attach this history to the messages exchanged. Cookies in messages (see the {file:guides/protogen.md Protogen guide}) are a way of implementing this.
 
 ## Use the provided API ##
 

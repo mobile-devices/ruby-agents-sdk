@@ -107,7 +107,7 @@ end
 
 ## {CloudConnectServices SDK.CCS} quick reference ##
 
-This modules defines the events that are received by you agent:
+This modules defines the events that are received by your agent:
 
 - {CloudConnectServices::Message}
 - {CloudConnectServices::Track}

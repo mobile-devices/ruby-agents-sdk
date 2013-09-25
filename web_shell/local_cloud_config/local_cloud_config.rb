@@ -199,7 +199,7 @@ get '/restart_server' do
   File.open('/tmp/should_mdi_server_run_id', 'w') { |file| file.write($server_run_id) }
 
   # launch in a new thread to avoid being stuck here
-  thread = Thread.start {
+  Thread.start {
     `cd ../local_cloud; ./local_cloud.sh restart`
   }
 

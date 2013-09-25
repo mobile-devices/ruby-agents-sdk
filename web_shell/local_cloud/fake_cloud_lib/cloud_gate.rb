@@ -157,6 +157,8 @@ def handle_msg_from_device(type, params)
     # let's drop all message with channel 0 :
     if (msg.channel == '0')
       CC.logger.info('received a message with channel 0, dropping it')
+      PUNK.drop('a')
+      PUNK.drop('handle')
       return
     end
 
@@ -165,6 +167,7 @@ def handle_msg_from_device(type, params)
       SDK_STATS.stats['server']['err_dyn_channel'][1] += 1
       SDK_STATS.stats['server']['total_error'] += 1
       PUNK.end('a','ko','in',"SERVER <- MSG[#{crop_ref(msg.id, 4)}] : channel not found")
+      PUNK.drop('handle')
       return
     end
 

@@ -12,12 +12,8 @@ def push_something_to_device(something)
   TestsHelper.push_to_test_gate(something)
 
   # in fake mode, the content or a message must be base64 encode
-  begin
-    if something['payload']['type'] == 'message'
-      something['payload']['payload'] = Base64.encode64(something['payload']['payload'])
-    end
-  rescue Exception => e
-    CCS.print_ruby_exception(e)
+  if something['payload']['type'] == 'message'
+    something['payload']['payload'] = Base64.encode64(something['payload']['payload'])
   end
 
   $mutex_message_to_device.synchronize do

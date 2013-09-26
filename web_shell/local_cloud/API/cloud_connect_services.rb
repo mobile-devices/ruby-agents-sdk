@@ -331,6 +331,10 @@ module CloudConnectServices
     # @param [Account] account the account name to use.
     # @api private
     def push(asset = nil, account = nil)
+        if !(self.content.is_a? String)
+          raise "message content must be of type String (got #{self.content.class.name})"
+        end
+
         # set asset unless nil
         self.asset = asset unless asset.nil?
         self.recipient = asset unless asset.nil?

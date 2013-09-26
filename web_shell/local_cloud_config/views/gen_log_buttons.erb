@@ -73,7 +73,7 @@
 
     <textarea id="btn_content_<%= index %>" style="display:none">
       <% if punk.content.size > 0 %>
-        <%= punk.content %>
+        <%= punk.content.map {|line| line.to_json} %>
       <% else %>
         ["No details available"]
       <% end %>

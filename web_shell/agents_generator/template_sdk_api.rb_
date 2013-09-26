@@ -104,7 +104,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           else
             log.error("NO CONFIG FILE FOUND in #{root_path}/config")
             full_path = File.expand_path("#{root_path}/config")
-            log.error("IE  #{full_path}")
+            log.info("IE  #{full_path}")
             raise "No config file found for XX_PROJECT_NAME"
           end
         rescue Exception => e

@@ -201,7 +201,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
     # @api public
     # This class handles all outgoing communication with the devices.
     # @note You don't have to instantiate this class yourself.
-    #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.deviceGate SDK.API.deviceGate} object which is already configured for your agent.
+    #       Use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.device_gate SDK.API.device_gate} object which is already configured for your agent.
     class DeviceGate
 
       include ProtogenHelper

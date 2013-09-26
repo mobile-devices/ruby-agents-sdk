@@ -219,9 +219,6 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       def push(asset, account, content)
         begin
           PUNK.start('push','pushing msg ...')
-          if !(content.is_a? String)
-            raise "message content must be String"
-          end
 
           msg = CCS::Message.new({
             'meta' => {},

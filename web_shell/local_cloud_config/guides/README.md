@@ -49,7 +49,7 @@ So, what are these files for?
 - *Gemfile* is a standard... gemfile where you put the ruby gems you want to use with your agent.
 - *protogen.json* is where you define the communication protocol between your devices and the server. See the Protogen guide for more information.
 - *scheduled.rb* is where you define some tasks to be executed on a regular basis (see the "Scheduled tasks" guide for more information).
-- *my_agent.yml* is an example configuration file. This file uses the YAML (the YAML reference can be found [here](http://www.yaml.org/) and a more user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML)).
+- *my_agent.yml* is an example configuration file. This file uses YAML (the YAML reference can be found [here](http://www.yaml.org/) and a more user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML)).
 - *doc* contains generated docs for your agent (notably generated Protogen documentation).
 - *modules* is where you put your additional modules.
 - *README.md* is a place where you can put information about your agent, because documentation is mandatory, isn't it?
@@ -92,15 +92,17 @@ To process messages sent by your device, you must implement these callbacks in a
 
 Consult the documentation of each class to see what data is associated which each event.
 
-If you want to reply to a message, you need to use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::CloudGate SDK.API::gate} object.
+If you want to reply to a message, you need to use the {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::DeviceGate SDK.API::gate} object.
 
-So for instance, if we were to write an agent that respond to each message it receives with the same content, the code would be:
+So for instance, if we were to write an agent that answer to each message it receives with the same content, and then send another message, the code would be:
 
 ``` ruby
 module Initial_agent_my_agent
 
   def new_msg_from_device(msg)
     SDK.API.gate.reply(msg, msg.content)
+    # 'reply' is not a shorcut for 'push'. A "pushed" message is not a reply to another message.
+    SDK.API.gate.push(msg.asset, msg.account, "I just echo'ed you your message")
   end
 
 end

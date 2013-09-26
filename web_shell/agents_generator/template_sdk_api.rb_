@@ -259,7 +259,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       def reply(msg, content, cookies = nil)
         begin
           PUNK.start('reply','replying msg ...')
-          response = msg.clone # todo : check si on clone bien récursivement les table de hash
+          response = msg.clone
           response.parent_id = msg.id
           response.id = CC.indigen_next_id
           response.content = content

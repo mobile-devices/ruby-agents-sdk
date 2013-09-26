@@ -37,7 +37,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
       # Use this object to send messages to your devices.
       # @return [DeviceGate] a DeviceGate object configured for your agent.
-      def self.deviceGate
+      def self.device_gate
         @@deviceGate ||= begin
           DeviceGate.new(self.get_channels[0])
         end
@@ -45,7 +45,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
       # Use this object to send messages to the cloud.
       # @return [CloudGate] a CloudGate object configured for your agent.
-      def self.cloudGate
+      def self.cloud_gate
         @@cloudGate ||= begin
           CloudGate.new(self.get_channels[0])
         end
@@ -102,8 +102,10 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
             @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
           else
-            log.warn("NO CONFIG FILE FOUND in #{root_path}/config")
-            @@config = Hash.new
+            log.error("NO CONFIG FILE FOUND in #{root_path}/config")
+            full_path = File.expand_path("#{root_path}/config")
+            log.error("IE  #{full_path}")
+            raise "No config file found for XX_PROJECT_NAME"
           end
         rescue Exception => e
           log.error("ERROR while loading configuration")
@@ -226,6 +228,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
             'payload' => {
               'type' => 'message',
               'sender' => '@@server@@',
+              'recipient' => asset,
               'channel' =>  @CHANNEL,
               'payload' => content,
               'asset' => asset,
@@ -261,7 +264,8 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           response.id = CC.indigen_next_id
           response.content = content
           response.meta['protogen_cookies'] = cookies
-          response.sender = msg.recipient
+          response.sender = '@@server@@'
+          response.recipient = msg.asset
           protogen_encode(response).each {|message| message.push}
           # success !
           PUNK.end('reply','ok','out',"SERVER -> MSG[#{crop_ref(response.id,4)}] [reply of #{crop_ref(msg.id,4)}]")
@@ -318,10 +322,10 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
                 "id" =>          out_id,     # Indigen integer
                 "asset" =>       "ragent",
                 "sender" =>      @CHANNEL,               # Sender identifier (can be the same as the asset)
-                "recipient" =>   "ragent",               # Recipient identifier (can be the same as the asset)
+                "recipient" =>   "@@server@@",               # Recipient identifier (can be the same as the asset)
                 "type" =>        "message",
-                "recorded_at" => Time.now,               # timestamp integer in seconds
-                "received_at" => Time.now,               # timestamp integer in seconds
+                "recorded_at" => Time.now.to_i,               # timestamp integer in seconds
+                "received_at" => Time.now.to_i,               # timestamp integer in seconds
                 "channel" =>     channel,
                 "payload" =>     message.content,
                 "parent_id" =>   nil,                    # nil | message_identifier

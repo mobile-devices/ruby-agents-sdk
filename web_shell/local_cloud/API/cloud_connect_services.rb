@@ -291,6 +291,8 @@ module CloudConnectServices
     def to_hash
       r_hash = {}
       r_hash['meta'] = self.meta
+      r_hash['meta'] = {} if r_hash['meta'] == nil
+      r_hash['meta']['account'] = self.account
       r_hash['payload'] = {
         'payload' => self.content,
         'channel' => self.channel,
@@ -305,13 +307,15 @@ module CloudConnectServices
         'received_at' =>  self.received_at,
         'channel' =>  self.channel
       }
-      r_hash.delete_if { |k, v| v.nil? }
+      r_hash['meta'].delete_if { |k, v| v.nil? }
+      r_hash['payload'].delete_if { |k, v| v.nil? }
+      r_hash
     end
 
     # Pushes the message to the device without any preliminary setup.
     # Useful if you want to do all the setup yourself.
     # @api private
-    def fast_push()
+    def fast_push
       CC.push(self.to_hash)
     end
 
@@ -319,7 +323,7 @@ module CloudConnectServices
     #
     # It will not do any Protogen-related stuff before sending the message.
     #
-    # This method will set the `received_at` field to `Time.now`. Will also set the sender to `@@server@@` if not exists.
+    # This method will set the `received_at` field to `Time.now.to_i`. Will also set the sender to `@@server@@` if not exists.
     #
     # If the method parameters are not defined the current values stored in the message will be used.
     #
@@ -327,18 +331,18 @@ module CloudConnectServices
     # @param [Account] account the account name to use.
     # @api private
     def push(asset = nil, account = nil)
-        # set asset
+        # set asset unless nil
         self.asset = asset unless asset.nil?
         self.recipient = asset unless asset.nil?
+
+        # set acount unless nil
+        self.account = account unless account.nil?
 
         # set sender if not defined (ie a direct push)
         self.sender ||= '@@server@@'
 
-        # set acount is meta
-        self.meta['account'] = account if account.nil?
-
         # set received_at
-        self.received_at = Time.now
+        self.received_at = Time.now.to_i
 
         self.fast_push
     end

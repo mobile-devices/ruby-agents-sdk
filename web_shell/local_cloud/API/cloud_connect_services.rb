@@ -246,7 +246,7 @@ module CloudConnectServices
         self.recipient = payload['recipient']
         self.type = payload['type']
         self.recorded_at = payload['recorded_at']
-        self.received_at = struct['received_at']
+        self.received_at = payload['received_at']
         self.channel = payload['channel']
 
         if meta.is_a? Hash
@@ -354,7 +354,7 @@ module CloudConnectServices
   end
 
   # Track data sent by a device.
-  class Track < Struct.new(:id, :asset, :data, :account, :meta)
+  class Track < Struct.new(:id, :asset, :latitude, :longitude, :recorded_at, :received_at, :data, :account, :meta)
 
     # ---
     # Track Source :
@@ -362,7 +362,6 @@ module CloudConnectServices
     # "payload", a map with :
     #    id : tmp id from the device
     #    asset : imei of device
-    #    add_data map, with :
     #    latitude
     #    longitude
     #    recorded_at
@@ -414,9 +413,22 @@ module CloudConnectServices
 
       self.id = payload['id']
       self.asset = payload['asset']
-      self.data = payload['data']
       self.account = self.meta['account']
 
+      self.latitude = payload['latitude']
+      self.longitude = payload['longitude']
+      self.recorded_at = payload['recorded_at']
+      self.received_at = payload['received_at']
+      self.data = {}
+      payload.keys.each do |k, v|
+        field_name = CCSI.track_mapping.str_value_of(k)
+        if field_name != nil
+          self.data[field_name] = payload[v] # todo: operate a conversion of the value ?
+        else
+          CC.logger.error("Track initialize field #{k} not found !")
+          raise "Track initialize field #{k} not found !"
+        end
+      end
     end
 
     # @return [Hash] a hash representation of this event. See constructor documentation for the format.
@@ -427,27 +439,25 @@ module CloudConnectServices
       r_hash['payload'] = {
         'id' => self.id,
         'asset' => self.asset,
-        'data' => self.data
+        'recorded_at' => self.recorded_at,
+        'received_at' => self.received_at,
+        'latitude' => self.latitude,
+        'longitude' => self.longitude
       }
-      r_hash.delete_if { |k, v| v.nil? }
-    end
+      # add fields
+      self.data.each do |k, v|
+        field_code = CCSI.track_mapping.str_value_of(k)
 
-    # empty the data map attribute
-    def flush_data!
-      self.data = {}
-    end
-
-
-    # @return true on success
-    def add_data(key, value)
-      return false if self.data[key]
-      begin
-        key = Integer(key)
-      rescue Exception => e
-        return false
+        if field_code != nil
+          r_hash[field_code] = v  # todo: operate a conversion of the value ?
+        else
+          CC.logger.error("Track to_hash field #{k} not found !")
+          raise "Track to_hash field #{k} not found !"
+        end
       end
-      self.data[key] = value
-      true
+
+      r_hash.delete_if { |k, v| v.nil? }
+      r_hash
     end
   end
 
@@ -531,8 +541,6 @@ module CloudConnectServices
   class AgentNotFound < StandardError
   end
 
-
-
   #============================== METHODS ========================================
 
   # @api private
@@ -543,6 +551,7 @@ module CloudConnectServices
     }
     CC.logger.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
   end
+
 
 
 end

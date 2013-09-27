@@ -1,7 +1,7 @@
 module Initial_agent_XXProjectName
 
   include Sdk_api_XXProjectName
-  include Protogen_XX_XXProjectName if defined? Protogen_XXProjectName
+  include Protogen_XXProjectName if defined? Protogen_XXProjectName
 
   def new_presence_from_device(presence)
     # Write your code here

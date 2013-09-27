@@ -5,3 +5,4 @@ default: &DEFAULT
   subscribe_track: false
 
 development: *DEFAULT
+production: *DEFAULT

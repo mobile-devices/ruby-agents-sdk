@@ -447,14 +447,17 @@ module CloudConnectServices
         field_code = CCSI.track_mapping.int_value_of(k)
 
         if field_code != nil
-          r_hash[field_code] = v  # todo: operate a conversion of the value ?
+          CC.logger.debug("Adding field #{k} (int=#{field_code}) value=#{v}")
+          r_hash['payload'][field_code] = v  # todo: operate a conversion of the value ?
         else
           CC.logger.error("Track to_hash field #{k} not found !")
+          CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map}")
           raise "Track to_hash field #{k} not found !"
         end
       end
 
-      r_hash.delete_if { |k, v| v.nil? }
+      r_hash['meta'].delete_if { |k, v| v.nil? }
+      r_hash['payload'].delete_if { |k, v| v.nil? }
       r_hash
     end
   end

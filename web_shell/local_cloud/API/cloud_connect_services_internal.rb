@@ -20,12 +20,10 @@ module CloudConnectServicesInternal
         Math.sqrt(-1)
         {}
       rescue Exception => e
-         # if fail, fetch from default file
-         path = File.expand("..",__FILE_)
-         map = YAML::load(File.open("#{path}/mapping_track_field_number.yml"))
-         map
-       end
-       map
+        # if fail, fetch from default file
+        path = File.expand_path("..", __FILE__)
+        YAML::load(File.open("#{path}/mapping_track_field_number.yml"))
+      end
      end
 
      def int_value_of(str_name)

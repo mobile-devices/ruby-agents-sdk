@@ -257,14 +257,13 @@ module TestsHelper
           return true
         end
       rescue NameError => e # raised by Object.const_get if Protogen for this agent is not defined
-        CC.logger.info("TestsHelper: Protogen failed when trying to decode an outgoing message from agent #{sender_agent} (#e.class.name}: #{e.message}), defaulting to a non-Protogen message")
-        content = JSON.parse(hash_data['payload']['payload']) # Protogen could not handle the message, so we store it as a regular one
+        CC.logger.info("TestsHelper: Protogen protocol not found when trying to decode an outgoing message from agent #{sender_agent} (#e.class.name}: #{e.message}), defaulting to a non-Protogen message")
       rescue protogen::UnknownMessageType => e
         # Protogen could not handle the message, so we store it as a regular one
-        content = JSON.parse(hash_data['payload']['payload'])
+        CC.logger.debug("TestsHelper: Protogen unknown message type, defaulting to non-Protogen message")
       rescue MessagePack::UnpackError => e
         # Protogen could not handle the message, so we store it as a regular one
-        content = JSON.parse(hash_data['payload']['payload'])
+        CC.logger.debug("TestsHelper: Protogen messagepack error, defaulting to non-Protogen message")
       end
       self.message_sent(message)
       return true

@@ -423,10 +423,8 @@ module CloudConnectServices
       payload.keys.each do |k, v|
         field_name = CCSI.track_mapping.str_value_of(k)
         if field_name != nil
-          self.data[field_name] = payload[v] # todo: operate a conversion of the value ?
-        else
-          CC.logger.error("Track initialize field #{k} not found !")
-          raise "Track initialize field #{k} not found !"
+          self.data[field_name] = v # todo: operate a conversion of the value ?
+          CC.logger.debug("found field #{k} (name='#{field_name}') and value='#{v}'")
         end
       end
     end

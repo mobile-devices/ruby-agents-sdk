@@ -446,7 +446,7 @@ module CloudConnectServices
       }
       # add fields
       self.data.each do |k, v|
-        field_code = CCSI.track_mapping.str_value_of(k)
+        field_code = CCSI.track_mapping.int_value_of(k)
 
         if field_code != nil
           r_hash[field_code] = v  # todo: operate a conversion of the value ?

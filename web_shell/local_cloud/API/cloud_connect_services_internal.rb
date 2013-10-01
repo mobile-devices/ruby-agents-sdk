@@ -10,7 +10,7 @@ module CloudConnectServicesInternal
 
   # @api private
   class TrackFieldMapping
-    def invalud_map
+    def invalid_map
       @mapping_track_field_number = nil
     end
 

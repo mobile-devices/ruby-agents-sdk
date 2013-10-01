@@ -14,16 +14,21 @@ module CloudConnectServicesInternal
       @mapping_track_field_number = nil
     end
 
+    def fetch_default_map
+      @default_mapping_track_field_number ||= begin
+        path = File.expand_path("..", __FILE__)
+        YAML::load(File.open("#{path}/default_mapping_track_field_number.yml"))
+      end
+    end
+
+
+
     def fetch_map
       @mapping_track_field_number ||= begin
-        # todo fetch from cloud api
-        Math.sqrt(-1)
-        {}
-      rescue Exception => e
 
-        # if fail, fetch from default file
-        path = File.expand_path("..", __FILE__)
-        {'default' =>  YAML::load(File.open("#{path}/default_mapping_track_field_number.yml"))}
+
+        # set default map
+        {'default' =>  fetch_default_map}
 
 
         # todo fetch from cloud api all confs I need
@@ -33,8 +38,7 @@ module CloudConnectServicesInternal
     end
 
     def int_value_of(str_name, account = 'default')
-      map = fetch_map[account]
-      map.each do |k,v|
+      fetch_map[account].each do |k,v|
         if v == str_name
           return k
         end

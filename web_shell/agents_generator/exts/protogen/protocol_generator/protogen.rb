@@ -40,6 +40,7 @@ module ProtocolGenerator
     Env['output_directory'] = ARGV[2] || "protogen_#{Time.now.to_i}"
     puts "Parsing protocol and configuration files"
     Parser.run
+    puts "Running plugins to generate code"
     Generator::Manager.run(Env['plugins'].map { |e| e.to_sym })
   rescue Error::ProtogenError => e
     puts "Protogen encountered an error while generating code: #{e.class.name}"

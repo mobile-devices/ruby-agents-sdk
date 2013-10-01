@@ -139,6 +139,7 @@ module ProtocolGenerator
     # This function will ensure that the json input document was correctly formed
 
     def self.run
+      puts "Reading configuration and setting up the parser"
       default_conf_file = File.join('config', 'config.json')
       unless File.exist?(default_conf_file)
         raise Error::ConfigurationFileError.new("Can not find the default configuration file at #{default_conf_file}")
@@ -176,8 +177,13 @@ module ProtocolGenerator
       Env.merge!(configuration)
       use_protobuf, use_msgpack = false,false
       Env['plugins'].each do |plugin_name|
-        use_protobuf = true if /protobuf/.match(plugin_name)
-        use_msgpack = true if /msgpack/.match(plugin_name)
+        if /protobuf/.match(plugin_name)
+          puts "Will use protobuf because of plugin #{plugin_name}"
+          use_protobuf = true
+        end
+        if /msgpack/.match(plugin_name)
+          puts "Will use protobuf because of plugin #{plugin_name}"
+        end
       end
       if use_protobuf && use_msgpack
         Error::PluginError.new('Conflict: two plugins found using msgpack and protobuf. You can use only one or the other.')
@@ -193,6 +199,7 @@ module ProtocolGenerator
         end
       end
 
+      puts "Reading protocol definition file"
       unless File.exist?(Env['input_path'])
         raise Error::ProtocolFileNotFound.new("Can not find protocol definition file at #{Env['input_path']}")
       end
@@ -210,7 +217,10 @@ module ProtocolGenerator
       unless JSON::Validator.validate(MESSAGES_SCHEMA, input['messages'], :validate_schema => true)
         raise Error::ProtocolDefinitionError.new("Bad messages protocol definition: check that you provide the required fields.")
       end
+
+      puts "Building the environment (messages and types)..."
       Env['messages'] = input['messages']
+      puts "Found messages #{Env['messages'].keys.inspect}"
       declared_messages = []
       Env['fields'] = {}
       Env['sendable_messages'] = []
@@ -236,14 +246,20 @@ module ProtocolGenerator
         end
       end # Env['messages'].each do |msg_name, msg_content|
       Env['declared_types'] = declared_messages
+      puts "Declared types: #{Env['declared_types']}"
+      puts "Sendable messages: #{Env['sendable_messages']}"
+      puts "Fields of each message: #{Env['fields'].inspect}"
+      puts "Parsed messages: #{Env['messages'].inspect}"
 
       # Cookies validation
+      puts "Building the environment (cookies)..."
       unless JSON::Validator.validate(COOKIES_SCHEMA, input['cookies'], :validate_schema => true)
         raise Error::ProtocolDefinitionError.new("Bad cookies definition (check that your 'cookies' field is correct).")
       end
       Env['cookies'] = input['cookies']
       Env['use_cookies'] = !Env['cookies'].nil? && !Env['cookies'].empty?
       if Env['use_cookies']
+        puts "Creating cookies"
         Env['cookie_names']=Env['cookies'].keys
         Env['cookies'].each do |cookie_name, cookie_content|
           fields = []
@@ -254,9 +270,16 @@ module ProtocolGenerator
           end
           Env['fields'][cookie_name] = fields
         end
+        puts "Fields of each message, including cookies: #{Env['fields'].inspect}"
+        puts "Cookies: #{Env['cookie_names'].inspect}"
+      else
+        puts "No cookies declared, will not use cookies"
       end
 
-
+      puts "Building the environment (sequences)..."
+      puts "Creating sequences"
+      # only 1shot.XXX sequences type are currently defined
+      # q&a sequences are not defined
       Env['sequences'] = {}
       Env['messages'].each do |msg_name, msg_content|
         if msg_content['_way'] == 'toServer' || msg_content['_way'] == 'both'
@@ -278,6 +301,7 @@ module ProtocolGenerator
         end
 
       end
+      puts "Sequences: #{Env['sequences'].inspect}"
 
       # JSON::Validator.validate!(SEQUENCES_SCHEMA, input['sequences'], :validate_schema => true)
       # Env['sequences'] = input['sequences']
@@ -286,6 +310,7 @@ module ProtocolGenerator
       # defined inside messages definitions (using _way, etc...)
       Env['use_sequences'] = !Env['sequences'].nil? && !Env['sequences'].empty?
       if Env['use_sequences']
+        puts "Parametring sequences"
         Env['msg_replies_dev'] = {}
         Env['msg_seq_dev'] = {}
         Env['msg_seq_srv'] = {} # TODO !
@@ -318,6 +343,8 @@ module ProtocolGenerator
             end
           end
         end
+      else
+        puts "No sequences identified, will not use sequences"
       end
 
       # General validation, just to be sure

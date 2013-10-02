@@ -7,6 +7,7 @@ require 'fileutils'
 require 'yaml'
 require 'securerandom'
 
+require 'bundler'
 
 module AgentsGenerator
 

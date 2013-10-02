@@ -12,7 +12,7 @@ require 'redis-namespace'
 module CloudConnectSDK
   # wrapper from indigen
   require 'time'
-  def self.indigen_next_id()
+  def self.indigen_next_id
 
     #todo : if VMProd, don't gen it
     @epoch ||= Time.parse("2010-01-01T00:00:00Z")
@@ -24,7 +24,7 @@ module CloudConnectSDK
     genid.to_i(2)
   end
 
-  def self.logger()
+  def self.logger
     @logger ||= begin
       if File.directory? '../../logs/'
         log_path = '../../logs/ruby-agent-sdk-server.log'
@@ -41,7 +41,7 @@ module CloudConnectSDK
     end
   end
 
-  def self.redis()
+  def self.redis
     @redis ||= LimitedApis::SafeRedis.new(:host => 'localhost', :port =>  '7879')
   end
 

@@ -83,7 +83,7 @@ module CloudConnectServices
       self.reason = payload['reason']
       self.account = meta['account']
 
-      if type != 'connect' && type != 'reconnect' && type != 'disconnect'
+      if type != 'connect' && type != 'reconnect' && type != 'disconnect' && type != 'failed_connect'
         raise "Wrong type of presence : #{type}"
       end
     end

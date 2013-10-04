@@ -451,7 +451,7 @@ module CloudConnectServices
           r_hash['payload'][field_code] = v  # todo: operate a conversion of the value ?
         else
           CC.logger.error("Track to_hash field #{k} not found !")
-          CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map}")
+          CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map[self.account]}")
           raise "Track to_hash field #{k} not found !"
         end
       end

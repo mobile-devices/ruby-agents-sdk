@@ -420,7 +420,7 @@ module CloudConnectServices
       self.recorded_at = payload['recorded_at']
       self.received_at = payload['received_at']
       self.data = {}
-      payload.keys.each do |k, v|
+      payload.each do |k, v|
         field_name = CCSI.track_mapping.str_value_of(k)
         if field_name != nil
           self.data[field_name] = v # todo: operate a conversion of the value ?

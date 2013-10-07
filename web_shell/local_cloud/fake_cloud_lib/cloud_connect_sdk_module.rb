@@ -12,7 +12,7 @@ require 'redis-namespace'
 module CloudConnectSDK
   # wrapper from indigen
   require 'time'
-  def self.indigen_next_id
+  def self.indigen_next_id(key = 'default')
 
     #todo : if VMProd, don't gen it
     @epoch ||= Time.parse("2010-01-01T00:00:00Z")

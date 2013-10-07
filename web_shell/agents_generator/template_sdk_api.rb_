@@ -373,18 +373,20 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
             }
           }
 
-          # add fields
-          track.data.each do |k, v|
-            field_code = CCSI.track_mapping.int_value_of(k)
-
-            if field_code != nil
-              CC.logger.debug("Adding field #{k} (int=#{field_code}) value=#{v}")
-              inject_hash['payload'][field_code] = v  # todo: operate a conversion of the value ?
-            else
-              CC.logger.error("Track to_hash field #{k} not found !")
-              CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map}")
+          #add field of new data (and convert it) (todo: duplicate code here ... clean it)
+          track.new_data.each do |field|
+            field_code = CCSI.track_mapping.int_value_of(field['name'])
+            if field_code == nil
+              CC.logger.error("Track to_hash field '#{k}' not found !")
+              CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map[track.account]}")
               raise "Track to_hash field #{k} not found !"
             end
+
+            binary_value = TrackFieldValueConverter.convert_to_binary(field['val'], field['type'], field['size'])
+
+            CC.logger.debug("inject_track: Adding field '#{field['name']}' (int=#{field_code}) value='#{field['val']}' (binary=#{binary_value})")
+            inject_hash['payload'][field_code] = binary_value
+
           end
 
           inject_hash['meta'].delete_if { |k, v| v.nil? }

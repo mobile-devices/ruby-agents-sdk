@@ -34,6 +34,7 @@ $tester_thread = Thread.new {}
 require 'active_support/all'
 
 require_relative 'fake_cloud_lib/cloud_connect_sdk_module'
+require_relative 'fake_cloud_lib/track_field_value_converter'
 require_relative 'fake_cloud_lib/cloud_gate'
 require_relative 'fake_cloud_lib/punkabe'
 require_relative 'fake_cloud_lib/ragent_helper'

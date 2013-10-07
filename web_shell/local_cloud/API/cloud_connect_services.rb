@@ -354,7 +354,7 @@ module CloudConnectServices
   end
 
   # Track data sent by a device.
-  class Track < Struct.new(:id, :asset, :latitude, :longitude, :recorded_at, :received_at, :data, :account, :meta)
+  class Track < Struct.new(:id, :asset, :latitude, :longitude, :recorded_at, :received_at, :data, :new_data, :account, :meta)
 
     # ---
     # Track Source :
@@ -427,6 +427,7 @@ module CloudConnectServices
           CC.logger.debug("found field #{k} (name='#{field_name}') and value='#{v}'")
         end
       end
+      self.new_data = []
     end
 
     # @return [Hash] a hash representation of this event. See constructor documentation for the format.
@@ -442,24 +443,58 @@ module CloudConnectServices
         'latitude' => self.latitude,
         'longitude' => self.longitude
       }
-      # add fields
-      self.data.each do |k, v|
-        field_code = CCSI.track_mapping.int_value_of(k)
-
-        if field_code != nil
-          CC.logger.debug("Adding field #{k} (int=#{field_code}) value=#{v}")
-          r_hash['payload'][field_code] = v  # todo: operate a conversion of the value ?
-        else
-          CC.logger.error("Track to_hash field #{k} not found !")
+      #add field of new data (and convert it)
+      self.new_data.each do |k,v|
+        field_code = CCSI.track_mapping.int_value_of(field['name'])
+        if field_code == nil
+          CC.logger.error("Track to_hash field '#{k}' not found !")
           CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map[self.account]}")
           raise "Track to_hash field #{k} not found !"
         end
+
+        # magic !
+        binary_value = "#{field['val']}"
+
+        CC.logger.debug("to_hash: Adding field '#{field['name']}' (int=#{field_code}) value='#{field['val']}' (binary=#{binary_value})")
+        r_hash['payload'][field_code] = binary_value
+
       end
+      CC.logger.debug("to_hash done #{r_hash} #{self.new_data.length}")
 
       r_hash['meta'].delete_if { |k, v| v.nil? }
       r_hash['payload'].delete_if { |k, v| v.nil? }
       r_hash
     end
+
+
+    def add_data(name, value, type, size)
+      # check name
+      field_code = CCSI.track_mapping.int_value_of(name)
+      if field_code == nil
+        CC.logger.error("Track add_data field '#{k}' not found !")
+        CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map[self.account]}")
+        raise "Track to_hash field #{k} not found !"
+      end
+      # check type
+      allowed_types = ['unknown', 'boolean', 'integer', 'decimal', 'string', 'base64']
+      if !(allowed_types.include? type)
+        CC.logger.error("Bad type #{type} allowed are: #{allowed_types}")
+        raise "track add_data: bad type #{type}"
+      end
+      # check size
+      if !(size.is_a? Integer)
+        CC.logger.error("Bad size #{size}. not an integer")
+        raise "track add_data: bad size #{size}"
+      end
+      #proceed
+      self.new_data << {
+        'name' => name,
+        'val' => value,
+        'type' => type,
+        'size' => size
+      }
+    end
+
   end
 
   # An event sent when a scheduled order is going to be executed.

@@ -12,12 +12,12 @@ module RagentHelper
   #============================== METHODS ========================================
 
 
-  def self.generated_path()
+  def self.generated_path
     #todo: maybe put it here instead ?
     generated_rb_path
   end
 
-  def self.running_agents()
+  def self.running_agents
     @rh_running_agents ||= begin
       if File.exists?("#{RH.generated_path}/running_agents")
         running = File.read("#{RH.generated_path}/running_agents")

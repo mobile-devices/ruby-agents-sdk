@@ -12,9 +12,9 @@ module TrackFieldValueConverter
       SDK.API.log.warn("convert_value_to_binary unknown format, might be rejected by rqueue")
       val
     when 'boolean'
-      val
+      raise "boolean not yet implemented for tracking. sorry."
     when 'integer'
-      val
+      raise "integer not yet implemented for tracking. sorry."
     when 'decimal'
       raise "decimal not yet implemented for tracking. sorry."
     when 'string'

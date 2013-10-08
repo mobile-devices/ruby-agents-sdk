@@ -49,7 +49,7 @@ restart() {
 
   echo "PUNKabeNK_sys_booting server" >>  ../../logs/ruby-agent-sdk-server.log
   # run sinatra server
-  ruby local_cloud.rb >>../../logs/daemon_server.log 2>&1 &
+  bundle exec ruby local_cloud.rb >>../../logs/daemon_server.log 2>&1 &
 }
 
 is_running() {

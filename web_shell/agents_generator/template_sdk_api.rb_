@@ -100,7 +100,11 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       def self.config
         @@config ||= begin
           if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
+            if $ENV_TARGET == 'ragent'
+              @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['production']
+            else
             @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
+            end
           else
             log.error("NO CONFIG FILE FOUND in #{root_path}/config")
             full_path = File.expand_path("#{root_path}/config")
@@ -137,7 +141,12 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Returns the path to the root directory of your agent. You can write files in this folder.
       # @return [String] the path to the root directory of your agent.
       def self.root_path
+        if $ENV_TARGET == 'ragent'
+          dir_path = File.expand_path('..',"#{__FILE__}")
+          "#{dir_path}/../../../../../builder/agents_git_sources/XX_PROJECT_NAME"
+        else
         'XX_PROJECT_ROOT_PATH'
+        end
       end
     end
 

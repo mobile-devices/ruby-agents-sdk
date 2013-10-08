@@ -260,7 +260,7 @@ module CloudConnectServices
         end
 
         if self.id.blank?
-          self.id = CC.indigen_next_id
+          self.id = CC.indigen_next_id(self.asset)
         end
 
       end

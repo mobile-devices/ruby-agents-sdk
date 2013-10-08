@@ -176,7 +176,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
               CC.logger.info("Protogen content is an array of size #{encoded.size}")
               fragments = encoded.map do |content|
                 frg = msg.clone
-                frg.id = CC.indigen_next_id
+                frg.id = CC.indigen_next_id(frg.asset)
                 frg.content = content
                 frg
               end
@@ -267,7 +267,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
           PUNK.start('reply','replying msg ...')
           response = msg.clone
           response.parent_id = msg.id
-          response.id = CC.indigen_next_id
+          response.id = CC.indigen_next_id(response.asset)
           response.content = content
           response.meta['protogen_cookies'] = cookies
           response.sender = '@@server@@'
@@ -317,7 +317,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
 
           protogen_encode(msg).each do |message|
 
-            out_id = CC.indigen_next_id
+            out_id = CC.indigen_next_id(message.asset)
 
             inject_hash = {
               "meta" => {

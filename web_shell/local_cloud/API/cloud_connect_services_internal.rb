@@ -23,6 +23,9 @@ module CloudConnectServicesInternal
 
 
     def fetch_map(account)
+      #Because we only have a static file, we will always use default account
+      account = 'default'
+
       @mapping_track_field_number ||= begin
         # set default map
         {'default' =>  fetch_default_map}

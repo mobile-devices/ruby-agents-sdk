@@ -8,7 +8,7 @@
 class Agent < Struct.new(:name, :running, :agent_stats, :cron_tasks)
 end
 
-def agents_altered()
+def agents_altered
   $sdk_list_of_agents = nil # invalidate the list
 end
 
@@ -33,7 +33,7 @@ def add_new_agent(agent_name)
   else
     puts "Agent #{agent_name} already exists."
     flash[:popup_error] = "Agent #{agent_name} already exists."
- end
+  end
 end
 
 
@@ -52,7 +52,6 @@ def update_sdk_stats
   puts "update_sdk_stats try ..."
   begin
     # server stats
-    params = {}
     jstats = http_get("http://localhost:5001/sdk_stats")
     puts "update_sdk_stats downloaded: \n #{jstats}"
     stats = JSON.parse(jstats)

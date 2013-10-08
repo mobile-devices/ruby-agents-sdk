@@ -50,7 +50,7 @@ module CloudConnectServicesInternal
 
     # return a field struct
     def get_by_id(int_id, account, no_error = 'false')
-      if $ENV_TARGET = 'sdk-vm'
+      if $ENV_TARGET == 'sdk-vm'
         account = 'default'
       end
       fetch_map(account).each do |field|
@@ -64,7 +64,7 @@ module CloudConnectServicesInternal
     end
 
     def get_by_name(str_name, account, no_error = 'false')
-      if $ENV_TARGET = 'sdk-vm'
+      if $ENV_TARGET == 'sdk-vm'
         account = 'default'
       end
       fetch_map(account).each do |field|

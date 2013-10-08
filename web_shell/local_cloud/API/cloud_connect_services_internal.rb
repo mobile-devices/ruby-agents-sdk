@@ -15,39 +15,63 @@ module CloudConnectServicesInternal
     end
 
     def fetch_default_map
-      @default_mapping_track_field_number ||= begin
+      @default_track_field_info ||= begin
         path = File.expand_path("..", __FILE__)
-        YAML::load(File.open("#{path}/default_mapping_track_field_number.yml"))
+        YAML::load(File.open("#{path}/default_tracks_field_info.json"))
       end
     end
 
 
-
-    def fetch_map
+    def fetch_map(account)
       @mapping_track_field_number ||= begin
-
-
         # set default map
         {'default' =>  fetch_default_map}
+      end
 
-
-        # todo fetch from cloud api all confs I need
-
-
+      if @mapping_track_field_number.has_key?(account)
+        @mapping_track_field_number[account]
+      else
+        # todo fetch from cloud api, but for now, we raise
+        raise "Account '#{account}' not available."
       end
     end
 
-    def int_value_of(str_name, account = 'default')
-      fetch_map[account].each do |k,v|
-        if v == str_name
-          return k
+    # fields look like :
+    # {
+    #     "name": "GPRMC_VALID",
+    #     "field": 3,
+    #     "field_type": "string",
+    #     "size": 1,
+    #     "ack": 1
+    # }
+
+    # return a field struct
+    def get_by_id(int_id, account, no_error = 'false')
+      if $ENV_TARGET = 'sdk-vm'
+        account = 'default'
+      end
+      fetch_map(account).each do |field|
+        if "#{field['field']}" == "#{int_id}"
+          return field
         end
       end
-      nil
+      if !no_error
+        raise "Field '#{int_id}' not found on account '#{account}'."
+      end
     end
 
-    def str_value_of(int_name, account = 'default')
-      fetch_map[account][int_name]
+    def get_by_name(str_name, account, no_error = 'false')
+      if $ENV_TARGET = 'sdk-vm'
+        account = 'default'
+      end
+      fetch_map(account).each do |field|
+        if "#{field['name']}" == "#{str_name}"
+          return field
+        end
+      end
+      if !no_error
+        raise "Field '#{str_name}' not found on account '#{account}'."
+      end
     end
 
   end

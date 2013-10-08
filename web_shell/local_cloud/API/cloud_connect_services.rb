@@ -224,11 +224,7 @@ module CloudConnectServices
         self.recorded_at = 007
         self.received_at = 007
 
-        begin
-          self.channel = SDK.API.get_channels[0]
-        rescue Exception => e
-          self.channel = "unknown"
-        end
+        self.channel = SDK.API.get_channels[0]
 
         self.content = nil
 
@@ -331,30 +327,30 @@ module CloudConnectServices
     # @param [Account] account the account name to use.
     # @api private
     def push(asset = nil, account = nil)
-        if !(self.content.is_a? String)
-          raise "message content must be of type String (got #{self.content.class.name})"
-        end
+      if !(self.content.is_a? String)
+        raise "message content must be of type String (got #{self.content.class.name})"
+      end
 
-        # set asset unless nil
-        self.asset = asset unless asset.nil?
-        self.recipient = asset unless asset.nil?
+      # set asset unless nil
+      self.asset = asset unless asset.nil?
+      self.recipient = asset unless asset.nil?
 
-        # set acount unless nil
-        self.account = account unless account.nil?
+      # set acount unless nil
+      self.account = account unless account.nil?
 
-        # set sender if not defined (ie a direct push)
-        self.sender ||= '@@server@@'
+      # set sender if not defined (ie a direct push)
+      self.sender ||= '@@server@@'
 
-        # set received_at
-        self.received_at = Time.now.to_i
+      # set received_at
+      self.received_at = Time.now.to_i
 
-        self.fast_push
+      self.fast_push
     end
 
   end
 
   # Track data sent by a device.
-  class Track < Struct.new(:id, :asset, :latitude, :longitude, :recorded_at, :received_at, :data, :new_data, :account, :meta)
+  class Track < Struct.new(:id, :asset, :latitude, :longitude, :recorded_at, :received_at, :fields_data, :account, :meta)
 
     # ---
     # Track Source :
@@ -384,9 +380,19 @@ module CloudConnectServices
     #   @api public
     #   @return [Hash] meta data associated with the track, generally empty or `nil`.
 
-    # @!attribute [rw] data
+    # @!attribute [rw] fields_data
     #   @api public
-    #   @return [Hash] a hash of track data with the following fields: latitude, longitude, recorded_at, received_at, field1, field2, ...
+    #   @return [Hash] an array with fields struc init that looks like :
+    # {
+    #     "name": (string),
+    #     "field": (int),
+    #     "field_type": "string",
+    #     "size": (int),
+    #     "ack": (int),
+    #     "value": ,
+    #     "raw_value":
+    #     "fresh":
+    # }
 
     # @!attribute [rw] account
     #   @api public
@@ -419,20 +425,35 @@ module CloudConnectServices
       self.longitude = payload['longitude']
       self.recorded_at = payload['recorded_at']
       self.received_at = payload['received_at']
-      self.data = {}
+
+      self.fields_data = []
       payload.each do |k, v|
-        field_name = CCSI.track_mapping.str_value_of(k)
-        if field_name != nil
-          self.data[field_name] = v # todo: operate a conversion of the value ?
-          CC.logger.debug("found field #{k} (name='#{field_name}') and value='#{v}'")
+        field = CCSI.track_mapping.get_by_id(k, self.account, true)
+        next if field == nil
+        field['raw_value'] = v
+        field['value'] = v
+        field['fresh'] = false
+
+        if $ENV_TARGET == 'ragent'
+          # basic decode
+          case field['field_type']
+          when 'integer'
+            field['value'] = v.to_s.unpack('B*').first.to_i(2)
+          when 'string'
+            field['value'] = v.to_s
+          when 'boolean'
+            field['value'] = v.to_s == "\x01" ? true : false
+          end
         end
+        #todo: metric for pos, speed
+
+        self.fields_data << field
       end
-      self.new_data = []
     end
 
     # @return [Hash] a hash representation of this event. See constructor documentation for the format.
     # @api private
-    def to_hash
+    def to_hash(without_fields = false)
       r_hash = {}
       r_hash['meta'] = self.meta
       r_hash['payload'] = {
@@ -443,23 +464,41 @@ module CloudConnectServices
         'latitude' => self.latitude,
         'longitude' => self.longitude
       }
-      #add field of new data (and convert it)
-      self.new_data.each do |k,v|
-        field_code = CCSI.track_mapping.int_value_of(field['name'])
-        if field_code == nil
-          CC.logger.error("Track to_hash field '#{k}' not found !")
-          CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map[self.account]}")
-          raise "Track to_hash field #{k} not found !"
+      if !without_fields
+        #add field of new data (and convert it as magic string)
+        self.fields_data.each do |field|
+          CC.logger.debug("to_hash: Adding field '#{field['field']}' with val= #{field['value']}")
+          r_hash['payload'][field['field']] = "#{field['value']}"
         end
-
-        # magic !
-        binary_value = "#{field['val']}"
-
-        CC.logger.debug("to_hash: Adding field '#{field['name']}' (int=#{field_code}) value='#{field['val']}' (binary=#{binary_value})")
-        r_hash['payload'][field_code] = binary_value
-
       end
-      CC.logger.debug("to_hash done #{r_hash} #{self.new_data.length}")
+
+      r_hash['meta'].delete_if { |k, v| v.nil? }
+      r_hash['payload'].delete_if { |k, v| v.nil? }
+      r_hash
+    end
+
+    def to_hash_to_send_to_cloud
+      r_hash = {}
+      r_hash['meta'] = {
+        'account' => self.account
+      }
+      r_hash['payload'] = {
+        'id' => CC.indigen_next_id(self.asset),
+        'sender' => 'ragent', # @CHANNEL, # Sender identifier, special for tracks injection (todo)
+        'recipient' => '@@server@@',
+        'asset' => 'ragent',
+        'recorded_at' => Time.now.to_i,
+        'received_at' => Time.now.to_i,
+        'latitude' => nil,
+        'longitude' => nil
+      }
+      #add  fresh field of new data (and convert it as magic string)
+      self.fields_data.each do |field|
+        if field['fresh']
+           CC.logger.debug("to_hash_to_send_to_cloud: Adding field '#{field['field']}' with val= #{field['value']}")
+          r_hash['payload'][field['field']] = "#{field['value']}"
+        end
+      end
 
       r_hash['meta'].delete_if { |k, v| v.nil? }
       r_hash['payload'].delete_if { |k, v| v.nil? }
@@ -467,32 +506,12 @@ module CloudConnectServices
     end
 
 
-    def add_data(name, value, type, size)
-      # check name
-      field_code = CCSI.track_mapping.int_value_of(name)
-      if field_code == nil
-        CC.logger.error("Track add_data field '#{k}' not found !")
-        CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map[self.account]}")
-        raise "Track to_hash field #{k} not found !"
-      end
-      # check type
-      allowed_types = ['unknown', 'boolean', 'integer', 'decimal', 'string', 'base64']
-      if !(allowed_types.include? type)
-        CC.logger.error("Bad type #{type} allowed are: #{allowed_types}")
-        raise "track add_data: bad type #{type}"
-      end
-      # check size
-      if !(size.is_a? Integer)
-        CC.logger.error("Bad size #{size}. not an integer")
-        raise "track add_data: bad size #{size}"
-      end
-      #proceed
-      self.new_data << {
-        'name' => name,
-        'val' => value,
-        'type' => type,
-        'size' => size
-      }
+    def set_field(name, value)
+      field = CCSI.track_mapping.get_by_name(name, self.account)
+      field['raw_value'] = value
+      field['value'] = value
+      field['fresh'] = true
+      self.fields_data << field
     end
 
   end

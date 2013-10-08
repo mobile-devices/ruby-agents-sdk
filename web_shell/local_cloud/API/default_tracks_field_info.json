@@ -1,0 +1,793 @@
+[
+    {
+        "name": "POSITION",
+        "field": 0,
+        "field_type": "unknown",
+        "size": 0,
+        "ack": 1
+    },
+    {
+        "name": "GPS_SPEED",
+        "field": 8,
+        "field_type": "integer",
+        "size": 3,
+        "ack": 1
+    },
+    {
+        "name": "GPS_DIR",
+        "field": 9,
+        "field_type": "integer",
+        "size": 3,
+        "ack": 1
+    },
+    {
+        "name": "DIO_IGNITION",
+        "field": 14,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 0
+    },
+    {
+        "name": "BATT",
+        "field": 15,
+        "field_type": "integer",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "GPRS_HEADER",
+        "field": 16,
+        "field_type": "integer",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "RSSI",
+        "field": 17,
+        "field_type": "integer",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_FIRST_DRIVER_STATE",
+        "field": 19,
+        "field_type": "string",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_FIRST_DRIVER_DRIVING_STATE",
+        "field": 20,
+        "field_type": "string",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_DAILYMETER",
+        "field": 21,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_ODOMETER",
+        "field": 22,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "ODO_PARTIAL_KM",
+        "field": 23,
+        "field_type": "string",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "ODO_FULL",
+        "field": 24,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_DRIVING_TIME",
+        "field": 25,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "DIO_ALARM",
+        "field": 26,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "DRIVER_ID",
+        "field": 27,
+        "field_type": "string",
+        "size": 16,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_1",
+        "field": 28,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_2",
+        "field": 29,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_3",
+        "field": 30,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_4",
+        "field": 31,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_5",
+        "field": 32,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_6",
+        "field": 33,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_7",
+        "field": 34,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_8",
+        "field": 35,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_9",
+        "field": 36,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TEMP_10",
+        "field": 37,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "DIO_IN_TOR",
+        "field": 38,
+        "field_type": "string",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_FIRST_DRIVER_ID",
+        "field": 52,
+        "field_type": "string",
+        "size": 19,
+        "ack": 1
+    },
+    {
+        "name": "AREA_LIST",
+        "field": 53,
+        "field_type": "string",
+        "size": 32,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_TIMESTAMP",
+        "field": 54,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "GPS_FIXED_SAT_NUM",
+        "field": 55,
+        "field_type": "integer",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "MVT_STATE",
+        "field": 56,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "BOOT_REASON",
+        "field": 57,
+        "field_type": "string",
+        "size": 6,
+        "ack": 1
+    },
+    {
+        "name": "SHUTDOWN_TYPE_AND_REASON",
+        "field": 58,
+        "field_type": "string",
+        "size": 6,
+        "ack": 1
+    },
+    {
+        "name": "BATT_VOLT",
+        "field": 59,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "TX_KBYTES",
+        "field": 60,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "RX_KBYTES",
+        "field": 61,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "BATT_WARMUP",
+        "field": 62,
+        "field_type": "integer",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "BATT_CHARGING",
+        "field": 63,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_SECOND_DRIVER_STATE",
+        "field": 64,
+        "field_type": "string",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_SECOND_DRIVER_ID",
+        "field": 65,
+        "field_type": "string",
+        "size": 19,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_VRN",
+        "field": 66,
+        "field_type": "string",
+        "size": 14,
+        "ack": 1
+    },
+    {
+        "name": "TACHOGRAPH_VIN",
+        "field": 67,
+        "field_type": "string",
+        "size": 17,
+        "ack": 1
+    },
+    {
+        "name": "DIO_OUT_TOR",
+        "field": 68,
+        "field_type": "string",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "RELAYCONTROL_STATE",
+        "field": 69,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "MODEM_SIM_ICCID",
+        "field": 70,
+        "field_type": "string",
+        "size": 20,
+        "ack": 1
+    },
+    {
+        "name": "MODEM_SIM_IMSI",
+        "field": 71,
+        "field_type": "string",
+        "size": 15,
+        "ack": 1
+    },
+    {
+        "name": "SERIAL_PPP_STATE",
+        "field": 72,
+        "field_type": "integer",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "CONNECTED_BOARD_ID",
+        "field": 87,
+        "field_type": "string",
+        "size": 32,
+        "ack": 1
+    },
+    {
+        "name": "FMS_TOTAL_USED_FUEL",
+        "field": 88,
+        "field_type": "integer",
+        "size": 5,
+        "ack": 1
+    },
+    {
+        "name": "FMS_AXLE_LOCATION",
+        "field": 90,
+        "field_type": "integer",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "FMS_AXLE_WEIGHT",
+        "field": 91,
+        "field_type": "integer",
+        "size": 3,
+        "ack": 1
+    },
+    {
+        "name": "FMS_ENGINE_HOURS",
+        "field": 92,
+        "field_type": "integer",
+        "size": 5,
+        "ack": 1
+    },
+    {
+        "name": "FMS_VEHICLE_ID",
+        "field": 93,
+        "field_type": "string",
+        "size": 200,
+        "ack": 1
+    },
+    {
+        "name": "FMS_SOFTWARE_ID",
+        "field": 94,
+        "field_type": "string",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "FMS_TOTAL_DISTANCE",
+        "field": 95,
+        "field_type": "integer",
+        "size": 5,
+        "ack": 1
+    },
+    {
+        "name": "FMS_NEXT_SERVICE",
+        "field": 96,
+        "field_type": "integer",
+        "size": 3,
+        "ack": 1
+    },
+    {
+        "name": "FMS_ENGINE_COOLANT_TEMP",
+        "field": 97,
+        "field_type": "integer",
+        "size": 2,
+        "ack": 1
+    },
+    {
+        "name": "FMS_INFORMATION",
+        "field": 98,
+        "field_type": "string",
+        "size": 255,
+        "ack": 1
+    },
+    {
+        "name": "BOARD_ID",
+        "field": 99,
+        "field_type": "string",
+        "size": 32,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ID",
+        "field": 100,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_LONG",
+        "field": 101,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_LAT",
+        "field": 102,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_DAY_OF_YEAR",
+        "field": 103,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_TIME_OF_DAY",
+        "field": 104,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_GPS_SPEED_BEGIN",
+        "field": 105,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_GPS_SPEED_PEAK",
+        "field": 106,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_GPS_SPEED_END",
+        "field": 107,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_GPS_HEADING_BEGIN",
+        "field": 108,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_GPS_HEADING_PEAK",
+        "field": 109,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_GPS_HEADING_END",
+        "field": 110,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_X_BEGIN",
+        "field": 111,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_X_PEAK",
+        "field": 112,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_X_END",
+        "field": 113,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_Y_BEGIN",
+        "field": 114,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_Y_PEAK",
+        "field": 115,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_Y_END",
+        "field": 116,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_Z_BEGIN",
+        "field": 117,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_Z_PEAK",
+        "field": 118,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ACC_Z_END",
+        "field": 119,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_ELAPSED",
+        "field": 120,
+        "field_type": "integer",
+        "size": 8,
+        "ack": 1
+    },
+    {
+        "name": "BEHAVE_UNIQUE_ID",
+        "field": 121,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "EVENT",
+        "field": 127,
+        "field_type": "string",
+        "size": 255,
+        "ack": 1
+    },
+    {
+        "name": "MDI_OBD_SPEED",
+        "field": 235,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_OBD_RPM",
+        "field": 236,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_OBD_FUEL",
+        "field": 237,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_OBD_VIN",
+        "field": 238,
+        "field_type": "string",
+        "size": 17,
+        "ack": 1
+    },
+    {
+        "name": "MDI_OBD_MILEAGE",
+        "field": 239,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_JOURNEY_TIME",
+        "field": 240,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_IDLE_JOURNEY",
+        "field": 241,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_DRIVING_JOURNEY",
+        "field": 242,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_OVERSPEED_COUNTER",
+        "field": 244,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_TOW_AWAY",
+        "field": 245,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "MDI_ODO_JOURNEY",
+        "field": 246,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_OVERSPEED",
+        "field": 247,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "MDI_MAX_SPEED_JOURNEY",
+        "field": 248,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_JOURNEY_STATE",
+        "field": 249,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "MDI_RECORD_REASON",
+        "field": 250,
+        "field_type": "string",
+        "size": 10,
+        "ack": 1
+    },
+    {
+        "name": "MDI_EXT_BATT_VOLTAGE",
+        "field": 151,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_EXT_BATT_LOW",
+        "field": 150,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "MDI_VEHICLE_STATE",
+        "field": 234,
+        "field_type": "string",
+        "size": 3,
+        "ack": null
+    },
+    {
+        "name": "MDI_RPM_AVERAGE",
+        "field": 159,
+        "field_type": "integer",
+        "size": 5,
+        "ack": 1
+    },
+    {
+        "name": "MDI_RPM_MIN",
+        "field": 158,
+        "field_type": "integer",
+        "size": 5,
+        "ack": 1
+    },
+    {
+        "name": "MDI_RPM_MAX",
+        "field": 157,
+        "field_type": "integer",
+        "size": 5,
+        "ack": 1
+    },
+    {
+        "name": "MDI_DTC_MIL",
+        "field": 154,
+        "field_type": "boolean",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "MDI_DTC_NUMBER",
+        "field": 155,
+        "field_type": "integer",
+        "size": 4,
+        "ack": 1
+    },
+    {
+        "name": "MDI_DTC_LIST",
+        "field": 156,
+        "field_type": "string",
+        "size": 255,
+        "ack": 1
+    },
+    {
+        "name": "FMS_FUEL_LEVEL",
+        "field": 89,
+        "field_type": "integer",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "GPRMC_VALID",
+        "field": 3,
+        "field_type": "string",
+        "size": 1,
+        "ack": 1
+    },
+    {
+        "name": "TEST_JULIEN",
+        "field": 128,
+        "field_type": "string",
+        "size": null,
+        "ack": null
+    },
+    {
+        "name": "TEST_ENH_DATA_GATE",
+        "field": 5000,
+        "field_type": "string",
+        "size": null,
+        "ack": null
+    },
+    {
+        "name": "TEST_ENH_DATA_SPEED",
+        "field": 5001,
+        "field_type": "string",
+        "size": null,
+        "ack": null
+    },
+    {
+        "name": "TEST_ENH_DATA_DISTANCE",
+        "field": 5002,
+        "field_type": "string",
+        "size": null,
+        "ack": null
+    }
+]

@@ -365,50 +365,13 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # @param [CloudConnectServices::Track] track the track to send
       def inject_track(track)
         begin
-          PUNK.start('injecttrack','inject in cloud ...')
-
-          inject_hash = {
-            "meta" => {
-              "account" => track.account
-              },
-            "payload" => {
-              "id" =>           CC.indigen_next_id,
-              "sender" =>       @CHANNEL,               # Sender identifier, special for tracks injection
-              "asset" =>        "ragent",
-              'recorded_at' =>  Time.now.to_i,
-              'received_at' =>  Time.now.to_i,
-              'latitude' =>     track.latitude,
-              'longitude' =>    track.longitude
-            }
-          }
-
-          #add field of new data (and convert it) (todo: duplicate code here ... clean it)
-          track.new_data.each do |field|
-            field_code = CCSI.track_mapping.int_value_of(field['name'])
-            if field_code == nil
-              CC.logger.error("Track to_hash field '#{k}' not found !")
-              CC.logger.error("Available are : #{CCSI.track_mapping.fetch_map[track.account]}")
-              raise "Track to_hash field #{k} not found !"
-            end
-
-            binary_value = TrackFieldValueConverter.convert_to_binary(field['val'], field['type'], field['size'])
-
-            CC.logger.debug("inject_track: Adding field '#{field['name']}' (int=#{field_code}) value='#{field['val']}' (binary=#{binary_value})")
-            inject_hash['payload'][field_code] = binary_value
-
-          end
-
-          inject_hash['meta'].delete_if { |k, v| v.nil? }
-          inject_hash['payload'].delete_if { |k, v| v.nil? }
 
           # todo: put some limitation
-          CC.push(inject_hash,'tracks')
+          CC.push(track.to_hash_to_send_to_cloud,'tracks')
 
           # success !
-          PUNK.end('injecttrack','ok','out',"SERVER <- SERVER Track")
 
           SDK_STATS.stats['agents']['XX_PROJECT_NAME']['inject_to_cloud'] += 1
-          SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_sent'] += 1
         rescue Exception => e
           CC.logger.error("Error on inject track")
           CCS.print_ruby_exception(e)

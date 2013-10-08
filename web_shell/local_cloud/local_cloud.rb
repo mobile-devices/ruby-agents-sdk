@@ -26,6 +26,7 @@ require 'rspec'
 $main_server_root_path = File.expand_path("..", __FILE__)
 
 $allow_non_protogen = true
+$ENV_TARGET = 'sdk-vm'
 
 $tester_thread = Thread.new {}
 

@@ -421,8 +421,8 @@ module CloudConnectServices
       self.asset = payload['asset']
       self.account = self.meta['account']
 
-      self.latitude = payload['latitude']
-      self.longitude = payload['longitude']
+      self.latitude = payload['latitude'].to_i
+      self.longitude = payload['longitude'].to_i
       self.recorded_at = payload['recorded_at']
       self.received_at = payload['received_at']
 
@@ -477,6 +477,8 @@ module CloudConnectServices
       r_hash
     end
 
+    # @return [Hash] a hash representation of this event in the format to be sent to the cloud (data injection)
+    # @api private
     def to_hash_to_send_to_cloud
       r_hash = {}
       r_hash['meta'] = {
@@ -484,19 +486,18 @@ module CloudConnectServices
       }
       r_hash['payload'] = {
         'id' => CC.indigen_next_id(self.asset),
-        'sender' => 'ragent', # @CHANNEL, # Sender identifier, special for tracks injection (todo)
-        'recipient' => '@@server@@',
-        'asset' => 'ragent',
+        'sender' => 'ragent', # todo: add in model of db viewer (todo)
+        'asset' => self.asset,
         'recorded_at' => Time.now.to_i,
         'received_at' => Time.now.to_i,
-        'latitude' => nil,
-        'longitude' => nil
+        'latitude' => self.latitude,
+        'longitude' => self.longitude
       }
       #add  fresh field of new data (and convert it as magic string)
       self.fields_data.each do |field|
         if field['fresh']
            CC.logger.debug("to_hash_to_send_to_cloud: Adding field '#{field['field']}' with val= #{field['value']}")
-          r_hash['payload'][field['field']] = "#{field['value']}"
+          r_hash['payload']["{field['field']}"] = "#{field['value']}"
         end
       end
 

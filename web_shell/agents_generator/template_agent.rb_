@@ -75,8 +75,10 @@ class Agent_XX_CLEAN_PROJECT_NAME
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
 
-      # decode content as base64 (vm mode)
-      message.content = Base64.decode64(message.content)
+      if $ENV_TARGET == 'sdk-vm'
+        # decode content as base64 (vm mode)
+        message.content = Base64.decode64(message.content)
+      end
 
       is_protogen = false
 

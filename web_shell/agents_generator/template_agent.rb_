@@ -49,6 +49,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
     PUNK.start('msgPresence')
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+    CC.logger.info("Agent 'XX_PROJECT_NAME' receive PRESENCE:\n#{presence.inspect}")
     PUNK.end('msgPresence','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- PRESENCE '#{presence.type}'")
     PUNK.start('handle', 'handling presence ...')
     CC.logger.info("Server: handle_presence: pushing presence '#{presence.type}' of imei='#{presence.asset}' to agent 'XX_PROJECT_NAME'")
@@ -103,10 +104,12 @@ class Agent_XX_CLEAN_PROJECT_NAME
         raise "No Protogen defined" unless $allow_non_protogen
       end
 
+      CC.logger.info("Agent 'XX_PROJECT_NAME' receive MESSAGE:\n#{message.inspect}")
       PUNK.end('msgAgent','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
 
     rescue Exception => e
       CCS.print_ruby_exception(e)
+      CC.logger.info("Agent 'XX_PROJECT_NAME' receive MESSAGE:\n#{message.inspect}")
       PUNK.end('msgAgent','ko','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
       return
     end
@@ -131,6 +134,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
     PUNK.start('msgTrack')
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][2] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+    CC.logger.info("Agent 'XX_PROJECT_NAME' receive TRACK:\n#{track.inspect}")
     PUNK.end('msgTrack','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- TRACK")
 
     PUNK.start('handle', 'handling track ...')
@@ -143,6 +147,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
     PUNK.start('msgOrder')
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][3] += 1
     SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+    CC.logger.info("Agent 'XX_PROJECT_NAME' receive ORDER:\n#{order.inspect}")
     PUNK.end('msgOrder','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- ORDER '#{order.code}'")
 
     PUNK.start('handle', 'handling order ...')

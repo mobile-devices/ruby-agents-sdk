@@ -224,7 +224,7 @@ module CloudConnectServices
         self.recorded_at = 007
         self.received_at = 007
 
-        self.channel = SDK.API.get_channels[0]
+        self.channel = nil
 
         self.content = nil
 

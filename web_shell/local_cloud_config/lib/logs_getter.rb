@@ -17,7 +17,6 @@ def logs_server
     log_server = []
     logs.each_line { |line|
       line.delete!("\n")
-      line.gsub!('"','\\"')
       log_server << line
     }
     log_server

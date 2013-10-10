@@ -4,6 +4,8 @@
 # Mobile Devices 2013
 #########################################################
 
+# To read configuration files
+require 'yaml'
 
 # @api public
 # An agent-specific module whose role is to be a wrapper around the SDK module (generated code).
@@ -15,7 +17,6 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
   if File.exist?("#{RH.generated_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
     require_relative '../protogen_XX_PROJECT_NAME/protogen_apis'
   end
-
 
   # @api public
   # This module gives you access to the SDK API.
@@ -38,7 +39,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Use this object to send messages to your devices.
       # @return [DeviceGate] a DeviceGate object configured for your agent.
       def self.device_gate
-        @@deviceGate ||= begin
+        @@DEVICE_GATE ||= begin
           DeviceGate.new(self.get_channels[0])
         end
       end
@@ -46,7 +47,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Use this object to send messages to the cloud.
       # @return [CloudGate] a CloudGate object configured for your agent.
       def self.cloud_gate
-        @@cloudGate ||= begin
+        @@CLOUD_GATE ||= begin
           CloudGate.new(self.get_channels[0])
         end
       end
@@ -98,12 +99,12 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       #   end
       # @return [Hash] the configuration of your agent.
       def self.config
-        @@config ||= begin
+        @@AGENT_CONFIG ||= begin
           if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
             if $ENV_TARGET == 'ragent'
-              @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['production']
+              YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['production']
             else
-            @@config = YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
+              YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['development']
             end
           else
             log.error("NO CONFIG FILE FOUND in #{root_path}/config")
@@ -114,6 +115,7 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         rescue Exception => e
           log.error("ERROR while loading configuration")
           CCS.print_ruby_exception(e)
+          nil
         end
       end
 
@@ -121,19 +123,17 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Your agents send messages on the first configured chanel.
       # @return [Array<String>] the channels your agent is listening to.
       def self.get_channels
-        @@CHANNEL = SDK.API.config['Dynamic_channel_str']
-        @@CHANNEL = SDK.API.config['dynamic_channel_str'] if @@CHANNEL == nil
-
-        if @@CHANNEL.is_a? String
-          @@CHANNEL = ["#{@@CHANNEL}"]
+        @@CHANNELS ||= begin
+          channels = SDK.API.config['Dynamic_channel_str']
+          channels = SDK.API.config['dynamic_channel_str'] if channels == nil
+          if channels.is_a? String
+            channels = [channels]
         end
-
-        if (@@CHANNEL == nil) || (@@CHANNEL.length == 0)
-          @@CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
+          if (channels == nil) || (channels.length == 0)
+            channels = ['com.mdi.services.default_XX_PROJECT_NAME']
         end
-
-        return @@CHANNEL
-
+          channels
+        end
       end
 
       ############### Path ################################################
@@ -141,11 +141,13 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # Returns the path to the root directory of your agent. You can write files in this folder.
       # @return [String] the path to the root directory of your agent.
       def self.root_path
+        @@ROOT_PATH_AGENT ||= begin
         if $ENV_TARGET == 'ragent'
           dir_path = File.expand_path('..',"#{__FILE__}")
-          "#{dir_path}/../../../../../builder/agents_git_sources/XX_PROJECT_NAME"
+          File.expand_path("#{dir_path}/../../../../../builder/agents_git_sources/XX_PROJECT_NAME")
         else
-        'XX_PROJECT_ROOT_PATH'
+            File.expand_path('XX_PROJECT_ROOT_PATH')
+          end
         end
       end
     end

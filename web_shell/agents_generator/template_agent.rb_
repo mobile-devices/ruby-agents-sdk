@@ -4,8 +4,6 @@
 # Mobile Devices 2013
 #########################################################
 
-# To read configuration files
-require 'yaml'
 
 # Framework to be standalone
 require 'active_support/all'
@@ -27,21 +25,8 @@ class Agent_XX_CLEAN_PROJECT_NAME
     require_relative 'protogen_XX_PROJECT_NAME/protogen_apis'
   end
 
-  # Project
-  @AGENT_NAME = ''
-  @CHANNEL = ['com.mdi.services.XX_PROJECT_NAME']
-
-  def initialize() # constructor
-    SDK.API.log.info("root path is = \"#{SDK.API.root_path}\"")
-
-    @AGENT_NAME = 'XX_PROJECT_NAME'
-
-    # Load dynamic channel
-    @CHANNEL = SDK.API::get_channels
-
-    @has_protogen = File.exist?("#{RH.generated_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
-
-    SDK.API.log.info("init as protogen=#{@has_protogen} with dynamic channel = \"#{@CHANNEL}\"")
+  def initialize # constructor
+    CC.logger.info("Create Agent_XX_CLEAN_PROJECT_NAME protogen=#{is_agent_has_protogen}. root_path=\"#{SDK.API::root_path}\". dyn_channels=\"#{SDK.API::get_channels}\".")
   end
 
   ######### Messages delivered for the agent ###########################
@@ -57,17 +42,8 @@ class Agent_XX_CLEAN_PROJECT_NAME
   end
 
   def handle_message(message)
-
-    a_channel_is_valid = false
-    @CHANNEL.each { |chan|
-      if message.channel == chan
-        a_channel_is_valid = true
-      end
-    }
-
-    if !a_channel_is_valid
-      return
-    end
+    # Filter channel
+    return if !(SDK.API::get_channels.include? message.channel)
 
     PUNK.start('msgAgent')
 
@@ -76,14 +52,12 @@ class Agent_XX_CLEAN_PROJECT_NAME
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
       SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
 
-      if $ENV_TARGET == 'sdk-vm'
-        # decode content as base64 (vm mode)
+      if $ENV_TARGET == 'sdk-vm' # decode content as base64 for fake communication (vm mode)
         message.content = Base64.decode64(message.content)
       end
 
       is_protogen = false
-
-      if @has_protogen
+      if is_agent_has_protogen
         begin
           # protogen decode
           msg, cookies = ProtogenAPIs.decode(message)
@@ -100,7 +74,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
           CC.logger.warn("Server: handle_message: MessagePack unpack error, either the payload is corrupted or not a protogen message : (err=#{e.inspect})")
           raise e unless $allow_non_protogen
         end
-      else # not @has_protogen
+      else # not is_agent_has_protogen
         raise "No Protogen defined" unless $allow_non_protogen
       end
 
@@ -127,7 +101,6 @@ class Agent_XX_CLEAN_PROJECT_NAME
       new_msg_from_device(message)
     end
 
-    message.id
   end
 
   def handle_track(track)
@@ -154,6 +127,18 @@ class Agent_XX_CLEAN_PROJECT_NAME
     CC.logger.info("Server: handle_order: pushing order #{order.code} to agent 'XX_PROJECT_NAME' ---------------------")
     new_order(order)
   end
+
+
+  # Private api
+  def agent_name
+     @AGENT_NAME ||= 'XX_PROJECT_NAME'
+  end
+
+  def is_agent_has_protogen
+    @is_agent_has_protogen ||= File.exist?("#{generated_rb_path}/protogen_XX_PROJECT_NAME/protogen_apis.rb")
+  end
+
+
 
   # SDK Framework
   include Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME

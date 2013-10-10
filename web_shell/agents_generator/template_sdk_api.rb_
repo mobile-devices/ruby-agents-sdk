@@ -30,9 +30,9 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # @param [Class<Exception>] e an exception
       def self.print_ruby_exception(e)
         stack=""
-        e.backtrace.take(20).each { |trace|
+        e.backtrace.take(20).each do |trace|
           stack+="  >> #{trace}\n"
-        }
+        end
         self.log.error("  RUBY EXCEPTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n >> #{e.inspect}\n\n#{stack}\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
       end
 

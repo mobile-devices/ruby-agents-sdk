@@ -143,7 +143,7 @@ module AgentsGenerator
     template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
     # template generation
-    agents_to_run.each { |agent|
+    agents_to_run.each do |agent|
       clean_class_name = clean_name("#{agent}")
       downcased_class_name = clean_class_name.downcase
 
@@ -154,7 +154,7 @@ module AgentsGenerator
       agents_generated_code += template_agent
 
       agents_generated_code += "\$#{clean_class_name}_initial = Agent_#{clean_class_name}.new\n\n\n"
-    }
+    end
     agents_generated_code += "\n\n\n\n"
 
 
@@ -296,7 +296,7 @@ module AgentsGenerator
     template_api_src = File.read("#{source_path}/template_sdk_api.rb_")
     FileUtils.mkdir_p("#{sdk_utils_path}")
 
-    agents_to_run.each { |agent|
+    agents_to_run.each do |agent|
       clean_class_name = clean_name("#{agent}")
       downcased_class_name = clean_class_name.downcase
       template_sdk_api = template_api_src.clone
@@ -306,7 +306,7 @@ module AgentsGenerator
       template_sdk_api.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
       template_sdk_api_generated_code += template_sdk_api
       template_sdk_api_generated_code += "\n\n"
-    }
+    end
 
     File.open("#{sdk_utils_path}/sdk_api.rb", 'w') { |file| file.write(template_sdk_api_generated_code)}
 
@@ -356,7 +356,7 @@ module AgentsGenerator
     @AgentsGenerator_rapport_generation
   end
 
-  def generate_Gemfile()
+  def generate_Gemfile
 
     # get agents to run
     agents_to_run = get_run_agents
@@ -382,7 +382,7 @@ module AgentsGenerator
   end
 
 
-  def generated_get_agents_whenever_content()
+  def generated_get_agents_whenever_content
     agents_to_run = get_run_agents
     agents_whenever=''
 
@@ -615,11 +615,11 @@ module AgentsGenerator
 
   def remove_unvalid_agents(array)
     out = []
-    array.each { |a|
+    array.each do |a|
       if is_agent_valid(a)
         out << a
       end
-    }
+    end
     out
   end
 
@@ -635,9 +635,9 @@ module AgentsGenerator
       text = File.read(file_full)
       File.open(file_full, 'w') { |file| file.write(text.gsub(pattern, replace)) }
     end
-    get_dirs(path).each{ |dir|
+    get_dirs(path).each do |dir|
       match_and_replace_in_folder("#{path}/#{dir}", pattern, replace)
-    }
+    end
   end
 
   # Writes to disk a list of the agents.

@@ -14,7 +14,7 @@ module AgentsGenerator
   require_relative 'gemfile_mergator'
 
   def source_path
-      @ROOT_PATH_AGENT_MGT ||= File.expand_path("..", __FILE__)
+    @ROOT_PATH_AGENT_MGT ||= File.expand_path("..", __FILE__)
   end
 
   def workspace_path

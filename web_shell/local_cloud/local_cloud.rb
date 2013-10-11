@@ -117,6 +117,7 @@ $mutex_message_to_device = Mutex.new()
 # reset starts
 SDK_STATS.reset_stats
 
+#todo use CCSI.user_class_subscriber lists to print below
 RH.running_agents.each { |agent|
   PUNK.start('a')
   PUNK.end('a','system','',"SERVER mounts AGENT:#{agent}TNEGA")

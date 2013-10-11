@@ -100,6 +100,44 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # @return [Hash] the configuration of your agent.
       def self.config
         @@AGENT_CONFIG ||= begin
+          config = SDK.API::file_config
+          tmp_config = {}
+          config.each do |k, v|
+            if !(SDK.API::what_is_internal_config.include? "#{k}")
+              tmp_config[k] = v
+            end
+          end
+          tmp_config
+        end
+      end
+      # @api private
+      def self.config_internal
+        @@AGENT_CONFIG_INTERNAL ||= begin
+          config = SDK.API::file_config
+          tmp_config = {}
+          config.each do |k, v|
+            if SDK.API::what_is_internal_config.include? "#{k}"
+              tmp_config[k] = v
+            end
+          end
+          tmp_config
+        end
+      end
+      # @api private
+      def self.what_is_internal_config
+        @@WHAT_IS_INTERNAL_CONFIG ||= begin
+          [
+            'dynamic_channel_str',
+            'Dynamic_channel_str',
+            'subscribe_presence',
+            'subscribe_message',
+            'subscribe_track'
+          ]
+        end
+      end
+      # @api private
+      def self.file_config
+        @@AGENT_FILE_CONFIG ||= begin
           if File.exist?("#{root_path}/config/XX_PROJECT_NAME.yml")
             if $ENV_TARGET == 'ragent'
               YAML::load(File.open("#{root_path}/config/XX_PROJECT_NAME.yml"))['production']

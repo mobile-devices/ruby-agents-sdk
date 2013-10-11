@@ -27,105 +27,173 @@ class Agent_XX_CLEAN_PROJECT_NAME
 
   def initialize # constructor
     CC.logger.info("Create Agent_XX_CLEAN_PROJECT_NAME protogen=#{is_agent_has_protogen}. root_path=\"#{SDK.API::root_path}\". dyn_channels=\"#{SDK.API::get_channels}\".")
+    #todo: test if subscribe_presence.. are boolean exists and raise !
+    # class subscribe
+    CCSI.user_class_subscriber.subscribe(self)
+    if SDK.API::config_internal['subscribe_presence']
+      CCSI.user_class_presence_subscriber.subscribe(self)
+      CC.logger.info("#{self.agent_name} subscribe to presences")
+    end
+    if SDK.API::config_internal['subscribe_message']
+      CCSI.user_class_presence_subscriber.subscribe(self)
+      CC.logger.info("#{self.agent_name} subscribe to messages")
+    end
+    if SDK.API::config_internal['subscribe_track']
+      CCSI.user_class_track_subscriber.subscribe(self)
+      CC.logger.info("#{self.agent_name} subscribe to tracks")
+    end
   end
 
   ######### Messages delivered for the agent ###########################
   def handle_presence(presence)
-    PUNK.start('msgPresence')
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
-    CC.logger.info("Agent 'XX_PROJECT_NAME' receive PRESENCE:\n#{presence.inspect}")
-    PUNK.end('msgPresence','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- PRESENCE '#{presence.type}'")
-    PUNK.start('handle', 'handling presence ...')
-    CC.logger.info("Server: handle_presence: pushing presence '#{presence.type}' of imei='#{presence.asset}' to agent 'XX_PROJECT_NAME'")
-    new_presence_from_device(presence)
+    begin
+      time_start_presence = Time.now
+
+      PUNK.start('msgPresence')
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][0] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+      CC.logger.info("Agent 'XX_PROJECT_NAME' receive PRESENCE:\n#{presence.inspect}")
+      PUNK.end('msgPresence','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- PRESENCE '#{presence.type}'")
+      PUNK.start('handle', 'handling presence ...')
+      CC.logger.info("Server: handle_presence: pushing presence '#{presence.type}' of imei='#{presence.asset}' to agent 'XX_PROJECT_NAME'")
+      new_presence_from_device(presence)
+
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['process_time'][0] += (Time.now - time_start_presence)
+      PUNK.end('handle','ok','process',"AGENT:XX_PROJECT_NAMETNEGA callback PRESENCE '#{presence.type}'")
+    rescue => e
+      CC.logger.error('Server: /presence error on agent XX_PROJECT_NAME while handle_presence')
+      CCS.print_ruby_exception(e)
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_while_process'][0] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+      PUNK.end('handle','ko','process',"AGENT:XX_PROJECT_NAMETNEGA callback PRESENCE fail")
+    end
   end
 
   def handle_message(message)
-    # Filter channel
-    return if !(SDK.API::get_channels.include? message.channel)
-
-    PUNK.start('msgAgent')
-
-    msg_type = ""
     begin
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
-      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+      time_start_message = Time.now
 
-      if $ENV_TARGET == 'sdk-vm' # decode content as base64 for fake communication (vm mode)
-        message.content = Base64.decode64(message.content)
-      end
+      # Filter channel
+      return if !(SDK.API::get_channels.include? message.channel)
 
-      is_protogen = false
-      if is_agent_has_protogen
-        begin
-          # protogen decode
-          msg, cookies = ProtogenAPIs.decode(message)
-          message.content = msg
-          message.meta['protogen_cookies'] = cookies
-          msg_type = msg.class
+      PUNK.start('msgAgent')
 
-          is_protogen = true
-        rescue Protogen::UnknownMessageType => e
-          # direct run
-          CC.logger.warn("Server: handle_message: unknown protogen message type: #{e.inspect}")
-          raise e unless $allow_non_protogen
-        rescue MessagePack::UnpackError => e
-          CC.logger.warn("Server: handle_message: MessagePack unpack error, either the payload is corrupted or not a protogen message : (err=#{e.inspect})")
-          raise e unless $allow_non_protogen
+      msg_type = ""
+      begin
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][1] += 1
+        SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+
+        if $ENV_TARGET == 'sdk-vm' # decode content as base64 for fake communication (vm mode)
+          message.content = Base64.decode64(message.content)
         end
-      else # not is_agent_has_protogen
-        raise "No Protogen defined" unless $allow_non_protogen
+
+        is_protogen = false
+        if is_agent_has_protogen
+          begin
+            # protogen decode
+            msg, cookies = ProtogenAPIs.decode(message)
+            message.content = msg
+            message.meta['protogen_cookies'] = cookies
+            msg_type = msg.class
+
+            is_protogen = true
+          rescue Protogen::UnknownMessageType => e
+            # direct run
+            CC.logger.warn("Server: handle_message: unknown protogen message type: #{e.inspect}")
+            raise e unless $allow_non_protogen
+          rescue MessagePack::UnpackError => e
+            CC.logger.warn("Server: handle_message: MessagePack unpack error, either the payload is corrupted or not a protogen message : (err=#{e.inspect})")
+            raise e unless $allow_non_protogen
+          end
+        else # not is_agent_has_protogen
+          raise "No Protogen defined" unless $allow_non_protogen
+        end
+
+        CC.logger.info("Agent 'XX_PROJECT_NAME' receive MESSAGE:\n#{message.inspect}")
+        PUNK.end('msgAgent','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
+
+      rescue Exception => e
+        CCS.print_ruby_exception(e)
+        CC.logger.info("Agent 'XX_PROJECT_NAME' receive MESSAGE:\n#{message.inspect}")
+        PUNK.end('msgAgent','ko','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
+        return
       end
 
-      CC.logger.info("Agent 'XX_PROJECT_NAME' receive MESSAGE:\n#{message.inspect}")
-      PUNK.end('msgAgent','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
 
-    rescue Exception => e
+      # process
+      PUNK.start('handle', 'handling message ...')
+      if is_protogen
+        CC.logger.info("Server: new protogen message of imei='#{message.asset}' to agent 'XX_PROJECT_NAME': #{message.content} ---------------------")
+        ProtogenAPIs.process(self, message)
+      else
+
+        CC.logger.debug("Server: new standard message  of imei='#{message.asset}' to agent 'XX_PROJECT_NAME' ---------------------")
+        new_msg_from_device(message)
+      end
+
+
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['process_time'][1] += (Time.now - time_start_message)
+      PUNK.end('handle','ok','process',"AGENT:XX_PROJECT_NAMETNEGA callback MSG[#{crop_ref(message.id,4)}]")
+    rescue => e
+      CC.logger.error('Server: /message error on agent XX_PROJECT_NAME while handle_message')
       CCS.print_ruby_exception(e)
-      CC.logger.info("Agent 'XX_PROJECT_NAME' receive MESSAGE:\n#{message.inspect}")
-      PUNK.end('msgAgent','ko','in',"AGENT:XX_PROJECT_NAMETNEGA <- MSG[#{crop_ref(message.id,4)}] '#{msg_type}'")
-      return
-    end
-
-
-    # process
-    PUNK.start('handle', 'handling message ...')
-    if is_protogen
-
-      CC.logger.info("Server: new protogen message of imei='#{message.asset}' to agent 'XX_PROJECT_NAME': #{message.content} ---------------------")
-      ProtogenAPIs.process(self, message)
-    else
-
-      CC.logger.debug("Server: new standard message  of imei='#{message.asset}' to agent 'XX_PROJECT_NAME' ---------------------")
-      new_msg_from_device(message)
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_while_process'][1] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+      PUNK.end('handle','ko','process',"AGENT:XX_PROJECT_NAMETNEGA callback MSG[#{crop_ref(message.id,4)}] fail")
     end
 
   end
 
   def handle_track(track)
-    PUNK.start('msgTrack')
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][2] += 1
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
-    CC.logger.info("Agent 'XX_PROJECT_NAME' receive TRACK:\n#{track.inspect}")
-    PUNK.end('msgTrack','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- TRACK")
+    begin
+      time_start_track = Time.now
 
-    PUNK.start('handle', 'handling track ...')
-    CC.logger.info("Server: handle_track: pushing track of imei='#{track.asset}'' to agent 'XX_PROJECT_NAME' ---------------------")
-    new_track_from_device(track)
+      PUNK.start('msgTrack')
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][2] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+      CC.logger.info("Agent 'XX_PROJECT_NAME' receive TRACK:\n#{track.inspect}")
+      PUNK.end('msgTrack','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- TRACK")
+
+      PUNK.start('handle', 'handling track ...')
+      CC.logger.info("Server: handle_track: pushing track of imei='#{track.asset}'' to agent 'XX_PROJECT_NAME' ---------------------")
+      new_track_from_device(track)
+
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['process_time'][2] += (Time.now - time_start_track)
+      PUNK.end('handle','ok','process',"AGENT:XX_PROJECT_NAMETNEGA callback TRACK")
+    rescue => e
+      CC.logger.error('Server: /track error on agent XX_PROJECT_NAME while handle_track')
+      CCS.print_ruby_exception(e)
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_while_process'][2] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+      PUNK.end('handle','ko','process',"AGENT:XX_PROJECT_NAMETNEGA callback TRACK fail")
+    end
   end
 
   def handle_order(order)
-    #todo: test type, log on errors
-    PUNK.start('msgOrder')
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][3] += 1
-    SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
-    CC.logger.info("Agent 'XX_PROJECT_NAME' receive ORDER:\n#{order.inspect}")
-    PUNK.end('msgOrder','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- ORDER '#{order.code}'")
+    begin
+      time_start_order = Time.now
 
-    PUNK.start('handle', 'handling order ...')
-    CC.logger.info("Server: handle_order: pushing order #{order.code} to agent 'XX_PROJECT_NAME' ---------------------")
-    new_order(order)
+      #todo: test type, log on errors
+      PUNK.start('msgOrder')
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][3] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+      CC.logger.info("Agent 'XX_PROJECT_NAME' receive ORDER:\n#{order.inspect}")
+      PUNK.end('msgOrder','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- ORDER '#{order.code}'")
+
+      PUNK.start('handle', 'handling order ...')
+      CC.logger.info("Server: handle_order: pushing order #{order.code} to agent 'XX_PROJECT_NAME' ---------------------")
+      new_order(order)
+
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['process_time'][3] += (Time.now - time_start_order)
+      PUNK.end('handle','ok','process',"AGENT:XX_PROJECT_NAMETNEGA callback ORDER '#{order.code}'")
+    rescue => e
+      CC.logger.error("Server: /remote_call error on agent XX_PROJECT_NAME while executing order #{order.code}")
+      CCS.print_ruby_exception(e)
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_while_process'][3] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+      PUNK.end('handle','ko','process',"AGENT:XX_PROJECT_NAMETNEGA callback ORDER '#{order.code}' fail")
+    end
+
   end
 
 

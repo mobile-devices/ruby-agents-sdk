@@ -11,6 +11,8 @@ module CloudConnectServices
 
   #============================== CLASSES ========================================
 
+
+
   # An event received when a device change its connection status
   # @api public
   class Presence < Struct.new(:asset, :time, :bs, :type, :reason, :account, :meta)
@@ -518,6 +520,7 @@ module CloudConnectServices
   end
 
   # An event sent when a scheduled order is going to be executed.
+  # @api private
   class Order < Struct.new(:agent, :code, :params)
 
     # @!attribute [rw] agent

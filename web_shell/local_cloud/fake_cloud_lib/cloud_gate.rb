@@ -148,7 +148,10 @@ def handle_msg_from_device(type, params)
   # Process the message
   case type
   when 'presence'
-    generated_handle_presence(msg)
+    # Create work environnement
+    work = CCSI::CloudWork.new(msg)
+    # And run it !
+    work.run
   when 'message'
     # let's drop all message with channel 0 :
     if (msg.channel == '0')
@@ -182,11 +185,20 @@ def handle_msg_from_device(type, params)
       PUNK.end('ack','ok','out',"SERVER -> ACK")
     end
 
-    generated_handle_message(msg)
+    # Create work environnement
+    work = CCSI::CloudWork.new(msg)
+    # And run it !
+    work.run
   when 'track'
-    generated_handle_track(msg)
+    # Create work environnement
+    work = CCSI::CloudWork.new(msg)
+    # And run it !
+    work.run
   when 'order'
-    generated_handle_order(msg)
+    # Create work environnement
+    work = CCSI::CloudWork.new(msg)
+    # And run it !
+    work.run
   else
     CC.logger.error("Server: handle_msg_from_device: type '#{type}' unknown")
   end

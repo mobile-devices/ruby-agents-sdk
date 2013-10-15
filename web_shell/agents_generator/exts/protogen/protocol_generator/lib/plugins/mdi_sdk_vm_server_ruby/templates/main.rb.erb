@@ -37,14 +37,12 @@ module Protogen_<%= Env['agent_name'] %>
     # Check the message protogen type, and call the defined callback accordingly.
     # @param [CCS::Message] message message.content must be a protogen message object.
     def self.process(message_class_owner, message)
-      Protogen::Splitter.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
-      Protogen::CookiePasswdMgr.init(Sdk_api_<%= Env['agent_name'] %>::SDK::API.redis_internal)
-      case message.content<% Env['msg_seq_dev'].each do |msg,seq| %>
-      when Protogen::Messages::<%= msg %> # <%= seq %> sequence
-        message_class_owner.<%= "#{Env['sequences'][seq]['callback'] || seq}(message)" %><% end %>
-      when Protogen::MessagePartNotice
+      if message.content.class == Protogen::MessagePartNotice
         CC.logger.info("Message part received")
+        return
       end
+
+      Protogen::Sequences.continue_sequence(message)
     end
 
   end

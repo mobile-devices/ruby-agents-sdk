@@ -1,6 +1,7 @@
 Protocol Generator developper documentation
 ===========================================
 
+(note: not really up-to-date)
 
 # Generated code organisation
 
@@ -27,3 +28,32 @@ Also a priority for a plugin is defined. Indeed, one plugin might need to be cal
 # Accessing variables through the project
 
 Every piece of information is stored in Env "alias" for ProtocolGenerator::Environment.env, which is sort of a global hash. It is still kind of a mess, inside, but you will certainly find what you want.
+
+
+
+# How messages are formated
+
+Each message, once serialized, share the same structure :
+
+
+    { /* messagewrap */
+      "type":1, /* int, id of the message. */
+      "msg":{
+        "surname":"John",
+        "name":"Malkovich",
+        "age":59,
+        "_protogen_sequence_id":1,
+        "_protogen_shot_id":2
+        …
+      },
+      "_cookieA":{
+        "expiration":123456789, /* int, timestamp of the expiration date of the cookie */
+        "content":"3NcRYP73D57UfF" /* encrypted content */
+        "sig":"516n47uR3" /* signature */
+      },
+      "_cookieB":{
+        …
+      }
+
+      …
+    }

@@ -64,7 +64,7 @@ module ProtocolGenerator
     'type' => 'object',
     'properties' => {
       'type' => {'type'=>'string', 'required' => true},
-      'modifier' => {'type'=>'string', 'required' => true},
+      'modifier' => {'type'=>'string', 'enum' => ['required', 'optional'], 'required' => true},
       'array' => {'type'=>'bool', 'required' => false},
       'docstring' => {'type'=>'string', 'required' => false}
     }
@@ -100,13 +100,13 @@ module ProtocolGenerator
 
   COOKIES_SCHEMA = {
     'type' => 'object',
-    'required' => false,
+    'required' => true,
     'properties' => {},
     "patternProperties" => {
       "^[A-Z]" => {
         'type' => 'object',
         'properties' => {
-          "_send_with" => { 'type' => 'Array', },
+          "_send_with" => { 'type' => 'Array' },
           "_secure" => { 'type' => 'string', 'enum' => ['high', 'low', 'none']},
           "_validity_time" => {'type' => 'int', 'required' => false}
           },
@@ -117,20 +117,44 @@ module ProtocolGenerator
     }
   }.freeze
 
-  SEQUENCES_SCHEMA = {
-    'type' => 'object',
-    'required' => false,
-    'properties' => {
-      # FIXME
+  SHOTS_SCHEMA = {
+    "type" => "object",
+    "required" => true,
+    "patternProperties" => {
+      "^[A-Z]" => {
+        "type" => "object",
+        "properties" => {
+          "way" => {"type" => "string", "required" => true, "enum" => ['toDevice', 'toServer']},
+          "message_type" => {"type" => "string", "required" => true},
+          "next_shots" => {"type" => "Array", "items" => { "type" => "string"}}
+        }
+      }
     }
   }.freeze
+
+  SEQUENCES_SCHEMA = {
+    "type" => "object",
+    "required" => true,
+    "patternProperties" => {
+      "^[A-Z]" => {
+        "type" => "object",
+        "properties" => {
+          "first_shot" => {"type" => "string", "required" => true},
+          "shots" => SHOTS_SCHEMA
+        }
+      }
+    }
+  }.freeze
+
 
   GENERAL_SCHEMA = {
     "type" => "object",
     "properties" => {
       "messages" => MESSAGES_SCHEMA,
       "cookies" => COOKIES_SCHEMA,
-      "sequences" => SEQUENCES_SCHEMA
+      "sequences" => SEQUENCES_SCHEMA,
+      "protocol_version" => {"type" => "int", "required" => true},
+      "protogen_version" => {"type" => "int", "required" => true, "enum" => [1]}
     }
   }.freeze
 
@@ -164,12 +188,14 @@ module ProtocolGenerator
 
       # Configuration validation
       if configuration['server_output_directory']
-        unless JSON::Validator.validate(SERVER_CONF_SCHEMA, configuration, :validate_schema => true)
-          raise ConfigurationFileError.new("The configuration file do not follow the correct schema: #{SERVER_CONF_SCHEMA.inspect}")
+        validation_errors = JSON::Validator.fully_validate(SERVER_CONF_SCHEMA, configuration, :validate_schema => true)
+        if validation_errors.size > 0
+          raise ConfigurationFileError.new("The configuration file do not follow the correct schema: #{SERVER_CONF_SCHEMA.inspect}. Errors: #{validation_errors.inspect}.")
         end
       elsif configuration['device_output_directory']
-        unless JSON::Validator.validate(DEVICE_CONF_SCHEMA, configuration, :validate_schema => true)
-          raise ConfigurationFileError.new("The configuration file do not follow the correct schema: #{DEVICE_CONF_SCHEMA.inspect}")
+        validation_errors = JSON::Validator.fully_validate(DEVICE_CONF_SCHEMA, configuration, :validate_schema => true)
+        if validation_errors.size > 0
+          raise ConfigurationFileError.new("The configuration file do not follow the correct schema: #{DEVICE_CONF_SCHEMA.inspect}. Errors: #{validation_errors.inspect}.")
         end
       else
         raise Error::ConfigurationFileError.new("No output directory was given (set the 'server_output_directory' or 'device_output_directory' key in the configuration file)")
@@ -189,13 +215,15 @@ module ProtocolGenerator
         Error::PluginError.new('Conflict: two plugins found using msgpack and protobuf. You can use only one or the other.')
       elsif use_protobuf
         Env['ser_lang'] = 'protobuf'
-        unless JSON::Validator.validate(PROTOBUF_CONF_SCHEMA, configuration, :validate_schema => true)
+        validation_errors = JSON::Validator.fully_validate(PROTOBUF_CONF_SCHEMA, configuration, :validate_schema => true)
+        if validation_errors.size > 0
           raise ConfigurationFileError.new("The configuration file do not follow the correct Protobuf schema: #{PROTOBUF_CONF_SCHEMA.inspect}")
         end
       elsif use_msgpack
         Env['ser_lang'] = 'msgpack'
-        unless JSON::Validator.validate(MSGPACK_CONF_SCHEMA, configuration, :validate_schema => true)
-          raise ConfigurationFileError.new("The configuration file do not follow the correct msgpack schema: #{PROTOBUF_CONF_SCHEMA.inspect}")
+        validation_errors = JSON::Validator.fully_validate(MSGPACK_CONF_SCHEMA, configuration, :validate_schema => true)
+        if validation_errors.size > 0
+          raise ConfigurationFileError.new("The configuration file do not follow the correct msgpack schema: #{PROTOBUF_CONF_SCHEMA.inspect}. Errors: #{validation_errors.inspect}.")
         end
       end
 
@@ -213,19 +241,24 @@ module ProtocolGenerator
         raise Error::ProtocolFileParserError.new("Error when JSON-parsing the protocol definition file at #{Env['input_path']}: #{e.message}")
       end
 
-      # Messages validation
-      unless JSON::Validator.validate(MESSAGES_SCHEMA, input['messages'], :validate_schema => true)
-        raise Error::ProtocolDefinitionError.new("Bad messages protocol definition: check that you provide the required fields.")
+      # General validation
+      validation_errors = JSON::Validator.fully_validate(GENERAL_SCHEMA, input, :validate_schema => true)
+      if validation_errors.size > 0
+        raise Error::ProtocolDefinitionError.new("General schema validation failed, check your input file. Errors: #{validation_errors.inspect}.")
       end
 
+      # Messages
       puts "Building the environment (messages and types)..."
       Env['messages'] = input['messages']
       puts "Found messages #{Env['messages'].keys.inspect}"
       declared_messages = []
       Env['fields'] = {}
-      Env['sendable_messages'] = []
+      Env['sendable_messages'] = {'from_server' => [], 'from_device' => []}
+      id = 0
       Env['messages'].each do |msg_name, msg_content|
         fields = []
+        msg_content['_id'] = id
+        id += 1
         msg_content.each do |field_name, field_content|
           next if /^[a-z]/.match(field_name).nil?
           raise Error::ProtocolDefinitionError.new("Unknown message type: '#{field_content['type']}' (in field '#{field_name}' of message '#{msg_name}')") unless [BASIC_TYPES, 'msgpack', declared_messages].flatten.include?(field_content['type'])
@@ -234,28 +267,22 @@ module ProtocolGenerator
         raise Error::ProtocolDefinitionError.new("Type declared more than once: '#{msg_name}'.") if [BASIC_TYPES, 'msgpack', declared_messages].flatten.include?(msg_name)
         declared_messages << msg_name
         Env['fields'][msg_name] = fields
-        Env['sendable_messages'] << msg_name if msg_content['_way'] != 'none'
-
-        # Only validation
-        if ['toServer', 'both'].include?(msg_content['_way']) && msg_content['_server_callback'].nil?
-          raise Error::ProtocolDefinitionError.new("Missing mandatory field _server_callback in #{msg_name}")
+        if msg_content['_way'] == 'toDevice' || msg_content['_way'] == 'both'
+          Env['sendable_messages']['from_server'] << msg_name
         end
-
-        if ['toDevice', 'both'].include?(msg_content['_way']) && msg_content['_device_callback'].nil?
-          raise Error::ProtocolDefinitionError.new("Missing mandatory field _device_callback in #{msg_name}")
+        if msg_content['_way'] == 'toServer' || msg_content['_way'] == 'both'
+          Env['sendable_messages']['from_device'] << msg_name
         end
       end # Env['messages'].each do |msg_name, msg_content|
+
       Env['declared_types'] = declared_messages
       puts "Declared types: #{Env['declared_types']}"
       puts "Sendable messages: #{Env['sendable_messages']}"
       puts "Fields of each message: #{Env['fields'].inspect}"
       puts "Parsed messages: #{Env['messages'].inspect}"
 
-      # Cookies validation
+      # Cookies
       puts "Building the environment (cookies)..."
-      unless JSON::Validator.validate(COOKIES_SCHEMA, input['cookies'], :validate_schema => true)
-        raise Error::ProtocolDefinitionError.new("Bad cookies definition (check that your 'cookies' field is correct).")
-      end
       Env['cookies'] = input['cookies']
       Env['use_cookies'] = !Env['cookies'].nil? && !Env['cookies'].empty?
       if Env['use_cookies']
@@ -276,87 +303,61 @@ module ProtocolGenerator
         puts "No cookies declared, will not use cookies"
       end
 
-      puts "Building the environment (sequences)..."
-      puts "Creating sequences"
-      # only 1shot.XXX sequences type are currently defined
-      # q&a sequences are not defined
-      Env['sequences'] = {}
-      Env['messages'].each do |msg_name, msg_content|
-        if msg_content['_way'] == 'toServer' || msg_content['_way'] == 'both'
-          Env['sequences']["#{msg_name}ToServer"] = {
-            'type' => '1shot.device',
-            'message' => msg_name,
-            'callback' => msg_content['_server_callback']
-          }
-        end
 
-        if msg_content['_way'] == 'toDevice' || msg_content['_way'] == 'both'
-          Env['sequences']["#{msg_name}_to_device"] = {
-            'type' => '1shot.server',
-            'message' => msg_name,
-            'callback' => msg_content['_device_callback'],
-            "timeout_calls" => msg_content['_timeout_calls'],
-            "timeouts" => msg_content['_timeouts']
-          }
-        end
+      # Sequences
+      Env['sequences'] = input['sequences']
+      messages = Env['messages']
+      Env['callbacks'] = {}
+      seq_id = 0
 
-      end
-      puts "Sequences: #{Env['sequences'].inspect}"
+      Env['sequences'].each do |sequence_name, sequence_definition|
+        sequence_definition['id'] = seq_id
+        seq_id += 1
 
-      # JSON::Validator.validate!(SEQUENCES_SCHEMA, input['sequences'], :validate_schema => true)
-      # Env['sequences'] = input['sequences']
-      # The initial way of expressing sequences has been deactivated. Should
-      # you want to use it again, be careful not to override the sequences
-      # defined inside messages definitions (using _way, etc...)
-      Env['use_sequences'] = !Env['sequences'].nil? && !Env['sequences'].empty?
-      if Env['use_sequences']
-        puts "Parametring sequences"
-        Env['msg_replies_dev'] = {}
-        Env['msg_seq_dev'] = {}
-        Env['msg_seq_srv'] = {} # TODO !
-        Env['msg_indep'] = {}
-        Env['msg_callbacks_dev'] = {}
-        Env['timeout_callbacks_dev'] = {}
-        Env['sequences'].each do |name,seq|
-          seq['timeouts'] ||= {}
-          seq['timeout_calls'] ||= {}
-          case seq['type']
-          when '1shot.device'
-            Env['msg_seq_dev'][seq['message']] = name
-          when '1shot.server'
-            Env['msg_seq_srv'][seq['message']] = name
-            Env['msg_indep'][seq['message']] = {'callback' => seq['callback']}
-            Env['msg_callbacks_dev'][seq['callback']] = seq['message']
-          when 'q&a.device'
-            Env['msg_seq_dev'][seq['message']] = name
-            Env['msg_replies_dev'][seq['message']] = seq['answers']
-            seq['answers'].each do |msg,callback| Env['msg_callbacks_dev'][callback] = msg end
-          when 'q&a.server'
-            Env['msg_seq_srv'][seq['message']] = name
-            raise 'q&a.server TODO'
+        # validation
+        shots = sequence_definition['shots']
+        raise Error::SequenceError.new("Sequence #{sequence_name}: first shot #{sequence_definition['first_shot']} is not declared.") unless shots.has_key?(sequence_definition['first_shot'])
+        id = 0
+        shots.each do |shot, shot_definition|
+          case shot_definition['way']
+          when 'toServer'
+            unless Env['sendable_messages']['from_device'].include?(shot_definition['message_type'])
+              raise Error::SequenceError.new("Sequence #{sequence_name} shot #{shot}: message type #{shot_definition['message_type']} in undefined or not sendable from the device")
+            end
+          when 'toDevice'
+            unless Env['sendable_messages']['from_server'].include?(shot_definition['message_type'])
+              raise Error::SequenceError.new("Sequence #{sequence_name} shot #{shot}: message type #{shot_definition['message_type']} in undefined or not sendable from the server")
+            end
           else
-            raise "Unimplemented sequence: #{seq['type']}"
+            raise Error::SequenceError.new("Sequence #{sequence_name} shot #{shot}: way must be either 'toDevice' or 'toServer'")
           end
-          unless seq['timeout_calls'].nil?
-            seq['timeout_calls'].each do |tc|
-              Env['timeout_callbacks_dev']["#{name}_#{tc}_timeout"] = {'name' => seq['message'], 'tc' => tc}
+
+          if shot_definition.has_key?('next_shots')
+            registered_types = []
+            shot_definition['next_shots'].each do |next_shot|
+              raise Error::SequenceError.new("Sequence #{sequence_name} shot #{shot}: next shot #{next_shot} is not defined.") unless shots.has_key?(next_shot)
+              if registered_types.include?(shots[next_shot]['message_type'])
+                raise Error::SequenceError.new("Sequence #{sequence_name} shot #{shot}: some of the defined next_shots have the same message type.")
+              end
+              registered_types << shots[next_shot]['message_type']
+              raise Error::SequenceError.new("Sequence #{sequence_name} shot #{shot} must have different 'way' property than its next shot #{next_shot}") unless shots[next_shot]['way'] != shot_definition['way']
             end
           end
+
+          # compute shot id (id order does not matter, it just have to be the same on device and server)
+          shot_definition['id'] = id
+          id += 1
         end
-      else
-        puts "No sequences identified, will not use sequences"
+
       end
 
-      # General validation, just to be sure
-      unless JSON::Validator.validate(GENERAL_SCHEMA, input, :validate_schema => true)
-        raise Error::ProtocolDefinitionError.new("General schema validation failed, check your input file.")
-      end
 
       Env['protocol_version'] = compute_version_string
       puts "Protocol version: #{Env['protocol_version']}"
     end
 
     def self.compute_version_string
+      # todo rewrite that
       # Marshaled copies of the hashes, just to be sure there are no modified values in the original hash
       messages_copy = Marshal.load( Marshal.dump(Env['messages']) )
       cookies_copy = Marshal.load( Marshal.dump(Env['cookies']) )

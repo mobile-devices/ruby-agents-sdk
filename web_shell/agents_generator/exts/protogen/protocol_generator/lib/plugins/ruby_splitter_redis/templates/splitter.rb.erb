@@ -24,10 +24,10 @@ module Protogen_<%= Env['agent_name'] %>
     # Splits a serialized message if its length exceeds a certain limit.
     #
     # @param [String] message the serialized message
-    # @param [Fixnum] lengh_limit in bytes
+    # @param [Fixnum] length_limit in bytes
     # @return [message SHA1 (String), array of message parts (Array(String))]
     def self.split(message, length_limit)
-      hash = Digest::SHA1.hexdigest message
+      hash = Digest::SHA1.base64digest message
       parts = []
       (message.bytesize/length_limit+1).times do |i|
         parts << message.byteslice((i*length_limit)..((i+1)*length_limit-1))
@@ -51,7 +51,7 @@ module Protogen_<%= Env['agent_name'] %>
       message = message_parts.keys.map{|i| i.to_i}.sort.inject(""){
         |acc,part_i| acc << message_parts[part_i.to_s]
       }
-      raise 'Message corrupted' unless Digest::SHA1.hexdigest(message) == sha1_hash
+      raise 'Message corrupted' unless Digest::SHA1.base64digest(message) == sha1_hash
       message
     end
 

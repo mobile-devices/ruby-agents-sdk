@@ -35,8 +35,9 @@ module Protogen_<%= Env['agent_name'] %>
 
       msg_hash = {'v' => PROTOCOL_VERSION }
 
-      msg_hash['type'] = case object <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
+      msg_hash['type'] = case object <% Env['declared_types'].each do |type| next unless Env['sendable_messages']['from_server'].include?(type) %>
       when Messages::<%= type %> then Messages::ID_<%= type.upcase %> <% end %>
+      when ProtogenMessages::ServerError then ProtogenMessages::ID_SERVER_ERROR
       else
         raise UnknownMessageType, "The following object is not sendable: #{object.class}."
       end
@@ -96,7 +97,7 @@ module Protogen_<%= Env['agent_name'] %>
         end
       <% end %>
 
-      obj = case msg_hash['type'] <% Env['declared_types'].each do |type| next unless Env['sendable_messages'].include?(type) %>
+      obj = case msg_hash['type'] <% Env['declared_types'].each do |type| next unless Env['sendable_messages']['from_device'].include?(type) %>
       when Messages::ID_<%= type.upcase %> then Messages::<%= type %>.from_hash(msg_hash['msg']) <% end %>
       else
         raise UnknownMessageType, "The following object type is not decodable: #{msg_hash['type']}."

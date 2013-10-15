@@ -42,8 +42,18 @@ module Protogen_<%= Env['agent_name'] %>
       attr_accessor :<%= field %>
       <% end %>
 
+      # @api private
+      # [Hash] Protogen meta data, not to be used by the developer
+      attr_accessor :protogen_meta_data
+
+      # @api public
+      # Cookies associated with this message.
+      attr_accessor :cookies
+
       def initialize<% Env['fields'][type].each do |field| %>
         @<%= field %> = <%= ( Env['messages'][type][field]['array'] ? '[]' : 'nil' ) %><% end %>
+        @protogen_meta_data = {}
+        @cookies = nil
       end
 
       # @api private
@@ -71,6 +81,8 @@ module Protogen_<%= Env['agent_name'] %>
           raise "Unknown type of field: #{Env['messages'][type][field]['type']}"
         end
         %><% end %>
+        out_hash['_protogen_sequence_id'] = protogen_meta_data['protogen_sequence_id']
+        out_hash['_protogen_shot_id'] = protogen_meta_data['protogen_shot_id']
         out_hash
       end
 
@@ -93,6 +105,9 @@ module Protogen_<%= Env['agent_name'] %>
           raise "Unknown type of field: #{Env['messages'][type][field]['type']}"
         end
         %><% end %>
+        msg.protogen_meta_data = {}
+        msg.protogen_meta_data['protogen_sequence_id'] = in_hash['_protogen_sequence_id']
+        msg.protogen_meta_data['protogen_shot_id'] = in_hash['_protogen_shot_id']
         msg
       end
     end

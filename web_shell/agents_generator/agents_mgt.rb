@@ -77,7 +77,8 @@ module AgentsGenerator
         compil_opt = {
           "plugins" => ["mdi_sdk_vm_server_ruby"],
           "agent_name" => "#{agent}",
-          "server_output_directory" => "#{generated_rb_path}/protogen_#{agent}"
+          "server_output_directory" => "#{generated_rb_path}/protogen_#{agent}",
+          "user_callbacks" => "#{workspace_path}/#{agent}/protogen"
         }
         File.open('/tmp/protogen_conf.json', 'w') { |file| file.write(compil_opt.to_json)}
 

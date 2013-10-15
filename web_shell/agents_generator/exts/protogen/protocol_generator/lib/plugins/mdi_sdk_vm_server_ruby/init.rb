@@ -36,6 +36,7 @@ module ProtocolGenerator
         :ruby_messages_msgpack,
         :ruby_passwdgen_redis,
         :ruby_splitter_redis,
+        :ruby_sequences
       ]
       @priority = -10
       init

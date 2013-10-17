@@ -162,8 +162,8 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
       # @return [Array<String>] the channels your agent is listening to.
       def self.get_channels
         @@CHANNELS ||= begin
-          channels = SDK.API.config['Dynamic_channel_str']
-          channels = SDK.API.config['dynamic_channel_str'] if channels == nil
+          channels = SDK.API.config_internal['Dynamic_channel_str']
+          channels = SDK.API.config_internal['dynamic_channel_str'] if channels == nil
           if channels.is_a? String
             channels = [channels]
         end

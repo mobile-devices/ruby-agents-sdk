@@ -35,7 +35,7 @@ class Agent_XX_CLEAN_PROJECT_NAME
       CC.logger.info("#{self.agent_name} subscribe to presences")
     end
     if SDK.API::config_internal['subscribe_message']
-      CCSI.user_class_presence_subscriber.subscribe(self)
+      CCSI.user_class_message_subscriber.subscribe(self)
       CC.logger.info("#{self.agent_name} subscribe to messages")
     end
     if SDK.API::config_internal['subscribe_track']

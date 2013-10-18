@@ -27,10 +27,14 @@ module CloudConnectServicesInternal
     def initialize(message)
       self.id = CC.indigen_next_id
       self.message = message
-
-      # in all case, Presence Message and Track has an 'account' attribute
+      # Presence Message and Track have an 'account' attribute, but not Order
+      if message.respond_to? :account
+        account = message.account
+      else
+        account = nil
+      end
       self.env = {
-        :account => message.account
+        :account => account
       }
     end
 

@@ -128,7 +128,6 @@ module Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME
         @@WHAT_IS_INTERNAL_CONFIG ||= begin
           [
             'dynamic_channel_str',
-            'Dynamic_channel_str',
             'subscribe_presence',
             'subscribe_message',
             'subscribe_track'

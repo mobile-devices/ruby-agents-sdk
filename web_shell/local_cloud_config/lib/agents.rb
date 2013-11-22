@@ -176,5 +176,11 @@ def make_package_agent(agent)
   # make the package (todo test if error)
   `#{command}`
 
+  # HACK to avoid path remount of output log in case of using vm
+  if File.directory?("/home/vagrant")
+    FileUtils.mkdir_p("/home/vagrant/ruby_workspace/output")
+    `cp #{GEN.package_output_path}/#{package_name} /home/vagrant/ruby_workspace/output`
+  end
+
   "output/#{package_name}"
 end

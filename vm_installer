@@ -22,5 +22,7 @@ echo ""
 echo "mouting workspace"
 mkdir -p /home/vagrant/ruby-agents-sdk/cloud_agents
 sudo mount -o bind /home/vagrant/ruby_workspace /home/vagrant/ruby-agents-sdk/cloud_agents
+mkdir -p /home/vagrant/ruby-agents-sdk/logs
 sudo mount -o bind /home/vagrant/ruby_workspace/sdk_logs /home/vagrant/ruby-agents-sdk/logs
+mkdir -p /home/vagrant/ruby-agents-sdk/output
 sudo mount -o bind /home/vagrant/ruby_workspace/output /home/vagrant/ruby-agents-sdk/output

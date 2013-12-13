@@ -1,0 +1,10 @@
+{
+  "plugins":[
+    "mdi_ruby_sdk_vm"
+  ],
+  "server_output_directory":"/tmp/server",
+  "device_output_directory":"/tmp/device",
+  "java_package":"com.mdi.protogen.array",
+  "keep_java_source":false,
+  "agent_name":"ProtogenAgentTest"
+}

@@ -1,0 +1,1 @@
+{"pg_version":"0.4-dev-ecd9d69e97","default":{"mdi_framework_jar":"config/mdi-framework-3.X.jar","message_part_size":41984,"message_size_limit":1048576,"device_message_size_limit":1048576,"server_message_part_expiration_duration":3600,"device_message_part_expiration_duration":3600}}

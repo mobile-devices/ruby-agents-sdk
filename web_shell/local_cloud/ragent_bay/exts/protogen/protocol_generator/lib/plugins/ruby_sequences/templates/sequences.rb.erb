@@ -1,0 +1,155 @@
+Dir["<%= File.join(protocol_set.config.get(:ruby, :user_callbacks_directory), '*.rb')%>"].each do |file|
+  require_relative file
+  CC.logger.debug("Protogen: importing user defined callbacks in #{file}")
+end
+
+module Protogen_<%= protocol_set.config.get(:ruby, :agent_name) %>
+
+  module Protogen
+
+    class SequenceError < ProtogenError
+    end
+
+    module Sequences
+
+      class Sequence
+
+        attr_accessor :shots
+
+        def initialize(id, shots)
+          @shots = shots
+          @id = id
+        end
+
+        def run_callback_by_id(id, *args)
+          @shots[id].received_callback.call(*args)
+        end
+
+        def continue(current_message)
+          unless @id == current_message.content.protogen_meta_data['protogen_sequence_id']
+            raise SequenceError.new("Protogen: unvalid sequence id: got #{current_message.content.protogen_meta_data['protogen_sequence_id']}, expected #{@id}")
+          end
+          # todo: check current message type
+          shot_id = current_message.content.protogen_meta_data['protogen_shot_id']
+          CC.logger.info("Protogen: processing shot #{shot_id} of sequence #{@id}")
+          begin
+            result = run_callback_by_id(shot_id, current_message)
+          rescue Exception => e
+            error_msg = ProtogenMessages::ServerError.new
+            error_msg.info = "The server encountered an error when processing the device message: #{e.class.name} #{e.message}"
+            error_msg.protogen_meta_data['protogen_sequence_id'] = @id
+            error_msg.protogen_meta_data['protogen_shot_id'] = shot_id
+            error_msg.protogen_meta_data['protogen_version_string'] = current_message.content.protogen_meta_data['protogen_version_string']
+            CC.logger.error("A user callback raised an exception. Answering to the device with an error message and aborting sequence.")
+            ExternalApi.reply(current_message, error_msg)
+            raise e
+          end
+          next_shots = @shots[shot_id].next_shots
+          if next_shots.size > 0 # this is not the end of the sequence
+            CC.logger.info("Protogen: callback returned an object of type #{result.class.to_s}")
+            next_shots.each do |next_shot_id|
+              next_shot = @shots[next_shot_id]
+              if result.class == next_shot.message_type
+                result.protogen_meta_data['protogen_sequence_id'] = @id
+                result.protogen_meta_data['protogen_shot_id'] = next_shot.id
+                ExternalApi.reply(current_message, result)
+                CC.logger.info("Protogen: continuing sequence #{@id}")
+                return
+              end
+            end
+            # if we reach this point, the return type of the callback is not one of the possible next shots: error
+            raise SequenceError.new("Protogen: The callback for sequence #{@id} shot #{shot_id} did not return the expected message type: expected one of #{next_shots.map{ |next_shot_id| @shots[next_shot_id].message_type }.inspect}, got #{result.class}. Aborting sequence.")
+          else
+            CC.logger.info("Protogen: sequence #{@id} complete")
+          end
+        end
+
+      end
+
+      class Shot
+
+        attr_accessor :message_type
+        attr_reader :way
+        attr_accessor :received_callback
+        attr_accessor :id
+        attr_accessor :next_shots
+
+        # next_shots is an array of shots id that can follow this shot
+        def initialize(id, message_type, way, next_shots)
+          @id = id
+          @message_type = message_type
+          @received_callback = nil
+          @way = way
+          @next_shots = next_shots
+        end
+
+      end
+
+      def self.continue_sequence(message)
+        sequence_id = message.content.protogen_meta_data['protogen_sequence_id']
+        if sequence_id.nil?
+          raise SequenceError.new("Incoming Protogen message has no set sequence_id, dropping it.")
+        end
+        get_sequence(sequence_id, Protogen::Codec::VersionStringParser.protocol_version(message.content.protogen_meta_data['protogen_version_string'])).continue(message)
+      end
+
+      # Retrieve the toServer sequence associated with a given id and version
+      def self.get_sequence(sequence_id, version)
+        case version
+        <%- protocol_set.protocols.each do |protocol| -%>
+        when <%= protocol.protocol_version %>
+          case sequence_id
+          <%- protocol.sequences.each do |seq| -%>
+          when <%= seq.id %>
+            shots = []
+            <%- seq.shots.each do |shot|
+                unless shot.last? -%>
+            shot = Shot.new(<%= shot.id %>, Protogen::V<%= protocol.protocol_version %>::Messages::<%= shot.message_type.name %>, '<%= shot.way %>', <%= shot.next_shots.map{ |next_shot| next_shot.id } %>)
+            <%- else -%>
+            shot = Shot.new(<%= shot.id %>, Protogen::V<%= protocol.protocol_version %>::Messages::<%= shot.message_type.name %>, '<%= shot.way %>', [])
+            <%- end
+               if shot.way == :to_server -%>
+            shot.received_callback = Proc.new {|message| <%= protocol.name %>::V<%=protocol.protocol_version%>::<%= seq.name %>::<%= shot.callback(:received_callback) %>(message)}
+            <%- end -%>
+            shots << shot
+            <%- end -%>
+            return Sequence.new(<%= seq.id %>, shots)
+          <%- end -%>
+          else
+            raise SequenceError.new("Protogen: Unknown sequence ID #{sequence_id}")
+          end # case sequence_id
+        <%- end -%>
+        else
+          raise "Unknown version #{version}."
+        end # case version
+      end
+
+      def self.start(sequence_name, message, asset, account, version)
+        sequence_name = sequence_name.to_sym
+        case version
+        <%- protocol_set.protocols.each do |protocol| -%>
+        when <%= protocol.protocol_version %>
+          case sequence_name
+          <%- protocol.sequences(:first_shot, :to_device).each do |seq| -%>
+          when :<%= seq.name.to_sym %>
+          if message.class != Protogen::V<%= protocol.protocol_version %>::Messages::<%= seq.shot(:first).message_type.name %>
+            raise SequenceError.new("Impossible to start the sequence <%= seq.name %> version #{version} with a message of type #{message.class.to_s} (expected Protogen::V<%= protocol.protocol_version %>::Messages::<%= seq.shot(:first).message_type.name %>), check your sequence definition.")
+          end
+          message.protogen_meta_data['protogen_sequence_id'] = <%= seq.id %>
+          message.protogen_meta_data['protogen_shot_id'] = <%= seq.shot(:first).id %>
+          ExternalApi.push_to_device(asset, account, message)
+          <%- end -%>
+          else
+            raise SequenceError.new("Sequence #{sequence_name} is not defined for version #{version} of the protocol <%= protocol.name %>.")
+          end
+        <%- end -%>
+        else
+          raise UnknownVersion.new("Unknown version #{version}, can not start sequence #{sequence_name}.")
+        end # case versions
+      end
+
+    end
+
+  end
+
+end

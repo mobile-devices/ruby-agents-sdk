@@ -1,0 +1,214 @@
+### Do not edit
+require 'json'
+
+module Protogen_<%= protocol_set.config.get(:ruby, :agent_name) %>
+
+  # This module namespaces all classes and modules used by protogen.
+  # @api private
+  module Protogen
+
+    <% protocol_set.protocols.each do |protocol| %>
+
+    # This module contains all the protogen defined messages
+    # @protogen_version <%= protocol_set.config.get(:global, :pg_version) %>
+    # @protocol_version "<%= protocol.version_string %>"
+    # @api private
+    module V<%= protocol.protocol_version %>
+
+      module Messages
+
+        # Hardcoded protocol version
+        # @api private
+        PROTOCOL_VERSION = "<%= protocol.version_string %>"
+
+        # Hardcoded protogen version
+        # @api private
+        PG_VERSION = "<%= protocol_set.config.get(:global, :pg_version) %>"
+
+        <% protocol.messages.each do |msg| %>
+        # Internal value describing a <%= msg.name %>.
+        # @api private
+        # @see <%= msg.name %>
+        ID_<%= msg.name.upcase %> = <%= msg.id %> <% end %>
+        <% protocol.messages.each do |msg| %>
+
+        # <%= msg.docstring || "Protogen message object"%>
+        # @api public
+        class <%= msg.name %>
+          <% msg.fields.each do |field|
+          doctype = MSGPACK2RUBY[field.type.name] || field.type.name
+          doctype = "Array<" + doctype + ">" if field.array? %>
+          # @!attribute [rw] <%= field.name %>
+          # @return [<%= doctype %>] <%= field.docstring %>
+          # @api public
+          attr_reader :<%= field.name %>
+          <% end %>
+
+          # @api private
+          # [Hash] Protogen meta data, not to be used by the developer
+          attr_accessor :protogen_meta_data
+
+          # @api public
+          # Cookies associated with this message.
+          attr_accessor :cookies
+
+          def initialize(params = {})<% msg.fields.each do |field| %>
+            @<%= field.name %> = <%= ( field.array? ? '[]' : 'nil' ) %><% end %>
+            @protogen_meta_data = {}
+            @protogen_meta_data['protogen_version_string'] = "<%= protocol.version_string %>"
+            @cookies = nil
+            <%- msg.fields.each do |field| -%>
+            self.<%= field.name %> = params[:<%= field.name %>] if params.has_key?(:<%= field.name %>)
+            <%- end -%>
+          end
+
+          # Setters
+
+          <% msg.fields.each do |field| %>
+          def <%= field.name %>=(new_value)
+            <%- case field.type
+              when Models::BasicType
+                if field.type.name == "bool" -%>
+            raise TypeError.new("The attribute '<%= field.name %>' of a '<%= msg.name %>' must be a Boolean (got #{new_value.class.to_s})") unless new_value.is_a?(TrueClass) || new_value.is_a?(FalseClass)
+                <% elsif field.type.name == "bytes"-%>
+            raise TypeError.new("The attribute '<%= field.name %>' of a '<%= msg.name %>' must be a String (got #{new_value.class.to_s})") unless new_value.is_a?(String)
+                <% else -%>
+            raise TypeError.new("The attribute '<%= field.name %>' of a '<%= msg.name %>' must be <%= MSGPACK2RUBY[field.type.name] %> (got #{new_value.class.to_s})") unless new_value.is_a?(<%= MSGPACK2RUBY[field.type.name] %>)
+                <%- end -%>
+            @<%= field.name -%> = new_value
+              <%- when *protocol.messages
+                if field.array? -%>
+                raise TypeError.new("The attribute '<%= field.name %>' of a '<%= msg.name %>' must be an array of <%= field.type.name %> (the provided parameter does not respond to 'each')") unless new_value.respond_to?(:each)
+               new_value.each do |item|
+                raise TypeError.new("The attribute '<%= field.name %>' of a '<%= msg.name %>' must be an array of <%= field.type.name %> (an element in the given array was a '#{item.class.to_s}')") unless item.is_a?(<%= field.type.name %>)
+               end
+                <%- else -%>
+            raise TypeError.new("The attribute '<%= field.name %>' of a '<%= msg.name %>' must be a <%= field.type.name %> (got #{new_value.class.to_s})") unless @<%= field.name %>.is_a?(<%= field.type.name %>)
+            @<%= field.name -%> = new_value
+                <%- end
+              else
+                raise "Unknown type of field: #{field.type.name}"
+              end -%>
+          end
+          <% end %>
+
+          # @api private
+          def to_hash
+            <% msg.fields.each do |field|
+              if field.required? %>
+            raise "Missing field : <%= field.name %>" if @<%= field.name %> == nil <%
+              end
+            end %>
+
+            out_hash = {}<% msg.fields.each do |field| %>
+            out_hash['<%= field.name %>'] = <%=
+            case field.type
+            when Models::BasicType
+              "@#{field.name}"
+            when *protocol.messages
+              if field.array?
+                "@#{field.name}.map{|item| item.to_hash} unless @#{field.name}.nil?"
+              else
+                "@#{field.name}.to_hash unless @#{field.name}.nil?"
+              end
+            else
+              raise "Unknown type of field: #{field.type.name}"
+            end
+            %><% end %>
+            out_hash['_s'] = protogen_meta_data['protogen_sequence_id']
+            out_hash['_h'] = protogen_meta_data['protogen_shot_id']
+            out_hash
+          end
+
+          # @api private
+          def self.from_hash in_hash
+            msg = Messages::<%= msg.name %>.new
+            <% msg.fields.each do |field| %>
+            msg.<%= field.name %> = <%=
+            case field.type
+            when Models::BasicType
+              "in_hash['#{field.name}']"
+            when *protocol.messages
+              if field.array?
+                "in_hash['#{field.name}'].map{|item| Messages::#{field.type.name}.from_hash(item)} unless in_hash['#{field.name}'].nil?"
+              else
+                "Messages::#{field.type.name}.from_hash(in_hash['#{field.name}']) unless in_hash['#{field.name}'].nil?"
+              end
+            else
+              raise Error::GenerationError.new("Unknown type of field: #{field.type.name}")
+            end
+            %><% end %>
+            msg.protogen_meta_data['protogen_sequence_id'] = in_hash['_s']
+            msg.protogen_meta_data['protogen_shot_id'] = in_hash['_h']
+            msg
+          end
+        end # class <%= msg.name %>
+        <% end %>
+      end # module Messages
+
+      <% if protocol.has_cookies? %>
+      module Cookies
+
+        <% protocol.cookies.each do |cookie| %>
+        # @api public
+        class <%= cookie.name %>
+
+          attr_reader <%= cookie.fields.map{|f| ":#{f.name}"}.join(', ') %>
+
+
+          # Setters
+          <% cookie.fields.each do |field| %>
+          def <%= field.name %>=(new_value)
+            <%- case field.type
+              when Models::BasicType
+                if field.type.name == "bool" -%>
+            raise TypeError.new("The attribute '<%= field.name %>' of a '<%= cookie.name %>' must be a Boolean (got #{new_value.class.to_s})") unless new_value.is_a?(TrueClass) || new_value.is_a?(FalseClass)
+                <% elsif field.type.name == "bytes"-%>
+            raise TypeError.new("The attribute '<%= field.name %>' of a '<%= cookie.name %>' must be a String (got #{new_value.class.to_s})") unless new_value.is_a?(String)
+                <% else -%>
+            raise TypeError.new("The attribute '<%= field.name %>' of a '<%= cookie.name %>' must be <%= MSGPACK2RUBY[field.type.name] %> (got #{new_value.class.to_s})") unless new_value.is_a?(<%= MSGPACK2RUBY[field.type.name] %>)
+                <%- end
+              else
+                raise "Unknown type of field: #{field.type.name}"
+              end -%>
+            @<%= field.name -%> = new_value
+          end
+          <% end %>
+
+          def self.validity_time
+            <%= cookie.validity_period || '3600' %>
+          end
+
+          def initialize(params = {})
+            <%- cookie.fields.each do |field| -%>
+            self.<%= field.name %> = params[:<%= field.name %>] if params.has_key?(:<%= field.name %>)
+            <%- end -%>
+          end
+
+          def to_hash
+            out_hash = {}<% cookie.fields.each do |field| %>
+            out_hash['<%= field.name %>'] = <%=
+            case field.type
+            when Models::BasicType
+              "@#{field.name}"
+            when *protocol.messages
+              "A cookie field can only be a basic type."
+            else
+              raise "Unknown type of field: #{field.type.name}"
+            end
+            %><% end %>
+            out_hash
+          end
+
+          def self.from_hash in_hash
+            Cookies::<%= cookie.name %>.new(<%= cookie.fields.map{|field| "#{field.name}: in_hash['#{field.name}']"}.join(', ')%>)
+          end
+        end
+      <% end %>
+      end # module Cookies
+      <% end %>
+    end # module V<%= protocol.protocol_version %>
+    <%- end -%>
+  end
+
+end

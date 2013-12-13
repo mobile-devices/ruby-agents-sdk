@@ -1,0 +1,83 @@
+require 'digest/sha1'
+
+module Protogen_<%= protocol_set.config.get(:ruby, :agent_name) %>
+
+  module Protogen
+
+  # The module provides APIs to split messages when they are
+  # too big (to avoid congestion in the mdi communication servers).
+  # @protogen_version <%= protocol_set.config.get(:global, :pg_version) %>
+  # @api private
+  module Splitter
+
+    PG_VERSION = "<%= protocol_set.config.get(:global, :pg_version) %>"
+
+    # Init the redis connection
+    # @param [Redis] redis initialized redis connection
+    # @return [Redis] (unused) the same redis connection
+    def self.init(redis)
+      @@redis = redis
+    end
+
+    # Splits a serialized message if its length exceeds a certain limit.
+    #
+    # @param [String] message the serialized message
+    # @param [Fixnum] length_limit in bytes
+    # @return [message SHA1 (String), array of message parts (Array(String)), unique content id (Fixnum)]
+    def self.split(message, length_limit)
+      string_id = ((Integer(Time.now.to_f * 1000) % 1000000).to_s + Random.rand(1000).to_s)
+      hash = Digest::SHA1.base64digest(message + string_id)
+      parts = []
+      (message.bytesize/length_limit+1).times do |i|
+        parts << message.byteslice((i*length_limit)..((i+1)*length_limit-1))
+      end
+      [hash, parts, string_id.to_i]
+    end
+
+    # Assembles message parts to retrieve original message, and checks its
+    # integrity using a sha1 hash. Deletes the correspondant message parts
+    # stored in redis.
+    #
+    # @param [Hash] message_parts the key is the part number (a String),
+    #   the value is the part content (String).
+    # @param [String] sha1_hash the SHA1 hash of the assembled serialized message.
+    # @raise [RuntimeError] if the assembled message does not correspond to the
+    #   SHA1 hash.
+    # @return [String] the serialized message
+    def self.assemble(message_parts, sha1_hash, asset)
+      @@redis.del("message_#{asset}_#{sha1_hash}")
+      # Since redis hkeys can only be strings, we have to retransform them into ints
+      message = message_parts.keys.map{|i| i.to_i}.sort.inject(""){
+        |acc,part_i| acc << message_parts[part_i.to_s]
+      }
+      raise Error::CorruptedMessage.new("Assembled message SHA1 does not correspond to expected SHA1.") unless Digest::SHA1.base64digest(message) == sha1_hash
+      message
+    end
+
+    # Fetch from redis the message part previously received
+    #
+    # @param [String] sha1_hash SHA1 of the final message
+    # @param [String] asset asset of the device that sent this big message
+    # @return [Hash] the hash keys ar the part number (String), the value is the
+    #   content
+    def self.get_stored_parts(sha1_hash, asset)
+      @@redis.hgetall("message_#{asset}_#{sha1_hash}")
+    end
+
+    # Add a message part in redis.
+    # If no other parts of the same message are stored within one week,
+    # all parts of the same message will expire, to prevent Redis from being cluttered with incomplete messages.
+    #
+    # @param [String] message the message part content
+    # @param [String] sha1_hash SHA1 of the final message
+    # @param [String] part_num part number
+    # @param [String] asset asset of the device that sent this big message
+    def self.put(message, sha1_hash, part_num, asset)
+      @@redis.hset("message_#{asset}_#{sha1_hash}", part_num, message)
+      @@redis.expire("message_#{asset}_#{sha1_hash}", <%= protocol_set.config.get(:ruby, :message_part_expiration_duration) %>)
+    end
+  end
+
+  end
+
+end

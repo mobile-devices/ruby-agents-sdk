@@ -1,0 +1,87 @@
+module Protogen_<%= protocol_set.config.get(:ruby, :agent_name) %>
+
+  # Defines all the server SDK APIs Protogen will need to call in one place
+  # as to decouple Protogen from the underlying platform.
+  # Just modify this module if the APIs exposed by the VM change.
+  module ExternalApi
+
+    # @param id used to namespace the keys
+    # @return a Redis database.
+    def self.redis(id = "")
+      Sdk_api_<%= protocol_set.config.get(:ruby, :agent_name) %>::SDK::API.redis_internal(id)
+    end
+
+    # Reply to a message
+    # answer.cookies contain the cookies to send (so it is not another parameter of this method)
+    def self.reply(parent_msg, answer)
+      if answer.respond_to?(:cookies) && !answer.cookies.nil?
+        cookies = answer.cookies
+      else
+        cookies = nil
+      end
+      Sdk_api_<%= protocol_set.config.get(:ruby, :agent_name) %>::SDK::API.device_gate.reply(parent_msg, answer, cookies)
+    end
+
+    # Push a message to a device
+    def self.push_to_device(asset, account, message)
+     Sdk_api_<%= protocol_set.config.get(:ruby, :agent_name) %>::SDK.API.device_gate.push(asset, account, message)
+    end
+
+  end
+
+  # Public Protogen APIs to be used by the server SDK.
+  module ProtogenAPIs
+
+    # Encodes a protogen message object into a string
+    # @param [CCS::Message] message contains all information related to the
+    #   message. message.content must contain a Protogen::Message object.
+    # @raise [Protogen::UnknownMessageType] if message.content is not a protogen
+    #   message object.
+    # @return [String] Encoded protogen object
+    def self.encode(message)
+      Protogen::Splitter.init(ExternalApi.redis)
+      Protogen::CookiePasswdMgr.init(ExternalApi.redis)
+      Protogen::Codec.encode(message.content, message.asset)
+    end
+
+    # Decodes a protogen encoded string, and cast it in the appropriate object
+    # @param [CCS::Message] message contains all information related to the
+    #   message (meta + payloads, protogen encoded string is in message.content)
+    # @param [Fixnum] id ID of the decoder to use. Different decoders do not share message parts,
+    #   so you must send all parts of a message to the same decoder (ID),
+    #   and you must not send twice the same part of a message to the same decoder.
+    # @raise [Protogen::UnknownMessageType] if the message content does not
+    #   correspond to any protogen message
+    # @return [Protogen::Message::MessageClass]
+    def self.decode(message, id = "")
+      Protogen::Splitter.init(ExternalApi.redis(id))
+      Protogen::CookiePasswdMgr.init(ExternalApi.redis)
+      Protogen::Codec.decode(message.content, message.asset)
+    end
+
+    # Check the message protogen type, and call the defined callback accordingly.
+    # @param [CCS::Message] message message.content must be a protogen message object.
+    def self.process(message)
+      if message.content.class == Protogen::MessagePartNotice
+        CC.logger.info("Message part received")
+        return
+      end
+
+      Protogen::Sequences.continue_sequence(message)
+    end
+
+  end
+
+  module Protogen
+
+     # Base class for all errors raised by Protogen generated code.
+    class ProtogenError < StandardError
+    end
+
+  end
+
+end
+
+<% Dir.foreach(protocol_set.config.get(:ruby, :temp_output_path)) do |file|
+  next unless /.rb$/.match(file) %>
+require_relative '<%= file %>'<% end %>

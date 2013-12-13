@@ -1,0 +1,9 @@
+
+source 'https://rubygems.org'
+
+gem 'json'
+gem 'json-schema', "~> 1.1"
+gem 'rakejava'
+gem 'yard'
+gem 'redcarpet'
+gem 'git'

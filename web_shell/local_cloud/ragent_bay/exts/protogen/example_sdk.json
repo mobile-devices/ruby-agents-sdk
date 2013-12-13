@@ -1,0 +1,44 @@
+{
+  "protocol_version": 1,
+
+  "messages": {
+
+    "SubReq": {
+      "_way": "none",
+      "test": {"type":"bool", "modifier":"required"}
+      },
+
+    "PoiRequest": {
+      "_way": "toServer",
+      "_server_callback": "treat_poi_request",
+      "name": {"type":"string", "modifier":"required"},
+      "latlist": {"type":"int", "modifier":"required", "array":true},
+      "subreq": {"type":"SubReq", "modifier":"required", "array":true}
+    },
+
+    "Category": {
+      "_way": "none",
+      "id": {"type":"int", "modifier":"required"},
+      "name": {"type":"string", "modifier":"required"},
+      "popularity": {"type":"int", "modifier":"optional"}
+    },
+
+    "Poi": {
+      "_way": "none",
+      "name": {"type":"string", "modifier":"required"},
+      "latitude": {"type":"int", "modifier":"required"},
+      "longitude": {"type":"int", "modifier":"required"},
+      "category": {"type":"Category", "modifier":"optional"}
+    },
+
+    "PoiList": {
+      "_way":"toDevice",
+      "_device_callback":"treatPoi",
+      "_timeout_calls": ["ack", "send"],
+      "_timeouts" : { "send":10000},
+      "pois": {"type":"Poi", "modifier":"required", "array":true}
+    }
+  },
+
+  "cookies":{}
+}

@@ -1,0 +1,36 @@
+require 'openssl'
+require 'base64'
+
+module Protogen_<%= protocol_set.config.get(:ruby, :agent_name) %>
+
+  module Protogen
+
+  # @api private
+  class CookieMgr
+
+    def self.encrypt(data,passwd,asset,validity_length)
+      expiration = Time.now.to_i+validity_length
+      key = OpenSSL::HMAC.digest('sha1', passwd, "#{expiration}#{asset}")
+      cipher = OpenSSL::Cipher.new('rc4').encrypt
+      cipher.key = key
+      signature = Base64.encode64(OpenSSL::HMAC.digest('sha1', key, "#{expiration}#{asset}#{data}"))
+      enc_data = cipher.update(data)
+      [enc_data,signature,expiration]
+    end
+
+    def self.decrypt(data,signature,expiration,passwd_list,asset)
+      return [false,nil] if expiration < Time.now.to_i
+      passwd_list.each do |passwd|
+        key = OpenSSL::HMAC.digest('sha1', passwd, "#{expiration}#{asset}")
+        cipher = OpenSSL::Cipher.new('rc4').decrypt
+        cipher.key = key
+        decrypted = cipher.update(data)
+        return [true,decrypted] if signature == Base64.encode64(OpenSSL::HMAC.digest('sha1', key, "#{expiration}#{asset}#{decrypted}"))
+      end
+      return [false,nil]
+    end
+  end
+
+  end
+
+end

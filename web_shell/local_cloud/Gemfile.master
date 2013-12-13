@@ -9,6 +9,14 @@ gem 'logger', '~> 1.2.8'
 gem 'thin', '~> 1.5.1'
 gem 'i18n', '~>  0.6.4'
 
+
+### vm-sdk ######################################################
+
+# tests
+gem 'rack-test', require: 'rack/test'
+gem 'rspec'
+
+
 #################################################################
 
 gem 'hashie'
@@ -24,11 +32,7 @@ gem 'redis-lock', '~> 0.1.0' # needed for protogen
 gem 'msgpack', '~> 0.4.7 ' # needed for protogen
 
 # scheduler
-gem 'whenever', '~> 0.8.2', :require => false
-
-# tests
-gem 'rack-test', require: 'rack/test'
-gem 'rspec'
+# gem 'whenever', '~> 0.8.2', :require => false
 
 #################################################################
 

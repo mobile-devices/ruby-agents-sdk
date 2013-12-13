@@ -11,8 +11,10 @@ module SDK_STATS
         'uptime' => '',
         'total_received' => 0,
         'total_error' => 0,
+        'internal_error' => 0,
         'total_sent' => 0,
         'received' => [0,0,0,0],
+        'pulled_from_queue' => [0,0,0,0],
         'ack_sent_to_device' => [0,0,0,0],
         'err_parse' => [0,0,0,0],
         'err_dyn_channel' => [0,0,0,0],
@@ -24,9 +26,9 @@ module SDK_STATS
         },
         'agents' => {}
       }
-
-    get_run_agents.each { |agent|
-      @daemon_stat['agents'][agent] = {
+    RAGENT.user_class_subscriber.get_subscribers.each do |user_agent_class|
+      agent_name = user_agent_class.agent_name
+      @daemon_stat['agents'][agent_name] = {
         'total_received' => 0,
         'total_error' => 0,
         'total_sent' => 0,
@@ -41,8 +43,8 @@ module SDK_STATS
         'upstream_data' => [0,0,0,0],
         'downstream_data' => [0,0,0,0],
         'process_time' => [0.0,0.0,0.0,0.0]
-        }
       }
+    end
   end
 
   def self.stats
@@ -53,5 +55,5 @@ module SDK_STATS
   end
 
 
-
+#todo: add all + helpers
 end

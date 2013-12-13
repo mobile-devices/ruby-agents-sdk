@@ -195,8 +195,23 @@ get '/restart_server' do
 
   $server_run_id = rand
   p "restart server with params=#{params} and id #{$server_run_id}"
-
   File.open('/tmp/should_mdi_server_run_id', 'w') { |file| file.write($server_run_id) }
+
+
+  # doing it in rush - to cleanup - block the restart, ugly
+  # get agents list
+  agents_to_run=[]
+  blabla = GEN.get_run_agents
+  root_path = File.expand_path(File.dirname(__FILE__))
+  blabla.each do |agent|
+    agents_to_run << File.expand_path(File.join(root_path, '../../cloud_agents', "#{agent}"))
+  end
+  p agents_to_run
+
+  # call import agent
+  command =  "cd ../local_cloud/ragent_new_souche/builder;bundle exec ruby import_agents.rb ../../Gemfile.master ../../Gemfile #{agents_to_run.join(' ')}"
+  p "running command #{command}"
+  `#{command}`
 
   # launch in a new thread to avoid being stuck here
   Thread.start {

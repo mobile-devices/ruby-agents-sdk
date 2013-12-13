@@ -1,8 +1,11 @@
-require_relative "../API/cloud_connect_services"
-require_relative "../API/cloud_connect_services_internal"
-require_relative "../fake_cloud_lib/cloud_gate"
+
 require 'base64'
 require 'json'
+
+require_relative 'test_runner'
+require_relative 'json_tests_writer'
+require_relative 'atomic_write'
+
 
 # Require the protogen APIS
 # Will be useful in this code but also enables the user to use them just by requiring tests_helper
@@ -13,11 +16,18 @@ Dir.glob(File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "agents_
 end
 
 
+
+
+
 # @api public
 # Provides several utilities to write unit tests inside the SDK.
 # @note Methods and classes of this module are intended to be used in automated tests only!
 #   Do not use this module in your code otherwise, as its inner behaviour may differ between environments.
 module TestsHelper
+
+  def api
+    RAGENT.api
+  end
 
   # @!group Helper methods
 
@@ -85,7 +95,7 @@ module TestsHelper
   # @return [Array] messages sent by the device
   # @note Will also trigger on messages created from the code and sent with {TestsHelper::MessageFromDevice#send_to_server}.
   # @api public
-  def self.wait_for_device_msg(asset, number_of_messages = 1, timeout = 5, type=[CCS::Message, CCS::Track, CCS::Presence])
+  def self.wait_for_device_msg(asset, number_of_messages = 1, timeout = 5, type=[UserApis::Mdi::Dialog::PresenceClass, UserApis::Mdi::Dialog::MessageClass, UserApis::Mdi::Dialog::TrackClass])
     if (not number_of_messages.nil?) && number_of_messages <= 0
       raise ArgumentError.new("You must wait for at least 1 message (given: #{number_of_messages})")
     end
@@ -209,7 +219,7 @@ module TestsHelper
       end
 
       # Handle regular message
-      message = CCS::Message.new(hash_data)
+      message = TestsHelper.api.mdi.dialog.create_new_message(hash_data)  # CCS::Message.new(hash_data)
       # Rebuild Protogen object
       # Find a channel the sender is listening to
       if message.sender == "@@server@@" # message is from an agent (server) to device

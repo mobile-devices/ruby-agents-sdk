@@ -1,0 +1,7 @@
+source 'http://rubygems.org'
+
+
+gem 'json', '~> 1.8.0'
+
+# scheduler
+gem 'whenever', '~> 0.8.2', :require => false

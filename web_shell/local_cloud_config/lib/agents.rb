@@ -53,11 +53,11 @@ def update_sdk_stats
   begin
     # server stats
     jstats = http_get("http://localhost:5001/sdk_stats")
-    puts "update_sdk_stats downloaded: \n #{jstats}"
+    #puts "update_sdk_stats downloaded: \n #{jstats}"
     stats = JSON.parse(jstats)
 
     $sdk_server_stats = stats['server']
-    puts "sdk_server_stats: \n #{$sdk_server_stats}"
+    #puts "sdk_server_stats: \n #{$sdk_server_stats}"
 
     # agents
     agents_stats =  stats['agents']

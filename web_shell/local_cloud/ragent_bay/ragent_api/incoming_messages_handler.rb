@@ -51,7 +51,7 @@ module RagentIncomingMessage
         set_current_user_api(apis)
 
         # create Presence object
-        msg = apis.mdi.dialog.create_new_presence(params)
+        presence = apis.mdi.dialog.create_new_presence(params)
       rescue Exception => e
         RAGENT.api.mdi.tools.print_ruby_exception(e)
         SDK_STATS.stats['server']['err_parse'][0] += 1
@@ -62,7 +62,7 @@ module RagentIncomingMessage
       PUNK.drop('damned')
 
       # process it
-      user_agent_class.handle_presence(msg)
+      user_agent_class.handle_presence(presence)
 
     end # each user_agent_class
 
@@ -215,7 +215,7 @@ module RagentIncomingMessage
         set_current_user_api(apis)
 
         # create Track object
-        msg = apis.mdi.dialog.create_new_track(params)
+        track = apis.mdi.dialog.create_new_track(params)
       rescue Exception => e
         RAGENT.api.mdi.tools.print_ruby_exception(e)
         SDK_STATS.stats['server']['err_parse'][2] += 1
@@ -226,7 +226,7 @@ module RagentIncomingMessage
       PUNK.drop('damned')
 
       # process it
-      user_agent_class.handle_track(msg)
+      user_agent_class.handle_track(track)
 
 
     end # each user_agent_class
@@ -239,28 +239,50 @@ module RagentIncomingMessage
 
     RAGENT.api.mdi.tools.log.debug("new order")
 
-    # set associated api as current sdk_api
-    apis = USER_API_FACTORY.gen_user_api(env)
-    set_current_user_api(apis)
+    # filter
+    assigned_agent = RAGENT.get_agent_from_name(params['agent'])
 
-    # create Order object
+    if assigned_agent == nil
+      PUNK.start('damned')
+      PUNK.end('damned','ko','in',"SERVER <- ORDER : agent not found")
+    end
+
+    PUNK.start('new')
+    RAGENT.api.mdi.tools.log.debug("\n\n\n\nServer: new incomming order:\n#{params}")
+    SDK_STATS.stats['server']['received'][3] += 1
+    PUNK.end('new','ok','in',"SERVER <- ORDER for agent '#{assigned_agent.agent_name}'")
+
+
+    PUNK.start('damned')
     begin
-      msg = apis.mdi.dialog.create_new_order(params)
+      env = {
+        'env' => 'order',
+        'agent_name' => assigned_agent.agent_name
+      }
+      # set associated api as current sdk_api
+      apis = USER_API_FACTORY.gen_user_api(assigned_agent, env)
+      set_current_user_api(apis)
+
+      # create Order object
+      order = apis.mdi.dialog.create_new_order(params)
     rescue AgentNotFound => e
       RAGENT.api.mdi.tools.print_ruby_exception(e)
       response.body = 'service unavailable'
       SDK_STATS.stats['server']['remote_call_unused'] += 1
       SDK_STATS.stats['server']['total_error'] += 1
+      PUNK.end('damned','ko','in',"SERVER <- ORDER : agent not found")
       return
     rescue Exception => e
       RAGENT.api.mdi.tools.print_ruby_exception(e)
       SDK_STATS.stats['server']['err_parse'][3] += 1
       SDK_STATS.stats['server']['internal_error'] += 1
+      PUNK.end('damned','ko','in',"SERVER <- ORDER : parse params fail")
       return
     end
+    PUNK.drop('damned')
 
     # process it
-    user_agent_class.handle_order(msg)
+    assigned_agent.handle_order(order)
 
   end # handle_order
 

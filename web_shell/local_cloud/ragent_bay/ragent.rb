@@ -5,6 +5,7 @@
 
 
 $allow_non_protogen = true
+$allow_protogen_fault = true
 
 require 'active_support/all'
 

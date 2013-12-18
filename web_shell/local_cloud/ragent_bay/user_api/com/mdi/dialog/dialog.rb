@@ -24,18 +24,22 @@ module UserApis
         @user_apis
       end
 
+      # @private
       def create_new_presence(struct = nil)
         Dialog::PresenceClass.new(user_api, struct)
       end
 
+      # @private
       def create_new_message(struct = nil)
         Dialog::MessageClass.new(user_api, struct)
       end
 
+      # @private
       def create_new_track(struct = nil)
         Dialog::TrackClass.new(user_api, struct)
       end
 
+      # @private
       def create_new_order(struct = nil)
         Dialog::OrderClass.new(user_api, struct)
       end

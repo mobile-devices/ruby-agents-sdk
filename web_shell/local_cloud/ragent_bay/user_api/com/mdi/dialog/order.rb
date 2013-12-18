@@ -19,14 +19,8 @@ module UserApis
             self.code = struct['order']
             self.params = struct['params']
 
-            # implement below a better way :)
-            found = false
-            RAGENT.user_class_subscriber.each do |user_class_agent|
-              if user_class_agent.name == self.agent
-                found = true
-              end
-            end
-            if !found
+            agent = RAGENT.get_agent_from_name(struct['agent'])
+            if agent == nil
               raise AgentNotFound , "Server: agent #{self.agent} is not running on this bay"
             end
           end

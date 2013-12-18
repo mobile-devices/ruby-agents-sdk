@@ -34,18 +34,19 @@ module UserApis
             PUNK.start('push','pushing msg ...')
 
             msg = user_api.mdi.dialog.create_new_message({
-              'meta' => {},
+              'meta' => {
+                'account' => account
+                },
               'payload' => {
                 'type' => 'message',
                 'sender' => '@@server@@',
                 'recipient' => asset,
                 'channel' =>  channel,
                 'payload' => content,
-                'asset' => asset,
-                'account' => account
+                'asset' => asset
               }
             })
-            user_api.mdi.dialog.protogen.protogen_encode(msg).each {|message| message.push}
+            user_api.mdi.tools.protogen.protogen_encode(msg).each {|message| message.push}
             # success !
             PUNK.end('push','ok','out',"SERVER -> MSG[#{crop_ref(msg.id,4)}]")
 

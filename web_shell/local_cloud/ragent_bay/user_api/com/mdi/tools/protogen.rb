@@ -14,8 +14,10 @@ module UserApis
           @user_apis = apis
           begin
             @protogen_apis = Object.const_get("Protogen_#{apis.user_class.agent_name}")::ProtogenAPIs
+            @protogen_domain = Object.const_get("Protogen_#{apis.user_class.agent_name}")
           rescue
             @protogen_apis = nil
+            @protogen_domain = nil
           end
         end
 
@@ -27,6 +29,10 @@ module UserApis
           @protogen_apis
         end
 
+        def protogen_domain
+          @protogen_domain
+        end
+
 
         # @api private
         # this helper provide Messages ready to be sent to the outside from a Protogen Object
@@ -36,6 +42,7 @@ module UserApis
             begin
               encoded = self.protogen_apis.encode(msg)
 
+              # useless tests ?
               if encoded.is_a? String
                 msg.content = encoded
                 user_api.mdi.tools.log.info("Protogen content is simple string")
@@ -56,8 +63,8 @@ module UserApis
                 raise "message push protogen unknown encoded type : #{encoded.type}"
               end
 
-            rescue Protogen::UnknownMessageType => e
-              if $allow_non_protogen
+            rescue => e
+              if $allow_protogen_fault
                 user_api.mdi.tools.log.warn("CloudConnectServices:Messages.push: unknown protogen message type because #{e.inspect}")
                 return [msg]
               else

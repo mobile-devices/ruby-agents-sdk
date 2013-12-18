@@ -56,3 +56,8 @@ def set_current_user_api(api)
   #const_set('SDK_API', api)
   $SDK_API = api
 end
+
+
+def get_current_user_api
+  $SDK_API
+end

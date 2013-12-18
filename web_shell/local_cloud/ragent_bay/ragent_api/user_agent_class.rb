@@ -148,13 +148,13 @@ class UserAgentClass
             msg_type = "'#{msg.class}'" if "#{msg.class}" != ""
 
             is_protogen = true
-          rescue Protogen::UnknownMessageType => e
+          rescue user_api.mdi.tools.protogen.protogen_domain::Protogen::UnknownMessageType => e
             # direct run
             RAGENT.api.mdi.tools.log.warn("Server: handle_message: unknown protogen message type: #{e.inspect}")
-            raise e unless $allow_non_protogen
-          rescue MessagePack::UnpackError => e
-            RAGENT.api.mdi.tools.log.warn("Server: handle_message: MessagePack unpack error, either the payload is corrupted or not a protogen message : (err=#{e.inspect})")
-            raise e unless $allow_non_protogen
+            raise e unless $allow_protogen_fault
+          rescue => e
+            RAGENT.api.mdi.tools.log.warn("Server: handle_message: protogen decode error (err=#{e.inspect})")
+            raise e unless $allow_protogen_fault
           end
         else # not is_agent_has_protogen
           raise "No Protogen defined" unless $allow_non_protogen
@@ -218,10 +218,19 @@ class UserAgentClass
 
   def handle_order(order)
 
-
-
+    PUNK.start('orderAgent')
+    begin
+      SDK_STATS.stats['agents'][agent_name]['received'][3] += 1
+      SDK_STATS.stats['agents'][agent_name]['total_received'] += 1
+      new_order(order)
+      PUNK.end('orderAgent','ok','process',"AGENT:#{agent_name}TNEGA callback ORDER with order '#{order.code}'")
+    rescue Exception => e
+      RAGENT.api.mdi.tools.print_ruby_exception(e)
+      SDK_STATS.stats['agents'][agent_name]['err_while_process'][3] += 1
+      SDK_STATS.stats['agents'][agent_name]['total_error'] += 1
+      PUNK.end('orderAgent','ko','process',"AGENT:#{agent_name}TNEGA callback ORDER fail")
+    end
 
   end # handle_order
-
 
 end

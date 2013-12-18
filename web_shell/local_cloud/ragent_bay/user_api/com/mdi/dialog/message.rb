@@ -8,7 +8,7 @@ module UserApis
   module Mdi
     module Dialog
       # A class that represents a standard message. Used in the DeviceGate and CloudGate APIs for instance.
-      class MessageClass < Struct.new(:id, :parent_id, :thread_id, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel,:account, :meta, :content, :cookies)
+      class MessageClass < Struct.new(:id, :parent_id, :thread_id, :asset, :sender, :recipient, :type, :recorded_at, :received_at, :channel, :account, :meta, :content, :cookies)
 
         def initialize(apis, struct = nil)
 

@@ -159,17 +159,28 @@ module RagentApi
     f_map
   end
 
-
-  def self.cron_tasks_to_map
-    @agents_cron_tasks ||= begin
-      # init map
+  # return an agent
+  def self.get_agent_from_name(name)
+    @get_agent_from_name_map ||= begin
       final_map = {}
-
-
       RAGENT.user_class_subscriber.get_subscribers.each do |user_agent_class|
-        agent_name = user_agent_class.agent_name
-        final_map[agent_name] = []
+        final_map["#{user_agent_class.agent_name}"] = user_agent_class
       end
+      final_map
+    end
+    @get_agent_from_name_map[name]
+  end
+
+  # return hash of array
+  def self.cron_tasks_to_map
+    @cron_tasks_to_map ||= begin
+      # init map
+      final_map =  Hash.new
+      RAGENT.user_class_subscriber.get_subscribers.each do |user_agent_class|
+        final_map["#{user_agent_class.agent_name}"] = []
+      end
+
+      #RAGENT.api.mdi.tools.log.info(final_map)
 
       cron_content = File.read("#{RAGENT.agents_generated_src_path}/whenever_cron")
 
@@ -189,8 +200,8 @@ module RagentApi
           begin
             #extract {}
             in_par_cmd = line.split('{').second.split('}').first
-            puts "found #{in_par_cmd}"
-            final_map[assigned_agent] << "{#{in_par_cmd}}"
+            #RAGENT.api.mdi.tools.log.info "found #{in_par_cmd}"
+            final_map["#{assigned_agent}"] << "{#{in_par_cmd}}"
           rescue Exception => e
             puts "get_agents_cron_tasks error on line #{line} :\n #{e}"
           end
@@ -198,12 +209,9 @@ module RagentApi
       end
       puts "get_agents_cron_tasks gives:\n#{final_map}"
       p 'get_agents_cron_tasks done'
-    rescue => e
-      p 'get_agents_cron_tasks fail'
-      RAGENT.api.mdi.tools.print_ruby_exception(e)
+      #RAGENT.api.mdi.tools.log.info(final_map)
+      final_map
     end
-
-    final_map
   end
 
 end

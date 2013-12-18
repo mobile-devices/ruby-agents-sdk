@@ -136,8 +136,6 @@ get '/unit_tests' do
   erb :tests
 end
 
-
-
 get '/reset_daemon_server_log' do
   if File.exist?(log_server_path)
     File.delete(log_server_path)
@@ -206,16 +204,22 @@ get '/restart_server' do
   blabla.each do |agent|
     agents_to_run << File.expand_path(File.join(root_path, '../../cloud_agents', "#{agent}"))
   end
-  p agents_to_run
+  p "restart server with #{agents_to_run}"
 
-  # call import agent
-  command =  "cd ../local_cloud/ragent_new_souche/builder;bundle exec ruby import_agents.rb ../../Gemfile.master ../../Gemfile #{agents_to_run.join(' ')}"
-  p "running command #{command}"
-  `#{command}`
 
   # launch in a new thread to avoid being stuck here
   Thread.start {
-    `cd ../local_cloud; ./local_cloud.sh restart`
+    # stop
+    `cd ../local_cloud; ./local_cloud.sh stop`
+
+
+    # call import agent
+    command = "cd ../local_cloud; ./local_cloud.sh import_agents #{agents_to_run.length} #{agents_to_run.join(' ')}"
+    p "Call command #{command}"
+    `#{command}`
+
+    # start
+    `cd ../local_cloud; ./local_cloud.sh start`
   }
 
   p "redirecting to #{params['redirect_to']}"

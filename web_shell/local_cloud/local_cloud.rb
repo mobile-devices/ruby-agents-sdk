@@ -86,7 +86,7 @@ def welcome_new_data_from_outside(index_type, request)
     SDK_STATS.stats['server']['err_parse'][index_type] += 1
     SDK_STATS.stats['server']['total_error'] += 1
     PUNK.end('a','ko','in',"SERVER <- #{kind_tok} : parse json fail")
-    return
+    nil
   end
   PUNK.drop('a')
   jsonData
@@ -152,8 +152,9 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"rubyTestAccount"}, "payload":{"id":438635746530689024,"sender":"mdi_device","asset":null,"type":"disconnect","channel": "com.mdi.services.demo_echo_agent","payload":"hello_toto"}}' http://localhost:5001/presence
 post '/presence' do
   hashData = welcome_new_data_from_outside(0, request)
-  RIM.handle_presence(hashData)
   response.body = '{}'
+  return if hashData == nil
+  RIM.handle_presence(hashData)
 end
 
 #test:
@@ -165,26 +166,33 @@ end
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.psa.messagingagent.echo.0", "recorded_at":78364, "payload":"L3Rlc3QvZWNoby9mb3IvbWU/ZGE9Ymxl", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.agps_agent", "recorded_at":78364, "payload":"Y2hlY2svYWFhYWFhYWFhYWJiYmJiYmJiYmJjY2NjY2NjY2NjMTI=", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
 #protogen: curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d $'{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.protogen_fun_agent", "recorded_at":78364, "payload":"gqR0eXBlAaNtc2eCpG5hbWWvbXlsaXR0bGVyZXF1ZXN0p2xhdGxpc3STAQID", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
+#protogen: curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d $'{"meta":{"account":"mdi21dev"}, "payload":{"timeout":120, "sender":"351777047016827", "id":-2,"type":"message", "channel":"com.mdi.services.ragent_basic_tests_agent", "recorded_at":78364, "payload":"g6F2rTEtMS15KzUvNHVRT0WkdHlwZQCjbXNng6hwb2lfbmFtZaVzYXVuYaJf\nc8CiX2jA\n", "asset":"351777047016827", "parent_id":-1}}' http://localhost:5001/message
+
+
+
 post '/message' do
   hashData = welcome_new_data_from_outside(1, request)
-  RIM.handle_message(hashData)
   response.body = '{}'
+  return if hashData == nil
+  RIM.handle_message(hashData)
 end
 
 #test:
 # curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"account":"default"}, "payload":{"sender":"351777047016827", "id":19, "reset":true, "128":"roblochon", "recorded_at":1368449272, "asset":"351777047016827"}}' http://localhost:5001/track
 post '/track' do
   hashData = welcome_new_data_from_outside(2, request)
-  RIM.handle_track(hashData)
   response.body = '{}'
+  return if hashData == nil
+  RIM.handle_track(hashData)
 end
 
 #test:
 #curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"agent":"agps_agent", "order":"refresh_agps_files"}' http://localhost:5001/remote_call
 post '/remote_call' do
   hashData = welcome_new_data_from_outside(3, request)
-  RIM.handle_order(hashData)
   response.body = '{}'
+  return if hashData == nil
+  RIM.handle_order(hashData)
 end
 
 # todo: POST is more meaningful for this

@@ -58,7 +58,7 @@ end
 
 def get_agent_whenever_content(name)
   return '' unless File.exists?("#{agents_src_path}/#{name}/config/schedule.rb")
-  content = "job_type :execute_order, \'EXECUTE_WHENEVER {\"agent\" => \"#{name}\", \"order\" => \":task\", \"params\" => \":params\"}\'\n"
+  content = "job_type :execute_order, \'EXECUTE_WHENEVER {\"agent\":\"#{name}\", \"order\":\":task\", \"params\":\":params\"}\'\n"
   content += File.read("#{agents_src_path}/#{name}/config/schedule.rb")
 end
 
@@ -70,7 +70,6 @@ end
 def protogen_bin_path
   @PROTOGEN_BIN_PATH ||= "#{here_path}/../exts/protogen/protocol_generator/"
 end
-
 
 
 ### manage input ###

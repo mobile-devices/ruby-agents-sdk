@@ -113,6 +113,7 @@ agents_root_path.each do |a_path|
   agent_name = File.basename(a_path)
   whenever_content += get_agent_whenever_content(agent_name) + "\n"
 end
+FileUtils.mkdir_p("#{here_path}/config")
 File.open("#{here_path}/config/schedule.rb", 'w') { |file| file.write(whenever_content) }
 
 # call whenever

@@ -66,12 +66,12 @@ def update_sdk_stats
       agents[k].agent_stats = v
     }
 
-    puts "Agent with stats: \n #{agents}"
+    #puts "Agent with stats: \n #{agents}"
   rescue Exception => e
     stack=""
-    e.backtrace.take(20).each { |trace|
+    e.backtrace.take(20).each do |trace|
       stack+="  >> #{trace}\n"
-    }
+    end
     puts "update_sdk_stats ERROR: #{e.inspect}\n\n#{stack}"
   end
   #todo: in case of agent not updated, set as default_agent found in server
@@ -91,20 +91,21 @@ def update_cron_tasks
     cron = JSON.parse(jcron)
 
     # agents
-    cron.each { |k,v|
+    cron.each do |k,v|
       if agents[k] != nil
         puts "##### #{v}"
-        v.each { |e|
+        v.each do |e|
+          puts "  ###### #{e}"
           agents[k].cron_tasks << JSON.parse(e)
-        }
+        end
       end
-    }
+    end
 
   rescue Exception => e
     stack=""
-    e.backtrace.take(20).each { |trace|
+    e.backtrace.take(20).each do |trace|
       stack+="  >> #{trace}\n"
-    }
+    end
     puts "update_cron_tasks ERROR: #{e.inspect}\n\n#{stack}"
   end
 

@@ -495,6 +495,8 @@ module AgentsGenerator
     array.each do |a|
       if is_agent_valid(a)
         out << a
+      else
+        p "Agent #{a} is not valid"
       end
     end
     out

@@ -52,11 +52,12 @@ class UserAgentClass
   def managed_message_channels
     @managed_message_channels ||= begin
       channels = self.internal_config['dynamic_channel_str']
+      CC.logger.info(channels)
       if channels.is_a? String
         channels = [channels]
       end
       if (channels == nil) || (channels.length == 0)
-        raise "No channel defined for agent #{agent_name}"
+        raise "No channel defined for agent '#{agent_name}'"
       end
       channels
     end

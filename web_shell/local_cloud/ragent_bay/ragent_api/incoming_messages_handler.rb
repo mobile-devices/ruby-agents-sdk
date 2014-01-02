@@ -64,6 +64,7 @@ module RagentIncomingMessage
       # process it
       user_agent_class.handle_presence(presence)
 
+      set_current_user_api(nil)
     end # each user_agent_class
 
   end # handle_presence
@@ -174,6 +175,7 @@ module RagentIncomingMessage
         # process it
         user_agent_class.handle_message(msg)
 
+        set_current_user_api(nil)
       end
     end # each user_agent_class
 
@@ -228,7 +230,7 @@ module RagentIncomingMessage
       # process it
       user_agent_class.handle_track(track)
 
-
+      set_current_user_api(nil)
     end # each user_agent_class
 
 
@@ -284,6 +286,7 @@ module RagentIncomingMessage
     # process it
     assigned_agent.handle_order(order)
 
+    set_current_user_api(nil)
   end # handle_order
 
 

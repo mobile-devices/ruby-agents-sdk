@@ -198,10 +198,16 @@ module RagentApi
           end
           next unless assigned_agent != ""
           begin
-            #extract {}
-            in_par_cmd = line.split('{').second.split('}').first
-            #RAGENT.api.mdi.tools.log.info "found #{in_par_cmd}"
-            final_map["#{assigned_agent}"] << "{#{in_par_cmd}}"
+            # extract cron schedule
+            idx = line.index(" /bin/bash -l -c")
+            cron_schedule = line[0..(idx-1)]
+            # extract order
+            ragent_order = line.split('{').second.split('}').first
+            #RAGENT.api.mdi.tools.log.info "found #{ragent_order}"
+            final_map["#{assigned_agent}"] << {
+              'cron_schedule' => cron_schedule,
+              'order' => "{#{ragent_order}}"
+            }.to_json
           rescue Exception => e
             puts "get_agents_cron_tasks error on line #{line} :\n #{e}"
           end
@@ -213,6 +219,26 @@ module RagentApi
       final_map
     end
   end
+
+  def self.scheduled_tasks_start
+    Rufus.run
+  end
+
+  def self.static_info
+    @info ||= begin
+      if File.readable? "#{RAGENT.agents_generated_src_path}/gen_additional_info.json"
+        begin
+          additional_info = JSON.parse(File.read("#{RAGENT.agents_generated_src_path}/gen_additional_info.json"))
+        rescue => e
+          additional_info = nil
+        end
+      end
+      map = JSON.parse(File.read("#{RAGENT.agents_generated_src_path}/ragent_gen_info.json"))
+      map['additional_info'] = additional_info
+      map
+    end
+  end
+
 
 end
 

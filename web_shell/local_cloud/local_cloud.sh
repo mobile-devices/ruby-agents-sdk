@@ -40,8 +40,8 @@ import_agents() {
   # call import agent
   echo 'PUNKabeNK_sys_importing agents' >>  $ruby_log_path
   cd $important_agent_path_path
-  echo "bundle exec ruby import_agents.rb ../../Gemfile.master ../../Gemfile $agents"
-  bundle exec ruby import_agents.rb ../../Gemfile.master ../../Gemfile $agents  >> $ruby_log_path 2>&1
+  echo "bundle exec ruby import_agents.rb ../../Gemfile.master ../../Gemfile x $agents"
+  bundle exec ruby import_agents.rb ../../Gemfile.master ../../Gemfile x $agents  >> $ruby_log_path 2>&1
   if [ "$?" -ne 0 ] ; then
     echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ko\", \"way\":\"\", \"title\":\"SERVER import agents fail\"}" >>  $ruby_log_path
     exit 1;

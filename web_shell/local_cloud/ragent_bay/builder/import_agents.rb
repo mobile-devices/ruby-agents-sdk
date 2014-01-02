@@ -32,6 +32,7 @@
 
 require 'bundler'
 require 'json'
+require 'securerandom'
 
 
 def here_path
@@ -55,6 +56,12 @@ def reset_folder(folder_path)
   FileUtils.mkdir_p(folder_path)
 end
 
+def delete_file_if_exist(path)
+  if File.exist? path
+    File.delete(path)
+  end
+end
+
 
 def get_agent_whenever_content(name)
   return '' unless File.exists?("#{agents_src_path}/#{name}/config/schedule.rb")
@@ -63,7 +70,7 @@ def get_agent_whenever_content(name)
 end
 
 def get_agent_Gemfile_content(name)
-  return '' unless File.exists?("#{agents_src_path}/#{name}/config/protogen.json")
+  return '' unless File.exists?("#{agents_src_path}/#{name}/Gemfile")
   File.read("#{agents_src_path}/#{name}/Gemfile")
 end
 
@@ -72,17 +79,36 @@ def protogen_bin_path
 end
 
 
+# in any case, we flush last gen done
+# delete_file_if_exist("#{agents_generated_path}/gen_agents_imported")
+# delete_file_if_exist("#{agents_generated_path}/gen_errors")
+# delete_file_if_exist("#{agents_generated_path}/gen_success")
+# gen_errors = []
+
 ### manage input ###
 if ARGV.size < 2
+  gen_errors
   raise "not enough argument"
 end
 
-
+p ARGV
 
 master_gem_path = ARGV[0]
+p "master_gem_path=#{master_gem_path}"
 master_gem_file_content = File.read(master_gem_path)
 gem_path = ARGV[1]
-agents_root_path = ARGV[2..-1]
+p "gem_path=#{gem_path}"
+additionnal_info_file_path = ARGV[2]
+p "additionnal_info_file_path=#{additionnal_info_file_path}"
+agents_root_path = ARGV[3..-1]
+
+additionnal_info = ""
+p "Looking for '#{additionnal_info_file_path}' ..."
+if File.readable?(additionnal_info_file_path)
+  additionnal_info = File.read(additionnal_info_file_path)
+  p "Found additionnal_info: #{additionnal_info}"
+end
+
 
 agents_root_path.each do |a_path|
   if !(File.directory?(a_path))
@@ -122,7 +148,11 @@ end
 
 puts "cron tasks:\n #{File.read("#{agents_generated_path}/whenever_cron")}"
 
-
+# write generation info add:agent list with version, ragent version
+ragent_gen_info = {
+  'ragent_id' => SecureRandom.hex(2)
+  }.to_json
+File.open("#{agents_generated_path}/ragent_gen_info.json", 'w') { |file| file.write(ragent_gen_info) }
 
 # generate gemfile from copied
 require_relative 'gemfile_mergator'
@@ -130,6 +160,7 @@ require_relative 'gemfile_mergator'
 agents_Gemfiles = []
 agents_root_path.each do |a_path|
   agent_name = File.basename(a_path)
+  p get_agent_Gemfile_content(agent_name)
   agents_Gemfiles << get_agent_Gemfile_content(agent_name)
 end
 
@@ -137,7 +168,7 @@ gemFile_content = merge_gem_file(master_gem_file_content, agents_Gemfiles)
 p "Saving to '#{gem_path}'"
 
 File.open(gem_path, 'w') { |file| file.write(gemFile_content) }
-puts "Gemfile:\n #{File.read(gem_path)}"
+puts "Gemfile:\n #{File.read(gem_path)}\n\n"
 
 
 
@@ -216,3 +247,6 @@ end # Bundler with clean env
 
 #write include file
 File.open("#{agents_generated_path}/protogen_generated.rb", 'w') { |file| file.write(protogen_apis_to_include.join("\n"))}
+
+#write additionnal_info
+File.open("#{agents_generated_path}/gen_additional_info.json", 'w') { |file| file.write(additionnal_info)}

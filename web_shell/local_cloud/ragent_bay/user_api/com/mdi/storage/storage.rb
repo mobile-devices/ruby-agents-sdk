@@ -31,6 +31,10 @@ module UserApis
         @config ||= user_api.user_class.user_config
       end
 
+      def agent_root_path
+        user_api.user_class.root_path
+      end
+
     end
 
   end

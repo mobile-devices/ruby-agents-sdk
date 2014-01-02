@@ -95,8 +95,11 @@ def update_cron_tasks
       if agents[k] != nil
         puts "##### #{v}"
         v.each do |e|
-          puts "  ###### #{e}"
-          agents[k].cron_tasks << JSON.parse(e)
+          task_info = JSON.parse(e)
+          puts "  ######1 #{task_info} "
+          task_order = JSON.parse(task_info['order'])
+          puts "  ######2 #{task_order} #{task_order['order']}"
+          agents[k].cron_tasks << task_order
         end
       end
     end

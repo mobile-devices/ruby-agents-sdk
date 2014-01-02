@@ -8,7 +8,8 @@ module SDK_STATS
   def self.reset_stats
     @daemon_stat = {
       'server' => {
-        'uptime' => '',
+        'uptime' => '-1',
+        'start_time' => 'never',
         'total_received' => 0,
         'total_error' => 0,
         'internal_error' => 0,
@@ -46,6 +47,44 @@ module SDK_STATS
       }
     end
   end
+
+  # stat per type of protogen message
+
+  def self.count_agents_internal_error
+    count = 0
+    RAGENT.user_class_subscriber.get_subscribers.each do |user_agent_class|
+      @daemon_stat['agents'][user_agent_class.agent_name]['err_while_process'].each do |err|
+        count += err
+      end
+    end
+    count
+  end
+
+  def self.count_agents_received
+    result = [0,0,0,0]
+    RAGENT.user_class_subscriber.get_subscribers.each do |user_agent_class|
+      result =  result.zip(@daemon_stat['agents'][user_agent_class.agent_name]['received']).map{ |x,y| x + y }
+    end
+    result
+  end
+
+  def self.count_agents_push
+    count = 0
+    RAGENT.user_class_subscriber.get_subscribers.each do |user_agent_class|
+      count += @daemon_stat['agents'][user_agent_class.agent_name]['push_sent_to_device']
+    end
+    count
+  end
+
+    def self.count_agents_reply
+    count = 0
+    RAGENT.user_class_subscriber.get_subscribers.each do |user_agent_class|
+      count += @daemon_stat['agents'][user_agent_class.agent_name]['reply_sent_to_device']
+    end
+    count
+  end
+
+
 
   def self.stats
     @daemon_stat ||= begin

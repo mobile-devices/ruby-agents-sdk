@@ -83,18 +83,23 @@ class UserAgentClass
       config_file_path = "#{root_path}/config/#{agent_name}.yml"
       if File.exist?(config_file_path)
         if RAGENT.running_env_name == 'ragent'
-          YAML::load(File.open(config_file_path))['production']
+          ret = YAML::load(File.open(config_file_path))['production']
         else
-          YAML::load(File.open(config_file_path))['development']
+          ret = YAML::load(File.open(config_file_path))['development']
         end
       else
-        user_api.tools.log.error("NO CONFIG FILE FOUND in #{root_path}/config")
-        user_api.tools.log.info("IE  #{config_file_path}")
+        user_api.mdi.tools.log.error("NO CONFIG FILE FOUND in #{root_path}/config")
+        user_api.mdi.tools.log.info("IE  #{config_file_path}")
         raise "No config file found for agent '#{agent_name}'"
       end
+      if ret == nil
+        raise "No configuration defined in this environement for agent '#{agent_name}'"
+      end
+      user_api.mdi.tools.log.debug("agent config : #{ret}")
+      ret
     rescue Exception => e
-      user_api.tools.log.error("ERROR while loading configuration")
-      user_api.tools.print_ruby_exception(e)
+      user_api.mdi.tools.log.error("ERROR while loading configuration")
+      user_api.mdi.tools.print_ruby_exception(e)
       nil
     end
   end

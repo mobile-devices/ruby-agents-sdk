@@ -32,7 +32,18 @@ class UserAgentClass
   end
 
   def user_api
-    $SDK_API
+    if get_current_user_api == nil
+      @user_api_env ||= begin
+        env = {
+          'root' => 'yes',
+          'owner' => 'ragent',
+          'agent_name' => 'ragent'
+        }
+        USER_API_FACTORY.gen_user_api(self, env)
+      end
+    else
+      get_current_user_api
+    end
   end
 
   # =========

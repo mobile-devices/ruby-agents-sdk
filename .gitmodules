@@ -1,0 +1,3 @@
+[submodule "web_shell/local_cloud/ragent_bay"]
+	path = web_shell/local_cloud/ragent_bay
+	url = git@github.com:xward/ragent_bay.git

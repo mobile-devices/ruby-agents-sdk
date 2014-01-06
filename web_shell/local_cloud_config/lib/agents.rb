@@ -53,11 +53,11 @@ def update_sdk_stats
   begin
     # server stats
     jstats = http_get("http://localhost:5001/sdk_stats")
-    puts "update_sdk_stats downloaded: \n #{jstats}"
+    #puts "update_sdk_stats downloaded: \n #{jstats}"
     stats = JSON.parse(jstats)
 
     $sdk_server_stats = stats['server']
-    puts "sdk_server_stats: \n #{$sdk_server_stats}"
+    #puts "sdk_server_stats: \n #{$sdk_server_stats}"
 
     # agents
     agents_stats =  stats['agents']
@@ -66,12 +66,12 @@ def update_sdk_stats
       agents[k].agent_stats = v
     }
 
-    puts "Agent with stats: \n #{agents}"
+    #puts "Agent with stats: \n #{agents}"
   rescue Exception => e
     stack=""
-    e.backtrace.take(20).each { |trace|
+    e.backtrace.take(20).each do |trace|
       stack+="  >> #{trace}\n"
-    }
+    end
     puts "update_sdk_stats ERROR: #{e.inspect}\n\n#{stack}"
   end
   #todo: in case of agent not updated, set as default_agent found in server
@@ -91,20 +91,24 @@ def update_cron_tasks
     cron = JSON.parse(jcron)
 
     # agents
-    cron.each { |k,v|
+    cron.each do |k,v|
       if agents[k] != nil
         puts "##### #{v}"
-        v.each { |e|
-          agents[k].cron_tasks << JSON.parse(e)
-        }
+        v.each do |e|
+          task_info = JSON.parse(e)
+          puts "  ######1 #{task_info} "
+          task_order = JSON.parse(task_info['order'])
+          puts "  ######2 #{task_order} #{task_order['order']}"
+          agents[k].cron_tasks << task_order
+        end
       end
-    }
+    end
 
   rescue Exception => e
     stack=""
-    e.backtrace.take(20).each { |trace|
+    e.backtrace.take(20).each do |trace|
       stack+="  >> #{trace}\n"
-    }
+    end
     puts "update_cron_tasks ERROR: #{e.inspect}\n\n#{stack}"
   end
 

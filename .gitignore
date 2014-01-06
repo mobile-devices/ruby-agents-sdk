@@ -22,3 +22,10 @@ web_shell/local_cloud/config/schedule.rb
 
 # package output
 *.tar.gz
+
+agent_generated_source
+whenever_cron
+agents_project_source
+builder/config/schedule.rb
+
+agents_generated_source

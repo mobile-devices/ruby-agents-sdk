@@ -241,9 +241,9 @@ module AgentsGenerator
 
     # Merge Gemfile
     agents_Gemfiles = []
-    agents_to_run.each { |agent|
+    agents_to_run.each do |agent|
       agents_Gemfiles << get_agent_Gemfile_content(agent)
-    }
+    end
     master_GemFile = File.read("#{source_path}/../local_cloud/Gemfile.master")
 
     gemFile_content = merge_gem_file(master_GemFile, agents_Gemfiles)
@@ -254,7 +254,7 @@ module AgentsGenerator
   end
 
 
-  def generated_get_dyn_channel()
+  def generated_get_dyn_channel
     YAML::load(File.open("#{source_path}/cloud_agents_generated/dyn_channels.yml"))
   end
 
@@ -402,11 +402,11 @@ module AgentsGenerator
   #########################################################################################################
   ## Basic tools
 
-  def get_sdk_version()
+  def get_sdk_version
     @sdk_version ||= File.read('../../version.txt')
   end
 
-  def generate_new_guid()
+  def generate_new_guid
     get_sdk_version + ";" + SecureRandom.base64
   end
 
@@ -495,6 +495,8 @@ module AgentsGenerator
     array.each do |a|
       if is_agent_valid(a)
         out << a
+      else
+        p "Agent #{a} is not valid"
       end
     end
     out

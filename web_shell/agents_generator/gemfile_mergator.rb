@@ -7,30 +7,34 @@ def merge_gem_file(master_gem_file, gemfiles_contents)
 
   master << "# GENERATED CODE. DON'T EDIT THIS FILE, YOUR CHANGES WILL BE LOST\n\n"
 
-  master_gem_file.each_line { |line|
+  master_gem_file.each_line do |line|
     master << line
-  }
+  end
 
-  gemfiles_contents.each { |content|
+  p "Master gemfile = #{master_gem_file}"
+  p "Merging to master : #{gemfiles_contents}"
+
+  gemfiles_contents.each do |content|
     content << "\n"
-    content.each_line { |line|
+    content.each_line do |line|
       gem_name = get_gem_name(line)
 
       if gem_name != nil && !(is_gem_exist(master, gem_name))
+        p "Adding gem '#{gem_name}'"
         master << line
       end
-    }
-  }
+    end
+  end
   master.join("")
 end
 
 
 def is_gem_exist(array, name)
-  array.each { |line|
+  array.each do |line|
     if line.include? "#{name}"
       return true
     end
-  }
+  end
   return false
 end
 

@@ -19,6 +19,7 @@ start_admin() {
   echo "starting admin server"
   pushd . >> /dev/null
   cd web_shell/local_cloud_config
+  echo "" > ../../logs/daemon_server_config.log
   ruby local_cloud_config.rb >>../../logs/daemon_server_config.log 2>&1 &
   popd >> /dev/null
 }

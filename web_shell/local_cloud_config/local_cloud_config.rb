@@ -136,8 +136,6 @@ get '/unit_tests' do
   erb :tests
 end
 
-
-
 get '/reset_daemon_server_log' do
   if File.exist?(log_server_path)
     File.delete(log_server_path)
@@ -195,12 +193,33 @@ get '/restart_server' do
 
   $server_run_id = rand
   p "restart server with params=#{params} and id #{$server_run_id}"
-
   File.open('/tmp/should_mdi_server_run_id', 'w') { |file| file.write($server_run_id) }
+
+
+  # doing it in rush - to cleanup - block the restart, ugly
+  # get agents list
+  agents_to_run=[]
+  blabla = GEN.get_run_agents
+  root_path = File.expand_path(File.dirname(__FILE__))
+  blabla.each do |agent|
+    agents_to_run << File.expand_path(File.join(root_path, '../../cloud_agents', "#{agent}"))
+  end
+  p "restart server with #{agents_to_run}"
+
 
   # launch in a new thread to avoid being stuck here
   Thread.start {
-    `cd ../local_cloud; ./local_cloud.sh restart`
+    # stop
+    `cd ../local_cloud; ./local_cloud.sh stop`
+
+
+    # call import agent
+    command = "cd ../local_cloud; ./local_cloud.sh import_agents #{agents_to_run.length} #{agents_to_run.join(' ')}"
+    p "Call command #{command}"
+    `#{command}`
+
+    # start
+    `cd ../local_cloud; ./local_cloud.sh start`
   }
 
   p "redirecting to #{params['redirect_to']}"

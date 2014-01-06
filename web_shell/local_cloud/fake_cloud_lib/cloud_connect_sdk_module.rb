@@ -6,12 +6,12 @@
 require 'logger'
 require_relative 'limited_apis'
 require 'redis-namespace'
+require 'time'
 
 # Cloud connect SDK Side Implementation
 
 module CloudConnectSDK
   # wrapper from indigen
-  require 'time'
   def self.indigen_next_id(key = 'default')
 
     #todo : if VMProd, don't gen it
@@ -46,7 +46,7 @@ module CloudConnectSDK
   end
 
   # send outside the cloud
-  def self.push(hash_msg,queue = nil)
+  def self.push(hash_msg, queue = nil)
 
     # set the recorded at like the read server would do
     hash_msg['recorded_at'] = Time.now

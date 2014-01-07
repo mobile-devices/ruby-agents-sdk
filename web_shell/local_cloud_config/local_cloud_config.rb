@@ -172,8 +172,7 @@ post '/agents/:agent_name/stop' do
 end
 
 post '/create_agents' do
-  add_new_agent(params[:agent][:name])
-
+  add_new_agent(params[:agent][:name], params[:agent][:package])
   redirect('/projects')
 end
 

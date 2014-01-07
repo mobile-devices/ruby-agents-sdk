@@ -272,8 +272,10 @@ module AgentsGenerator
   #########################################################################################################
   ## agent mgt
 
-  #return true if success
-  def create_new_agent(name)
+  # @params [String] name name of the agent (must be lowercase, ASCII only)
+  # @params [String] protogen_package_name if nil, the new agent will have its new Protogen file empty. If a String, create a default Protogen template using the given package name.
+  # @return `true` if success
+  def create_new_agent(name, protogen_package_name = nil)
 
     #todo filter name character, only letter and '_'
     name.gsub!(' ', '_')
@@ -294,12 +296,23 @@ module AgentsGenerator
     # init agent name
     File.open("#{project_path}/.agent_name", 'w') { |file| file.write(name) }
 
-
     #copy sample project
     FileUtils.cp_r(Dir["#{source_path}/sample_agent/*"],"#{project_path}")
 
     #rename config file
     FileUtils.mv("#{project_path}/config/config.yml", "#{project_path}/config/#{name}.yml")
+
+
+    # Update protogen template file
+    if protogen_package_name.nil?
+      # Delete template protogen file content
+      File.open("#{project_path}/config/my_protocol.protogen", 'w') { |file| file.write('') }
+    else
+      template =  File.read("#{project_path}/config/my_protocol.protogen")
+      template.gsub!("@PROJECTNAME@", "#{name.capitalize}_protocol")
+      template.gsub!("@PACKAGE@", protogen_package_name)
+      File.open("#{project_path}/config/my_protocol.protogen", 'w') { |file| file.write(template) }
+    end
 
     # Match and replace name project stuff in content
     match_and_replace_in_folder(project_path,"XXProjectName",name)

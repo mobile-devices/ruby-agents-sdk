@@ -11,6 +11,9 @@ require 'time'
 # Cloud connect SDK Side Implementation
 
 module CloudConnectSDK
+
+  @@indigen_id = 0
+
   # wrapper from indigen
   def self.indigen_next_id(key = 'default')
 
@@ -18,7 +21,12 @@ module CloudConnectSDK
     @epoch ||= Time.parse("2010-01-01T00:00:00Z")
     t = Time.now - @epoch.to_i
     ts = ((t.to_f * 1000).floor.to_s(2)).rjust(42,'0')
-    c  = '00000000'
+    c  = @@indigen_id.to_s(2).rjust(8, '0')
+    if @@indigen_id == 255
+      @@indigen_id = 0
+    else
+      @@indigen_id = @@indigen_id + 1
+    end
     wid = '00000000000000'
     genid = (ts + c + wid)
     genid.to_i(2)

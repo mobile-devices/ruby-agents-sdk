@@ -1,0 +1,12 @@
+{
+  "name":"@PROJECTNAME@",
+  "package":"@PACKAGE@",
+  "protogen_version":1,
+  "protocol_version":1,
+  "messages":{
+  },
+  "sequences":{
+  },
+  "cookies":{
+  }
+}

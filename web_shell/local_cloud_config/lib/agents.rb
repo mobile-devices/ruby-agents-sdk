@@ -22,12 +22,12 @@ def start_agent(agent)
   agents_altered
 end
 
-def add_new_agent(agent_name)
+def add_new_agent(agent_name, package_name = nil)
   puts "add_new_agent #{agent_name}"
   if agent_name.empty?
     puts "Agent name can not be empty."
     flash[:popup_error] = "Agent name can not be empty."
-  elsif create_new_agent(agent_name)
+  elsif create_new_agent(agent_name, package_name)
     agents_altered
     puts "Agent #{agent_name} successfully created."
   else

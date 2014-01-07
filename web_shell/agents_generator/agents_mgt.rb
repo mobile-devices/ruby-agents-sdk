@@ -416,7 +416,7 @@ module AgentsGenerator
   ## Basic tools
 
   def get_sdk_version
-    @sdk_version ||= File.read('../../version.txt')
+    @sdk_version ||= File.read('../../VERSION')
   end
 
   def generate_new_guid

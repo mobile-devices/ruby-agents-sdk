@@ -10,7 +10,7 @@
 echo ""
 echo "init vm"
 
-export PATH="$HOME/.rbenv/versions/1.9.3-p125/bin/:$HOME/.rbenv/bin:$PATH"
+export PATH="$HOME/.rbenv/versions/2.1.0/bin/:$HOME/.rbenv/versions/1.9.3-p125/bin/:$HOME/.rbenv/bin:$PATH"
 echo $PATH
 echo $(rbenv -v)
 echo $(ruby -v)

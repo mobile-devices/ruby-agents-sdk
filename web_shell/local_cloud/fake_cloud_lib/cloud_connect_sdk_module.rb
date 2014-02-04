@@ -12,6 +12,12 @@ require 'time'
 
 module CloudConnectSDK
 
+
+  def request_http_cloud_api(account, service)
+    nil
+  end
+
+
   @@indigen_id = 0
 
   # wrapper from indigen

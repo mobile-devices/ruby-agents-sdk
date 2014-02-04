@@ -3,6 +3,7 @@ default: &DEFAULT
   subscribe_presence: false
   subscribe_message: false
   subscribe_track: false
+  subscribe_collection: false
 
 development: *DEFAULT
 production: *DEFAULT

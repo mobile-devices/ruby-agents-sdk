@@ -56,6 +56,8 @@ def update_sdk_stats
     #puts "update_sdk_stats downloaded: \n #{jstats}"
     stats = JSON.parse(jstats)
 
+    $sdk_server_stats_full = stats
+
     $sdk_server_stats = stats['server']
     #puts "sdk_server_stats: \n #{$sdk_server_stats}"
 
@@ -80,6 +82,10 @@ end
 
 def sdk_stats
   $sdk_server_stats ||= {}
+end
+
+def sdk_stats_full
+  $sdk_server_stats_full ||= {}
 end
 
 

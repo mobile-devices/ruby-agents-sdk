@@ -4,6 +4,7 @@ default: &DEFAULT
   subscribe_message: false
   subscribe_track: false
   subscribe_collection: false
+  subscribe_cloud_event: false
 
 development: *DEFAULT
 production: *DEFAULT

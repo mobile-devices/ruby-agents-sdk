@@ -94,6 +94,7 @@ get '/projects' do
   # stats
   update_sdk_stats
   @cur_sdk_stat = sdk_stats
+  @cur_sdk_stats_full = sdk_stats_full
   # cron
   update_cron_tasks
   # popup error

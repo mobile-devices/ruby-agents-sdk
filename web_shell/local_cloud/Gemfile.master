@@ -32,6 +32,7 @@ gem 'redis-lock', '~> 0.1.0' # needed for protogen
 gem 'msgpack', '~> 0.4.7 ' # needed for protogen
 
 # scheduler
+gem 'rufus-scheduler'
 # gem 'whenever', '~> 0.8.2', :require => false
 
 #################################################################

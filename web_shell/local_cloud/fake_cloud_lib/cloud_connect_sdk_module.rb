@@ -82,6 +82,10 @@ module CloudConnectSDK
     @redis ||= LimitedApis::SafeRedis.new(:host => 'localhost', :port =>  '7879')
   end
 
+  def self.instance
+    :development
+  end
+
   # send outside the cloud
   def self.push(hash_msg, queue = nil)
 

@@ -40,6 +40,8 @@ import_agents() {
   # call import agent
   echo 'PUNKabeNK_sys_importing agents' >>  $ruby_log_path
   cd $important_agent_path_path
+  echo "bundle install"
+  bundle install
   echo "bundle exec ruby import_agents.rb ../../Gemfile.master ../../Gemfile x $agents"
   bundle exec ruby import_agents.rb ../../Gemfile.master ../../Gemfile x $agents  >> $ruby_log_path 2>&1
   if [ "$?" -ne 0 ] ; then

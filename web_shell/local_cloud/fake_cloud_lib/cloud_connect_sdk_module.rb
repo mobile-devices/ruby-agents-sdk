@@ -13,10 +13,15 @@ require 'time'
 module CloudConnectSDK
 
 
-  def request_http_cloud_api(account, service)
-    nil
+  def current_cloud_instance
+    'dev'
   end
 
+  module RagentHttpApiV3
+    def self.request_http_cloud_api(account, service)
+      nil
+    end
+  end
 
   @@indigen_id = 0
 

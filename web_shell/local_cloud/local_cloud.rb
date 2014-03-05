@@ -38,6 +38,10 @@ RAGENT.init('sdk-vm')
 
 # reset stats
 SDK_STATS.reset_stats
+RUBY_AGENT_STATS.init('sdk_ragent', 'ruby agent', '777', '007', {})
+
+
+
 
 # sdk test
 #require_relative 'tests_utils/tests_helper'

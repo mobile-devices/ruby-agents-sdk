@@ -18,7 +18,6 @@ echo $(ruby -v)
 # install sdk gems
 echo ""
 echo "sdk gem install"
-gem install bundler
 cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud;cp Gemfile.master Gemfile; bundle install
 cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud_config; bundle install
 

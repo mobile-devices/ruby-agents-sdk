@@ -189,9 +189,9 @@ html {
 
 
 .center-label{
- text-align:center!important;
+ text-align:center;
 }
-
+/*
 th,td {
- text-align:center!important;
-}
+ text-align:center;
+}*/

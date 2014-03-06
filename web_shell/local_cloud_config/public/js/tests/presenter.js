@@ -4,6 +4,19 @@ var App = (function(app) {
   $(document).ready(function() {
 
     // app events
+    app.suscribe('app.notify.agents_server_status', function(event, status) {
+      switch(status) {
+        case "online":
+          $("#run-tests").removeClass("disabled");
+          break;
+        case "offline":
+          $("#run-tests").addClass("disabled");
+          break;
+        default:
+          console.warn("Unknown server status: " + status);
+      }
+    });
+
     app.suscribe('app.notify.agents_available', function(event, params) {
       var context = {agents: []};
       for(var i = 0, len = params.length; i < len; i++) {
@@ -34,22 +47,28 @@ var App = (function(app) {
       testLauncher.stopTests();
     });
 
-    app.suscribe('app.notify.tests_started', function(event) {
+    app.suscribe('app.notify.tests_started', function(event, agents) {
+      testLauncher.testsRunning = true;
       $("#run-tests").removeClass().addClass('btn btn-danger').text("Stop tests");
+      for(var i = 1, len = arguments.length; i < len ; i++) {
+        delete testSuites[arguments[i]];
+      }
       testUpdater.startUpdates();
     });
 
     app.suscribe('app.notify.tests_stopped', function(event) {
+      testLauncher.testsRunning = false;
       $("#run-tests").removeClass().addClass('btn btn-primary').text("Run tests");
-      testUpdater.stopUpdates();
+      // testUpdater.stopUpdates();
     });
 
-    app.suscribe('app.notify.test_progress', function(event, agentName, statusInfo) {
-      var testSuite;
+    app.suscribe('app.notify.test_progress', function(event, agentName, statusInfo) {      
       if(agentName == "no tests") {
-        var template = Handlebars.compile($('#test-suite-exception-tmpl').html()); // todo compile only once
+        $('#general-test-info').html("<p class='alert alert-info'>No tests are currently running.</p><p><small>Select the agents to test in the above dropdown and click the Run tests button.</small></p>");
         return;
       }
+      $('#general-test-info').html("");
+      var testSuite;
       // retrieve the correct test suite
       if(testSuites.hasOwnProperty(agentName)) {
         testSuite = testSuites[agentName];
@@ -62,23 +81,43 @@ var App = (function(app) {
     });
 
     app.suscribe('app.notify.test_suite.changed', function(event, testSuite) {
+      // check if the HTML for tdisplaying the test suite exists. If not, create it.
+      var root = $('#test-suite-'+ testSuite.agentName);
+      if(!root.length) {
+        $('#test-suites-container').append("<div id='test-suite-" + testSuite.agentName + "'></div>");
+        root = $('#test-suite-'+ testSuite.agentName);
+      } 
+      
+      // update the GUI according to the received status
+      var template;
       switch(testSuite.status) {
         case "exception":
-          var template = Handlebars.compile($('#test-suite-exception-tmpl').html()); // todo compile only once
-          // check if the THML for tdisplaying the test suite exists. If not, create it.
-          var root = $('#test-suite-'+ testSuite.agentName)
-          if(root.length) {
-            root.html(template(testSuite));
-          } else {
-            $('#test-suites-container').append("<div id='test-suite-" + testSuite.agentName + "'></div>");
-            root = $('#test-suite-'+ testSuite.agentName);
-            root.html(template(testSuite));
-          }
-          break
-        default:
-          console.warn("Unknown test suite status: " + testSuite.status);
+          template = Handlebars.compile($('#test-suite-exception-tmpl').html()); // todo compile only once
           break;
-      }      
+        case "no test directory":
+          template = Handlebars.compile($('#no-test-directory-tmpl').html()); // todo compile only once
+          break;
+        case "aborted":
+          template = Handlebars.compile($('#test-suite-aborted-tmpl').html()); // todo compile only once
+          break;
+        case "scheduled":
+          template = Handlebars.compile($('#test-suite-scheduled-tmpl').html()); // todo compile only once
+          break;
+        case "not scheduled":
+          template = Handlebars.compile($('#test-suite-not-scheduled-tmpl').html()); // todo compile only once
+          break;
+        case "finished":
+          template = Handlebars.compile($('#test-suite-finished-tmpl').html()); // todo compile only once
+          break;
+        case "running":
+          template = Handlebars.compile($('#test-suite-running-tmpl').html()); // todo compile only once
+          break;
+        default:
+          console.warn("Presenter: unknown test suite status: " + testSuite.status);
+          return;
+      }
+      Handlebars.registerPartial("result", $("#test-suite-result-partial").html());  
+      root.html(template(testSuite));   
     });
 
     // user events
@@ -99,6 +138,12 @@ var App = (function(app) {
         app.publish('app.action.stop_tests');
       }
     });
+
+    $('#test-suites-container').on("click", "table .failed-example a", function(e) {
+      e.preventDefault();
+      $(this).parents("#test-suites-container table tr").next("tr").children("td").fadeToggle(50);
+      $(this).find("i").toggleClass("icon-chevron-down icon-chevron-up");
+    })
     
     // variable initialization    
     var testConfig = new app.TestConfig();

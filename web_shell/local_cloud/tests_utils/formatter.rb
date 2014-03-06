@@ -18,14 +18,15 @@ module Tests
       @status = {}
       @status[:agent_name] = agent_name
       @status[:start_time] = Time.now.strftime "%Y-%m-%d %H:%M:%S UTC%z"
-      @status[:tested] = 0
       @status[:examples] = []
       @example_index = 0
       @status[:failed_count] = 0
       @status[:pending_count] = 0
       @status[:passed_count] = 0
+      @status[:example_count] = 0
       @status[:status] = 'scheduled'
       @agent_name = agent_name
+      CC.logger.debug("initialization... " + self.inspect)
     end
 
     # todo: return an actual object
@@ -41,25 +42,30 @@ module Tests
       out.freeze
     end
 
+    def no_test_directory
+      @status[:status] = "no test directory"
+    end
+
     def message(message)
       @lock.synchronize do
        (@status[:messages] ||= []) << message
-     end
-   end
-
-   def start(example_count)
-    @lock.synchronize do
-      @example_count = example_count
-      @status[:example_count] = @example_count
-      @status[:status] = "started"
+      end
     end
-  end
 
-  def example_group_finished(example_group)
+    def start(example_count)
+      @lock.synchronize do
+        @example_count = example_count
+        @status[:example_count] = @example_count
+        @status[:status] = "running"
+      end
+    end
+
+    def example_group_finished(example_group)
       # do nothing for now
     end
 
     def example_started(example)
+      CC.logger.debug("example started")
       @lock.synchronize do
         examples << example
         @example_started_time = Time.now
@@ -69,7 +75,6 @@ module Tests
     def example_finished(example)
       @lock.synchronize do
         @example_index += 1
-        @status[:tested] += 1
         @status[:examples] << format_example(example, @example_index, (Time.now - @example_started_time).to_f)
       end
     end
@@ -121,20 +126,23 @@ module Tests
 
     def close
       @lock.synchronize do
-        if @status[:tested] == @status[:example_count]
-          @status[:status] = "finished"
-        else
-          @status[:status] = "aborted"
+        if @status[:status] != "no test directory" 
+          if (@status[:pending_count] + @status[:failed_count] + @status[:passed_count]) == @status[:example_count]
+            @status[:status] = "finished"
+          else
+            @status[:status] = "aborted"
+          end
         end
       end
+      CC.logger.debug("closing " + self.inspect)
     end
 
     def set_exception(e)
       @status[:status] = "exception"
       @status[:exception] = { :class => e.class.name,
-                              :message => e.message,
-                              :backtrace => e.backtrace }
-                        
+        :message => e.message,
+        :backtrace => e.backtrace
+      }
     end
 
     private
@@ -143,7 +151,7 @@ module Tests
         :description => example.description,
         :full_description => example.full_description,
         :status => example.execution_result[:status],
-        :file_path => example.metadata[:file_path],
+        :file_path => clean_path(example.metadata[:file_path]),
         :line_number  => example.metadata[:line_number],
         :duration => duration,
         :example_index => index
@@ -156,6 +164,12 @@ module Tests
         }
       end
       hash
+    end
+
+    def clean_path(path)
+      split = path.split(File::SEPARATOR)
+      index = split.index(@agent_name)
+      split[index..-1].join(File::SEPARATOR)
     end
 
     def dump_profile
@@ -184,5 +198,6 @@ module Tests
         hash.update(:location => loc)
       end
     end
+
   end
 end

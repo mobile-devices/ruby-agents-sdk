@@ -4,18 +4,26 @@
     <div class="span12">
       Select agent(s) to test:
       <div class="btn-group">
-        <a class="btn dropdown-toggle" id="select-agent-btn" data-toggle="dropdown" href="#">
-          No agent selected<span class="caret"></span>
+        <a class="btn dropdown-toggle" id="select-agent-btn" data-toggle="dropdown" href="#">Choose an agent <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" id="available-agents">
           Retrieving available agents...
         </ul>
       </div>
-      <button class="btn btn-primary" id="run-tests">Run tests</button>
+      <button class="btn btn-primary disabled" id="run-tests">Run tests</button>
     </div>
   </div>
 
   <div class="row-fluid">
+    <div id="notice">
+    </div>
+  </div>
+
+  <div class="row-fluid">
+    <h3>Test status</h3>
+    <div id="general-test-info">
+      <p class="muted">Agents server is offline, waiting...</p>
+    </div>
     <div id="test-suites-container">
     </div>
   </div>
@@ -34,9 +42,8 @@
 </script>
 
 <script id="test-suite-exception-tmpl" type="text/x-handlebars-template">
-  <div class="exception-test-suite">
   <h4>{{agentName}}</h4>
-  <div>
+  <div class="well">
   <p class="lead">An exception was raised before the tests could be started for this agent.</p>
   <p class="alert alert-danger"><strong>{{exceptionInfo.class}}</strong>: {{exceptionInfo.message}}</p>
   <pre class="stacktrace">
@@ -44,9 +51,113 @@
 {{this}}
   {{/each}}
   </pre>
-  </div>
   </div>  
 </script>
+
+<script id="no-test-directory-tmpl" type="text/x-handlebars-template">
+  <h4>{{agentName}}</h4>
+  <div class="well">
+  <p class="lead">No tests folder was found for this agent</p>
+  <p><small>The SDK searches for tests to run in the <code>tests</code> folder in the root directory of your agent.</small></p>
+  <p><small>A test file name ends in <code>_spec.rb</code>.</small></p>
+  <p><small>See the SDK documentation for details</small></p>
+  </div>
+</script>
+
+
+<script id="test-suite-running-tmpl" type="text/x-handlebars-template">
+<h4>{{agentName}}  <i class='icon-spinner icon-spin icon-large'></i></h4>
+<div class="row-fluid">
+<span class="span8"><p>Results: <span {{#if this.passedCount}}class="text-success"{{/if}}>{{this.passedCount}} passed</span>, <span {{#if this.failedCount}}class="text-error"{{/if}}>{{this.failedCount}} failed</span>, <span {{#if this.pendingCount}}class="text-warning"{{/if}}>{{this.pendingCount}} not implemented</span></p></span>
+<span class="span4"><p class="muted pull-right">Tests running ({{testedCount}} of {{exampleCount}} tested)</p></span>
+</div>
+{{> result}}
+</script>
+
+<script id="test-suite-aborted-tmpl" type="text/x-handlebars-template">
+<h4>{{agentName}}</h4>
+<div class="row-fluid">
+<span class="span8"><p>Results: <span {{#if this.passedCount}}class="text-success"{{/if}}>{{this.passedCount}} passed</span>, <span {{#if this.failedCount}}class="text-error"{{/if}}>{{this.failedCount}} failed</span>, <span {{#if this.pendingCount}}class="text-warning"{{/if}}>{{this.pendingCount}} not implemented</span></p></span>
+<span class="span4"><p class="muted pull-right text-warning">Tests aborted ({{testedCount}} of {{exampleCount}} tested)</p></span>
+</div>
+{{> result}}
+</script>
+
+<script id="test-suite-finished-tmpl" type="text/x-handlebars-template">
+<h4>{{agentName}}</h4>
+<div class="row-fluid">
+<span class="span8"><p>Results: <span {{#if this.passedCount}}class="text-success"{{/if}}>{{this.passedCount}} passed</span>, <span {{#if this.failedCount}}class="text-error"{{/if}}>{{this.failedCount}} failed</span>, <span {{#if this.pendingCount}}class="text-warning"{{/if}}>{{this.pendingCount}} not implemented</span></p></span>
+<span class="span4"><p class="muted pull-right">Tests complete.</p></span>
+</div>
+{{> result}}
+</script>
+
+<script id="test-suite-result-partial" type="text/x-handlebars-template">
+<table class="table">
+  <thead>
+    <th>#</th>
+    <th>Test</th>
+    <th>Status</th>
+    <th>Location</th>
+    <th>Duration</th>
+  </thead>
+  <tbody>
+    {{#each examples}}
+      <tr>
+        <td>{{this.index}}</td>
+        <td>{{this.fullDescription}}</td>
+        {{#if this.hasFailed}}
+          <td>
+          <div class="failed-example">
+          <a href="#" title="Click to toggle the details" class="expand-backtrace"><span class="badge badge-important">{{this.status}} <i class="icon-chevron-down"></i> </span></a>
+          </td>
+        {{else}}
+          <td><span class="badge badge-success">{{this.status}}</span></td>
+        {{/if}}
+        <td>line {{this.lineNumber}} of {{filePath}}</td>
+        <td>{{this.duration}} s</td>
+        {{#if this.hasFailed}}
+          <tr>
+            <td colspan="5" style="display: none;">
+              <div class="backtrace text-left">
+                <p class="alert alert-danger">{{this.exception.class}}: {{this.exception.message}}</p>
+                <pre>
+{{#each this.exception.backtrace ~}}
+{{this}}
+{{/each}}
+                </pre>
+              </div>
+            </td>
+          </tr>
+        {{/if}}       
+      </tr>
+    {{/each}}
+    <tr>
+      <td colspan='3'>
+        <p class="muted pull-left">Tests started at {{startTime}}</p>
+      </td>
+      <td>{{#if duration}}<span class="pull-right">Total: </span>{{/if}}</td>
+      <td>{{#if duration}}{{duration}} s{{/if}}</td></tr>
+  </tbody>
+</table>
+</script>
+
+<script id="test-suite-scheduled-tmpl" type="text/x-handlebars-template">
+<h4>{{agentName}}</h4>
+<div class="well">
+<p>Tests scheduled.</p>
+<p><small>Just wait a little and the results will be displayed here.</small></p>
+</div>
+</script>
+
+<script id="test-suite-not-scheduled-tmpl" type="text/x-handlebars-template">
+<h4>{{agentName}}</h4>
+<div class="well">
+<p class="lead">No tests are scheduled for this agent.</p>
+</div>
+</script>
+
+
 
 <script src="js/handlebars.js"></script>
 <script src="js/tests/app.js"></script>

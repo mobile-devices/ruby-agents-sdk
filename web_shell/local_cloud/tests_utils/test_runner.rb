@@ -27,18 +27,18 @@ module Tests
       @tester_thread = nil
       @lock = Monitor.new # reentrant lock
       @formatter_lock = Mutex.new
-      @formatters = []
+      @formatters = {}
     end
 
     # Run the tests
     # @param [Hash{String => String}] agent_paths a hash mapping the tested agent name to the path to its test folder on the filesystem
     def start_tests(agent_paths)
+      stop_tests
       @formatter_lock.synchronize do
         @formatters = agent_paths.each_with_object({}) { |(name, path), hash| hash[name] = Formatter.new($stdout, name) }
       end
       @agent_paths = agent_paths
-      @lock.synchronize do
-        stop_tests
+      @lock.synchronize do       
         CC.logger.info("Tests started")
         create_tester_thread(@agent_paths)        
       end      
@@ -66,7 +66,7 @@ module Tests
             else
               fiter_index = filter[formatter_name]
             end
-            hash[formatter_name] = formatter.get_status(filter)
+            hash[formatter_name] = formatter.get_status(filter_index)
           end
         end
       end 
@@ -80,17 +80,32 @@ module Tests
       @test_thread = Thread.new(agents_to_test) do |agents_to_test| # todo: handle multiple agents at the same time
           agents_to_test.each do |agent_name, path|
             config = RSpec.configuration
-            reporter = RSpec::Core::Reporter.new(@formatters[agent_name])
-            config.instance_variable_set(:@reporter, reporter)
-            CC.logger.info("Running tests for agent #{agent_name}")
-            begin
-              RSpec::Core::Runner.run([File.expand_path(path)])
-            rescue StandardError => e
-              CC.logger.info("Caught exception when running tests for agent #{agent_name}: #{e.to_s}.")
-              @formatters[agent_name].set_exception(e)
+            if(File.directory?(path))              
+              CC.logger.info("Running tests for agent #{agent_name}")
+              begin
+                CC.logger.debug("RSpec test path: " + File.expand_path(path))
+                # Let's fiddle with the RSpec internals. Guaranteed to break with each RSpec update :-(
+                reporter = RSpec::Core::Reporter.new(@formatters[agent_name])
+                # CC.logger.debug(reporter.inspect)
+                RSpec.configure do |c|
+                  c.instance_variable_set(:@reporter, reporter)
+                  c.instance_variable_set(:@formatters, [@formatters[agent_name]])
+                  # c.add_formatter(@formatters[agent_name])
+                end
+                CC.logger.debug("#{RSpec.configuration.formatters.inspect}")
+                # config.instance_variable_set(:@reporter, reporter)
+                RSpec::Core::Runner.run([File.expand_path(path)], $stdout, $stdout)
+                CC.logger.info("Tests finished for agent #{agent_name}.")
+              rescue StandardError => e
+                CC.logger.info("Caught exception when running tests for agent #{agent_name}: #{e.to_s}.")
+                @formatters[agent_name].set_exception(e)
+              end
+              break if @aborting_tests
+            else
+              @formatters[agent_name].no_test_directory
             end
-            break if @aborting_tests
           end
+          CC.logger.info("Tests ended gracefully.")
         end
     end
 
@@ -98,7 +113,7 @@ module Tests
       # if tests are not running, this method does nothing relevant
       begin
         Timeout.timeout(5) do
-          Rspec.wants_to_quit = true
+          RSpec.wants_to_quit = true
           @aborting_tests = true
           @test_thread.join unless @test_thread.nil?
         end
@@ -110,7 +125,7 @@ module Tests
         formatter.close
       end
       @aborting_tests = false
-      Rspec.wants_to_quit = false
+      RSpec.wants_to_quit = false
       CC.logger.info("Tests stopped.")
     end
 

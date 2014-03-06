@@ -24,7 +24,8 @@ var App = (function(app) {
 					type: "POST",
 					context: this,
 					success: function() {
-						app.publish("app.notify.tests_started");
+						app.publish('app.notify.agent_server_status', ["online"]);
+						app.publish("app.notify.tests_started", agents);
 						this.testsRunning = true;
 					},
 					complete: function() {
@@ -50,6 +51,7 @@ var App = (function(app) {
 					data: "",
 					type: "POST",
 					success: function() {
+						app.publish('app.notify.agent_server_status', ["online"]);
 						this.testsRunning = false;
 						app.publish("app.notify.tests_stopped");
 					},

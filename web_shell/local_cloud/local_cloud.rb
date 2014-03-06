@@ -180,7 +180,7 @@ post '/message' do
   response.body = '{}'
   return if hashData == nil
   RIM.handle_message(hashData)
-  response.status = 200 # everything went perfeclty fine .. don't ask .. no don't look ... you should believe me
+  nil
 end
 
 #test:
@@ -190,7 +190,7 @@ post '/track' do
   response.body = '{}'
   return if hashData == nil
   RIM.handle_track(hashData)
-  response.status = 200 # everything went perfeclty fine .. don't ask .. no don't look ... you should believe me
+  nil
 end
 
 #test:
@@ -200,7 +200,7 @@ post '/remote_call' do
   response.body = '{}'
   return if hashData == nil
   RIM.handle_order(hashData)
-  response.status = 200 # everything went perfeclty fine .. don't ask .. no don't look ... you should believe me
+  nil
 end
 
 # todo: POST is more meaningful for this

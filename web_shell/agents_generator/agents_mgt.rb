@@ -220,10 +220,6 @@ module AgentsGenerator
       }
     }
 
-    # write agents that were mounted to disk
-    # so we can know which agents are really running
-    write_generated_agents(agents_to_run)
-
     File.open("#{source_path}/cloud_agents_generated/dyn_channels.yml", 'w+') { |file| file.write(dyn_channels.to_yaml) }
 
     add_to_rapport("Dynamic channel merged\n")
@@ -531,24 +527,6 @@ module AgentsGenerator
       match_and_replace_in_folder("#{path}/#{dir}", pattern, replace)
     end
   end
-
-  # Writes to disk a list of the agents.
-  # Intended to be used to store the agents that were mounted during the last boot.s
-  # @param [Array<String>] these agent names will be stored
-  # @api private
-  def write_generated_agents(agents)
-    FileUtils.touch("#{source_path}/.last_mounted_agents")
-    File.open("#{source_path}/.last_mounted_agents", 'w') { |file| file.write(agents.join(';')) }
-  end
-
-  # Get the list of of the agents that were mounted during last boot.
-  # @return [Array<String>] a list of agent names
-  # @api private
-  def get_last_mounted_agents
-    FileUtils.touch("#{source_path}/.last_mounted_agents")
-    agents = File.read("#{source_path}/.last_mounted_agents").split(';')
-  end
-
 
   #########################################################################################################
 

@@ -378,13 +378,11 @@ end
 
 get '/tests' do
   @active_tab = "unit_tests"
-  @agents = get_last_mounted_agents
   erb :tests
 end
 
-# FIXME : current currently agent that are REALLY mounted (after the last reboot)
 get '/tests/available_agents' do
-  agents.select{ |agent_name, agent| agent.running }.map{ |agent_name, agent| agent_name }.to_json 
+  get_currently_mounted_agents.to_json 
 end
 
 post '/tests/start' do

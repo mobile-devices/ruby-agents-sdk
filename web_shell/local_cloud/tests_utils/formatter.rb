@@ -26,7 +26,6 @@ module Tests
       @status[:example_count] = 0
       @status[:status] = 'scheduled'
       @agent_name = agent_name
-      CC.logger.debug("initialization... " + self.inspect)
     end
 
     # todo: return an actual object

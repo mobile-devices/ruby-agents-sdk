@@ -13,6 +13,7 @@
   <!-- Bootstrap -->
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen">
   <link rel="stylesheet" href="/css/server_admin.css" media="screen">
+  <link rel="stylesheet" href="/css/bootstrap-extension.css" media="screen">
 
   <!-- Highlight in documentation -->
   <link rel="stylesheet" href="/css/railcast.css" media="screen">
@@ -59,7 +60,7 @@
               <a href="./logSdkAgentsPunk#endlog"><i class="icon-medkit icon-white"></i> Server Log</a>
             </li>
             <li class="<% if @active_tab=='unit_tests'%><%= 'active' %><% end %>">
-              <a href="./unit_tests"><i class="icon-check icon-white"></i> Unit tests</a>
+              <a href="./tests"><i class="icon-check icon-white"></i> Unit tests</a>
             </li>
           </ul>
 
@@ -75,7 +76,7 @@
                 <% if @active_tab=='projects'%>value="/projects"<% end %>
                 <% if @active_tab=='logSdkAgentsPunk'%>value="/logSdkAgentsPunk#endlog"<% end %>
                 <% if @active_tab=='patch_note'%>value="/patch_note"<% end %>
-                <% if @active_tab=='unit_tests'%>value="/unit_tests"<% end %>
+                <% if @active_tab=='unit_tests'%>value="/tests"<% end %>
                 >
 
                 <button id="btn-server-reboot"  data-toggle="tooltip" title="Reboot the ruby server.

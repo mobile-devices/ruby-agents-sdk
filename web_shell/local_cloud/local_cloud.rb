@@ -21,6 +21,8 @@ require 'json'
 require 'base64'
 require 'rspec'
 
+require_relative 'tests_utils/test_runner'
+
 $local_cloud_start_time = Time.now
 $main_server_root_path = File.expand_path("..", __FILE__)
 
@@ -42,10 +44,6 @@ RUBY_AGENT_STATS.init('sdk_ragent', 'ruby agent', '777', '007', {})
 
 
 
-
-# sdk test
-#require_relative 'tests_utils/tests_helper'
-$tester_thread = Thread.new {}
 
 PUNK.end('sys','ok','','SERVER ready to work - click for details')
 
@@ -203,28 +201,66 @@ post '/remote_call' do
   nil
 end
 
-# todo: POST is more meaningful for this
-# but then we have to deal with problems like CRSF and XSS
 # todo: refactor, method too long
-get '/start_tests' do
-  unless params.has_key?("agents")
-    halt(400, "'agents' parameter is mandatory")
+# get '/start_tests' do
+#   unless params.has_key?("agents")
+#     halt(400, "'agents' parameter is mandatory")
+#   end
+#   agents_array = params['agents']
+#   unless agents_array.size >= 1
+#     halt(400, "'agents' parameters must include at least one agent")
+#   end
+#   CC.logger.info("Starting tests for agents " + agents_array.inspect)
+#   TestsRunner.instance.start_tests(agents_array)
+#   "Tests started for agents " + agents_array.inspect
+# end
+
+# POST /tests/start
+# Content-Type: application/json
+# {
+# "agents": ["name_a", "name_b"]...  
+# }
+post '/tests/start' do
+  data = JSON.parse(request.body.read)
+  unless data.include?("agents") && data["agents"].is_a?(Array)
+    halt(400, 'You must provide a list of agents')
   end
-  agents_array = params['agents']
-  unless agents_array.size >= 1
-    halt(400, "'agents' parameters must include at least one agent")
-  end
-  CC.logger.info("Starting tests for agents " + agents_array.inspect)
-  TestsRunner.instance.start_tests(agents_array)
-  "Tests started for agents " + agents_array.inspect
+  hash = data["agents"].each_with_object({}) do |agent_name, hash|
+    hash[agent_name] = File.join(File.dirname(__FILE__), "ragent_bay", "agents_project_source", agent_name, "tests")
+  end  
+  Tests::TestsRunner.instance.start_tests(hash)
+  {'status' => 'tests started'}.to_json
 end
 
-get '/stop_tests' do
-  TestsRunner.instance.stop_tests
-  "Tests stopped"
+# get '/stop_tests' do
+#   TestsRunner.instance.stop_tests
+#   "Tests stopped"
+# end
+
+# No specific body required
+post '/tests/stop' do
+  Tests::TestsRunner.instance.stop_tests
+  {'status' => 'tests stopped'}.to_json
+end
+
+# GET /test/status?filter[]=agent_name&filter[]=index
+# filter is an array, each pair in it is the couple (agent_name, min_index)
+# min_index is the minimum index example to include in the results
+# note that if the status is anything other than "started", then the filter parameter is ignored for the geiven agent 
+get '/tests/status' do
+  if(params[:filter])
+    Tests::TestsRunner.instance.get_status(Hash[params[:filter]]).to_json
+  else
+    Tests::TestsRunner.instance.get_status.to_json
+  end
 end
 
 #test : curl http://localhost:5001/is_alive
 get '/is_alive' do
   "I'm alive!"
+end
+
+get '/tests/status/text' do
+  attachment "tests_status.txt"
+  Tests::TestsRunner.instance.get_status_as_text
 end

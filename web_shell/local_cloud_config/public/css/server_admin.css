@@ -189,9 +189,12 @@ html {
 
 
 .center-label{
- text-align:center!important;
+ text-align:center;
 }
 
-th,td {
- text-align:center!important;
+#main_display th,
+#main_display td,
+#create_display th, 
+#create_display td {
+ text-align:center;
 }

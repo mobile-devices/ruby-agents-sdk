@@ -188,3 +188,12 @@ def make_package_agent(agent)
 
   "output/#{package_name}"
 end
+
+# @return [Array<String>] the list of the currently mounted agents (note that agent.running returns true if the
+#                         agent is scheduled to be mounted at next reboot even if it is not currently mounted)
+# @todo design a robust API to handle this kind of needs, rather than using ad-hoc methods.
+def get_currently_mounted_agents
+  path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "local_cloud", "ragent_bay", "agents_project_source", "*"))
+  agents_path = Dir.glob(path).select {|f| File.directory? f}
+  agents_path.map{|a| a.split(File::SEPARATOR).last}
+end

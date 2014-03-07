@@ -1,0 +1,263 @@
+require 'json'
+
+# @api public
+# Provides several utilities to write unit tests inside the SDK.
+# @note Methods and classes of this module are intended to be used in automated tests only!
+#       Using them in your code will result in `NoMethodErrors on a production environment.
+module TestsHelper
+
+  # @!group Helper methods
+
+  # Helper to test asynchronous behaviour.
+  #
+  # This method executes the given block at given time intervals until the block returns without raising an exception.
+  # If an exception is raised, it will catch it and ignore it unless elapsed time since the first attempt exceeds the given duration.
+  # @param [Block] block a block to execute.
+  # @param [Fixnum] elapsed_time internal use.
+  # @param [Fixnum] increment duration in seconds between two attempts.
+  # @param [Fixnum] time duration in seconds to wait for before aborting
+  #    (this duration does not include the time the block will take to return or to raise an exception).
+  # @example Basic usage with RSpec
+  #    wait_for { a.should == b }
+  # @api public
+  def self.wait_for(time = 5, increment = 1, elapsed_time = 0, &block)
+    begin
+      yield
+    rescue Exception
+      if elapsed_time >= time
+        raise $!, "#{$!} (waited for #{elapsed_time} seconds)", $!.backtrace
+      else
+        sleep increment
+        wait_for(time, increment, elapsed_time + increment, &block)
+      end
+    end
+  end
+
+  # Waits for server responses to a given device message and return these responses.
+  # This is (obviously) a blocking call.
+  # @param [UserApis::Mdi::Dialog::MessageClass] message the message sent by the device (using a temporary id)
+  # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
+  #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
+  # @param [Fixnum] timeout this method will return after `timeout` seconds.
+  # @return [Array<CloudConnectServices::Message>] messages sent by the server in response to the given message
+  # @note Protogen messages are sent as multiple messages by the server.
+  #   However, this method will consider all these small messages as a big one, so you don't have to worry
+  #   about using Protogen or not.
+  # @api public
+  def self.wait_for_responses(message, number_of_responses = 1, timeout = 5)
+    if (not number_of_responses.nil?) && number_of_responses <= 0
+      raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
+    end
+    id_to_look_for = @@mappings[message.id]
+    start_time = Time.now.to_f
+    res = []
+    while Time.now.to_f - start_time < timeout
+      res = @@messages.select{ |msg| msg.parent_id == id_to_look_for }
+      break if (not number_of_responses.nil?) && res.length >= number_of_responses
+      sleep(0.1)
+    end
+    return res
+  end
+
+  # @!endgroup
+
+  # @!group Internal
+
+  # @api private
+  # An array with a limited maximum size.
+  # Old elements are overriden first.
+  class RingBuffer < Array
+    attr_reader :max_size
+
+    def initialize(max_size, enum = nil)
+      @max_size = max_size
+      enum.each { |e| self << e } if enum
+    end
+
+    def <<(el)
+      if self.size < @max_size || @max_size.nil?
+        super
+      else
+        self.shift
+        self.push(el)
+      end
+    end
+
+    alias :push :<<
+  end
+
+  # @api private
+  # A key-value simple cache with a limited size
+  # http://stackoverflow.com/questions/1933866/efficient-ruby-lru-cache
+  class Cache
+    attr_accessor :max_size
+
+    def initialize(max_size = 20)
+      @data = {}
+      @max_size = max_size
+    end
+
+    def store(key, value)
+      @data.store key, [0, value]
+      age_keys
+      prune
+    end
+
+    def []=(key, value)
+      store(key, value)
+    end
+
+    def [](key)
+      read(key)
+    end
+
+    def read(key)
+      if value = @data[key]
+        renew(key)
+        age_keys
+        value[1]
+      end
+    end
+
+    def inspect
+      "Max cache size: #{max_size} ; data: #{@data.inspect}"
+      @data.inspect
+    end
+
+    private
+
+    def renew(key)
+      @data[key][0] = 0
+    end
+
+    def delete_oldest
+      m = @data.values.map{ |v| v[0] }.max
+      @data.reject!{ |k,v| v[0] == m }
+    end
+
+    def age_keys
+      @data.each{ |k,v| @data[k][0] += 1 }
+    end
+
+    def prune
+      delete_oldest if @data.size > @max_size
+    end
+  end
+
+  # @api private
+  @@messages = RingBuffer.new(100)
+  # @api private
+  @@device_msg = RingBuffer.new(100)
+  # @api private
+  # Mappings between devices temporary message IDs and the IDs set by the server.
+  @@mappings = Cache.new(100)
+
+  # @!endgroup
+
+  # @!group Callbacks
+
+  # @api private
+  # Callback called everytime a message is sent.
+  # @param [UserApis::Mdi::Dialog::MessageClass] msg the outgoing message. This is the message as pushed by the user, before 
+  #        any Protogen stuff happens with the payload.
+  def self.message_sent(msg)
+    @@messages << msg
+  end
+
+  # @api private
+  # Callback called everytime an ACK is pushed to the device.
+  # @param [Fixnum] id the id generated by the server, corresponding to the device tempId
+  # @param [Fixnum] tempId the temporary ID generated by the device.
+  def self.id_generated(id, tempId)
+    @@mappings[tempId] = id
+  end
+
+  # @!endgroup
+
+  # @!group Events helper
+
+  # A simulated message that comes from a device.
+
+  class DeviceMessage < UserApis::Mdi::Dialog::MessageClass
+
+    # @param [String] asset IMEI or unique identifier of the (simulated) device
+    # @param [String] account account name to use
+    # @param [String] content string with the content of the message (Protogen objects are not accepted)
+    # @param [String] channel the name of the communication channel
+    def initialize(content, channel, asset = "123456789", account = "tests")
+      super({'meta' => {"account" => account},
+          'payload' => {
+            'type' => 'message',
+            'id' => '',
+            'asset' => sender,
+            'sender' => asset,
+            'channel' =>  channel,
+            'payload' => content
+          },
+          'account' => account
+          })
+    end
+
+    # Send this message to the server.
+    def send_to_server
+      params = self.to_hash
+      # handle_message_from_device needs a base64 encoded content
+      params['payload']['payload'] = Base64.encode64(params['payload']['payload'])
+    `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{params.to_json}' http://localhost:5001/message`
+    end
+
+  end
+
+  # Simulated presence from a device
+  class DevicePresence < UserApis::Mdi::Dialog::PresenceClass
+
+    # @param [String] type 'connect', 'reconnect' or 'disconnect'
+    # @param [String] reason reason for the event
+    # @param asset (see TestsHelper::MessageFromDevice#initialize)
+    # @param account (see TestsHelper::MessageFromDevice#initialize)
+    # @param time [String] timestamp of the event
+    def initialize(type = 'connect', reason = 'closed_by_server', asset = "123456789", account = 'tests', time = nil)
+      time = Time.now.to_i if time.nil?
+      super('meta' => {'account' => account},
+        'payload' => {
+          'type' => 'presence',
+          'time' => time,
+          'bs' => "b3_4200",
+          'type' => type,
+          'reason' => reason,
+          'account' => account
+        })
+    end
+
+    # Send this presence to the server.
+    def send_to_server
+       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{self.to_hash.to_json}' http://localhost:5001/presence`
+    end
+  end
+
+  # Simulated track data from a device.
+  class DeviceTrack < UserApis::Mdi::Dialog::TrackClass
+
+    # @param data track data
+    # @param id message ID
+    # @param asset (see TestsHelper::MessageFromDevice#initialize)
+    # @param account (see TestsHelper::MessageFromDevice#initialize)
+    def initialize(data, id = "1234", account="tests", asset="123456789")
+      super('meta' => {'account' => account},
+        'payload' => {
+          'data' => data,
+          'id' => id,
+          'asset' => asset
+        })
+    end
+
+    # Send this track to the server.
+    def send_to_server
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{self.to_hash.to_json}' http://localhost:5001/track`
+    end
+
+  end
+
+  # @!endgroup
+
+end

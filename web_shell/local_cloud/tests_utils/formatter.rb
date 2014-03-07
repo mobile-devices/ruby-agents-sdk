@@ -17,7 +17,6 @@ module Tests
       @lock = Monitor.new
       @status = {}
       @status[:agent_name] = agent_name
-      @status[:start_time] = Time.now.strftime "%Y-%m-%d %H:%M:%S UTC%z"
       @status[:examples] = []
       @example_index = 0
       @status[:failed_count] = 0
@@ -41,6 +40,29 @@ module Tests
       out.freeze
     end
 
+    # @return [String] a human-readable representation of the tests status (in Markdown)
+    def get_status_as_text
+      out = ""
+      out << "# Tests results for agent #{@agent_name} #\n\n"
+      out << "Test status: #{@status[:status]}\n"
+      out << "Tests started at #{@status[:start_time]}\n" if @status[:start_time]
+      out << "Duration #{@status[:summary][:duration]} s\n" if @status[:summary]
+      out << "#{@status[:summary_line]}\n\n" if @status[:summary_line]
+      out << "## Examples\n\n" if @status[:examples].size > 0
+      @status[:examples].each do |ex|
+        out << "### #{ex[:full_description]}: #{ex[:status]}\n"
+        out << "(line #{ex[:line_number]} of #{ex[:file_path]} ; #{ex[:duration]} s)\n"
+        if e = ex[:exception]
+          out << "#{e[:class]}: #{e[:message]}\n"
+          out << " >> "
+          out << e[:backtrace].take(10).join("\n >> ")
+          out << "\n"
+        end
+        out << "\n"
+      end
+      out
+    end
+
     def no_test_directory
       @status[:status] = "no test directory"
     end
@@ -53,6 +75,7 @@ module Tests
 
     def start(example_count)
       @lock.synchronize do
+        @status[:start_time] = Time.now.strftime "%Y-%m-%d %H:%M:%S UTC%z"
         @example_count = example_count
         @status[:example_count] = @example_count
         @status[:status] = "running"

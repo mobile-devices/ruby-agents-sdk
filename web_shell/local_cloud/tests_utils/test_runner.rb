@@ -72,6 +72,19 @@ module Tests
       end 
     end
 
+    def get_status_as_text
+      @formatter_lock.synchronize do
+        if @formatters.size == 0
+          return "No tests were run for this session"
+        else
+          out = @formatters.map do |formatter_name, formatter|
+            formatter.get_status_as_text
+          end
+          return out.join("\n\n\n")
+        end
+      end
+    end
+
     private
 
     # Should be called with the lock acquired.

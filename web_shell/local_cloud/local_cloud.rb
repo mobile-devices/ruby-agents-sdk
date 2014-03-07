@@ -259,3 +259,8 @@ end
 get '/is_alive' do
   "I'm alive!"
 end
+
+get '/tests/status/text' do
+  attachment "tests_status.txt"
+  Tests::TestsRunner.instance.get_status_as_text
+end

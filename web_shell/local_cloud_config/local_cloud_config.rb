@@ -421,6 +421,16 @@ get '/tests/status' do
   Net::HTTP.get(uri)
 end
 
+get '/tests/status/text' do
+  attachment "tests_results.txt"
+  uri = URI('http://0.0.0.0:5001/tests/status/text')
+  out = Net::HTTP.get(uri)
+  out << "\n\n"
+  out << "# Version information\n\n"
+  out << "SDK version: #{get_sdk_version}\n"
+  out << "VM version: #{current_sdk_vm_base_version}\n"
+end
+
 get '/report_issue' do
   path = dump_state()
   flash[:notice] = "Rapport and files dumped to #{path}."

@@ -6,14 +6,6 @@ require 'timeout'
 
 require_relative 'formatter'
 
-# TODO this class assumes (formatter etc.) that tests were built only for one agent.
-# Solutions:
-# * one RSpec call -> simple wrapper, but won't be able to separate the tests in the GUI
-# * test one agent only -> ...
-# ***** hash of formatters initialized at object creation (but not of reporters) *****
-
-# TODO the formatter must send back a valid represnetaiton even for tests that are not started
-
 module Tests
 
   # Provides a simple interface to run tests, stop them, and collect the results

@@ -16,7 +16,4 @@ module Initial_agent_XXProjectName
     # Write your code here
   end
 
-  #################################################
-  # Implement below callbacks defined in Protogen #
-
 end

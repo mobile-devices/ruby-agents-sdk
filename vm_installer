@@ -20,6 +20,7 @@ echo ""
 echo "sdk gem install"
 cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud;cp Gemfile.master Gemfile; bundle install
 cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud_config; bundle install
+cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud/ragent_bay/builder; bundle install
 
 # bind workspace
 echo ""

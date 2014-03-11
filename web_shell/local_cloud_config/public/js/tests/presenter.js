@@ -27,7 +27,8 @@ var App = (function(app) {
     });
 
     app.suscribe('app.notify.agents_selected', function(event, selectedAgents) {
-      if (selectedAgents.length != testUpdater.availableAgents.length) { // all agents are selected
+      // test if all agents are selected. If there is only one available agent, display the agent name instead.
+      if (selectedAgents.length != testUpdater.availableAgents.length || testUpdater.availableAgents.length == 1) {
         $("#select-agent-btn").html(selectedAgents.join(", ") + ' <span class="caret"></span>');
       } else {
         $("#select-agent-btn").html('All agents <span class="caret"></span>');

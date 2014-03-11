@@ -5,6 +5,7 @@ require 'monitor'
 require 'timeout'
 
 require_relative 'formatter'
+require_relative 'tests_helper'
 
 module Tests
 
@@ -91,14 +92,22 @@ module Tests
                 CC.logger.debug("RSpec test path: " + File.expand_path(path))
                 # Let's fiddle with the RSpec internals. Guaranteed to break with each RSpec update :-(
                 reporter = RSpec::Core::Reporter.new(@formatters[agent_name])
-                # CC.logger.debug(reporter.inspect)
                 RSpec.configure do |c|
                   c.instance_variable_set(:@reporter, reporter)
                   c.instance_variable_set(:@formatters, [@formatters[agent_name]])
-                  # c.add_formatter(@formatters[agent_name])
+                  c.around(:each) do |example|
+                    env = {
+                      'env' => 'tests',
+                      'agent_name' => agent_name
+                    }
+                    assigned_agent = RAGENT.get_agent_from_name(agent_name)
+                    apis = USER_API_FACTORY.gen_user_api(agent_name, env)
+                    set_current_user_api(apis)
+                    example.run
+                    set_current_user_api(nil)
+                  end
                 end
                 CC.logger.debug("#{RSpec.configuration.formatters.inspect}")
-                # config.instance_variable_set(:@reporter, reporter)
                 RSpec::Core::Runner.run([File.expand_path(path)], $stdout, $stdout)
                 CC.logger.info("Tests finished for agent #{agent_name}.")
               rescue StandardError => e

@@ -7,7 +7,7 @@
 
 
 # server run id
-if File.exists?('/tmp/should_mdi_server_run_id')
+if File.exist?('/tmp/should_mdi_server_run_id')
   should_id = File.read('/tmp/should_mdi_server_run_id')
 else
   should_id = "??"

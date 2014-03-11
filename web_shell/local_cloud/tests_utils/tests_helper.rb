@@ -1,5 +1,7 @@
 require 'json'
 
+require_relative '../ragent_bay/user_api/user_api'
+
 # @api public
 # Provides several utilities to write unit tests inside the SDK.
 # @note Methods and classes of this module are intended to be used in automated tests only!
@@ -178,18 +180,19 @@ module TestsHelper
 
   # A simulated message that comes from a device.
 
-  class DeviceMessage < UserApis::Mdi::Dialog::MessageClass
+  class DeviceMessage
 
     # @param [String] asset IMEI or unique identifier of the (simulated) device
     # @param [String] account account name to use
     # @param [String] content string with the content of the message (Protogen objects are not accepted)
     # @param [String] channel the name of the communication channel
     def initialize(content, channel, asset = "123456789", account = "tests")
-      super({'meta' => {"account" => account},
+      
+     @msg = user_api.mdi.dialog.create_new_message({'meta' => {"account" => account},
           'payload' => {
             'type' => 'message',
             'id' => '',
-            'asset' => sender,
+            'asset' => asset,
             'sender' => asset,
             'channel' =>  channel,
             'payload' => content
@@ -200,16 +203,18 @@ module TestsHelper
 
     # Send this message to the server.
     def send_to_server
-      params = self.to_hash
+      params = @msg.to_hash
       # handle_message_from_device needs a base64 encoded content
       params['payload']['payload'] = Base64.encode64(params['payload']['payload'])
-    `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{params.to_json}' http://localhost:5001/message`
+      saved_api = user_api
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{params.to_json}' http://localhost:5001/message`
+      set_current_user_api(saved_api)
     end
 
   end
 
   # Simulated presence from a device
-  class DevicePresence < UserApis::Mdi::Dialog::PresenceClass
+  class DevicePresence
 
     # @param [String] type 'connect', 'reconnect' or 'disconnect'
     # @param [String] reason reason for the event
@@ -218,7 +223,7 @@ module TestsHelper
     # @param time [String] timestamp of the event
     def initialize(type = 'connect', reason = 'closed_by_server', asset = "123456789", account = 'tests', time = nil)
       time = Time.now.to_i if time.nil?
-      super('meta' => {'account' => account},
+      @msg = user_api.mdi.dialog.create_new_presence('meta' => {'account' => account},
         'payload' => {
           'type' => 'presence',
           'time' => time,
@@ -231,7 +236,9 @@ module TestsHelper
 
     # Send this presence to the server.
     def send_to_server
-       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{self.to_hash.to_json}' http://localhost:5001/presence`
+      saved_api = user_api
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@msg.to_hash.to_json}' http://localhost:5001/presence`
+      set_current_user_api(saved_api)
     end
   end
 
@@ -243,7 +250,7 @@ module TestsHelper
     # @param asset (see TestsHelper::MessageFromDevice#initialize)
     # @param account (see TestsHelper::MessageFromDevice#initialize)
     def initialize(data, id = "1234", account="tests", asset="123456789")
-      super('meta' => {'account' => account},
+      super(user_api, 'meta' => {'account' => account},
         'payload' => {
           'data' => data,
           'id' => id,
@@ -253,7 +260,9 @@ module TestsHelper
 
     # Send this track to the server.
     def send_to_server
+      user_api_saved = user_api
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{self.to_hash.to_json}' http://localhost:5001/track`
+      user_api = user_api_saved
     end
 
   end

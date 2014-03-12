@@ -5,7 +5,7 @@ require_relative '../ragent_bay/user_api/user_api'
 # @api public
 # Provides several utilities to write unit tests inside the SDK.
 # @note Methods and classes of this module are intended to be used in automated tests only!
-#       Using them in your code will result in `NoMethodErrors on a production environment.
+#       Using them in your code will result in `NoMethodError`s on a production environment.
 module TestsHelper
 
   # @!group Helper methods
@@ -179,7 +179,7 @@ module TestsHelper
   # @!group Events helper
 
   # A simulated message that comes from a device.
-
+  # @api public
   class DeviceMessage
 
     # @param [String] asset IMEI or unique identifier of the (simulated) device
@@ -214,12 +214,13 @@ module TestsHelper
   end
 
   # Simulated presence from a device
+  # @api public
   class DevicePresence
 
     # @param [String] type 'connect', 'reconnect' or 'disconnect'
     # @param [String] reason reason for the event
-    # @param asset (see TestsHelper::MessageFromDevice#initialize)
-    # @param account (see TestsHelper::MessageFromDevice#initialize)
+    # @param asset (see TestsHelper::DeviceMessage#initialize)
+    # @param account (see TestsHelper::DeviceMessage#initialize)
     # @param time [String] timestamp of the event
     def initialize(type = 'connect', reason = 'closed_by_server', asset = "123456789", account = 'tests', time = nil)
       time = Time.now.to_i if time.nil?
@@ -243,26 +244,40 @@ module TestsHelper
   end
 
   # Simulated track data from a device.
-  class DeviceTrack < UserApis::Mdi::Dialog::TrackClass
+  # @api public
+  class DeviceTrack
 
-    # @param data track data
-    # @param id message ID
-    # @param asset (see TestsHelper::MessageFromDevice#initialize)
-    # @param account (see TestsHelper::MessageFromDevice#initialize)
-    def initialize(data, id = "1234", account="tests", asset="123456789")
-      super(user_api, 'meta' => {'account' => account},
-        'payload' => {
-          'data' => data,
-          'id' => id,
-          'asset' => asset
-        })
+    # Construct a new simulated track.
+    # The payload of a track, represented as a hash, follows the following format:
+    #
+    # ```ruby
+    # {
+    #    "id" => "123456",
+    #    "account" => "unstable",
+    #    "longitude" =>  236607,
+    #    "latitude" => 4878377,
+    #    "recorded_at" => 1368449272,
+    #    "received_at" => 1368449284,
+    #    "28" => "123456",              # /* field_id  => field_value */
+    #    "42" => "hello"
+    # }
+    #
+    # ```
+    #
+    # @param [Hash] data track payload (see above)
+    # @param asset (see TestsHelper::DeviceMessage#initialize)
+    # @param account (see TestsHelper::DeviceMessage#initialize)
+    def initialize(data, account="tests", asset="123456789")
+      @msg =  user_api.mdi.dialog.create_new_track('meta' => {'account' => account},
+        'payload' => data
+        )
     end
 
     # Send this track to the server.
     def send_to_server
-      user_api_saved = user_api
-      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{self.to_hash.to_json}' http://localhost:5001/track`
-      user_api = user_api_saved
+      saved_api = user_api
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@msg.to_hash.to_json}' http://localhost:5001/track`
+      set_current_user_api(saved_api)
     end
 
   end

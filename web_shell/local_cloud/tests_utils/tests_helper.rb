@@ -179,7 +179,7 @@ module TestsHelper
   # @!group Events helper
 
   # A simulated message that comes from a device.
-
+  # @api public
   class DeviceMessage
 
     # @param [String] asset IMEI or unique identifier of the (simulated) device
@@ -214,6 +214,7 @@ module TestsHelper
   end
 
   # Simulated presence from a device
+  # @api public
   class DevicePresence
 
     # @param [String] type 'connect', 'reconnect' or 'disconnect'
@@ -243,19 +244,34 @@ module TestsHelper
   end
 
   # Simulated track data from a device.
+  # @api public
   class DeviceTrack
 
-    # @param data track data
-    # @param id message ID
+    # Construct a new simulated track.
+    # The payload of a track, represented as a hash, follows the following format:
+    #
+    # ```ruby
+    # {
+    #    "id" => "123456",
+    #    "account" => "unstable",
+    #    "longitude" =>  236607,
+    #    "latitude" => 48.78377,
+    #    "recorded_at" => 1368449272,
+    #    "received_at" => 1368449284,
+    #    "28" => "123456",              # /* field_id  => field_value */
+    #    "42" => "hello"
+    # }
+    #
+    # ```
+    #
+    # @param [Hash] data track payload (see above)
     # @param asset (see TestsHelper::DeviceMessage#initialize)
     # @param account (see TestsHelper::DeviceMessage#initialize)
-    def initialize(data, id = "1234", account="tests", asset="123456789")
+    # @todo complete documentation
+    def initialize(data, account="tests", asset="123456789")
       @msg =  user_api.mdi.dialog.create_new_track('meta' => {'account' => account},
-        'payload' => {
-          'data' => data,
-          'id' => id,
-          'asset' => asset
-        })
+        'payload' => data
+        )
     end
 
     # Send this track to the server.

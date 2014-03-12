@@ -8,9 +8,11 @@ var App = (function(app) {
       switch(status) {
         case "online":
           $("#run-tests").removeClass("disabled");
+          $("#save-tests-results").removeClass("disabled").attr("href","/tests/status/text");
           break;
         case "offline":
           $("#run-tests").addClass("disabled");
+          $("#save-tests-results").addClass("disabled").removeAttr("href");          
           break;
         default:
           console.warn("Unknown server status: " + status);
@@ -50,7 +52,7 @@ var App = (function(app) {
 
     app.suscribe('app.notify.tests_started', function(event, agents) {
       testLauncher.testsRunning = true;
-      $("#run-tests").removeClass().addClass('btn btn-danger').text("Stop tests");
+      $("#run-tests").removeClass('btn-primary').addClass('btn-danger').text("Stop tests");
       for(var i = 1, len = arguments.length; i < len ; i++) {
         delete testSuites[arguments[i]];
       }
@@ -59,7 +61,7 @@ var App = (function(app) {
 
     app.suscribe('app.notify.tests_stopped', function(event) {
       testLauncher.testsRunning = false;
-      $("#run-tests").removeClass().addClass('btn btn-primary').text("Run tests");
+      $("#run-tests").removeClass('btn-danger').addClass('btn-primary').text("Run tests");
       // testUpdater.stopUpdates();
     });
 

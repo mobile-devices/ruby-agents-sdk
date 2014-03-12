@@ -65,7 +65,7 @@ var App = (function(app) {
   
   app.TestUpdater.prototype.processStatusUpdate = function(data, code, xhr) {
     //console.log(data)
-    app.publish('app.notify.agent_server_status', ["online"]);
+    app.publish('app.notify.agents_server_status', ["online"]);
     var parsedData = $.parseJSON(data);
     if(parsedData.status == "no tests") {
       app.publish('app.notify.test_progress', ["no tests"]);

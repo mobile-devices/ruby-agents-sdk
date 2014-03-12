@@ -5,7 +5,7 @@ require_relative '../ragent_bay/user_api/user_api'
 # @api public
 # Provides several utilities to write unit tests inside the SDK.
 # @note Methods and classes of this module are intended to be used in automated tests only!
-#       Using them in your code will result in `NoMethodErrors on a production environment.
+#       Using them in your code will result in `NoMethodError`s on a production environment.
 module TestsHelper
 
   # @!group Helper methods
@@ -255,7 +255,7 @@ module TestsHelper
     #    "id" => "123456",
     #    "account" => "unstable",
     #    "longitude" =>  236607,
-    #    "latitude" => 48.78377,
+    #    "latitude" => 4878377,
     #    "recorded_at" => 1368449272,
     #    "received_at" => 1368449284,
     #    "28" => "123456",              # /* field_id  => field_value */
@@ -267,7 +267,6 @@ module TestsHelper
     # @param [Hash] data track payload (see above)
     # @param asset (see TestsHelper::DeviceMessage#initialize)
     # @param account (see TestsHelper::DeviceMessage#initialize)
-    # @todo complete documentation
     def initialize(data, account="tests", asset="123456789")
       @msg =  user_api.mdi.dialog.create_new_track('meta' => {'account' => account},
         'payload' => data

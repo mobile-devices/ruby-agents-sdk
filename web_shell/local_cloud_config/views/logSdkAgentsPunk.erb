@@ -59,15 +59,15 @@
 
 
 
-<div class="row" id="main_panel" style="height:700px;"> <!-- background-color:orange -->
+<div class="row" id="main_panel">
 
 
   <!-- div buttons -->
-  <div class="span4" id="sdkLogButtons" style="height:100%;overflow-y: auto;" > <!--  background-color:green style="height:700px;overflow-y: auto" -->
+  <div class="span4" id="sdkLogButtons" style="height:100%;overflow-y: auto" > <!-- style="height:700px;overflow-y: auto" -->
   </div>
 
   <!-- div log -->
-  <div class="span8" style="height:100%;overflow-y: auto;"> <!-- background-color:green -->
+  <div class="span8" id="divLog" style="height:100%;overflow-y: auto">
     <div id="view_title" style="padding-bottom:15px;">
       <i class="icon-arrow-left"></i><em> Click on buttons for details.</em>
     </div>
@@ -103,6 +103,19 @@
 <!-- Scripts ===================================================================-->
   <script>
     function escapeHTML(text) {   return text.replace(/[&<>"'`]/g, function (chr) {     return '&#' + chr.charCodeAt(0) + ';';   }); };
+
+    function resizeElementHeight(element) {
+      var height = 0;
+      var body = window.document.body;
+      if (window.innerHeight) {
+          height = window.innerHeight;
+      } else if (body.parentElement.clientHeight) {
+          height = body.parentElement.clientHeight;
+      } else if (body && body.clientHeight) {
+          height = body.clientHeight;
+      }
+      element.style.height = ((height - element.offsetTop) + "px");
+    }
 
 
     $(document).ready(function() {
@@ -159,6 +172,7 @@
 
                 $("#view_title").html(title)
                 $("#view_code").html(sanitizedLines.join('<br />'));
+
               });
 
             }
@@ -168,29 +182,14 @@
 
     });
 
-
-
-
-
-
-// $('.someElement').height(); // returns the calculated pixel height of the element(s)
-// $(window).height();         // returns height of browser viewport
-// $(document).height();       // returns height of HTML document
-
-
+    // $('.someElement').height(); // returns the calculated pixel height of the element(s)
+    // $(window).height();         // returns height of browser viewport
+    // $(document).height();       // returns height of HTML document
 
     $(document).ready(function() {
       var winHeight = $(window).height();
-      console.log('heigh:' + winHeight);
-      console.log('heigh:' + $(window).height());
-      console.log('heigh:' + $(document).height());
-      var main_panel = document.getElementById("main_panel");
-      console.log(main_panel);
-            console.log(main_panel.style.height);
-     // main_panel.style.height=800;
-
-
-
+      document.getElementById("sdkLogButtons").style.height= (winHeight-150) +'px';
+      document.getElementById("divLog").style.height= (winHeight-150) +'px';
     });
 
 

@@ -58,20 +58,22 @@
 </div>
 
 
-<div class="row">
+
+<div class="row" id="main_panel" style="height:700px;"> <!-- background-color:orange -->
+
 
   <!-- div buttons -->
-  <div class="pull-left" id="sdkLogButtons" style="width:33%;height:700px;overflow-y: auto">
+  <div class="span4" id="sdkLogButtons" style="height:100%;overflow-y: auto;" > <!--  background-color:green style="height:700px;overflow-y: auto" -->
   </div>
 
   <!-- div log -->
-  <div class="pull-right" style="width:65%" >
-    <div id="view_title" style="padding-bottom:15px">
+  <div class="span8" style="height:100%;overflow-y: auto;"> <!-- background-color:green -->
+    <div id="view_title" style="padding-bottom:15px;">
       <i class="icon-arrow-left"></i><em> Click on buttons for details.</em>
     </div>
 
     <small>
-      <div id="view_code" class="" data-spy="affix" data-offset-top="40" style="overflow-y: auto;height:650px">
+      <div id="view_code" class="" ><!--  data-spy="affix" data-offset-top="40"  style="overflow-y: auto;height:650px" -->
       </div>
     </small>
   </div>
@@ -163,6 +165,31 @@
           });
         })(); // function updater and run it
       })(); // function layout and run it
+
+    });
+
+
+
+
+
+
+// $('.someElement').height(); // returns the calculated pixel height of the element(s)
+// $(window).height();         // returns height of browser viewport
+// $(document).height();       // returns height of HTML document
+
+
+
+    $(document).ready(function() {
+      var winHeight = $(window).height();
+      console.log('heigh:' + winHeight);
+      console.log('heigh:' + $(window).height());
+      console.log('heigh:' + $(document).height());
+      var main_panel = document.getElementById("main_panel");
+      console.log(main_panel);
+            console.log(main_panel.style.height);
+     // main_panel.style.height=800;
+
+
 
     });
 

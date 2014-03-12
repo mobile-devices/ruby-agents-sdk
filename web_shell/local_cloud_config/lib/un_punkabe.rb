@@ -131,6 +131,9 @@ module PUNK
 
     # seek in an action is in progress
     pend = punks_pending.first
+
+    pend = nil if !(is_server_alive)
+
     if pend == nil
       $pending_action = nil
     else
@@ -170,7 +173,7 @@ module PUNK
   end
 
 
-  def self.gen_server_crash_title()
+  def self.is_server_alive
     `cd ../local_cloud; ./local_cloud.sh is_running`
     if File.exist?('/tmp/mdi_server_run_id')
       used_server_run_id =  File.read('/tmp/mdi_server_run_id')
@@ -187,11 +190,22 @@ module PUNK
 
     if "#{$server_run_id}" == "#{used_server_run_id}" && server_running == 'no'
       p "SERVER is broken"
-      title_to_html("SERVER master crash fail")
+      return false
     else
       p "SERVER is alive"
-      ''
+      return true
     end
+  end
+
+
+  def self.gen_server_crash_title
+
+    if PUNK.is_server_alive
+      ''
+    else
+      title_to_html("SERVER master crash fail")
+    end
+
   end
 
   def self.is_ruby_server_running()

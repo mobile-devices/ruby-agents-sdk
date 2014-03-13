@@ -21,6 +21,8 @@ require 'json'
 require 'base64'
 require 'rspec'
 
+set :lock, true # use a single thread and save headaches
+
 require_relative 'tests_utils/test_runner'
 
 $local_cloud_start_time = Time.now

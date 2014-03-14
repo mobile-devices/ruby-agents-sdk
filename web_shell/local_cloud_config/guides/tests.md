@@ -4,11 +4,11 @@
 
 # Test your agent #
 
-The SDK integrates with [RSpec](http://rspec.info/) to automate your tests. RSpec documentation can be found [here](http://rubydoc.info/gems/rspec/file/README.md).
+The SDK integrates with [RSpec](http://rspec.info/) version 2.14 to automate your tests. RSpec documentation can be found [here](http://rubydoc.info/gems/rspec/file/README.md).
 
 The SDK GUI has a [tab](http://0.0.0.0:5000/unit_tests) dedicated to running and displaying RSpec tests.
 
-Additionnally, the SDK API exposes a couple of helpers utilities. You can find these utilities in the module `TestHelper` ; this module is automatically available in your tests file. Read the {TestsHelper TestsHelper module documentation} to see what helpers are available.
+Additionnally, the SDK API exposes a couple of helpers utilities. You can find these utilities in the module `TestHelper` ; this module is automatically available in your tests files. Read the {TestsHelper TestsHelper module documentation} to see what helpers are available.
 
 ## Writing tests with Rspec ##
 
@@ -25,7 +25,7 @@ module Initial_agent_tester
     if presence.type == "connect"
       user_api.mdi.storage.redis[presence.asset] =  presence.time
     elsif presence.type == "disconnect"
-      user_api.mdi.storage.redis[presence.asset]s = nil
+      user_api.mdi.storage.redis[presence.asset] = nil
     end
   end
 
@@ -48,19 +48,18 @@ Create a subfolder named `tests` in `ruby_workspace/tester/`. In this subfolder 
 
 describe 'tester agent' do
 
-  it 'should store all connection events in a redis database' do
+  it 'stores all connection events in a redis database' do
     presence = TestsHelper::DevicePresence.new("connect", "1234")
     presence.send_to_server # blocking call
-    TestsHelper.wait_for { user_api.mdi.redis.get(presence.asset).should == presence.time.to_s} # wit for is not necessary here as send_to server is blocking, but this is only to show you that you can use it
+    expect(user_api.mdi.redis.get(presence.asset)).to eq(presence.time.to_s)
   end
 
-  it 'should echo all received messages twice' do
-    msg = TestsHelper::MessageFromDevice.new(content, "com.mdi.services.tester", "1234", "tester_account")
+  it 'echoes all received messages twice' do
+    msg = TestsHelper::DeviceMessage.new(content, "com.mdi.services.tester", "1234", "tester_account")
     msg.send_to_server
     responses = TestsHelper::wait_for_responses(msg, nil, 1) # retrieve all responses in the following second
-    responses.should have(2).items
-    responses.first.content.should == content
-    responses[1].content.should == content
+    expect(responses).to have(2).items
+    expect(responses.first.content).to eq(content)
   end
 
 end

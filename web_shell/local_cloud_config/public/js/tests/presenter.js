@@ -8,9 +8,11 @@ var App = (function(app) {
       switch(status) {
         case "online":
           $("#run-tests").removeClass("disabled");
+          $("#save-tests-results").removeClass("disabled").attr("href","/tests/status/text");
           break;
         case "offline":
           $("#run-tests").addClass("disabled");
+          $("#save-tests-results").addClass("disabled").removeAttr("href");          
           break;
         default:
           console.warn("Unknown server status: " + status);
@@ -27,7 +29,8 @@ var App = (function(app) {
     });
 
     app.suscribe('app.notify.agents_selected', function(event, selectedAgents) {
-      if (selectedAgents.length != testUpdater.availableAgents.length) { // all agents are selected
+      // test if all agents are selected. If there is only one available agent, display the agent name instead.
+      if (selectedAgents.length != testUpdater.availableAgents.length || testUpdater.availableAgents.length == 1) {
         $("#select-agent-btn").html(selectedAgents.join(", ") + ' <span class="caret"></span>');
       } else {
         $("#select-agent-btn").html('All agents <span class="caret"></span>');
@@ -49,7 +52,7 @@ var App = (function(app) {
 
     app.suscribe('app.notify.tests_started', function(event, agents) {
       testLauncher.testsRunning = true;
-      $("#run-tests").removeClass().addClass('btn btn-danger').text("Stop tests");
+      $("#run-tests").removeClass('btn-primary').addClass('btn-danger').text("Stop tests");
       for(var i = 1, len = arguments.length; i < len ; i++) {
         delete testSuites[arguments[i]];
       }
@@ -58,7 +61,7 @@ var App = (function(app) {
 
     app.suscribe('app.notify.tests_stopped', function(event) {
       testLauncher.testsRunning = false;
-      $("#run-tests").removeClass().addClass('btn btn-primary').text("Run tests");
+      $("#run-tests").removeClass('btn-danger').addClass('btn-primary').text("Run tests");
       // testUpdater.stopUpdates();
     });
 

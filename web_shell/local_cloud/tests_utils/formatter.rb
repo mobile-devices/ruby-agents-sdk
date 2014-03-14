@@ -190,7 +190,7 @@ module Tests
 
     def clean_path(path)
       split = path.split(File::SEPARATOR)
-      index = split.index(@agent_name)
+      index = split.index(@agent_name) + 2
       split[index..-1].join(File::SEPARATOR)
     end
 

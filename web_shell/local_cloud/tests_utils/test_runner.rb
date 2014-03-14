@@ -101,7 +101,7 @@ module Tests
                       'agent_name' => agent_name
                     }
                     assigned_agent = RAGENT.get_agent_from_name(agent_name)
-                    apis = USER_API_FACTORY.gen_user_api(agent_name, env)
+                    apis = USER_API_FACTORY.gen_user_api(assigned_agent, env)
                     set_current_user_api(apis)
                     example.run
                     set_current_user_api(nil)

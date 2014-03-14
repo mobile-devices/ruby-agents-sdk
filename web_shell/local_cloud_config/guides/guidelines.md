@@ -14,7 +14,7 @@ In other words, the actions trigerred by an event depends only on the nature of 
 
 You must not use global variables or similar patterns (class variables, module variables...) to store data between two requests.
 
-The reason for this is that your agent will live in a cloud where multiple instances of your agent will run simultaneously. These instances can not share data between themselves.
+The reason for this is that your agent will live in a cloud where multiple instances of your agent will run simultaneously. These instances can not share data between themselves. Any instance of your agent can be restarted at any time. You can not know which instance of your agent will receive a given device message.
 
 If you need some kind of "history" in your agent, you must attach this history to the messages exchanged. Cookies in messages (see the {file:guides/protogen.md Protogen guide}) are a way of implementing this.
 
@@ -23,6 +23,47 @@ If you need some kind of "history" in your agent, you must attach this history t
 The VM gives you access to the API to interact with a redis database, to write logs... If you want to interact with a redis database or write logs, please use this API and not your custom solution.
 
 Still, the SDK is an open environment and you can use your own Ruby solutions. Note however that any of your custom solutions can be subject to validation before being accepted by MDI.
+
+## Anti-patterns (mistakes to avoid)
+
+### Redis
+
+Several instances of your agent may or may not share the same Redis cache. You can access the Redis cache with `user_api.mdi.storage.redis`.
+
+#### Storing state or sharing data in the Redis cache
+
+It can be tempting to store information in the Redis cache to be used to process the next device message. For instance, the device sends message A, your agent stores message A in Redis, then the device sends message B, and your agent retrieves message A from Redis to help processing message B.
+
+Such a pattern may not work depending on the production environment configuration, because: 
+
+* several instances of your agent may not share the same Redis cache
+* you can not know which instance of your agent will receive a given message.
+
+So in the above example, what if you have several instances of your agent, one receiving message A, and one receiving message B? The message B will not be processed because message A will not be in the cache of the agent receiving the message.
+
+In other words: your agent must be **stateless**. It is OK to cache data to speed up some processing task, but you must always provide a way to process a message if the cache is not available.
+
+#### Not taking into account Redis concurrent access issues
+
+On the other hand, several instances of your agent *may* share the same Redis instance, so an agent can cache data to be used by other agents (but as stated above, do not rely on it).
+
+However, this means you have to take concurrent access issues into account when using Redis, as several instances of your agent may use the same cache. For instance, the following code snippet may not work as intended:
+
+```ruby
+some_data = some_function(redis.get("some_key"))
+if some_data.needs_update?
+  redis.del("some_key")
+  redis.del("some_other_dependant_key")
+  new_data = compute_some_new_data
+  redis.set("some_key", new_data.value)
+  redis.set("some_other_dependant_key", new_data.dependance)
+end
+some_dependant_data = redis.get("some_other_dependant_key")
+```
+
+If one instance thinks the data is obsolete while it is not for another one, and the first instance deletes the "some_other_dependant_key" key just before the other instance reads it, there may be a problem.
+
+You may want to look into the `MULTI/EXEC/DISCARD`, `WATCH/UNWATCH` or `SETNX` commands (for instance) to solve this kind of problems.
 
 ## Other useful information ##
 

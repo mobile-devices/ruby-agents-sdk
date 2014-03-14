@@ -5,6 +5,7 @@
 
 require 'logger'
 require_relative 'limited_apis'
+require_relative 'file_interface'
 require 'redis-namespace'
 require 'time'
 require 'httpclient'

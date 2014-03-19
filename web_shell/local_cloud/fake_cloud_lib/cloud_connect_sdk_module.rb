@@ -27,8 +27,9 @@ module CloudConnectSDK
     class << self
       def get_query(service_url_suffix)
         @http_client ||= HTTPClient.new
-        @url ||= "localhost:4567"
-        resp = @http_client.get("#{url}/#{service_url_suffix}")
+        @url ||= "http://localhost:4567"
+        CC.logger.debug("http request '#{@url}/#{service_url_suffix}'")
+        resp = @http_client.get("#{@url}/#{service_url_suffix}")
         # error?
         if resp.status_code != 200
           raise "NavServer response status = #{resp.status_code}"

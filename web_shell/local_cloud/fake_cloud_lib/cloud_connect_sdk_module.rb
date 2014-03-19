@@ -14,7 +14,7 @@ require 'httpclient'
 module CloudConnectSDK
 
 
-  def current_cloud_instance
+  def self.instance
     'dev'
   end
 

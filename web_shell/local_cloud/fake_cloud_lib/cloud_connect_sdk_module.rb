@@ -23,6 +23,22 @@ module CloudConnectSDK
     end
   end
 
+  module NavServer
+    class << self
+      def get_query(service_url_suffix)
+        @http_client ||= HTTPClient.new
+        @url ||= "localhost:4567"
+        resp = @http_client.get("#{url}/#{service_url_suffix}")
+        # error?
+        if resp.status_code != 200
+          raise "NavServer response status = #{resp.status_code}"
+        end
+        JSON.parse(resp.body,symbolize_names = true)
+      end
+
+    end # class << self
+  end
+
   @@indigen_id = 0
 
   # wrapper from indigen

@@ -7,6 +7,7 @@ require 'logger'
 require_relative 'limited_apis'
 require 'redis-namespace'
 require 'time'
+require 'net/http'
 
 # Cloud connect SDK Side Implementation
 

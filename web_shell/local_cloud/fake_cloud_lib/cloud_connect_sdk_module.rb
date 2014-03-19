@@ -35,7 +35,7 @@ module CloudConnectSDK
         if resp.status_code != 200
           raise "NavServer response status = #{resp.status_code}"
         end
-        JSON.parse(resp.body,symbolize_names = true)
+        JSON.parse(resp.body,symbolize_names: true)
       end
 
     end # class << self

@@ -116,6 +116,14 @@ The `dynamic_channel_str` is either a string a an array that indicates on which 
 
 The other two suscribe parameters are used for yet unimplemented features so you can ignore them for now.
 
+You can also add your own parameters, that you can fetch in your code with :
+
+```
+  my_yml_config = user_api.mdi.storage.config
+```
+
+
+
 ## Your first agent
 
 Time to write some code. Let's start by something simple (but useless) : an "echo" agent that replies back to the device with any message it receives.
@@ -143,6 +151,7 @@ That means that you do not need to configure the API you are using. For instance
 
 Look at the documentation for {UserApis::MdiClass}. You will find the list of API under the "namespace" `user_api.mdi`. From here, you can navigate the documentation to find the object you are looking for. Remember that you do not need to instantiate any class in the `UserApi` module, this is done for you.
 Here is some examples :
+
 ```
   # print a log
   user_api.mdi.tools.log.info("i print an info log in my logger")

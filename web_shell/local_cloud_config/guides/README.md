@@ -142,6 +142,18 @@ That means that you do not need to configure the API you are using. For instance
 ### All right, where do I find more documentation about the available API?
 
 Look at the documentation for {UserApis::MdiClass}. You will find the list of API under the "namespace" `user_api.mdi`. From here, you can navigate the documentation to find the object you are looking for. Remember that you do not need to instantiate any class in the `UserApi` module, this is done for you.
+Here is some examples :
+```
+  # print a log
+  user_api.mdi.tools.log.info("i print an info log in my logger")
+
+  # I want to use redis cache
+  user_api.mdi.storage.redis['last operation'] = Time.now
+
+  # I want to push a message somewhere
+  user_api.mdi.dialog.device_gate.push('fake_asset','fake_acount','my fake message')
+```
+
 
 ### I need a logger!
 

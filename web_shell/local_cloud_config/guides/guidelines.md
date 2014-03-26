@@ -91,4 +91,4 @@ For instance, let's say you have an agent that queries an external web API by HT
 
 Bottom line: do not worry too much about catching your exceptions.
 
-On the other hand, *never* silence exceptions (silencing an exception is catching it then not acting upon it). At least log the exception before moving on (there is a nice method to display an exception with its stack trace: {Sdk_api_XX_DOWNCASED_CLEAN_PROJECT_NAME::SDK::API.print_ruby_exception SDK.API.print_ruby_exception}) along with information about why this exception can be ignored. Not doing so will make your agent very difficult to debug when it will encounter an unusual situation in a production environment.
+On the other hand, *never* silence exceptions (silencing an exception is catching it then not acting upon it). At least log the exception before moving on (there is a nice method to display an exception with its stack trace: user_api.mdi.tools.print_ruby_exception(e)) along with information about why this exception can be ignored. Not doing so will make your agent very difficult to debug when it will encounter an unusual situation in a production environment.

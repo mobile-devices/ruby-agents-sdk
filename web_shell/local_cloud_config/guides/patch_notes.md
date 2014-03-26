@@ -35,3 +35,6 @@
 
 ### Version 0.2.4 ###
 {include:file:patch_notes/v0.2.4.md}
+
+### Version 0.2.5 ###
+{include:file:patch_notes/v0.2.4.md}

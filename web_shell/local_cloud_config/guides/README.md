@@ -168,19 +168,10 @@ Here is some examples :
 
 Let's find it together. Let's go at the documentation for the class {UserApis::MdiClass}. The documentation for {UserApis::MdiClass#tools} says we will find a logger here. And indeed, we can see by following the links that a logger is available: `user_api.mdi.tools.log` (the corresponding class being {UserApis::Mdi::Tools::LoggerClass}).
 
-### I need the documentation for the received messages, tracks and presences!
-
-Here it is: {UserApis::Mdi::Dialog::MessageClass}, {UserApis::Mdi::Dialog::TrackClass}, {UserApis::Mdi::Dialog::PresenceClass}
-
-## Running your agent ##
-
-Go to the ["SDK Agents"](http://0.0.0.0:5000) tab in your browser. Click on the red "Unmounted" button in front of your agent name. The button now displays "Mounted" which means that your agent is marked to be used next time the SDK agents server is restarted.
-
-To start or reboot the server, click the blue (or red, if something went wrong) button in the top-right corner.
 
 ## Checking the logs ##
 
-To be sure the SDK agents server correctly started, go to the ["Server Log"](http://0.0.0.0:5000/logSdkAgentsPunk#endlog) tab. Here you'll find a nice and colorful display of the logs written by the server. You should see a "ready to use!" item in the left column if everything went OK. Clicking on an item will display the corresponding detailed logs.
+To be sure the SDK agents server correctly started, go to the ["Server Log"](http://localhost:5000/logSdkAgentsPunk) tab. Here you'll find a nice and colorful display of the logs written by the server. You should see a "ready to use!" item in the left column if everything went OK. Clicking on an item will display the corresponding detailed logs.
 
 You will see in these logs the events received by the server, the messages sent to the device...
 
@@ -213,3 +204,7 @@ You can find more information on how to test your agents {file:guide/tests.md in
 Protogen is the MDI protocol generator tool. You give it a description of the communication protocol between a device and a server, and it generates all the communication layer code for you (taking care of all the little pesky details such as controlling the size of the messages or serializing efficiently your data).
 
 And it is simple to use: see {file:guides/protogen.md this guide} for details.
+
+### Push the code to mobile devices cloud ###
+
+Clic on Generate button next to your agent in tab 'SDK Agents' and a tar.gz will be generated, please send it to your Mobile Devices contact with all needed details.

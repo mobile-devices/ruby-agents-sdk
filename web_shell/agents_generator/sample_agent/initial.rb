@@ -12,6 +12,10 @@ module Initial_agent_XXProjectName
     # Write your code here
   end
 
+  def new_collection(collection)
+    # Write your code here
+  end
+
   def new_order(order)
     # Write your code here
   end

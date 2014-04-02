@@ -104,7 +104,7 @@ module Tests
                     apis = USER_API_FACTORY.gen_user_api(assigned_agent, env)
                     set_current_user_api(apis)
                     example.run
-                    set_current_user_api(nil)
+                    release_current_user_api
                   end
                 end
                 CC.logger.debug("#{RSpec.configuration.formatters.inspect}")

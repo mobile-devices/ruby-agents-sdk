@@ -206,9 +206,7 @@ module TestsHelper
       params = @msg.to_hash
       # handle_message_from_device needs a base64 encoded content
       params['payload']['payload'] = Base64.encode64(params['payload']['payload'])
-      saved_api = user_api
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{params.to_json}' http://localhost:5001/message`
-      set_current_user_api(saved_api)
     end
 
   end

@@ -157,9 +157,9 @@ module PUNK
 
     title.gsub!('PRESENCE','<i class="icon-star icon-white"></i>')
     title.gsub!('MSG','<i class="icon-envelope icon-white"></i>')
-    title.gsub!('TRACK','<i class="icon-th-list icon-white"></i>')
+    title.gsub!('TRACK','<i class="icon-road icon-white"></i>')
     title.gsub!('ORDER','<i class="icon-fire icon-white"></i>')
-
+    title.gsub!('COLLECTION','<i class="icon-list icon-white"></i>')
     title.gsub!('ACK','<i class="icon-share icon-white"></i>')
 
     agent_name = extract_agent_name(title)

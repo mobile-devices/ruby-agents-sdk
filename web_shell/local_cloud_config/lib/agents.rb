@@ -122,7 +122,7 @@ def update_cron_tasks
 end
 
 # Export all data related to all agents with "active" set to true to project page
-def dump_state()
+def dump_state
   # copy everything in a folder in logs
   # todo: copy only relevant agents
   agents_to_save = GEN.get_run_agents

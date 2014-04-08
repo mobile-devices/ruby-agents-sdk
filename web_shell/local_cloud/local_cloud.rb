@@ -79,6 +79,9 @@ def welcome_new_data_from_outside(index_type, request)
   when 3
     kind_str = 'order'
     kind_tok = 'ORDER'
+  when 4
+    kind_str = 'collection'
+    kind_tok = 'COLLECTION'
   end
 
   PUNK.start('a','receiving something ...')
@@ -202,6 +205,17 @@ post '/remote_call' do
   RIM.handle_order(hashData)
   nil
 end
+
+
+#test:
+post '/collection' do
+  hashData = welcome_new_data_from_outside(4, request)
+  response.body = '{}'
+  return if hashData == nil
+  RIM.handle_collection(hashData)
+  nil
+end
+
 
 # todo: refactor, method too long
 # get '/start_tests' do

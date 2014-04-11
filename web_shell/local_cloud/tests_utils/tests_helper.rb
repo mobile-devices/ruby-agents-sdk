@@ -61,6 +61,21 @@ module TestsHelper
     return res
   end
 
+  # Create a file for testing purposes. You can then access this file with the SDK file API.
+  # @param [UserApis::Mdi::CloudFile] file file to store
+  # @api public
+  def self.create_file(file)
+    CC::FileStorage.store_file(file)
+  end
+
+  # Delete a file.
+  # @param [String] namespace 
+  # @param [String] filename
+  # @api public
+  def self.delete_file(namespace, filename)
+     CC::FileStorage.delete_file(namespace, filename)
+  end
+
   # @!endgroup
 
   # @!group Internal

@@ -5,6 +5,7 @@
 
 require 'logger'
 require_relative 'limited_apis'
+require_relative 'file_interface'
 require 'redis-namespace'
 require 'time'
 require 'httpclient'
@@ -80,6 +81,10 @@ module CloudConnectSDK
 
   def self.redis
     @redis ||= LimitedApis::SafeRedis.new(:host => 'localhost', :port =>  '7879')
+  end
+
+  def self.instance
+    :development
   end
 
   # send outside the cloud

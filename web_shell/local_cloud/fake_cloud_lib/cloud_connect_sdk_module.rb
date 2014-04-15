@@ -27,17 +27,33 @@ module CloudConnectSDK
 
   module NavServer
     class << self
+
+      def url
+        @url ||= "http://localhost:4567"
+      end
+
       def get_query(service_url_suffix)
         @http_client ||= HTTPClient.new
-        @url ||= "http://localhost:4567"
-        CC.logger.debug("http request '#{@url}/#{service_url_suffix}'")
-        resp = @http_client.get("#{@url}/#{service_url_suffix}")
+        CC.logger.debug("http get request '#{url}/#{service_url_suffix}'")
+        resp = @http_client.get("#{url}/#{service_url_suffix}")
         # error?
         if resp.status_code != 200
           raise "NavServer response status = #{resp.status_code}"
         end
         JSON.parse(resp.body,symbolize_names: true)
       end
+
+      def post_query(service_url_suffix, body)
+        @http_client ||= HTTPClient.new
+        CC.logger.debug("http post request '#{url}/#{service_url_suffix}'")
+        resp = @http_client.post("#{url}/#{service_url_suffix}", body)
+        # error?
+        if resp.status_code != 200
+          raise "NavServer response status = #{resp.status_code}"
+        end
+        JSON.parse(resp.body,symbolize_names: true)
+      end
+
 
     end # class << self
   end

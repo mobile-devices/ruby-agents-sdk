@@ -218,10 +218,13 @@ module TestsHelper
 
     # Send this message to the server.
     def send_to_server
+      saved_api = user_api
+      release_current_user_api
       params = @msg.to_hash
       # handle_message_from_device needs a base64 encoded content
       params['payload']['payload'] = Base64.encode64(params['payload']['payload'])
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{params.to_json}' http://localhost:5001/message`
+      set_current_user_api(saved_api)
     end
 
   end
@@ -251,6 +254,7 @@ module TestsHelper
     # Send this presence to the server.
     def send_to_server
       saved_api = user_api
+      release_current_user_api
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@msg.to_hash.to_json}' http://localhost:5001/presence`
       set_current_user_api(saved_api)
     end
@@ -289,6 +293,7 @@ module TestsHelper
     # Send this track to the server.
     def send_to_server
       saved_api = user_api
+      release_current_user_api
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@msg.to_hash.to_json}' http://localhost:5001/track`
       set_current_user_api(saved_api)
     end

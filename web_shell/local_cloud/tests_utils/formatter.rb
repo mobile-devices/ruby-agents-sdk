@@ -87,7 +87,6 @@ module Tests
     end
 
     def example_started(example)
-      CC.logger.debug("example started")
       @lock.synchronize do
         examples << example
         @example_started_time = Time.now
@@ -156,7 +155,6 @@ module Tests
           end
         end
       end
-      CC.logger.debug("closing " + self.inspect)
     end
 
     def set_exception(e)

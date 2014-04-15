@@ -69,7 +69,7 @@ module TestsHelper
   end
 
   # Delete a file.
-  # @param [String] namespace 
+  # @param [String] namespace
   # @param [String] filename
   # @api public
   def self.delete_file(namespace, filename)
@@ -175,7 +175,7 @@ module TestsHelper
 
   # @api private
   # Callback called everytime a message is sent.
-  # @param [UserApis::Mdi::Dialog::MessageClass] msg the outgoing message. This is the message as pushed by the user, before 
+  # @param [UserApis::Mdi::Dialog::MessageClass] msg the outgoing message. This is the message as pushed by the user, before
   #        any Protogen stuff happens with the payload.
   def self.message_sent(msg)
     @@messages << msg
@@ -202,7 +202,7 @@ module TestsHelper
     # @param [String] content string with the content of the message (Protogen objects are not accepted)
     # @param [String] channel the name of the communication channel
     def initialize(content, channel, asset = "123456789", account = "tests")
-      
+
      @msg = user_api.mdi.dialog.create_new_message({'meta' => {"account" => account},
           'payload' => {
             'type' => 'message',

@@ -382,7 +382,7 @@ get '/tests' do
 end
 
 get '/tests/available_agents' do
-  get_currently_mounted_agents.to_json 
+  get_currently_mounted_agents.to_json
 end
 
 post '/tests/start' do

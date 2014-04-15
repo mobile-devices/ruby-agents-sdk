@@ -147,7 +147,7 @@ module Tests
 
     def close
       @lock.synchronize do
-        if @status[:status] != "no test directory" 
+        if @status[:status] != "no test directory"
           if (@status[:pending_count] + @status[:failed_count] + @status[:passed_count]) == @status[:example_count]
             @status[:status] = "finished"
           else

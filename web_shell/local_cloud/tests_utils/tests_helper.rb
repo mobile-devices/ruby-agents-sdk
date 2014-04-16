@@ -69,7 +69,7 @@ module TestsHelper
   end
 
   # Delete a file.
-  # @param [String] namespace 
+  # @param [String] namespace
   # @param [String] filename
   # @api public
   def self.delete_file(namespace, filename)
@@ -175,7 +175,7 @@ module TestsHelper
 
   # @api private
   # Callback called everytime a message is sent.
-  # @param [UserApis::Mdi::Dialog::MessageClass] msg the outgoing message. This is the message as pushed by the user, before 
+  # @param [UserApis::Mdi::Dialog::MessageClass] msg the outgoing message. This is the message as pushed by the user, before
   #        any Protogen stuff happens with the payload.
   def self.message_sent(msg)
     @@messages << msg
@@ -202,7 +202,7 @@ module TestsHelper
     # @param [String] content string with the content of the message (Protogen objects are not accepted)
     # @param [String] channel the name of the communication channel
     def initialize(content, channel, asset = "123456789", account = "tests")
-      
+
      @msg = user_api.mdi.dialog.create_new_message({'meta' => {"account" => account},
           'payload' => {
             'type' => 'message',
@@ -218,10 +218,13 @@ module TestsHelper
 
     # Send this message to the server.
     def send_to_server
+      saved_api = user_api
+      release_current_user_api
       params = @msg.to_hash
       # handle_message_from_device needs a base64 encoded content
       params['payload']['payload'] = Base64.encode64(params['payload']['payload'])
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{params.to_json}' http://localhost:5001/message`
+      set_current_user_api(saved_api)
     end
 
   end
@@ -251,6 +254,7 @@ module TestsHelper
     # Send this presence to the server.
     def send_to_server
       saved_api = user_api
+      release_current_user_api
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@msg.to_hash.to_json}' http://localhost:5001/presence`
       set_current_user_api(saved_api)
     end
@@ -289,6 +293,7 @@ module TestsHelper
     # Send this track to the server.
     def send_to_server
       saved_api = user_api
+      release_current_user_api
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@msg.to_hash.to_json}' http://localhost:5001/track`
       set_current_user_api(saved_api)
     end

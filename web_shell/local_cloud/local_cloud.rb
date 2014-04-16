@@ -243,7 +243,7 @@ end
 # POST /tests/start
 # Content-Type: application/json
 # {
-# "agents": ["name_a", "name_b"]...  
+# "agents": ["name_a", "name_b"]...
 # }
 post '/tests/start' do
   data = JSON.parse(request.body.read)
@@ -252,7 +252,7 @@ post '/tests/start' do
   end
   hash = data["agents"].each_with_object({}) do |agent_name, hash|
     hash[agent_name] = File.join(File.dirname(__FILE__), "ragent_bay", "agents_project_source", agent_name, "tests")
-  end  
+  end
   Tests::TestsRunner.instance.start_tests(hash)
   {'status' => 'tests started'}.to_json
 end
@@ -271,7 +271,7 @@ end
 # GET /test/status?filter[]=agent_name&filter[]=index
 # filter is an array, each pair in it is the couple (agent_name, min_index)
 # min_index is the minimum index example to include in the results
-# note that if the status is anything other than "started", then the filter parameter is ignored for the geiven agent 
+# note that if the status is anything other than "started", then the filter parameter is ignored for the geiven agent
 get '/tests/status' do
   if(params[:filter])
     Tests::TestsRunner.instance.get_status(Hash[params[:filter]]).to_json

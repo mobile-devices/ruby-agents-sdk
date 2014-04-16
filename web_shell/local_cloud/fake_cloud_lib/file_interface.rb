@@ -17,12 +17,12 @@ module CloudConnectSDK
         begin
           data = File.read(file_path(namespace, name) + ".metadata.json")
         rescue Errno::ENOENT
-          return nil
+          raise UserApis::Mdi::FileNotFoundError.new("File not found: #{namespace}/#{name}")
         end
         begin
           return UserApis::Mdi::FileInfo.new(JSON.parse(data, symbolize_names: true))
         rescue JSON::ParserError => e
-          raise UserApis::Mdi::FileStorageError("Invalid metadata at #{namespace}/#{name}.metadata.json: #{e.message}")
+          raise UserApis::Mdi::FileStorageError.new("Invalid metadata at #{namespace}/#{name}.metadata.json: #{e.message}")
         end
       end
 
@@ -35,7 +35,7 @@ module CloudConnectSDK
         begin
           File.read(file_path(namespace, name))
         rescue Errno::ENOENT
-          return nil
+          raise UserApis::Mdi::FileNotFoundError.new("File not found: #{namespace}/#{name}")
         end
       end
 
@@ -46,9 +46,9 @@ module CloudConnectSDK
       # @api private
       def get_file(namespace, name)
         file_info = get_file_information(namespace, name)
-        return if file_info.nil?
+        raise UserApis::Mdi::FileNotFoundError.new("File not found: #{namespace}/#{name}") if file_info.nil?
         contents = get_file_contents(namespace, name)
-        return if contents.nil?
+        raise UserApis::Mdi::FileNotFoundError.new("File not found: #{namespace}/#{name}") if contents.nil?
         UserApis::Mdi::CloudFile.new(file_info.to_hash.merge({contents: contents}))
       end
 

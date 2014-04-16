@@ -87,7 +87,6 @@ module Tests
     end
 
     def example_started(example)
-      CC.logger.debug("example started")
       @lock.synchronize do
         examples << example
         @example_started_time = Time.now
@@ -148,7 +147,7 @@ module Tests
 
     def close
       @lock.synchronize do
-        if @status[:status] != "no test directory" 
+        if @status[:status] != "no test directory"
           if (@status[:pending_count] + @status[:failed_count] + @status[:passed_count]) == @status[:example_count]
             @status[:status] = "finished"
           else
@@ -156,7 +155,6 @@ module Tests
           end
         end
       end
-      CC.logger.debug("closing " + self.inspect)
     end
 
     def set_exception(e)

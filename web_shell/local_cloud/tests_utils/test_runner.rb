@@ -31,15 +31,15 @@ module Tests
         @formatters = agent_paths.each_with_object({}) { |(name, path), hash| hash[name] = Formatter.new($stdout, name) }
       end
       @agent_paths = agent_paths
-      @lock.synchronize do       
+      @lock.synchronize do
         CC.logger.info("Tests started")
-        create_tester_thread(@agent_paths)        
-      end      
+        create_tester_thread(@agent_paths)
+      end
     end
 
     # Abort any currently running tests. Does nothing if no tests are running.
     def stop_tests
-      @lock.synchronize do 
+      @lock.synchronize do
         interrupt_tests
       end
     end
@@ -62,7 +62,7 @@ module Tests
             hash[formatter_name] = formatter.get_status(filter_index)
           end
         end
-      end 
+      end
     end
 
     def get_status_as_text
@@ -86,8 +86,8 @@ module Tests
       @test_thread = Thread.new(agents_to_test) do |agents_to_test| # todo: handle multiple agents at the same time
           agents_to_test.each do |agent_name, path|
             config = RSpec.configuration
-            if(File.directory?(path))              
-              CC.logger.info("Running tests for agent #{agent_name}")
+            if(File.directory?(path))
+              CC.logger.info("Configuring tests for agent: #{agent_name}")
               begin
                 CC.logger.debug("RSpec test path: " + File.expand_path(path))
                 # Let's fiddle with the RSpec internals. Guaranteed to break with each RSpec update :-(
@@ -107,10 +107,10 @@ module Tests
                     release_current_user_api
                   end
                 end
-                CC.logger.debug("#{RSpec.configuration.formatters.inspect}")
+                CC.logger.debug("Starting tests for agent: #{agent_name}")
                 RSpec::Core::Runner.run([File.expand_path(path)], $stdout, $stdout)
                 CC.logger.info("Tests finished for agent #{agent_name}.")
-              rescue StandardError => e
+              rescue Exception => e # yes, Exception, we don't want SyntaxErrors to pass this
                 CC.logger.info("Caught exception when running tests for agent #{agent_name}: #{e.to_s}.")
                 @formatters[agent_name].set_exception(e)
               end
@@ -123,7 +123,7 @@ module Tests
         end
     end
 
-    def interrupt_tests 
+    def interrupt_tests
       # if tests are not running, this method does nothing relevant
       begin
         Timeout.timeout(5) do

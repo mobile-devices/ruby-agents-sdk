@@ -295,6 +295,37 @@ module TestsHelper
 
   end
 
+  # A message posted on an arbitrary queue.
+  # @api public
+  class QueueMessage
+
+    # @param [Hash] params the message to post on the queue (should define at least the keys "meta" and "payload")
+    # @param [String] queue_name the queue to post on (complete queue name: "parent:child")
+    def initialize(params, queue_name)
+      @params = params
+      @queue_name = queue_name
+    end
+
+    # Post on a shared queue.
+    def post_as_shared
+      saved_api = user_api
+      release_current_user_api
+      body = {"data" => @params, "queue" => @queue_name}
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{body.to_json}' http://localhost:5001/other_queue`
+      set_current_user_api(saved_api)
+    end
+
+    # Post on a broadcast queue. The actual queue name will be automatically adjusted to include the runtime ID.
+    def post_as_broadcast
+      saved_api = user_api
+      release_current_user_api
+      body = {"data" => @params, "queue" => @queue_name + "_" + RAGENT.runtime_id_code}
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{body.to_json}' http://localhost:5001/other_queue`
+      set_current_user_api(saved_api)
+    end
+
+  end
+
   # @!endgroup
 
 end

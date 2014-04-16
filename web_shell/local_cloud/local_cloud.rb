@@ -82,6 +82,9 @@ def welcome_new_data_from_outside(index_type, request)
   when 4
     kind_str = 'collection'
     kind_tok = 'COLLECTION'
+  when 5
+    kind_str = 'other'
+    kind_tok = 'OTHER'
   end
 
   PUNK.start('a','receiving something ...')
@@ -216,6 +219,12 @@ post '/collection' do
   nil
 end
 
+# curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"queue":"parent:child", "data":{"meta":{"type":"so meta"}, "payload":{"some payload key":"some payload value"}}}' http://localhost:5001/other_queue
+post '/other_queue' do
+  hash_data = welcome_new_data_from_outside(5, request)
+  RIM.handle_other_queue(hash_data["data"], hash_data["queue"]) unless hash_data.nil?
+  "ok"
+end
 
 # todo: refactor, method too long
 # get '/start_tests' do

@@ -6,7 +6,6 @@ gem 'sinatra', '~> 1.4.2'
 gem 'json', '~> 1.8.0'
 gem 'thread', '~> 0.0.8'
 gem 'logger', '~> 1.2.8'
-gem 'thin', '~> 1.5.1'
 gem 'i18n', '~>  0.6.4'
 
 

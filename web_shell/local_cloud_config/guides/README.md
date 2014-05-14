@@ -191,11 +191,10 @@ Keep in mind that your agent can be restarted at any time, that its Redis cache 
 
 ### Using the API ###
 
-The SDK provides you with an API with methods to help you sending messages to devices, writing logs, accessing configuration options, ... Check the related guide {file:guide/sdk_api.md here}.
-
+The SDK provides you with an API with methods to help you sending messages to devices, writing logs, accessing configuration options, as describe previously.
 ### Unit testing ###
 
-The SDK integrates the [Rspec](http://rubydoc.info/gems/rspec-core/file/README.md) testing framework. The web interface has a tab named ["Unit tests"](http://0.0.0.0:5000/unit_tests) where you can easily run your Rspec tests, see the results live, and save them for future reference.
+The SDK integrates the [Rspec](http://rubydoc.info/gems/rspec-core/file/README.md) testing framework. The web interface has a tab named ["Unit tests"](http://0.0.0.0:5000/tests) where you can easily run your Rspec tests, see the results live, and save them for future reference.
 
 You can find more information on how to test your agents {file:guide/tests.md in this guide}.
 

@@ -39,9 +39,9 @@ module CloudConnectSDK
           raise UserApis::Mdi::FileStorageError.new("Error when reading the file #{namespace}/#{name}: #{e}")
         end
         # check permissions, returns only the role used
-        # by account
+        # by account or with role default
         read_access_role = file.file_info.roles.find do |role|
-          role.accounts.include?(account)
+          role.name == "default" || role.accounts.include?(account)
         end
         if read_access_role.nil?
           # by asset

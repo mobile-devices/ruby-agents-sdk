@@ -23,15 +23,13 @@ module TestsHelper
   #    wait_for { a.should == b }
   # @api public
   def self.wait_for(time = 5, increment = 1, elapsed_time = 0, &block)
-    begin
-      yield
+    yield
     rescue Exception
-      if elapsed_time >= time
-        raise $!, "#{$!} (waited for #{elapsed_time} seconds)", $!.backtrace
-      else
-        sleep increment
-        wait_for(time, increment, elapsed_time + increment, &block)
-      end
+    if elapsed_time >= time
+      raise $!, "#{$!} (waited for #{elapsed_time} seconds)", $!.backtrace
+    else
+      sleep increment
+      wait_for(time, increment, elapsed_time + increment, &block)
     end
   end
 
@@ -47,18 +45,17 @@ module TestsHelper
   #   about using Protogen or not.
   # @api public
   def self.wait_for_responses(message, number_of_responses = 1, timeout = 5)
-    if (not number_of_responses.nil?) && number_of_responses <= 0
+    if !number_of_responses && number_of_responses <= 0
       raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
     end
     id_to_look_for = @@mappings[message.id]
     start_time = Time.now.to_f
-    res = []
     while Time.now.to_f - start_time < timeout
-      res = @@messages.select{ |msg| msg.parent_id == id_to_look_for }
-      break if (not number_of_responses.nil?) && res.length >= number_of_responses
+      res = @@messages.select { |msg| msg.parent_id == id_to_look_for }
+      break if !number_of_responses && res.length >= number_of_responses
       sleep(0.1)
     end
-    return res
+    res
   end
 
   # Create a file for testing purposes. You can then access this file with the SDK file API.
@@ -73,7 +70,7 @@ module TestsHelper
   # @param [String] filename
   # @api public
   def self.delete_file(namespace, filename)
-     CC::FileStorage.delete_file(namespace, filename)
+    CC::FileStorage.delete_file(namespace, filename)
   end
 
   # @!endgroup
@@ -129,7 +126,8 @@ module TestsHelper
     end
 
     def read(key)
-      if value = @data[key]
+      value = @data[key]
+      if value
         renew(key)
         age_keys
         value[1]
@@ -138,7 +136,6 @@ module TestsHelper
 
     def inspect
       "Max cache size: #{max_size} ; data: #{@data.inspect}"
-      @data.inspect
     end
 
     private
@@ -148,12 +145,12 @@ module TestsHelper
     end
 
     def delete_oldest
-      m = @data.values.map{ |v| v[0] }.max
-      @data.reject!{ |k,v| v[0] == m }
+      m = @data.values.map { |v| v[0] }.max
+      @data.reject! { |_k, v| v[0] == m }
     end
 
     def age_keys
-      @data.each{ |k,v| @data[k][0] += 1 }
+      @data.each { |k, _v| @data[k][0] += 1 }
     end
 
     def prune
@@ -202,18 +199,18 @@ module TestsHelper
     # @param [String] content string with the content of the message (Protogen objects are not accepted)
     # @param [String] channel the name of the communication channel
     def initialize(content, channel, asset = "123456789", account = "tests")
-
-     @msg = user_api.mdi.dialog.create_new_message({'meta' => {"account" => account},
-          'payload' => {
-            'type' => 'message',
-            'id' => '',
-            'asset' => asset,
-            'sender' => asset,
-            'channel' =>  channel,
-            'payload' => content
-          },
-          'account' => account
-          })
+      @msg = user_api.mdi.dialog.create_new_message(
+        'meta' => { "account" => account },
+        'payload' => {
+          'type' => 'message',
+          'id' => '',
+          'asset' => asset,
+          'sender' => asset,
+          'channel' =>  channel,
+          'payload' => content
+        },
+        'account' => account
+      )
     end
 
     # Send this message to the server.
@@ -240,14 +237,16 @@ module TestsHelper
     # @param time [String] timestamp of the event
     def initialize(type = 'connect', reason = 'closed_by_server', asset = "123456789", account = 'tests', time = nil)
       time = Time.now.to_i if time.nil?
-      @msg = user_api.mdi.dialog.create_new_presence('meta' => {'account' => account},
+      @msg = user_api.mdi.dialog.create_new_presence(
+        'meta' => { 'account' => account },
         'payload' => {
           'type' => 'presence',
           'time' => time,
           'bs' => "b3_4200",
           'type' => type,
           'reason' => reason,
-          'account' => account
+          'account' => account,
+          'asset' => asset
         })
     end
 
@@ -284,9 +283,11 @@ module TestsHelper
     # @param [Hash] data track payload (see above)
     # @param asset (see TestsHelper::DeviceMessage#initialize)
     # @param account (see TestsHelper::DeviceMessage#initialize)
-    def initialize(data, account="tests", asset="123456789")
-      @msg =  user_api.mdi.dialog.create_new_track('meta' => {'account' => account},
-        'payload' => data
+    def initialize(data, account = "tests", asset = "123456789")
+      @msg =  user_api.mdi.dialog.create_new_track(
+        "meta" => { "account" => account },
+        "payload" => data,
+        "asset" => asset
         )
     end
 
@@ -315,7 +316,7 @@ module TestsHelper
     def post_as_shared
       saved_api = user_api
       release_current_user_api
-      body = {"data" => @params, "queue" => @queue_name}
+      body = { "data" => @params, "queue" => @queue_name }
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{body.to_json}' http://localhost:5001/other_queue`
       set_current_user_api(saved_api)
     end
@@ -324,7 +325,7 @@ module TestsHelper
     def post_as_broadcast
       saved_api = user_api
       release_current_user_api
-      body = {"data" => @params, "queue" => @queue_name + "_" + RAGENT.runtime_id_code}
+      body = { "data" => @params, "queue" => @queue_name + "_" + RAGENT.runtime_id_code }
       `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{body.to_json}' http://localhost:5001/other_queue`
       set_current_user_api(saved_api)
     end

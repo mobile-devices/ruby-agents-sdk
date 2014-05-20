@@ -247,7 +247,8 @@ module TestsHelper
           'bs' => "b3_4200",
           'type' => type,
           'reason' => reason,
-          'account' => account
+          'account' => account,
+          'asset' => asset
         })
     end
 

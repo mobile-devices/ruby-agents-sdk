@@ -234,9 +234,11 @@ module TestsHelper
     # @param [String] reason reason for the event
     # @param asset (see TestsHelper::DeviceMessage#initialize)
     # @param account (see TestsHelper::DeviceMessage#initialize)
+    # @param [Integer] id the message ID. If nil, a suitable ID will be automatically generated.
     # @param time [String] timestamp of the event
-    def initialize(type = 'connect', reason = 'closed_by_server', asset = "123456789", account = 'tests', time = nil)
+    def initialize(type = 'connect', reason = 'closed_by_server', asset = "123456789", account = 'tests', time = nil, id = nil)
       time = Time.now.to_i if time.nil?
+      id = CC.indigen_next_id if id.nil?
       @msg = user_api.mdi.dialog.create_new_presence(
         'meta' => { 'account' => account },
         'payload' => {
@@ -246,7 +248,8 @@ module TestsHelper
           'type' => type,
           'reason' => reason,
           'account' => account,
-          'asset' => asset
+          'asset' => asset,
+          'id' => id
         })
     end
 

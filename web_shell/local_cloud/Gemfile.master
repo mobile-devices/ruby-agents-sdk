@@ -28,6 +28,10 @@ gem 'activesupport', '~> 3.1.1', require: 'active_support'
 gem 'redis', '~> 3.0.4'
 gem 'redis-namespace', '~> 1.3.0'
 
+# mongo
+gem 'mongo'
+gem 'bson_ext'
+
 # protogen
 gem 'redis-lock', '~> 0.1.0' # needed for protogen
 gem 'msgpack', '~> 0.4.7 ' # needed for protogen

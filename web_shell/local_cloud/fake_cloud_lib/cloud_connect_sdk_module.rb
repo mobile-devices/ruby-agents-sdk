@@ -9,6 +9,7 @@ require_relative 'file_interface'
 require 'redis-namespace'
 require 'time'
 require 'httpclient'
+require 'mongo'
 
 # Cloud connect SDK Side Implementation
 
@@ -97,6 +98,10 @@ module CloudConnectSDK
 
   def self.redis
     @redis ||= LimitedApis::SafeRedis.new(:host => 'localhost', :port =>  '7879')
+  end
+
+  def self.mongo
+    @mongoClient ||= MongoClient.new
   end
 
   def self.instance

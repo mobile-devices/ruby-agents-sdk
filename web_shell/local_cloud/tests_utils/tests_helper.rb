@@ -290,7 +290,7 @@ module TestsHelper
     # @param account (see TestsHelper::DeviceMessage#initialize)
     def initialize(data, account = "tests", asset = "123456789")
       @msg =  user_api.mdi.dialog.create_new_track(
-        "meta" => { "account" => account
+        "meta" => { "account" => account,
         "class" => 'track' },
         "payload" => data,
         "asset" => asset

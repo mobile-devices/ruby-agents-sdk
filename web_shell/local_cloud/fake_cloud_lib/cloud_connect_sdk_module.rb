@@ -115,7 +115,15 @@ module CloudConnectSDK
     hash_msg['recorded_at'] = Time.now
 
     # inject case
-    if queue == 'messages'
+    if queue == 'presences'
+      Thread.start {
+        json_msg = hash_msg.to_json
+        sleep(1)
+        command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/presence"
+        `#{command}`
+      }
+
+    elsif queue == 'messages'
       Thread.start {
         json_msg = hash_msg.to_json
         sleep(1)
@@ -130,6 +138,15 @@ module CloudConnectSDK
         command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/track"
         `#{command}`
       }
+
+    elsif queue == 'collections'
+      Thread.start {
+        json_msg = hash_msg.to_json
+        sleep(1)
+        command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/collection"
+        `#{command}`
+      }
+
 
     else
       push_something_to_device(hash_msg)

@@ -350,6 +350,44 @@ module TestsHelper
 
   end
 
+  # A simulated collection
+  # @api public
+  class Collection
+
+    # @param [String] name the name of the collection
+    # @param [Array] data array containing the collection elements (presences, tracks or messages).
+    #                Such an element can be created using {UserApi::Mdi::Dialog#create_new_presence}, {UserApi::Mdi::Dialog#create_new_track},
+    #                or {UserApi::Mdi::Dialog#create_new_message}.
+    #                The collection `start_at` and `stop_at` will be deduced from the elements in this array.
+    # @param [Integer] id id of this collection
+    # @param [String] account account which this collection belongs to
+    # @param [String] asset data in this collection must belong to this asset
+    def initialize(name, data, id = 1, account = "tests", asset = "123456789")
+      @collection = user_api.mdi.dialog.create_new_collection(
+        "meta" => {
+          "account" => account,
+          "class" => "collection"
+        },
+        "payload" => {
+          "name" => name,
+          "id" => id,
+          "asset" => asset,
+          "data" => data.map { |el| el.to_hash }
+        }
+        )
+      @collection.crop_start_stop_time_from_data
+    end
+
+    # Send this collection to the agents.
+    def send_to_server
+      saved_api = user_api
+      release_current_user_api
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@collection.to_hash.to_json}' http://localhost:5001/collection`
+      set_current_user_api(saved_api)
+    end
+
+  end
+
   # @!endgroup
 
 end

@@ -101,7 +101,7 @@ module CloudConnectSDK
   end
 
   def self.mongo
-    @mongoClient ||= MongoClient.new
+    @mongoClient ||= Mongo::MongoClient.new
   end
 
   def self.instance

@@ -100,7 +100,7 @@ module CloudConnectSDK
     @redis ||= LimitedApis::SafeRedis.new(:host => 'localhost', :port =>  '7879')
   end
 
-  def self.mongo
+  def self.mongoClient
     @mongoClient ||= Mongo::MongoClient.new
   end
 

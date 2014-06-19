@@ -33,3 +33,8 @@ mkdir -p /home/vagrant/ruby-agents-sdk/output
 sudo mount -o bind /home/vagrant/ruby_workspace/output /home/vagrant/ruby-agents-sdk/output
 mkdir -p /home/vagrant/ruby_workspace/file_storage
 sudo mount -o bind /home/vagrant/ruby_workspace/file_storage /home/vagrant/ruby-agents-sdk/file_storage
+mkdir -p /home/vagrant/ruby_workspace/cloud_configuration
+sudo mount -o bind /home/vagrant/ruby_workspace/cloud_configuration /home/vagrant/ruby-agents-sdk/cloud_configuration
+
+# copy default track field mapping if not exists
+cp -n /home/vagrant/ruby-agents-sdk/web_shell/local_cloud/ragent_bay/ragent_api/default_tracks_field_info.json /home/vagrant/ruby-agents-sdk/cloud_configuration/default_tracks_field_info.json

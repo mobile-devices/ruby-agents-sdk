@@ -200,8 +200,10 @@ module TestsHelper
     # @param [String] channel the name of the communication channel
     def initialize(content, channel, asset = "123456789", account = "tests")
       @msg = user_api.mdi.dialog.create_new_message(
-        'meta' => { "account" => account,
-        'class'=> 'message' },
+        'meta' => {
+          'account' => account,
+          'class' => 'message'
+          },
         'payload' => {
           'type' => 'message',
           'id' => '',
@@ -241,8 +243,10 @@ module TestsHelper
       time = Time.now.to_i if time.nil?
       id = CC.indigen_next_id if id.nil?
       @msg = user_api.mdi.dialog.create_new_presence(
-        'meta' => { 'account' => account,
-        'class' => 'presence'},
+        'meta' => {
+          'account' => account,
+          'class' => 'presence'
+        },
         'payload' => {
           'type' => 'presence',
           'time' => time,
@@ -289,8 +293,10 @@ module TestsHelper
     # @param account (see TestsHelper::DeviceMessage#initialize)
     def initialize(data, account = "tests", asset = "123456789")
       @msg =  user_api.mdi.dialog.create_new_track(
-        "meta" => { "account" => account,
-        "class" => 'track' },
+        "meta" => {
+          "account" => account,
+          "class" => "track"
+        },
         "payload" => data,
         "asset" => asset
         )

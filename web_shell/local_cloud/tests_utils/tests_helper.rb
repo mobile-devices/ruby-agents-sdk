@@ -277,7 +277,7 @@ module TestsHelper
     #
     # ```ruby
     # {
-    #    "id" => "123456",
+    #    "id" => "123456", # not mandatory, will be automatically generated if missing
     #    "longitude" =>  236607,
     #    "latitude" => 4878377,
     #    "recorded_at" => 1368449272,

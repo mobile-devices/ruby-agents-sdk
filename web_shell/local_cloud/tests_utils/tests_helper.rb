@@ -274,7 +274,6 @@ module TestsHelper
     # ```ruby
     # {
     #    "id" => "123456",
-    #    "account" => "unstable",
     #    "longitude" =>  236607,
     #    "latitude" => 4878377,
     #    "recorded_at" => 1368449272,

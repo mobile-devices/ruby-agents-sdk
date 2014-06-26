@@ -114,43 +114,37 @@ module CloudConnectSDK
     # set the recorded at like the read server would do
     hash_msg['recorded_at'] = Time.now
 
-    # inject case
-    if queue == 'presences'
-      Thread.start {
-        json_msg = hash_msg.to_json
-        sleep(1)
-        command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/presence"
-        `#{command}`
-      }
-
-    elsif queue == 'messages'
-      Thread.start {
-        json_msg = hash_msg.to_json
-        sleep(1)
-        command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/message"
-        `#{command}`
-      }
-
-    elsif queue == 'tracks'
-      Thread.start {
-        json_msg = hash_msg.to_json
-        sleep(1)
-        command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/track"
-        `#{command}`
-      }
-
-    elsif queue == 'collections'
-      Thread.start {
-        json_msg = hash_msg.to_json
-        sleep(1)
-        command = "curl -i -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d '#{json_msg}' http://localhost:5001/collection"
-        `#{command}`
-      }
-
-
-    else
+    if queue.nil?
       push_something_to_device(hash_msg)
+      return
     end
+
+    http = Net::HTTP.new("localhost", 5001)
+
+    ressource =
+      case queue
+      when "presences"
+        "/presence"
+      when "messages"
+        "/message"
+      when "tracks"
+        "/track"
+      when "collections"
+        "/collections"
+      else
+        raise "Unknown queue name: '#{queue}', expected one of: presences, messages, tracks, collections" # should never happen
+      end
+
+    request = Net::HTTP::Post.new(ressource)
+    request.body = hash_msg.to_json
+    request.set_field["Content-type"] = "application/json"
+    request.set_field["Accept"] = "application/json"
+
+    Thread.start do
+      sleep 1
+      http.request(request)
+    end
+
   end
 
 end

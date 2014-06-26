@@ -1,4 +1,5 @@
 require 'json'
+require 'net/http'
 
 require_relative '../ragent_bay/user_api/user_api'
 

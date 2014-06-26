@@ -139,8 +139,13 @@ module CloudConnectSDK
     request.body = hash_msg.to_json
 
     Thread.start do
-      sleep 1
-      http.request(request)
+      begin
+        sleep 1
+        http.request(request)
+      rescue StandardError => e
+        user_api.mdi.tools.log.error("Error when posting to queue #{queue}, the message will not be reinjected")
+        user_api.mdi.tools.print_ruby_exception(e)
+      end
     end
 
   end

@@ -135,10 +135,8 @@ module CloudConnectSDK
         raise "Unknown queue name: '#{queue}', expected one of: presences, messages, tracks, collections" # should never happen
       end
 
-    request = Net::HTTP::Post.new(ressource)
+    request = Net::HTTP::Post.new(ressource, "Content-type" => "application/json", "Accept" => "application/json")
     request.body = hash_msg.to_json
-    request.set_field["Content-type"] = "application/json"
-    request.set_field["Accept"] = "application/json"
 
     Thread.start do
       sleep 1

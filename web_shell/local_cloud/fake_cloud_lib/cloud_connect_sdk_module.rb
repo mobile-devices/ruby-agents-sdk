@@ -130,7 +130,7 @@ module CloudConnectSDK
       when "tracks"
         "/track"
       when "collections"
-        "/collections"
+        "/collection"
       else
         raise "Unknown queue name: '#{queue}', expected one of: presences, messages, tracks, collections" # should never happen
       end

@@ -1,4 +1,5 @@
 require 'json'
+require 'net/http'
 
 require_relative '../ragent_bay/user_api/user_api'
 
@@ -188,11 +189,33 @@ module TestsHelper
 
   # @!endgroup
 
+  # @api private
+  # Helper module to send data to the server as part of a test suite
+  module Simulated
+
+    # @api private
+    # Send the payload to the URL given by ressource. Save and restore the user_api global so that it stays the same after the call.
+    # @param [String] ressource "/presence", "/track", etc.
+    # @param [String] payload body of the request
+    def send(ressource, payload)
+      saved_api = user_api
+      release_current_user_api
+      http = Net::HTTP.new("localhost", 5001)
+      request = Net::HTTP::Post.new(ressource, "Content-type" => "application/json", "Accept" => "application/json")
+      request.body = payload
+      http.request(request)
+      set_current_user_api(saved_api)
+    end
+
+  end
+
   # @!group Events helper
 
   # A simulated message that comes from a device.
   # @api public
   class DeviceMessage
+
+    include Simulated
 
     # @param [String] asset IMEI or unique identifier of the (simulated) device
     # @param [String] account account name to use
@@ -216,13 +239,7 @@ module TestsHelper
 
     # Send this message to the server.
     def send_to_server
-      saved_api = user_api
-      release_current_user_api
-      params = @msg.to_hash
-      # handle_message_from_device needs a base64 encoded content
-      params['payload']['payload'] = Base64.encode64(params['payload']['payload'])
-      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{params.to_json}' http://localhost:5001/message`
-      set_current_user_api(saved_api)
+      send("/message", @msg.to_hash.to_json)
     end
 
   end
@@ -230,6 +247,8 @@ module TestsHelper
   # Simulated presence from a device
   # @api public
   class DevicePresence
+
+    include Simulated
 
     # @param [String] type 'connect', 'reconnect' or 'disconnect'
     # @param [String] reason reason for the event
@@ -257,16 +276,16 @@ module TestsHelper
 
     # Send this presence to the server.
     def send_to_server
-      saved_api = user_api
-      release_current_user_api
-      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@msg.to_hash.to_json}' http://localhost:5001/presence`
-      set_current_user_api(saved_api)
+      send("/presence", @msg.to_hash.to_json)
     end
+
   end
 
   # Simulated track data from a device.
   # @api public
   class DeviceTrack
+
+    include Simulated
 
     # Construct a new simulated track.
     # The payload of a track, represented as a hash, follows the following format:
@@ -299,10 +318,7 @@ module TestsHelper
 
     # Send this track to the server.
     def send_to_server
-      saved_api = user_api
-      release_current_user_api
-      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@msg.to_hash.to_json}' http://localhost:5001/track`
-      set_current_user_api(saved_api)
+      send("/track", @msg.to_hash.to_json)
     end
 
   end
@@ -310,6 +326,8 @@ module TestsHelper
   # A message posted on an arbitrary queue.
   # @api public
   class QueueMessage
+
+    include Simulated
 
     # @param [Hash] params the message to post on the queue (should define at least the keys "meta" and "payload")
     # @param [String] queue_name the queue to post on (complete queue name: "parent:child")
@@ -320,19 +338,51 @@ module TestsHelper
 
     # Post on a shared queue.
     def post_as_shared
-      saved_api = user_api
-      release_current_user_api
       body = { "data" => @params, "queue" => @queue_name }
-      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{body.to_json}' http://localhost:5001/other_queue`
-      set_current_user_api(saved_api)
+      send("/other_queue", body.to_json)
     end
 
     # Post on a broadcast queue. The actual queue name will be automatically adjusted to include the runtime ID.
     def post_as_broadcast
+      body = { "data" => @params, "queue" => @queue_name + "_" + RAGENT.runtime_id_code }
+      send("/other_queue", body.to_json)
+    end
+
+  end
+
+  # A simulated collection
+  # @api public
+  class Collection
+
+    # @param [String] name the name of the collection
+    # @param [Array] data array containing the collection elements (presences, tracks or messages).
+    #                Such an element can be created using {UserApi::Mdi::Dialog#create_new_presence}, {UserApi::Mdi::Dialog#create_new_track},
+    #                or {UserApi::Mdi::Dialog#create_new_message}.
+    #                The collection `start_at` and `stop_at` will be deduced from the elements in this array.
+    # @param [Integer] id id of this collection
+    # @param [String] account account which this collection belongs to
+    # @param [String] asset data in this collection must belong to this asset
+    def initialize(name, data, id = 1, account = "tests", asset = "123456789")
+      @collection = user_api.mdi.dialog.create_new_collection(
+        "meta" => {
+          "account" => account,
+          "class" => "collection"
+        },
+        "payload" => {
+          "name" => name,
+          "id" => id,
+          "asset" => asset,
+          "data" => data.map { |el| el.to_hash }
+        }
+        )
+      @collection.crop_start_stop_time_from_data
+    end
+
+    # Send this collection to the agents.
+    def send_to_server
       saved_api = user_api
       release_current_user_api
-      body = { "data" => @params, "queue" => @queue_name + "_" + RAGENT.runtime_id_code }
-      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{body.to_json}' http://localhost:5001/other_queue`
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@collection.to_hash.to_json}' http://localhost:5001/collection`
       set_current_user_api(saved_api)
     end
 

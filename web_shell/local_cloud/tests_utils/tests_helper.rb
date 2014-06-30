@@ -60,10 +60,22 @@ module TestsHelper
   end
 
   # Create a file for testing purposes. You can then access this file with the SDK file API.
+  # The file_info attribute of the provided file must be correctly set.
+  # Warning: the access rights management implemented in VM mode is a small subset of what is available in the Cloud.
+  # but should suffice for testing purposes. When storing a file, the associated file_info role list is stored.
+  # When calling {get_file}, this method will check is the provided
+  # account or asset was present in the role list associated with this file.
+  # This method is unvailable in Ragent mode.
   # @param [UserApis::Mdi::CloudFile] file file to store
-  # @api public
+  # @note will overwrite any previous file stored with the same name/namespace
   def self.create_file(file)
-    CC::FileStorage.store_file(file)
+    if file.file_info.nil?
+      raise ArgumentError.new("To create a file, you must provide a non-nil, valid file info object.")
+    end
+    path = CC::FileStorage.file_path(file.file_info.namespace, file.file_info.name)
+    FileUtils.mkdir_p(File.dirname(path))
+    FileUtils.rm(path) if File.exist?(path)
+    File.write(path, CC::FileStorage.file_to_json(file))
   end
 
   # Delete a file.

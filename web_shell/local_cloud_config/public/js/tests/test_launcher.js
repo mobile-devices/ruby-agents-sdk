@@ -4,13 +4,13 @@ var App = (function(app) {
 		this.startUrl = startUrl;
 		this.stopUrl = stopUrl;
 		this.testsRunning = false;
-	}
+	};
 
 	// start tests for the given agents, does nothing if tests are already started
 	// # POST /tests/start
 	// # Content-Type: application/json
 	// # {
-	// # "agents": ["name_a", "name_b"]...  
+	// # "agents": ["name_a", "name_b"]...
 	// # }
 	app.TestLauncher.prototype.startTests = function(agents) {
 		if(!this.requestPending) { // do not start tests twice
@@ -31,14 +31,14 @@ var App = (function(app) {
 					complete: function() {
 						this.requestPending = false;
 					}
-				})
+				});
 			} else {
-				console.warn("Tests are already started, impossible to start them again.")
+				console.warn("Tests are already started, impossible to start them again.");
 			}
 		} else {
 			console.debug("Request pending...");
 		}
-	}
+	};
 
 	// stop tests
 	app.TestLauncher.prototype.stopTests = function() {
@@ -65,7 +65,7 @@ var App = (function(app) {
 		} else {
 			console.debug("Request pending...");
 		}
-	}
+	};
 
 	return app;
 

@@ -19,15 +19,15 @@ var App = (function(app) {
     this.index = definition.example_index;
     this.exception = definition.exception;
     this.filePath = definition.file_path;
-  }
+  };
 
   app.TestCase.prototype.hasPassed = function() {
     return this.status == "passed";
-  }
+  };
 
   app.TestCase.prototype.hasFailed = function() {
-    return this.status == "failed"
-  }
+    return this.status == "failed";
+  };
 
   return app;
 

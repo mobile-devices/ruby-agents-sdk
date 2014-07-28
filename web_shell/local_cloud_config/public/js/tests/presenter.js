@@ -125,13 +125,13 @@ var App = (function(app) {
 
     // user events
     $('#available-agents').on("click", "li a", function() {
-      var agents_to_test = [];
+      var agentsToTest = [];
       if($(this).text() == "All agents") {
-        agents_to_test = testUpdater.availableAgents;
+        agentsToTest = testUpdater.availableAgents;
       } else {
-        agents_to_test = [$(this).text()];
+        agentsToTest = [$(this).text()];
       }
-      app.publish('app.notify.agents_selected', [agents_to_test]);
+      app.publish('app.notify.agents_selected', [agentsToTest]);
     });
 
     $('#run-tests').click(function() {

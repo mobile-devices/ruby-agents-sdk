@@ -63,7 +63,9 @@ var App = (function(app) {
     }
     if(info.hasOwnProperty("examples")) {
       for(var index in info.examples) {
-        this.examples[index] = new app.TestCase(info.examples[index]);
+        if(info.hasOwnProperty(index)) {
+          this.examples[index] = new app.TestCase(info.examples[index]);
+        }
       }
     }
   };

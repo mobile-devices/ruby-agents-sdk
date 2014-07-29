@@ -84,7 +84,7 @@ var App = (function(app) {
     });
 
     app.suscribe('app.notify.test_suite.changed', function(event, testSuite) {
-      // check if the HTML for tdisplaying the test suite exists. If not, create it.
+      // check if the HTML for displaying the test suite exists. If not, create it.
       var root = $('#test-suite-'+ testSuite.agentName);
       if(!root.length) {
         $('#test-suites-container').append("<div id='test-suite-" + testSuite.agentName + "'></div>");

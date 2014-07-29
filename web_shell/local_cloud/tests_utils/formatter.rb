@@ -28,7 +28,7 @@ module Tests
     end
 
     # todo: return an actual object
-    # @param [Interger] min_example_index omits from the result any example whose index is < to the provided one
+    # @param [Integer] min_example_index omits from the result any example whose index is < to the provided one
     def get_status(min_example_index = -1)
       out = {}
       @lock.synchronize do

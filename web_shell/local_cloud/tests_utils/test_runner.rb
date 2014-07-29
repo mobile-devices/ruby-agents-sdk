@@ -11,7 +11,7 @@ module Tests
 
   # Provides a simple interface to run tests, stop them, and collect the results
   # This class is a thread-safe singleton: call {TestRunner.instance} to retrieve the class instance.
-  # Internally, it manages a thread that run Rspec.
+  # Internally, it manages a thread that runs Rspec.
   class TestsRunner
 
     include Singleton

@@ -258,7 +258,7 @@ end
 # GET /test/status?filter[]=agent_name&filter[]=index
 # filter is an array, each pair in it is the couple (agent_name, min_index)
 # min_index is the minimum index example to include in the results
-# note that if the status is anything other than "started", then the filter parameter is ignored for the geiven agent
+# note that if the status is anything other than "started", then the filter parameter is ignored for the given agent
 get '/tests/status' do
   if(params[:filter])
     Tests::TestsRunner.instance.get_status(Hash[params[:filter]]).to_json

@@ -38,10 +38,11 @@ var App = (function(app) {
       var backtrace = this.exception.backtrace;
       var backtraceLen = backtrace.length;
       for(var i = 0; i < backtraceLen; i++) {
-        if(backtrace[i].match(/\/home\/vagrant\/ruby-agents-sdk\/web_shell\/local_cloud\/ragent_bay\/agents_project_source\//)) {
+        var filteredLine = /\/web_shell\/local_cloud\/ragent_bay\/agents_project_source\/(.*)/.exec(backtrace[i]);
+        if(filteredLine !== null) {
           backtrace[i] = new String(backtrace[i]); // quick and dirty way to add a property to a string
           backtrace[i].important = true;
-          this.cleanedBacktrace.push(backtrace[i].slice(85));
+          this.cleanedBacktrace.push(filteredLine[1]);
         }
       }
     }

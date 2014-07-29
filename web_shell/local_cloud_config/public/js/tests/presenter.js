@@ -144,8 +144,13 @@ var App = (function(app) {
 
     $('#test-suites-container').on("click", "table .failed-example a", function(e) {
       e.preventDefault();
-      $(this).parents("#test-suites-container table tr").next("tr").children("td").fadeToggle(50);
+      var parentTr = $(this).parents("#test-suites-container table tr");
+      parentTr.next("tr").children("td").fadeToggle(50);
       $(this).find("i").toggleClass("icon-chevron-down icon-chevron-up");
+      var testCaseIndex = parentTr.children(":first").html();
+      var agentName = $(this).parents("#test-suites-container table").get(0).getAttribute('data-agent-name');
+      // toggle the backtrace state with a xor
+      testSuites[agentName].examples[testCaseIndex - 1].isBacktraceExpanded ^= true;
     });
 
     // variable initialization

@@ -19,6 +19,7 @@ var App = (function(app) {
     this.index = definition.example_index;
     this.exception = definition.exception;
     this.filePath = definition.file_path;
+    this.isBacktraceExpanded = false;
   };
 
   app.TestCase.prototype.hasPassed = function() {

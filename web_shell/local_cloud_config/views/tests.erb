@@ -98,7 +98,7 @@
 </script>
 
 <script id="test-suite-result-partial" type="text/x-handlebars-template">
-<table class="table">
+<table class="table" data-agent-name={{agentName}}>
   <thead>
     <th>#</th>
     <th>Test</th>
@@ -124,7 +124,11 @@
         <td>{{this.duration}} s</td>
         {{#if this.hasFailed}}
           <tr>
+            {{#if this.isBacktraceExpanded}}
+            <td colspan="5">
+            {{else}}
             <td colspan="5" style="display: none;">
+            {{/if}}
               <div class="backtrace text-left">
                 <p class="alert alert-danger">{{this.exception.class}}: {{this.exception.message}}</p>
                 <pre>

@@ -62,10 +62,8 @@ var App = (function(app) {
       this.duration = info.summary.duration;
     }
     if(info.hasOwnProperty("examples")) {
-      for(var index in info.examples) {
-        if(info.hasOwnProperty(index)) {
-          this.examples[index] = new app.TestCase(info.examples[index]);
-        }
+      for(var i = this.examples.length, len = info.examples.length; i < len; i++) {
+        this.examples[i] = new app.TestCase(info.examples[i]);
       }
     }
   };

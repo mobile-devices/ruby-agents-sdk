@@ -120,6 +120,7 @@ var App = (function(app) {
           return;
       }
       Handlebars.registerPartial("result", $("#test-suite-result-partial").html());
+      Handlebars.registerPartial("backtrace", $("#backtrace-partial").html());
       root.html(template(testSuite));
     });
 
@@ -151,6 +152,16 @@ var App = (function(app) {
       var agentName = $(this).parents("#test-suites-container table").get(0).getAttribute('data-agent-name');
       // toggle the backtrace state with a xor
       testSuites[agentName].examples[testCaseIndex - 1].isBacktraceExpanded ^= true;
+    });
+
+    $('#test-suites-container').on('click', '.backtrace .toggle-full-trace a', function(e) {
+      e.preventDefault();
+      var testCaseIndex = $(this).parents("td.backtrace-container").first().parent().prev().children("td").first().html();
+      var agentName = $(this).parents("#test-suites-container table").get(0).getAttribute('data-agent-name');
+      var example = testSuites[agentName].examples[testCaseIndex - 1];
+      example.useFullBacktrace ^= true;
+      var template = Handlebars.compile($('#backtrace-partial').html()); // todo compile only once
+      $(this).parents(".backtrace-container").html(template(example));
     });
 
     // variable initialization

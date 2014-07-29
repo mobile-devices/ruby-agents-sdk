@@ -108,7 +108,7 @@
   </thead>
   <tbody>
     {{#each examples}}
-      <tr>
+      <tr class="test-case">
         <td>{{this.index}}</td>
         <td>{{this.fullDescription}}</td>
         {{#if this.hasFailed}}
@@ -125,18 +125,11 @@
         {{#if this.hasFailed}}
           <tr>
             {{#if this.isBacktraceExpanded}}
-            <td colspan="5">
+            <td colspan="5" class="backtrace-container">
             {{else}}
-            <td colspan="5" style="display: none;">
+            <td colspan="5" style="display: none;" class="backtrace-container">
             {{/if}}
-              <div class="backtrace text-left">
-                <p class="alert alert-danger">{{this.exception.class}}: {{this.exception.message}}</p>
-                <pre>
-{{#each this.exception.backtrace ~}}
-{{this}}
-{{/each}}
-                </pre>
-              </div>
+              {{> backtrace}}
             </td>
           </tr>
         {{/if}}
@@ -150,6 +143,31 @@
       <td>{{#if duration}}{{duration}} s{{/if}}</td></tr>
   </tbody>
 </table>
+</script>
+
+<script id="backtrace-partial" type="text/x-handlebars-template">
+<div class="backtrace text-left">
+  <div class="alert alert-danger">{{this.exception.class}}: {{this.exception.message}}
+    <div class="pull-right toggle-full-trace">
+      {{#if this.useFullBacktrace}}
+      <a href="#">show filtered trace</a>
+      {{else}}
+      <a href="#">show full trace</a>
+      {{/if}}
+    </div>
+  </div>
+<pre>
+{{#each this.cleanBacktrace ~}}
+{{#if this.important ~}}<strong>{{/if ~}}
+{{#if @last ~}}
+{{this ~}}
+{{else ~}}
+{{this}}
+{{/if ~}}
+{{#if this.important ~}}</strong>{{/if ~}}
+{{/each}}
+</pre>
+  </div>
 </script>
 
 <script id="test-suite-scheduled-tmpl" type="text/x-handlebars-template">

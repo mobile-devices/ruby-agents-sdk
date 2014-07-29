@@ -41,7 +41,6 @@ var App = (function(app) {
         if(backtrace[i].match(/\/home\/vagrant\/ruby-agents-sdk\/web_shell\/local_cloud\/ragent_bay\/agents_project_source\//)) {
           backtrace[i] = new String(backtrace[i]); // quick and dirty way to add a property to a string
           backtrace[i].important = true;
-          console.log(backtrace[i].important);
           this.cleanedBacktrace.push(backtrace[i].slice(85));
         }
       }

@@ -227,20 +227,6 @@ post '/other_queue' do
   "ok"
 end
 
-# todo: refactor, method too long
-# get '/start_tests' do
-#   unless params.has_key?("agents")
-#     halt(400, "'agents' parameter is mandatory")
-#   end
-#   agents_array = params['agents']
-#   unless agents_array.size >= 1
-#     halt(400, "'agents' parameters must include at least one agent")
-#   end
-#   CC.logger.info("Starting tests for agents " + agents_array.inspect)
-#   TestsRunner.instance.start_tests(agents_array)
-#   "Tests started for agents " + agents_array.inspect
-# end
-
 # POST /tests/start
 # Content-Type: application/json
 # {
@@ -272,7 +258,7 @@ end
 # GET /test/status?filter[]=agent_name&filter[]=index
 # filter is an array, each pair in it is the couple (agent_name, min_index)
 # min_index is the minimum index example to include in the results
-# note that if the status is anything other than "started", then the filter parameter is ignored for the geiven agent
+# note that if the status is anything other than "started", then the filter parameter is ignored for the given agent
 get '/tests/status' do
   if(params[:filter])
     Tests::TestsRunner.instance.get_status(Hash[params[:filter]]).to_json

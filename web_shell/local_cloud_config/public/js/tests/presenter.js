@@ -12,7 +12,7 @@ var App = (function(app) {
           break;
         case "offline":
           $("#run-tests").addClass("disabled");
-          $("#save-tests-results").addClass("disabled").removeAttr("href");          
+          $("#save-tests-results").addClass("disabled").removeAttr("href");
           break;
         default:
           console.warn("Unknown server status: " + status);
@@ -34,12 +34,12 @@ var App = (function(app) {
         $("#select-agent-btn").html(selectedAgents.join(", ") + ' <span class="caret"></span>');
       } else {
         $("#select-agent-btn").html('All agents <span class="caret"></span>');
-      }  
+      }
       testConfig.selectedAgents = selectedAgents;
     });
 
     app.suscribe('app.action.start_tests', function(event, testConfig, testUpdater) {
-      if (testConfig.selectedAgents.length > 0) {;
+      if (testConfig.selectedAgents.length > 0) {
         testLauncher.startTests(testConfig.selectedAgents);
       } else {
         console.warn("No agent selected");
@@ -65,7 +65,7 @@ var App = (function(app) {
       // testUpdater.stopUpdates();
     });
 
-    app.suscribe('app.notify.test_progress', function(event, agentName, statusInfo) {      
+    app.suscribe('app.notify.test_progress', function(event, agentName, statusInfo) {
       if(agentName == "no tests") {
         $('#general-test-info').html("<p class='alert alert-info'>No tests are currently running.</p><p><small>Select the agents to test in the above dropdown and click the Run tests button.</small></p>");
         return;
@@ -84,13 +84,13 @@ var App = (function(app) {
     });
 
     app.suscribe('app.notify.test_suite.changed', function(event, testSuite) {
-      // check if the HTML for tdisplaying the test suite exists. If not, create it.
+      // check if the HTML for displaying the test suite exists. If not, create it.
       var root = $('#test-suite-'+ testSuite.agentName);
       if(!root.length) {
         $('#test-suites-container').append("<div id='test-suite-" + testSuite.agentName + "'></div>");
         root = $('#test-suite-'+ testSuite.agentName);
-      } 
-      
+      }
+
       // update the GUI according to the received status
       var template;
       switch(testSuite.status) {
@@ -119,19 +119,20 @@ var App = (function(app) {
           console.warn("Presenter: unknown test suite status: " + testSuite.status);
           return;
       }
-      Handlebars.registerPartial("result", $("#test-suite-result-partial").html());  
-      root.html(template(testSuite));   
+      Handlebars.registerPartial("result", $("#test-suite-result-partial").html());
+      Handlebars.registerPartial("backtrace", $("#backtrace-partial").html());
+      root.html(template(testSuite));
     });
 
     // user events
     $('#available-agents').on("click", "li a", function() {
-      var agents_to_test = [];
+      var agentsToTest = [];
       if($(this).text() == "All agents") {
-        agents_to_test = testUpdater.availableAgents;
+        agentsToTest = testUpdater.availableAgents;
       } else {
-        agents_to_test = [$(this).text()];
+        agentsToTest = [$(this).text()];
       }
-      app.publish('app.notify.agents_selected', [agents_to_test]);
+      app.publish('app.notify.agents_selected', [agentsToTest]);
     });
 
     $('#run-tests').click(function() {
@@ -144,11 +145,26 @@ var App = (function(app) {
 
     $('#test-suites-container').on("click", "table .failed-example a", function(e) {
       e.preventDefault();
-      $(this).parents("#test-suites-container table tr").next("tr").children("td").fadeToggle(50);
+      var parentTr = $(this).parents("#test-suites-container table tr");
+      parentTr.next("tr").children("td").fadeToggle(50);
       $(this).find("i").toggleClass("icon-chevron-down icon-chevron-up");
-    })
-    
-    // variable initialization    
+      var testCaseIndex = parentTr.children(":first").html();
+      var agentName = $(this).parents("#test-suites-container table").get(0).getAttribute('data-agent-name');
+      // toggle the backtrace state with a xor
+      testSuites[agentName].examples[testCaseIndex - 1].isBacktraceExpanded ^= true;
+    });
+
+    $('#test-suites-container').on('click', '.backtrace .toggle-full-trace a', function(e) {
+      e.preventDefault();
+      var testCaseIndex = $(this).parents("td.backtrace-container").first().parent().prev().children("td").first().html();
+      var agentName = $(this).parents("#test-suites-container table").get(0).getAttribute('data-agent-name');
+      var example = testSuites[agentName].examples[testCaseIndex - 1];
+      example.useFullBacktrace ^= true;
+      var template = Handlebars.compile($('#backtrace-partial').html()); // todo compile only once
+      $(this).parents(".backtrace-container").html(template(example));
+    });
+
+    // variable initialization
     var testConfig = new app.TestConfig();
     var testLauncher = new app.TestLauncher('/tests/start', 'tests/stop');
     var testUpdater = new app.TestUpdater('/tests/status');

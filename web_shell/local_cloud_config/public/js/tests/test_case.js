@@ -19,15 +19,43 @@ var App = (function(app) {
     this.index = definition.example_index;
     this.exception = definition.exception;
     this.filePath = definition.file_path;
-  }
+    this.isBacktraceExpanded = false;
+    this.useFullBacktrace = false;
+    this.cleanedBacktrace = this.buildCleanedBacktrace();
+  };
 
   app.TestCase.prototype.hasPassed = function() {
     return this.status == "passed";
-  }
+  };
 
   app.TestCase.prototype.hasFailed = function() {
-    return this.status == "failed"
-  }
+    return this.status == "failed";
+  };
+
+  app.TestCase.prototype.buildCleanedBacktrace = function() {
+    if(this.exception !== null && this.exception !== undefined) {
+      this.cleanedBacktrace = [];
+      var backtrace = this.exception.backtrace;
+      var backtraceLen = backtrace.length;
+      for(var i = 0; i < backtraceLen; i++) {
+        var filteredLine = /\/web_shell\/local_cloud\/ragent_bay\/agents_project_source\/(.*)/.exec(backtrace[i]);
+        if(filteredLine !== null) {
+          backtrace[i] = new String(backtrace[i]); // quick and dirty way to add a property to a string
+          backtrace[i].important = true;
+          this.cleanedBacktrace.push(filteredLine[1]);
+        }
+      }
+    }
+    return this.cleanedBacktrace;
+  };
+
+  app.TestCase.prototype.cleanBacktrace = function() {
+    if(!this.useFullBacktrace) {
+      return this.cleanedBacktrace;
+    } else {
+      return this.exception.backtrace;
+    }
+  };
 
   return app;
 

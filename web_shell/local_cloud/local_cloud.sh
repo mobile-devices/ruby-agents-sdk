@@ -55,13 +55,21 @@ start() {
   echo "start local_cloud from sh" >>  $daemon_log_path
 
   # install gems
-  echo 'PUNKabeNK_sys_bundle gem install' >>  $ruby_log_path
+  echo 'PUNKabeNK_sys_bundle gem install+update' >>  $ruby_log_path
   bundle install >> $ruby_log_path 2>&1
   if [ "$?" -ne 0 ] ; then
     echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ko\", \"way\":\"\", \"title\":\"SERVER ruby gems bundle install fail\"}" >>  $ruby_log_path
     exit 1
   fi
   echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ok\", \"way\":\"\", \"title\":\"SERVER ruby gems bundle install done\"}" >>  $ruby_log_path
+  bundle update >> $ruby_log_path 2>&1
+  if [ "$?" -ne 0 ] ; then
+    echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ko\", \"way\":\"\", \"title\":\"SERVER ruby gems bundle update fail\"}" >>  $ruby_log_path
+    exit 1
+  fi
+  echo "I, [XXXX-XX-XXT$(date +"%T").XXXXX #XXXXX] PUNKabe_sys_axd_{\"type\":\"ok\", \"way\":\"\", \"title\":\"SERVER ruby gems bundle update done\"}" >>  $ruby_log_path
+
+
 
   echo "PUNKabeNK_sys_booting server" >>  $ruby_log_path
   # run sinatra server

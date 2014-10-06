@@ -23,6 +23,11 @@ def merge_gem_file(master_gem_file, gemfiles_contents)
         p "Adding gem '#{gem_name}'"
         master << line
       end
+      if mine[0, 7] == 'source '
+        p "Adding source #{line}"
+        master << line
+      end
+
     end
   end
   master.join("")

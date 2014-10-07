@@ -325,13 +325,13 @@ module TestsHelper
     def initialize(data, account = "tests", asset = "123456789")
       payload = data.clone
       payload["id"] ||= CC.indigen_next_id
+      payload["asset"] = asset
       @msg =  user_api.mdi.dialog.create_new_track(
         "meta" => {
           "account" => account,
           "class" => "track"
         },
         "payload" => payload,
-        "asset" => asset
         )
     end
 

@@ -20,8 +20,7 @@ default: &DEFAULT
   track_whitelist_fields: ['GPS_SPEED','GPS_DIR']
   # you will only be able to fetch last values of whitelisted fields
   # 0: no last value will be available
-  # 1: last values are available, but linked to the agent release version, if you make a new version of the agent, you won't be able to fetch 'old' values.
-  # 2: last values are available, whatever the version (wich might results in some bug in you code)
+  # 1: last values are available
   track_keep_last_known_values_mode: 0
   track_remove_position: false
   track_remove_time: false

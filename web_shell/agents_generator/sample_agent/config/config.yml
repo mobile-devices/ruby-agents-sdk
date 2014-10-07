@@ -1,10 +1,46 @@
+# This is you config yml where you configure functionnal aspect of your agent
+# you can have a different configuration when you are in dev or in production mdi cloud if you wish to. In this case both use a default configuration.
+
+
 default: &DEFAULT
-  dynamic_channel_str: com.mdi.services.XXProjectName
+  ############## presences ###########################
+  # set to true if you want to receive presences
   subscribe_presence: false
+
+  ############## messages ############################
+  # set to true if you want to receive messages
   subscribe_message: false
+   # can be a single string or an array of string (ex dynamic_channel_str)
+  message_whitelist_channels: com.mdi.services.XXProjectName
+
+  ############## tracks ##############################
+  # set to true if you want to receive tracks
   subscribe_track: false
+  # can be a single string, an array of string (['GPS_SPEED','GPS_DIR'] is set as an example, please put your needed fields)
+  track_whitelist_fields: ['GPS_SPEED','GPS_DIR']
+  # you will only be able to fetch last values of whitelisted fields
+  # 0: no last value will be available
+  # 1: last values are available, but linked to the agent release version, if you make a new version of the agent, you won't be able to fetch 'old' values.
+  # 2: last values are available, whatever the version (wich might results in some bug in you code)
+  track_keep_last_known_values_mode: 0
+  track_remove_position: false
+  track_remove_time: false
+
+  ############## collections #########################
+  # set to true if you want to receive collections
   subscribe_collection: false
+
+  ############## cloud events ########################
+  # set to true if you want to receive generics cloud events
   subscribe_cloud_event: false
+
+  ### PUT YOUR SPECIFIC CONFIGURATION BELOW ##########
+
+
+
+
+
+  ####################################################
 
 development: *DEFAULT
 production: *DEFAULT

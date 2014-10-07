@@ -6,7 +6,7 @@
 
 The SDK integrates with [RSpec](http://rspec.info/) version 2.14 to automate your tests. RSpec documentation can be found [here](http://rubydoc.info/gems/rspec/file/README.md).
 
-The SDK GUI has a [tab](http://0.0.0.0:5000/unit_tests) dedicated to running and displaying RSpec tests.
+The SDK GUI has a [tab](http://0.0.0.0:5000/tests) dedicated to running and displaying RSpec tests.
 
 Additionnally, the SDK API exposes a couple of helpers utilities. You can find these utilities in the module `TestHelper` ; this module is automatically available in your tests files. Read the {TestsHelper TestsHelper module documentation} to see what helpers are available.
 

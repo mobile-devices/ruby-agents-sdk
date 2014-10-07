@@ -127,107 +127,109 @@ module AgentsGenerator
 
   end
 
-  def generate_agents
-    @AgentsGenerator_rapport_generation = ""
 
-    FileUtils.mkdir_p("#{generated_rb_path}")
+  # to be purged
+  # def generate_agents
+  #   @AgentsGenerator_rapport_generation = ""
 
-    add_to_rapport("\n========= generate_agents start ===============")
+  #   FileUtils.mkdir_p("#{generated_rb_path}")
 
-    # get agents to run
-    agents_to_run = get_run_agents
+  #   add_to_rapport("\n========= generate_agents start ===============")
 
-    add_to_rapport("generate_agents of #{agents_to_run.join(', ')}")
+  #   # get agents to run
+  #   agents_to_run = get_run_agents
 
-    agents_generated_code = ""
+  #   add_to_rapport("generate_agents of #{agents_to_run.join(', ')}")
 
-    template_agent_src = File.read("#{source_path}/template_agent.rb_")
+  #   agents_generated_code = ""
 
-    # template generation
-    agents_to_run.each do |agent|
-      clean_class_name = clean_name("#{agent}")
-      downcased_class_name = clean_class_name.downcase
+  #   template_agent_src = File.read("#{source_path}/template_agent.rb_")
 
-      template_agent = template_agent_src.clone
-      template_agent.gsub!('XX_PROJECT_NAME',"#{agent}")
-      template_agent.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
-      template_agent.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
-      agents_generated_code += template_agent
+  #   # template generation
+  #   agents_to_run.each do |agent|
+  #     clean_class_name = clean_name("#{agent}")
+  #     downcased_class_name = clean_class_name.downcase
 
-      agents_generated_code += "# call new to auto subscribe\n"
-      agents_generated_code += "Agent_#{clean_class_name}.new\n\n\n"
-    end
-    agents_generated_code += "\n\n\n\n"
+  #     template_agent = template_agent_src.clone
+  #     template_agent.gsub!('XX_PROJECT_NAME',"#{agent}")
+  #     template_agent.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
+  #     template_agent.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
+  #     agents_generated_code += template_agent
 
-    # Tests runner
-    # agents_generated_code += "def run_tests(agents)\n"
-    # agents_to_run.each do |agent|
-    #   agents_generated_code += "  results = $#{agent}_initial.run_tests\n"
-    # end
-    # agents_generated_code += "end\n\n"
+  #     agents_generated_code += "# call new to auto subscribe\n"
+  #     agents_generated_code += "Agent_#{clean_class_name}.new\n\n\n"
+  #   end
+  #   agents_generated_code += "\n\n\n\n"
 
-    File.open("#{generated_rb_path}/generated.rb", 'w') { |file| file.write(agents_generated_code) }
+  #   # Tests runner
+  #   # agents_generated_code += "def run_tests(agents)\n"
+  #   # agents_to_run.each do |agent|
+  #   #   agents_generated_code += "  results = $#{agent}_initial.run_tests\n"
+  #   # end
+  #   # agents_generated_code += "end\n\n"
 
-    # Generate sdk_api.rb
-    template_sdk_api_generated_code = ''
-    template_api_src = File.read("#{source_path}/template_sdk_api.rb_")
-    FileUtils.mkdir_p("#{sdk_utils_path}")
+  #   File.open("#{generated_rb_path}/generated.rb", 'w') { |file| file.write(agents_generated_code) }
 
-    agents_to_run.each do |agent|
-      clean_class_name = clean_name("#{agent}")
-      downcased_class_name = clean_class_name.downcase
-      template_sdk_api = template_api_src.clone
-      template_sdk_api.gsub!('XX_PROJECT_NAME',"#{agent}")
-      template_sdk_api.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
-      template_sdk_api.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
-      template_sdk_api.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
-      template_sdk_api_generated_code += template_sdk_api
-      template_sdk_api_generated_code += "\n\n"
-    end
+  #   # Generate sdk_api.rb
+  #   template_sdk_api_generated_code = ''
+  #   template_api_src = File.read("#{source_path}/template_sdk_api.rb_")
+  #   FileUtils.mkdir_p("#{sdk_utils_path}")
 
-    File.open("#{sdk_utils_path}/sdk_api.rb", 'w') { |file| file.write(template_sdk_api_generated_code)}
+  #   agents_to_run.each do |agent|
+  #     clean_class_name = clean_name("#{agent}")
+  #     downcased_class_name = clean_class_name.downcase
+  #     template_sdk_api = template_api_src.clone
+  #     template_sdk_api.gsub!('XX_PROJECT_NAME',"#{agent}")
+  #     template_sdk_api.gsub!('XX_CLEAN_PROJECT_NAME',clean_class_name)
+  #     template_sdk_api.gsub!('XX_DOWNCASED_CLEAN_PROJECT_NAME',downcased_class_name)
+  #     template_sdk_api.gsub!('XX_PROJECT_ROOT_PATH',"#{workspace_path}/#{agent}")
+  #     template_sdk_api_generated_code += template_sdk_api
+  #     template_sdk_api_generated_code += "\n\n"
+  #   end
 
-
-    add_to_rapport("Templates generated done\n")
-
-    generate_Gemfile
+  #   File.open("#{sdk_utils_path}/sdk_api.rb", 'w') { |file| file.write(template_sdk_api_generated_code)}
 
 
-    # check agent name here, restore if note here
-    agents_to_run.each { |agent|
-      if !(File.exist?("#{workspace_path}/#{agent}/.agent_name"))
-        File.open("#{workspace_path}/#{agent}/.agent_name", 'w') { |file| file.write(agent) }
-      end
-    }
+  #   add_to_rapport("Templates generated done\n")
 
-    # check config exist
-    agents_to_run.each { |agent|
-      if !(File.exist?("#{workspace_path}/#{agent}/config/#{agent}.yml"))
-        restore_default_config(agent)
-      end
-    }
+  #   generate_Gemfile
 
-    add_to_rapport("Config checked\n")
 
-    #  generad dyn channel list
-    dyn_channels = Hash.new()
-    channel_int = 1000
-    agents_to_run.each { |agent|
-      channels = get_agent_dyn_channel(agent)
-      channels.each { |chan|
-        dyn_channels[chan] = channel_int
-        channel_int +=1
-      }
-    }
+  #   # check agent name here, restore if note here
+  #   agents_to_run.each { |agent|
+  #     if !(File.exist?("#{workspace_path}/#{agent}/.agent_name"))
+  #       File.open("#{workspace_path}/#{agent}/.agent_name", 'w') { |file| file.write(agent) }
+  #     end
+  #   }
 
-    File.open("#{source_path}/cloud_agents_generated/dyn_channels.yml", 'w+') { |file| file.write(dyn_channels.to_yaml) }
+  #   # check config exist
+  #   agents_to_run.each { |agent|
+  #     if !(File.exist?("#{workspace_path}/#{agent}/config/#{agent}.yml"))
+  #       restore_default_config(agent)
+  #     end
+  #   }
 
-    add_to_rapport("Dynamic channel merged\n")
+  #   add_to_rapport("Config checked\n")
 
-    add_to_rapport('generate_agents done')
+  #   #  generad dyn channel list
+  #   dyn_channels = Hash.new()
+  #   channel_int = 1000
+  #   agents_to_run.each { |agent|
+  #     channels = get_agent_dyn_channel(agent)
+  #     channels.each { |chan|
+  #       dyn_channels[chan] = channel_int
+  #       channel_int +=1
+  #     }
+  #   }
 
-    @AgentsGenerator_rapport_generation
-  end
+  #   File.open("#{source_path}/cloud_agents_generated/dyn_channels.yml", 'w+') { |file| file.write(dyn_channels.to_yaml) }
+
+  #   add_to_rapport("Dynamic channel merged\n")
+
+  #   add_to_rapport('generate_agents done')
+
+  #   @AgentsGenerator_rapport_generation
+  # end
 
   def generate_Gemfile
 

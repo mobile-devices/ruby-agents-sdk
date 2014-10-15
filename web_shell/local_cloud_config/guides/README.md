@@ -39,6 +39,7 @@ Here is the base agent structure:
         |   `-- my_agent.yml
         |-- protogen/
         |-- modules/
+        |-- tests/
         `-- README.md
 
 ```
@@ -51,6 +52,7 @@ So, what are these files for?
 - *scheduled.rb* is where you define some tasks to be executed on a regular basis (see the "Scheduled tasks" guide for more information).
 - *my_agent.yml* is an example configuration file. A user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML).
 - *modules* is a source folder where you can add additional Ruby files
+- *tests* is a folder where you will implement your unit test in some *_spec.rb file
 - *README.md* is a place where you can put information about your agent, because documentation is mandatory, isn't it?
 
 ## The basics ##

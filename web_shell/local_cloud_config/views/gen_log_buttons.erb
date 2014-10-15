@@ -14,6 +14,11 @@
         <% else %>
           class="btn btn-inverse btn-block"
         <% end %>
+      <% elsif punk.way == 'notif' %>
+       <% if punk.type == 'warn' %>
+          class="btn btn-warning btn-block"
+          <% punk_kind = "error" %>
+        <% end %>
       <% else %>
         <% if punk.type == 'ok' %>
           class="btn btn-success btn-block"
@@ -28,6 +33,12 @@
           class="btn btn-inverse btn-block"
         <% end %>
       <% end %>
+
+
+btn btn-warning
+
+way: notif type warn
+
 
       <%
         do_hide = false

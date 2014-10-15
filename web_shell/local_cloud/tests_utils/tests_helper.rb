@@ -407,6 +407,45 @@ module TestsHelper
 
   end
 
+  # A simulated poke
+  # @api public
+  class Poke
+
+
+    # @param [String]  content
+    # @param [String]  namespace
+    # @param [FixNum]  id
+    # @param [String]  account
+    # @param [String]  asset
+    def initialize(content, namespace = "UTspace", id = 1, account = "tests", asset = "123456789")
+      @poke = user_api.mdi.dialog.create_new_poke(
+        "meta" => {
+          "account" => account,
+          "class" => "poke"
+        },
+        "payload" => {
+          "id" => id,
+          "asset" => asset,
+          "namespace" => namespace,
+          'created_at' => Time.now.to_i,
+          'updated_at' => nil,
+          'received_at' => Time.now.to_i,
+          "payload" => content
+        }
+        )
+    end
+
+    # Send this poke to the agents.
+    def send_to_server
+      saved_api = user_api
+      release_current_user_api
+      `curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '#{@poke.to_hash.to_json}' http://localhost:5001/poke`
+      set_current_user_api(saved_api)
+    end
+
+  end
+
+
   # @!endgroup
 
 end

@@ -86,6 +86,9 @@ def welcome_new_data_from_outside(index_type, request)
   when 5
     kind_str = 'other'
     kind_tok = 'OTHER'
+  when 6
+    kind_str = 'poke'
+    kind_tok = 'POKE'
   end
 
   PUNK.start('a','receiving something ...')
@@ -226,6 +229,17 @@ post '/other_queue' do
   RIM.handle_other_queue(hash_data["data"], hash_data["queue"]) unless hash_data.nil?
   "ok"
 end
+
+
+#test:
+post '/poke' do
+  hashData = welcome_new_data_from_outside(6, request)
+  response.body = '{}'
+  return if hashData == nil
+  RIM.handle_collection(hashData)
+  nil
+end
+
 
 # POST /tests/start
 # Content-Type: application/json

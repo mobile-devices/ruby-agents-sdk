@@ -20,4 +20,8 @@ module Initial_agent_XXProjectName
     # Write your code here
   end
 
+  def new_poke(poke)
+    # Write your code here
+  end
+
 end

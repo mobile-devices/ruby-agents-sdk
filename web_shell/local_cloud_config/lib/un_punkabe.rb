@@ -161,6 +161,7 @@ module PUNK
     title.gsub!('ORDER','<i class="icon-fire icon-white"></i>')
     title.gsub!('COLLECTION','<i class="icon-list icon-white"></i>')
     title.gsub!('ACK','<i class="icon-share icon-white"></i>')
+    title.gsub!('POKE','<i class="icon-bell icon-white"></i>')
 
     agent_name = extract_agent_name(title)
     if agent_name != nil

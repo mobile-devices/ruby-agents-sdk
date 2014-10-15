@@ -38,10 +38,14 @@ default: &DEFAULT
 
 
 
-
   ############## collections #########################
   # set to true if you want to receive collections
   subscribe_collection: false
+
+  ############## pokes ###############################
+  # set to true if you want to receive pokes
+  subscribe_poke: false
+
 
   ############## cloud events ########################
   # set to true if you want to receive generics cloud events

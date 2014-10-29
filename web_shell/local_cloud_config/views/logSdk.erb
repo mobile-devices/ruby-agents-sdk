@@ -6,7 +6,9 @@
 <div class="well row">
  <p>
    <small>
-     <%= logs_server %>
+      <% logs_server.each do |l| %>
+        <%= l%></br>
+      <% end %>
    </small>
  </p>
 </div>

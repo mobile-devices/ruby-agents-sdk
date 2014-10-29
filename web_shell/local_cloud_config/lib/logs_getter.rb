@@ -28,10 +28,13 @@ end
 def logs_agent
   if File.exist?(log_agents_path)
     logs = File.read(log_agents_path)
-    logs = Rack::Utils.escape_html(logs)
-    logs.gsub!("\n","<br/>")
+    logs.each_line { |line|
+      line.delete!("\n")
+      logs_agent << line
+    }
+    logs_agent
   else
-    ""
+    []
   end
 end
 

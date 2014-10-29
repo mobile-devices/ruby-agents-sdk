@@ -33,7 +33,7 @@ Your `config/protogen.json` file contains your protocol description using the [J
     "Question": {
       "_description":"Sent when the ignorant device wants to know something",
       "_way": "toServer",
-      "_server_callback":"question_callback"
+      "_server_callback":"question_callback",
       "my_question": {"type":"string", "modifier":"required", "docstring":"the question string"}
     },
 

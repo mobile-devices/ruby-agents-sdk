@@ -46,7 +46,7 @@ Your `config/protogen.json` file contains your protocol description using the [J
 
   },
 
-  cookies: {}
+  "cookies": {}
 }
 ```
 

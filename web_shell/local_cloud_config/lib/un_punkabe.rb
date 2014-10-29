@@ -94,6 +94,7 @@ module PUNK
                 belong_to = 'SERVER'
               end
 
+
               punk_events << PunkEvent.new(json['type'], json['way'], title, line[15..22], '', '', belong_to, pending.lines)
               linked = true
               puts "found '#{id}' #{json['title']} (belong to #{belong_to}) in pending with #{pending.lines.size} lines !  #{punks_pending.size} pending left"

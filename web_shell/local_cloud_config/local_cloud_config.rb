@@ -118,13 +118,15 @@ get '/patch_note' do
 end
 
 get '/logSdk' do
-  @active_tab='logSdk'
-  erb :logSdk
+  # @active_tab='logSdk'
+  # erb :logSdk
+  logs_server_file_content.gsub("\n","</br>")
 end
 
 get '/logSdkAgents' do
-  @active_tab='logSdkAgents'
-  erb :logSdkAgents
+  # @active_tab='logSdkAgents'
+  # erb :logSdkAgents
+  logs_agent_file_content.gsub("\n","</br>")
 end
 
 get '/logSdkAgentsPunk' do

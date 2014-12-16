@@ -138,9 +138,12 @@ module CloudConnectSDK
     request = Net::HTTP::Post.new(ressource, "Content-type" => "application/json", "Accept" => "application/json")
     request.body = hash_msg.to_json
 
+
+
     Thread.start do
       begin
-        sleep 1
+        sleep 3
+        CC.logger.info("push http to vm:\n #{hash_msg.to_json}")
         http.request(request)
       rescue StandardError => e
         user_api.mdi.tools.log.error("Error when posting to queue #{queue}, the message will not be reinjected")

@@ -126,6 +126,7 @@ module CloudConnectSDK
       when "presences"
         "/presence"
       when "messages"
+        hash_msg['payload']['payload'] = Base64.encode64(hash_msg['payload']['payload'])
         "/message"
       when "tracks"
         "/track"

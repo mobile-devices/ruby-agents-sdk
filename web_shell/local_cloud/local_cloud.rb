@@ -189,6 +189,9 @@ post '/message' do
   hashData = welcome_new_data_from_outside(1, request)
   response.body = '{}'
   return if hashData == nil
+
+  hashData['payload']['payload'] = Base64.decode64(hashData['payload']['payload'])
+
   RIM.handle_message(hashData)
   nil
 end

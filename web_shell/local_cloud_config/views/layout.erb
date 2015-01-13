@@ -69,7 +69,7 @@
               <a href="./doc/_index.html" target="_blank"><i class="icon-book icon-white"></i> Documentation</a>
             </li>
             <li class="" style="height:40px">
-              <div class="form-inline">
+              <form action="/restart_server" method="get" class="form-inline">
                 <input name="reset_logs" type="hidden" value="on">
 
                 <input name="redirect_to" type="hidden"
@@ -79,7 +79,7 @@
                 <% if @active_tab=='unit_tests'%>value="/tests"<% end %>
                 >
 
-                <a id="btn-server-reboot" href="/restart_server" data-toggle="tooltip" title="Reboot the ruby server.
+                <button id="btn-server-reboot"  data-toggle="tooltip" title="Reboot the ruby server.
 If the button is spinning, that means the ruby server is alive"
                 <% if PUNK.gen_server_crash_title != '' %>
                   class="btn btn-danger"
@@ -92,10 +92,14 @@ If the button is spinning, that means the ruby server is alive"
                   <% else %>
                     <i class="icon-off large icon-white icon-large"> </i> - start ruby server
                   <% end %>
-                </a>
+                </button>
 
-              </div>
+              </form>
             </li>
+
+
+
+
           </ul>
         </div>
       </div>

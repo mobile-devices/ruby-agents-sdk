@@ -4,6 +4,13 @@
 # Mobile Devices 2013
 #########################################################
 
+# note about agent naming issues spec:
+#
+# agent name is defined by the folder name
+# agent foler name can be anything
+# to load config file use the .agent_name at the root of the folder
+# on load module we get the module in initial.rb starting with "module Initial_agent_"
+
 
 class Agent < Struct.new(:name, :running, :agent_stats, :cron_tasks)
 end
@@ -41,7 +48,7 @@ def agents
   $sdk_list_of_agents ||= begin
     run_agents = GEN.get_run_agents
     GEN.get_available_agents.inject({}) do |agents, agent_name|
-      agents[agent_name] = Agent.new(agent_name, run_agents.include?(agent_name), {}, [])
+      agents[agent_name] = Agent.new(agent_name,run_agents.include?(agent_name), {}, [])
       agents
     end
   end
@@ -192,6 +199,8 @@ def make_package_agent(agent)
 
   "output/#{package_name}"
 end
+
+
 
 # @return [Array<String>] the list of the currently mounted agents (note that agent.running returns true if the
 #                         agent is scheduled to be mounted at next reboot even if it is not currently mounted)

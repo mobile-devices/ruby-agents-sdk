@@ -1,0 +1,117 @@
+<% @cfg %>
+
+<form id="config_form" action='<%= "/agents/#{@agent_name}/set_configuration" %>' method="post">
+
+  <div class="row">
+    <div class="pull-left">
+      <h2><%= @agent_name %> I/O configuration </h2>
+    </div>
+    <div class="pull-right">
+      <button class="btn btn-info" id="saveButton" type="submit" name="submit" value="save_config">Save configuration</button>
+    </div>
+  </div>
+  <br/>
+
+<!--
+  <div class="row alert alert-info">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    This form will allow you to edit cloud relatated configuration. If you want to edit your feature related configuration, please go to your config/agent.yml file.
+  </div>
+ -->
+
+
+<!--   accounts: ['ALL_ACCOUNTS']
+  type: 'presence'/'message'/'track'/'collection'
+  allowed_message_channels:['ALL_CHANNELS']
+  allowed_collection_definition_names:['ALL_DEFINITIONS']
+  allowed_track_fields: ['ALL_FIELDS']
+  track_hide_location: false
+  track_hide_time: false -->
+
+  <div class="row">
+    <div class="pull-left">
+      <h4>Input Events (whitelist):</h4>
+    </div>
+    <div class="pull-right">
+      <button class="btn btn-info" type="submit" name="submit" value="save_config_and_create_input">Create new input whitelist filter</button>
+    </div>
+  </div>
+  <div class="row">
+     <table class="table table-bordered table-striped table-hover">
+      <% @cnt = 0 %>
+      <% @io_type = 'input' %>
+      <% @cfg['io']['input_filters'].each do |f| %>
+        <% @f = f %>
+        <%= erb :gen_io_filter, layout: false %>
+        <% @cnt +=1 %>
+      <% end %>
+    </table>
+    <input type=hidden name="input_count" value="<%=@cnt%>" />
+    <% if @cfg['io']['input_filters'].size == 0 %>
+      <br/><br/>
+      <div class="alert alert-error">
+        Your agent will never receive any data. Please create a new input filter.
+      </div>
+    <% end %>
+  </div>
+  <br/>
+
+
+  <div class="row">
+    <div class="pull-left">
+      <h4>Output Events (whitelist):</h4>
+    </div>
+    <div class="pull-right">
+      <button class="btn btn-info" type="submit" name="submit" value="save_config_and_create_output">Create new output whitelist filter</button>
+    </div>
+  </div>
+  <div class="row">
+    <table class="table table-bordered table-striped table-hover">
+      <% @cnt = 0 %>
+      <% @io_type = 'output' %>
+      <% @cfg['io']['output_filters'].each do |f| %>
+        <% @f = f %>
+        <%= erb :gen_io_filter, layout: false %>
+        <% @cnt +=1 %>
+      <% end %>
+    </table>
+    <input type=hidden name="output_count" value="<%=@cnt%>" />
+    <% if @cfg['io']['output_filters'].size == 0 %>
+      <br/><br/>
+      <div class="alert alert-warn">
+        Your agent will never be able to send any data. Please create a new output filter if needed.
+      </div>
+    <% end %>
+  </div>
+
+
+  <!--   @agent_general_config = agent_general_configuration(params[:agent_name])
+    @agent_io_config = agent_io_configuration(params[:agent_name])
+   -->
+  <% if @cfg['general'].class == Hash and @cfg['general'].size > 0 %>
+    <h4>General (specific advanced parameters):</h4>
+    <div class="row">
+      <table class="table table-bordered table-striped table-hover">
+        <% @cfg['general'].each do |k,v| %>
+          <tr>
+            <% if "#{v.class}" == "TrueClass" or "#{v.class}" == "FalseClass" %>
+              <td><%= k %></td><td> <input type="checkbox" name="general_<%= k %>"<% if "#{v.class}" == "TrueClass"  %><%= 'checked' %><%end %>/></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </table>
+    </div>
+    <br/>
+  <% end %>
+
+
+
+</form>
+
+<script>
+  $(document).ready(function() {
+    $("select").bind("change", function(){
+      $("#saveButton").click();
+    });
+  });
+</script>

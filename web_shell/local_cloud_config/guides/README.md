@@ -36,7 +36,8 @@ Here is the base agent structure:
         |-- config/
         |   |-- my_protocol.protogen
         |   |-- schedule.rb
-        |   `-- my_agent.yml
+        |   |-- agent_core.yml
+        |   `-- agent.yml
         |-- protogen/
         |-- modules/
         |-- tests/
@@ -50,7 +51,8 @@ So, what are these files for?
 - *Gemfile* is a standard... gemfile where you put the ruby gems you want to use with your agent.
 - *my_protocol.protogen* is where you define the communication protocol between your devices and the server. See the Protogen guide for more information.
 - *scheduled.rb* is where you define some tasks to be executed on a regular basis (see the "Scheduled tasks" guide for more information).
-- *my_agent.yml* is an example configuration file. A user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML).
+- *agent_core.yml* is a internal generated configuration file. Don't touch this.
+- *agent.yml* is a configuration file. A user-friendly explanation of YAML can be found [on Wikipedia](http://en.wikipedia.org/wiki/YAML).
 - *modules* is a source folder where you can add additional Ruby files
 - *tests* is a folder where you will implement your unit test in some *_spec.rb file
 - *README.md* is a place where you can put information about your agent, because documentation is mandatory, isn't it?

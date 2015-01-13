@@ -11,6 +11,7 @@
         <th>Agent name</th>
         <th>Stats</th>
         <th>Active</th>
+        <th>Configuration</th>
         <th>Call Cron Tasks</th>
         <th>Release package</th>
         </tr>
@@ -37,20 +38,26 @@
               </form>
             </td>
 
-          <td>
-          <% agent.cron_tasks.each do | task | %>
-              <form action='/perform_cron_tasks' method="post">
-                <input type="hidden" name="task" value='<%= task.to_json %>'/>
-                <button class="btn btn-info btn-small">Perform: '<%= task['order'] %>'</button>
+            <td>
+              <form action='<%= "/agents/#{agent_name}/configure" %>' method="get">
+                <button class="btn btn-info">Configure I/O</button>
               </form>
-          <% end %>
-          </td>
+            </td>
 
-          <td>
-            <form action='<%= "/make_package/#{agent_name}" %>' method="post">
-              <button class="btn btn-info">Generate</button>
-            </form>
-          </td>
+            <td>
+            <% agent.cron_tasks.each do | task | %>
+                <form action='/perform_cron_tasks' method="post">
+                  <input type="hidden" name="task" value='<%= task.to_json %>'/>
+                  <button class="btn btn-info btn-small">Perform: '<%= task['order'] %>'</button>
+                </form>
+            <% end %>
+            </td>
+
+            <td>
+              <form action='<%= "/make_package/#{agent_name}" %>' method="post">
+                <button class="btn btn-info">Generate</button>
+              </form>
+            </td>
 
           </tr>
         <% end %>

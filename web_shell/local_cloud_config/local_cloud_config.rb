@@ -9,6 +9,7 @@ require 'json'
 
 require 'uri'
 require 'net/http'
+require 'securerandom'
 require_relative 'lib/agents'
 require_relative 'lib/logs_getter'
 require_relative 'lib/net_http'
@@ -173,6 +174,145 @@ post '/create_agents' do
   add_new_agent(params[:agent][:name], params[:agent][:package])
   redirect('/projects')
 end
+
+get '/agents/:agent_name/configure' do
+  @agent_name = params[:agent_name]
+  p "about to configures #{@agent_name}"
+
+  @cfg = {
+    'io' => agent_io_configuration(@agent_name),
+    'general' => agent_general_configuration(@agent_name)
+  }
+
+
+  erb :agent_configuration
+end
+
+post '/agents/:agent_name/set_configuration' do
+  p params
+  @agent_name = params[:agent_name]
+
+  # ["submit", "save_config"]["io_input|0|id", "ed002b6311"]["io_input|0|accounts", "ALL_ACCOUNTS"]["io_input|0|filter_type", "track"]
+  # ["io_input|0|track_fields", ""]["io_input|1|id", "02fe10187a"]["io_input|1|accounts", "ALL_ACCOUNTS"]["io_input|1|filter_type", "track"]
+  # ["io_input|1|track_fields", ""]["input_count", "2"]["output_count", "0"]["splat", []]["captures", ["maps_agent"]]["agent_name", "maps_agent"]
+  ## do the save
+
+  # delte cases  (ex:  delete_input|0)
+  if params['submit'].include?('delete_')
+    id = params['submit'].split('|')[1]
+    puts "Delete id #{id}"
+    cfg = agent_io_configuration(@agent_name)
+    puts "Old io cfg #{cfg}"
+    cfg['input_filters'].reject! { |f| f['id'] == id } if params['submit'].include?('input')
+    cfg['output_filters'].reject! { |f| f['id'] == id } if params['submit'].include?('output')
+
+    puts "New io cfg #{cfg}"
+    set_agent_io_configuration(@agent_name, cfg)
+    redirect("/agents/#{@agent_name}/configure")
+    return
+  end
+
+  # save general
+  general_cfg = {
+    'track_keep_last_known_values_of_fields' => (params["general_track_keep_last_known_values_of_fields"] != nil),
+    'track_injection_filter_already_set_fields_value' => (params["general_track_injection_filter_already_set_fields_value"] != nil)
+  }
+  set_agent_general_configuration(@agent_name, general_cfg)
+
+  # save io
+  io_cfg = {
+    'input_filters' => [],
+    'output_filters' => []
+  }
+  input_count = params['input_count'].to_i
+  io_cfg['input_filters'] = []
+  (0..input_count-1).each do |i|
+    # protect the splits
+    params["io_input|#{i}|accounts"] = "" if params["io_input|#{i}|accounts"] == nil
+    params["io_input|#{i}|msg_channels"] = "" if params["io_input|#{i}|msg_channels"] == nil
+    params["io_input|#{i}|track_fields"] = "" if params["io_input|#{i}|track_fields"] == nil
+    params["io_input|#{i}|col_names"] = "" if params["io_input|#{i}|col_names"] == nil
+
+    io_cfg['input_filters'] << {
+      'id' => params["io_input|#{i}|id"],
+      'allowed_accounts' => params["io_input|#{i}|accounts"].split("\r\n"),
+      'type' => params["io_input|#{i}|filter_type"],
+      'allowed_message_channels' => params["io_input|#{i}|msg_channels"].split("\r\n"),
+      'allowed_track_fields' => params["io_input|#{i}|track_fields"].split("\r\n"),
+      'allowed_collection_definition_names' => params["io_input|#{i}|col_names"].split("\r\n"),
+      'track_hide_location' => (params["io_input|#{i}|hide_location"] != nil),
+      'track_hide_time' => (params["io_input|#{i}|hide_time"] != nil),
+      'track_fields_cached' => (params["io_input|#{i}|fields_cached"] != nil)
+    }
+  end
+  input_count = params['output_count'].to_i
+  io_cfg['output_filters'] = []
+  (0..input_count-1).each do |i|
+
+    params["io_output|#{i}|accounts"] = "" if params["io_output|#{i}|accounts"] == nil
+    params["io_output|#{i}|msg_channels"] = "" if params["io_output|#{i}|msg_channels"] == nil
+    params["io_output|#{i}|track_fields"] = "" if params["io_output|#{i}|track_fields"] == nil
+    params["io_output|#{i}|col_names"] = "" if params["io_output|#{i}|col_names"] == nil
+
+    io_cfg['output_filters'] << {
+      'id' => params["io_output|#{i}|id"],
+      'allowed_accounts' => params["io_output|#{i}|accounts"].split("\r\n"),
+      'type' => params["io_output|#{i}|filter_type"],
+      'allowed_message_channels' => params["io_output|#{i}|msg_channels"].split("\r\n"),
+      'allowed_track_fields' => params["io_output|#{i}|track_fields"].split("\r\n"),
+      'allowed_collection_definition_names' => params["io_output|#{i}|col_names"].split("\r\n"),
+      'track_hide_location' => (params["io_output|#{i}|hide_location"] != nil),
+      'track_hide_time' => (params["io_output|#{i}|hide_time"] != nil)
+    }
+  end
+  set_agent_io_configuration(@agent_name, io_cfg)
+
+
+  # create if needed
+
+  if params['submit'] == 'save_config_and_create_input'
+    io_cfg = agent_io_configuration(@agent_name)
+    io_cfg['input_filters'] << {
+      'id' => SecureRandom.hex(5),
+      'allowed_accounts' => ['ALL_ACCOUNTS'],
+      'type' => 'track',
+      'allowed_message_channels' => ["com.mdi.services.#{@agent_name}"],
+      'allowed_track_fields' => [],
+      'allowed_collection_definition_names' => [],
+      'track_hide_location' => false,
+      'track_hide_time' => false,
+      'track_fields_cached' => false
+    }
+    set_agent_io_configuration(@agent_name, io_cfg)
+  end
+  if params['submit'] == 'save_config_and_create_output'
+    io_cfg = agent_io_configuration(@agent_name)
+    io_cfg['output_filters'] << {
+      'id' => SecureRandom.hex(5),
+      'allowed_accounts' => ['ALL_ACCOUNTS'],
+      'type' => 'track',
+      'allowed_message_channels' => ["com.mdi.services.#{@agent_name}"],
+      'allowed_track_fields' => [],
+      'allowed_collection_definition_names' => [],
+      'track_hide_location' => false,
+      'track_hide_time' => false
+    }
+    set_agent_io_configuration(@agent_name, io_cfg)
+  end
+
+  redirect("/agents/#{@agent_name}/configure")
+
+  # io_hash = {}
+  # general_hash = {}
+
+  # set_agent_io_configuration(params[:agent_name], io_hash)
+  # set_agent_general_configuration(params[:agent_name], general_hash)
+
+  # redirect('/projects')
+  params
+end
+
+
 
 get '/restart_server' do
 

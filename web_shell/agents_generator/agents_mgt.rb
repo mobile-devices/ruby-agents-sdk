@@ -297,9 +297,6 @@ module AgentsGenerator
     #copy sample project
     FileUtils.cp_r(Dir["#{source_path}/sample_agent/*"],"#{project_path}")
 
-    #rename config file
-    FileUtils.mv("#{project_path}/config/config.yml", "#{project_path}/config/#{name}.yml")
-
 
     # Update protogen template file
     if protogen_package_name.nil?
@@ -318,12 +315,32 @@ module AgentsGenerator
     return true
   end
 
-  def restore_default_config(name)
-    puts "restore_default_config for agent #{name}"
-    project_path = "#{workspace_path}/#{name}"
-    FileUtils.cp("#{source_path}/sample_agent/config/config.yml", "#{project_path}/config/#{name}.yml")
-    match_and_replace_in_folder("#{project_path}/config","XXProjectName", name)
+
+
+  def agent_general_configuration(agent_name)
+    general_path = "#{workspace_path}/#{agent_name}/config/internal/general.yml"
+    FileUtils::mkdir_p "#{workspace_path}/#{agent_name}/config/internal"
+    FileUtils.cp("#{source_path}/sample_agent/config/internal/general.yml", general_path) if !(File.exist?(general_path))
+    YAML::load(File.open(general_path))
   end
+
+  def set_agent_general_configuration(agent_name, new_hash)
+    general_path = "#{workspace_path}/#{agent_name}/config/internal/general.yml"
+    File.open(general_path, 'w') { |file| file.write(new_hash.to_yaml) }
+  end
+
+  def agent_io_configuration(agent_name)
+    io_path = "#{workspace_path}/#{agent_name}/config/internal/io.yml"
+    FileUtils::mkdir_p "#{workspace_path}/#{agent_name}/config/internal"
+    FileUtils.cp("#{source_path}/sample_agent/config/internal/io.yml", io_path) if !(File.exist?(io_path))
+    YAML::load(File.open(io_path))
+  end
+
+  def set_agent_io_configuration(agent_name, new_hash)
+    io_path = "#{workspace_path}/#{agent_name}/config/internal/io.yml"
+    File.open(io_path, 'w') { |file| file.write(new_hash.to_yaml) }
+  end
+
 
 
   def add_agent_to_run_list(name)
@@ -407,6 +424,16 @@ module AgentsGenerator
     cnf['subscribe_track']
   end
 
+
+  def get_agent_internal_config(name)
+    return nil unless File.directory?("#{workspace_path}/#{name}")
+
+    config_path = "#{workspace_path}/#{name}/config/agent_internal.yml"
+
+    return -1 if !(File.exist?(config_path))
+
+    YAML::load(File.open(config_path))
+  end
 
 
 

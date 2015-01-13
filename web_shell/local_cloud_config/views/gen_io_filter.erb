@@ -1,0 +1,52 @@
+<% @f %>
+<input type=hidden name="io_<%= @io_type %>|<%=@cnt%>|id" value="<%=@f['id']%>"/>
+<tr>
+  <td>
+    <h4>#<%= @cnt %></h4><br/>
+     <button class="btn btn-danger" type="submit" name="submit" value="delete_<%= @io_type %>|<%=@f['id']%>"> <i class="icon-trash"></i></button>
+  </td>
+  <td>
+    Event type :<br/>
+    <select name="io_<%= @io_type %>|<%=@cnt%>|filter_type" id="selectId" value="<%= @f['type'] %>">
+    <option <% if @f['type'] == 'presence'%><%= "selected=\"selected\"" %><%end%>>presence</option>
+    <option <% if @f['type'] == 'message'%><%= "selected=\"selected\"" %><%end%>>message</option>
+    <option <% if @f['type'] == 'track'%><%= "selected=\"selected\"" %><%end%>>track</option>
+    <option <% if @f['type'] == 'collection'%><%= "selected=\"selected\"" %><%end%>>collection</option>
+    </select><br/>
+  </td>
+  <td>
+    <%= @io_type %> accounts allowed. One account per line.<br/>
+    To received data from all accounts, put ALL_ACCOUNTS.<br/>
+    <TEXTAREA NAME="io_<%= @io_type %>|<%=@cnt%>|accounts" ROWS=3 COLS=50><%=@f['allowed_accounts'].join("\n")%></TEXTAREA>
+  </td>
+
+  <td <% if @f['type'] != 'message' %> style="display:none;"<% end%> >
+    <%= @io_type %> channel name filter. One channel per line.<br/>
+    To receive from all channels, put ALL_CHANNELS (Not recommended)<br/>
+    <TEXTAREA NAME="io_<%= @io_type %>|<%=@cnt%>|msg_channels" ROWS=3 COLS=50><%=@f['allowed_message_channels'].join("\n")%></TEXTAREA>
+  </td>
+  <td <% if @f['type'] != 'track' %> style="display:none;"<% end%> >
+    <table>
+      <tr>
+        <td>Hide location</td><td> <input type="checkbox" name="io_<%= @io_type %>|<%=@cnt%>|hide_location"<% if @f['track_hide_location'] %><%= 'checked' %><%end %>/><br/></td>
+      </tr>
+      <tr>
+        <td>Hide time</td><td> <input type="checkbox" name="io_<%= @io_type %>|<%=@cnt%>|hide_time"<% if @f['track_hide_time']%><%= 'checked' %><%end %>/></td>
+      </tr>
+      <% if @f['track_fields_cached'] != nil %>
+        <tr>
+          <td>Fields cached</td><td> <input type="checkbox" name="io_<%= @io_type %>|<%=@cnt%>|fields_cached"<% if @f['track_fields_cached']%><%= 'checked' %><%end %>/></td>
+        </tr>
+      <% end %>
+    </table>
+  <td <% if @f['type'] != 'track' %> style="display:none;"<% end%> >
+    <%= @io_type %> field name filter. One field name per line.<br/>
+    To receive all fields, put ALL_FIELDS (Not recommended)<br/>
+    <TEXTAREA NAME="io_<%= @io_type %>|<%=@cnt%>|track_fields" ROWS=3 COLS=50><%=@f['allowed_track_fields'].join("\n")%></TEXTAREA>
+  </td>
+  <td <% if @f['type'] != 'collection' %> style="display:none;"<% end%> >
+    <%= @io_type %> collection name filter. One collection name per line.<br/>
+    To receive all collection type, put ALL_COLLECTION_NAMES (Not recommended)<br/>
+    <TEXTAREA NAME="io_<%= @io_type %>|<%=@cnt%>|col_names" ROWS=3 COLS=50><%=@f['allowed_collection_definition_names'].join("\n")%></TEXTAREA>
+  </td>
+</tr>

@@ -54,13 +54,13 @@
               <a href="#"><%= get_sdk_version %></a>
             </li>
             <li class="<% if @active_tab=='projects'%><%= 'active' %><% end %>">
-              <a href="./projects"><i class="icon-th-large icon-white"></i> SDK Agents</a>
+              <a href="/projects"><i class="icon-th-large icon-white"></i> SDK Agents</a>
             </li>
             <li class="<% if @active_tab=='logSdkAgentsPunk'%><%= 'active' %><% end %>">
-              <a href="./logSdkAgentsPunk"><i class="icon-medkit icon-white"></i> Server Log</a>
+              <a href="/logSdkAgentsPunk"><i class="icon-medkit icon-white"></i> Server Log</a>
             </li>
             <li class="<% if @active_tab=='unit_tests'%><%= 'active' %><% end %>">
-              <a href="./tests"><i class="icon-check icon-white"></i> Unit tests</a>
+              <a href="/tests"><i class="icon-check icon-white"></i> Unit tests</a>
             </li>
           </ul>
 
@@ -69,7 +69,7 @@
               <a href="./doc/_index.html" target="_blank"><i class="icon-book icon-white"></i> Documentation</a>
             </li>
             <li class="" style="height:40px">
-              <form action="/restart_server" method="get" class="form-inline">
+              <div class="form-inline">
                 <input name="reset_logs" type="hidden" value="on">
 
                 <input name="redirect_to" type="hidden"
@@ -79,7 +79,7 @@
                 <% if @active_tab=='unit_tests'%>value="/tests"<% end %>
                 >
 
-                <button id="btn-server-reboot"  data-toggle="tooltip" title="Reboot the ruby server.
+                <a id="btn-server-reboot" href="/restart_server" data-toggle="tooltip" title="Reboot the ruby server.
 If the button is spinning, that means the ruby server is alive"
                 <% if PUNK.gen_server_crash_title != '' %>
                   class="btn btn-danger"
@@ -92,9 +92,9 @@ If the button is spinning, that means the ruby server is alive"
                   <% else %>
                     <i class="icon-off large icon-white icon-large"> </i> - start ruby server
                   <% end %>
-                </button>
+                </a>
 
-              </form>
+              </div>
             </li>
           </ul>
         </div>

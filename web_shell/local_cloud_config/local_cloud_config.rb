@@ -349,6 +349,10 @@ get '/restart_server' do
     # stop
     `cd ../local_cloud; ./local_cloud.sh stop`
 
+    # flush logs
+    `rm ../../logs/daemon_server.log`
+    `rm ../../logs/ruby-agent-sdk-server.log`
+
 
     # call import agent
     command = "cd ../local_cloud; ./local_cloud.sh import_agents #{agents_to_run.length} #{agents_to_run.join(' ')}"

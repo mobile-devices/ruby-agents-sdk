@@ -133,7 +133,8 @@ module CloudConnectSDK
       when "collections"
         "/collection"
       else
-        raise "Unknown queue name: '#{queue}', expected one of: presences, messages, tracks, collections" # should never happen
+        CC.logger.warn( "Unknown queue name: '#{queue}', expected one of: presences, messages, tracks, collections") # should never happen
+        return
       end
 
     request = Net::HTTP::Post.new(ressource, "Content-type" => "application/json", "Accept" => "application/json")

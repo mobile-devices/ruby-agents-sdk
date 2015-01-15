@@ -289,6 +289,11 @@ get '/is_alive' do
   "I'm alive!"
 end
 
+get '/track_cache' do
+  TrackCache.value.inspect
+end
+
+
 get '/tests/status/text' do
   attachment "tests_status.txt"
   Tests::TestsRunner.instance.get_status_as_text

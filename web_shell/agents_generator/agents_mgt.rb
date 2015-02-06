@@ -316,11 +316,17 @@ module AgentsGenerator
   end
 
 
+  def create_user_config_file_if_not_exists(agent_name)
+    path = "#{workspace_path}/#{agent_name}/config/agent.yml"
+    FileUtils.touch(path) if !(File.exist?(path))
+  end
+
 
   def agent_general_configuration(agent_name)
     general_path = "#{workspace_path}/#{agent_name}/config/internal/general.yml"
     FileUtils::mkdir_p "#{workspace_path}/#{agent_name}/config/internal"
     FileUtils.cp("#{source_path}/sample_agent/config/internal/general.yml", general_path) if !(File.exist?(general_path))
+    create_user_config_file_if_not_exists(agent_name)
     YAML::load(File.open(general_path))
   end
 

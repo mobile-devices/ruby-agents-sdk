@@ -1,1 +1,11 @@
-# Put whateer you want here
+# here you will put any specific config var related to your agent feature.
+# The configuration content is available by using user_api.mdi.storage.config api.
+# Ex: user_api.mdi.storage.config['sample_var_url']
+# If you are running your code in the SDK VM, it will return "http://www.exampletest.com/"
+# If you are running your code in mdi application cloud, it will return "http://www.example.com/"
+
+ruby_sdk__env_config:
+  sample_var_url: "http://www.exampletest.com/"
+
+mdi_cloud_env_config:
+  sample_var_url: "http://www.example.com/"

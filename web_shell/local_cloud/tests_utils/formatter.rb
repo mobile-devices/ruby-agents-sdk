@@ -1,7 +1,7 @@
 require 'rspec'
 require 'rspec/core/formatters/base_formatter'
 require 'monitor'
-require 'active_support/core_ext/hash/deep_dup'
+require 'active_support/core_ext/object/deep_dup'
 
 module Tests
 

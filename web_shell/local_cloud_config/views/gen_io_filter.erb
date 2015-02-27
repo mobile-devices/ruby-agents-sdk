@@ -13,6 +13,8 @@
     <option <% if @f['type'] == 'track'%><%= "selected=\"selected\"" %><%end%>>track</option>
     <option <% if @f['type'] == 'collection'%><%= "selected=\"selected\"" %><%end%>>collection</option>
     <option <% if @f['type'] == 'poke'%><%= "selected=\"selected\"" %><%end%>>poke</option>
+    <option <% if @f['type'] == 'custom queues broadcasted'%><%= "selected=\"selected\"" %><%end%>>custom queues broadcasted</option>
+    <option <% if @f['type'] == 'custom queues shared'%><%= "selected=\"selected\"" %><%end%>>custom queues shared</option>
     </select><br/>
   </td>
   <td>
@@ -49,5 +51,15 @@
     <%= @io_type %> collection name filter. One collection name per line.<br/>
     To receive all collection type, put ALL_COLLECTION_NAMES (Not recommended)<br/>
     <TEXTAREA NAME="io_<%= @io_type %>|<%=@cnt%>|col_names" ROWS=3 COLS=50><%=@f['allowed_collection_definition_names'].join("\n")%></TEXTAREA>
+  </td>
+  <td <% if @f['type'] != 'custom queues broadcasted' %> style="display:none;"<% end%> >
+    <%= @io_type %> custom other queue to subscribe as broadcast to each running agent. This is for very specific usage. Please contact Mobile Devices for further details<br/>
+    <% @f['other_broadcast'] ||= [] %>
+    <TEXTAREA NAME="io_<%= @io_type %>|<%=@cnt%>|other_broadcast" ROWS=3 COLS=50><%=@f['other_broadcast'].join("\n")%></TEXTAREA>
+  </td>
+  <td <% if @f['type'] != 'custom queues shared' %> style="display:none;"<% end%> >
+    <%= @io_type %> custom other queue to subscribe as unicast to one of the running agent. This is for very specific usage. Please contact Mobile Devices for further details<br/>
+    <% @f['other_shared'] ||= [] %>
+    <TEXTAREA NAME="io_<%= @io_type %>|<%=@cnt%>|other_shared" ROWS=3 COLS=50><%=@f['other_shared'].join("\n")%></TEXTAREA>
   </td>
 </tr>

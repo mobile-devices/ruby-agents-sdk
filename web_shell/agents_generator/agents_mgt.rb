@@ -339,6 +339,7 @@ module AgentsGenerator
     io_path = "#{workspace_path}/#{agent_name}/config/internal/io.yml"
     FileUtils::mkdir_p "#{workspace_path}/#{agent_name}/config/internal"
     FileUtils.cp("#{source_path}/sample_agent/config/internal/io.yml", io_path) if !(File.exist?(io_path))
+    FileUtils.cp("#{source_path}/sample_agent/config/agent.yml", "#{workspace_path}/#{agent_name}/config/agent.yml") if !(File.exist?("#{workspace_path}/#{agent_name}/config/agent.yml"))
     YAML::load(File.open(io_path))
   end
 

@@ -89,6 +89,9 @@ def welcome_new_data_from_outside(index_type, request)
   when 6
     kind_str = 'poke'
     kind_tok = 'POKE'
+  when 7
+    kind_str = 'asset_config'
+    kind_tok = 'ASSET_CONFIG'
   end
 
   PUNK.start('a','receiving something ...')
@@ -213,6 +216,16 @@ post '/remote_call' do
   response.body = '{}'
   return if hashData == nil
   RIM.handle_order(hashData)
+  nil
+end
+
+#test:
+# curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"meta":{"class": "config", "type": "assets", "account": "unstable"}, "payload":{ "imei": "12556487486", "notification_url": "http:\/\/localhost:54321\/s", "metadata": [ { "name": "make", "type": null, "value": "" }, { "name": "vin", "type": "string", "value": "155444484848" } ] }}' http://localhost:5001/asset_config
+post '/asset_config' do
+  hashData = welcome_new_data_from_outside(7, request)
+  response.body = '{}'
+  return if hashData == nil
+  RIM.handle_asset_config(hashData)
   nil
 end
 

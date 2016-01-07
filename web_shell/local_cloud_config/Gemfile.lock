@@ -2,16 +2,16 @@ GEM
   remote: http://rubygems.org/
   specs:
     daemons (1.1.9)
-    eventmachine (1.0.3)
+    eventmachine (1.0.4)
     github-markup (0.7.5)
-    json (1.8.0)
+    json (1.8.2)
     rack (1.5.2)
     rack-flash3 (1.0.3)
-      rack
       rack
     rack-protection (1.5.0)
       rack
     redcarpet (2.3.0)
+    rubysl-securerandom (2.0.0)
     sinatra (1.4.2)
       rack (~> 1.5, >= 1.5.2)
       rack-protection (~> 1.4)
@@ -31,6 +31,10 @@ DEPENDENCIES
   json
   rack-flash3
   redcarpet
+  rubysl-securerandom
   sinatra
   thin
   yard
+
+BUNDLED WITH
+   1.10.6

@@ -401,6 +401,16 @@ module AgentsGenerator
   end
 
 
+  def get_agent_is_sub_asset_config(name)
+    return nil unless File.directory?("#{workspace_path}/#{name}")
+    cnf = {}
+    if File.exist?("#{workspace_path}/#{name}/config/#{name}.yml")
+      cnf = YAML::load(File.open("#{workspace_path}/#{name}/config/#{name}.yml"))['development']
+    end
+
+    cnf['subscribe_asset_config']
+  end
+
   def get_agent_is_sub_presence(name)
     return nil unless File.directory?("#{workspace_path}/#{name}")
     cnf = {}

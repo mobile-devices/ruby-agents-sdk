@@ -80,6 +80,14 @@ module Initial_agent_my_agent
     # Write your code here
   end
 
+  def new_poke(poke)
+    # Write your code here
+  end
+
+  def new_asset_config(asset_config)
+    # Write your code here
+  end
+
 end
 ```
 

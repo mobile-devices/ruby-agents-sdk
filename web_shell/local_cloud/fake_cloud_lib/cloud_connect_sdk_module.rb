@@ -27,7 +27,7 @@ module CloudConnectSDK
     end
 
     def self.request_http_cloud_api_put(account, service, payload)
-      nil
+      true
     end
   end
 

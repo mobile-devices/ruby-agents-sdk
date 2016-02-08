@@ -24,4 +24,8 @@ module Initial_agent_XXProjectName
     # Write your code here
   end
 
+  def new_asset_config(asset_config)
+    # Write your code here
+  end
+
 end

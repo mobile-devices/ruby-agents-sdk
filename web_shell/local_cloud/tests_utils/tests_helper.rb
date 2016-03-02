@@ -233,7 +233,9 @@ module TestsHelper
     # @param [String] account account name to use
     # @param [String] content string with the content of the message (Protogen objects are not accepted)
     # @param [String] channel the name of the communication channel
-    def initialize(content, channel, asset = "123456789", account = "tests")
+    # @param [Integer] id the message ID. If nil, a suitable ID will be automatically generated.
+    def initialize(content, channel, asset = "123456789", account = "tests", id = nil)
+      id = CC.indigen_next_id if id.nil?
       @msg = user_api.mdi.dialog.create_new_message(
         'meta' => {
           'account' => account,
@@ -241,7 +243,7 @@ module TestsHelper
           },
         'payload' => {
           'type' => 'message',
-          'id' => '',
+          'id' => id,
           'asset' => asset,
           'sender' => asset,
           'channel' =>  channel,

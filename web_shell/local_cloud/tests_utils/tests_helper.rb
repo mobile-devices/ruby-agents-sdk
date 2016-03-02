@@ -59,6 +59,31 @@ module TestsHelper
     res
   end
 
+  # Waits for server responses to a given device and return these responses.
+  # This is (obviously) a blocking call.
+  # @param [Integer] asset the IMEI of the device destination of the responses
+  # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
+  #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
+  # @param [Fixnum] timeout this method will return after `timeout` seconds.
+  # @return [Array<CloudConnectServices::Message>] messages sent by the server in response to the given message
+  # @note Protogen messages are sent as multiple messages by the server.
+  #   However, this method will consider all these small messages as a big one, so you don't have to worry
+  #   about using Protogen or not.
+  # @api public
+  def self.wait_for_responses_to_asset(asset, number_of_responses = 1, timeout = 5)
+    if !number_of_responses && number_of_responses <= 0
+      raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
+    end
+    start_time = Time.now.to_f
+    while Time.now.to_f - start_time < timeout
+      res = @@messages.select { |msg| msg.recipient == asset }
+      break if !number_of_responses && res.length >= number_of_responses
+      sleep(0.1)
+    end
+    res
+  end
+
+
   # Create a file for testing purposes. You can then access this file with the SDK file API.
   # The file_info attribute of the provided file must be correctly set.
   # Warning: the access rights management implemented in VM mode is a small subset of what is available in the Cloud.

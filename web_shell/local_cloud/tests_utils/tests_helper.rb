@@ -154,6 +154,26 @@ module TestsHelper
     res
   end
 
+  # Clear the testHelper cache of messages sent to devices.
+  def self.clear_messages_ring_buffer
+    @@messages = nil
+    @@messages = RingBuffer.new(100)
+  end
+
+  # Clear the testHelper cache of messages injected to the cloud.
+  def self.clear_messages_injected_ring_buffer
+    @@messages_injected = nil
+    @@messages_injected = RingBuffer.new(100)
+  end
+
+
+  # Clear the testHelper cache of tracks injected to the cloud.
+  def self.clear_tracks_injected_ring_buffer
+    @@tracks_injected = nil
+    @@tracks_injected = RingBuffer.new(100)
+  end
+
+
   # Create a file for testing purposes. You can then access this file with the SDK file API.
   # The file_info attribute of the provided file must be correctly set.
   # Warning: the access rights management implemented in VM mode is a small subset of what is available in the Cloud.

@@ -199,7 +199,6 @@ module TestsHelper
   # @api private
   @@messages = RingBuffer.new(100)
   # @api private
-  @@device_msg = RingBuffer.new(100)
   # @api private
   # Mappings between devices temporary message IDs and the IDs set by the server.
   @@mappings = Cache.new(100)

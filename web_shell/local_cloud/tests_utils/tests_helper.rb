@@ -40,7 +40,7 @@ module TestsHelper
   # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
   #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
   # @param [Fixnum] timeout this method will return after `timeout` seconds.
-  # @return [Array<CloudConnectServices::Message>] messages sent by the server in response to the given message
+  # @return [Array<UserApis::Mdi::Dialog::MessageClass>] messages sent by the server in response to the given message
   # @note Protogen messages are sent as multiple messages by the server.
   #   However, this method will consider all these small messages as a big one, so you don't have to worry
   #   about using Protogen or not.
@@ -59,13 +59,13 @@ module TestsHelper
     res
   end
 
-  # Waits for server responses to a given device and return these responses.
+  # Waits for server responses to a given asset and return these responses.
   # This is (obviously) a blocking call.
   # @param [Integer] asset the IMEI of the device destination of the responses
   # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
   #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
   # @param [Fixnum] timeout this method will return after `timeout` seconds.
-  # @return [Array<CloudConnectServices::Message>] messages sent by the server in response to the given message
+  # @return [Array<UserApis::Mdi::Dialog::MessageClass>] messages sent by the server in response to the given asset
   # @note Protogen messages are sent as multiple messages by the server.
   #   However, this method will consider all these small messages as a big one, so you don't have to worry
   #   about using Protogen or not.

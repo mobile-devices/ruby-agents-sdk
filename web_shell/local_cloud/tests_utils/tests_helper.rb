@@ -40,7 +40,7 @@ module TestsHelper
   # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
   #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
   # @param [Fixnum] timeout this method will return after `timeout` seconds.
-  # @return [Array<CloudConnectServices::Message>] messages sent by the server in response to the given message
+  # @return [Array<UserApis::Mdi::Dialog::MessageClass>] messages sent by the server in response to the given message
   # @note Protogen messages are sent as multiple messages by the server.
   #   However, this method will consider all these small messages as a big one, so you don't have to worry
   #   about using Protogen or not.
@@ -59,13 +59,13 @@ module TestsHelper
     res
   end
 
-  # Waits for server responses to a given device and return these responses.
+  # Waits for server responses to a given asset and return these responses.
   # This is (obviously) a blocking call.
   # @param [Integer] asset the IMEI of the device destination of the responses
   # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
   #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
   # @param [Fixnum] timeout this method will return after `timeout` seconds.
-  # @return [Array<CloudConnectServices::Message>] messages sent by the server in response to the given message
+  # @return [Array<UserApis::Mdi::Dialog::MessageClass>] messages sent by the server in response to the given asset
   # @note Protogen messages are sent as multiple messages by the server.
   #   However, this method will consider all these small messages as a big one, so you don't have to worry
   #   about using Protogen or not.
@@ -81,6 +81,96 @@ module TestsHelper
       sleep(0.1)
     end
     res
+  end
+
+  # Waits for server responses to a given device from a given message and return these responses.
+  # This is (obviously) a blocking call.
+  # @param [Integer] asset the IMEI of the device destination of the responses
+  # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
+  #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
+  # @param [Fixnum] timeout this method will return after `timeout` seconds.
+  # @return [Array<UserApis::Mdi::Dialog::MessageClass>] messages sent by the server in response to the given message to a paricular asset
+  # @note Protogen messages are sent as multiple messages by the server.
+  #   However, this method will consider all these small messages as a big one, so you don't have to worry
+  #   about using Protogen or not.
+  # @api public
+  def self.wait_for_responses_to_asset_from_message(asset, message, number_of_responses = 1, timeout = 5)
+    if !number_of_responses && number_of_responses <= 0
+      raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
+    end
+    id_to_look_for = @@mappings[message.id]
+    start_time = Time.now.to_f
+    while Time.now.to_f - start_time < timeout
+      res = @@messages.select { |msg| msg.recipient == asset && msg.parent_id == id_to_look_for }
+      break if !number_of_responses && res.length >= number_of_responses
+      sleep(0.1)
+    end
+    res
+  end
+
+  # Waits for server messages injected to the cloud and return these messages.
+  # This is (obviously) a blocking call.
+  # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
+  #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
+  # @param [Fixnum] timeout this method will return after `timeout` seconds.
+  # @return [Array<UserApis::Mdi::Dialog::MessageClass>] messages sent by the server in response to the given message
+  # @note Protogen messages are sent as multiple messages by the server.
+  #   However, this method will consider all these small messages as a big one, so you don't have to worry
+  #   about using Protogen or not.
+  # @api public
+  def self.wait_for_messages_injected_to_cloud(number_of_responses = 1, timeout = 5)
+    if !number_of_responses && number_of_responses <= 0
+      raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
+    end
+    start_time = Time.now.to_f
+    while Time.now.to_f - start_time < timeout
+      res = @@messages_injected
+      break if !number_of_responses && res.length >= number_of_responses
+      sleep(0.1)
+    end
+    res
+  end
+
+  # Waits for server tracks injected to the cloud and return these tracks.
+  # This is (obviously) a blocking call.
+  # @param [Fixnum, nil] number_of_responses if `nil`, wait until timeout and return all responses.
+  #   If a `Fixnum`, return as soon as `number_of_responses` responses are sent.
+  # @param [Fixnum] timeout this method will return after `timeout` seconds.
+  # @return [Array<UserApis::Mdi::Dialog::TrackClass>] messages sent by the server in response to the given message
+  # @note Protogen messages are sent as multiple messages by the server.
+  #   However, this method will consider all these small messages as a big one, so you don't have to worry
+  #   about using Protogen or not.
+  # @api public
+  def self.wait_for_tracks_injected_to_cloud(number_of_responses = 1, timeout = 5)
+    if !number_of_responses && number_of_responses <= 0
+      raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
+    end
+    start_time = Time.now.to_f
+    while Time.now.to_f - start_time < timeout
+      res = @@tracks_injected
+      break if !number_of_responses && res.length >= number_of_responses
+      sleep(0.1)
+    end
+    res
+  end
+
+  # Clear the testHelper cache of messages sent to devices.
+  def self.clear_messages_ring_buffer
+    @@messages = nil
+    @@messages = RingBuffer.new(100)
+  end
+
+  # Clear the testHelper cache of messages injected to the cloud.
+  def self.clear_messages_injected_ring_buffer
+    @@messages_injected = nil
+    @@messages_injected = RingBuffer.new(100)
+  end
+
+
+  # Clear the testHelper cache of tracks injected to the cloud.
+  def self.clear_tracks_injected_ring_buffer
+    @@tracks_injected = nil
+    @@tracks_injected = RingBuffer.new(100)
   end
 
 
@@ -109,6 +199,18 @@ module TestsHelper
   # @api public
   def self.delete_file(namespace, filename)
     CC::FileStorage.delete_file(namespace, filename)
+  end
+
+
+  # Inject an order to the initial module of the agent
+  # @return true on success
+  # @param [OrderClass] order to inject
+  # @example Inject a new order to the agent
+  #   new_order = user_api.mdi.dialog.create_new_order({'agent' => user_api.user_class.agent_name, 'order' => 'monthly_report', 'params' => {}})
+  #   TestsHelper.execute_order(new_order)
+  def self.execute_order(order)
+    assigned_agent = RAGENT.get_agent_from_name(order.agent)
+    assigned_agent.handle_order(order)
   end
 
   # @!endgroup
@@ -199,7 +301,9 @@ module TestsHelper
   # @api private
   @@messages = RingBuffer.new(100)
   # @api private
-  @@device_msg = RingBuffer.new(100)
+  @@messages_injected = RingBuffer.new(100)
+  # @api private
+  @@tracks_injected = RingBuffer.new(100)
   # @api private
   # Mappings between devices temporary message IDs and the IDs set by the server.
   @@mappings = Cache.new(100)
@@ -222,6 +326,21 @@ module TestsHelper
   # @param [Fixnum] tempId the temporary ID generated by the device.
   def self.id_generated(id, tempId)
     @@mappings[tempId] = id
+  end
+
+  # @api private
+  # Callback called everytime a message is injected to the cloud.
+  # @param [UserApis::Mdi::Dialog::MessageClass] msg the outgoing message. This is the message as pushed by the user, before
+  #        any Protogen stuff happens with the payload.
+  def self.message_injected(msg)
+    @@messages_injected << msg
+  end
+
+  # @api private
+  # Callback called everytime a track is injected to the cloud.
+  # @param [UserApis::Mdi::Dialog::TrackClass] track the outgoing track.
+  def self.track_injected(track)
+    @@tracks_injected << track
   end
 
   # @!endgroup

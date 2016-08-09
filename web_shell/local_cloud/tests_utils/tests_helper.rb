@@ -201,6 +201,18 @@ module TestsHelper
     CC::FileStorage.delete_file(namespace, filename)
   end
 
+
+  # Inject an order to the initial module of the agent
+  # @return true on success
+  # @param [OrderClass] order to inject
+  # @example Inject a new order to the agent
+  #   new_order = user_api.mdi.dialog.create_new_order({'agent' => user_api.user_class.agent_name, 'order' => 'monthly_report', 'params' => {}})
+  #   TestsHelper.execute_order(new_order)
+  def self.execute_order(order)
+    assigned_agent = RAGENT.get_agent_from_name(order.agent)
+    assigned_agent.handle_order(order)
+  end
+
   # @!endgroup
 
   # @!group Internal

@@ -46,14 +46,14 @@ module TestsHelper
   #   about using Protogen or not.
   # @api public
   def self.wait_for_responses(message, number_of_responses = 1, timeout = 5)
-    if !number_of_responses && number_of_responses <= 0
+    if !number_of_responses.nil? && number_of_responses <= 0
       raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
     end
     id_to_look_for = @@mappings[message.id]
     start_time = Time.now.to_f
     while Time.now.to_f - start_time < timeout
       res = @@messages.select { |msg| msg.parent_id == id_to_look_for }
-      break if !number_of_responses && res.length >= number_of_responses
+      break if !number_of_responses.nil? && res.length >= number_of_responses
       sleep(0.1)
     end
     res
@@ -71,13 +71,13 @@ module TestsHelper
   #   about using Protogen or not.
   # @api public
   def self.wait_for_responses_to_asset(asset, number_of_responses = 1, timeout = 5)
-    if !number_of_responses && number_of_responses <= 0
+    if !number_of_responses.nil? && number_of_responses <= 0
       raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
     end
     start_time = Time.now.to_f
     while Time.now.to_f - start_time < timeout
       res = @@messages.select { |msg| msg.recipient == asset }
-      break if !number_of_responses && res.length >= number_of_responses
+      break if !number_of_responses.nil? && res.length >= number_of_responses
       sleep(0.1)
     end
     res
@@ -95,14 +95,14 @@ module TestsHelper
   #   about using Protogen or not.
   # @api public
   def self.wait_for_responses_to_asset_from_message(asset, message, number_of_responses = 1, timeout = 5)
-    if !number_of_responses && number_of_responses <= 0
+    if !number_of_responses.nil? && number_of_responses <= 0
       raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
     end
     id_to_look_for = @@mappings[message.id]
     start_time = Time.now.to_f
     while Time.now.to_f - start_time < timeout
       res = @@messages.select { |msg| msg.recipient == asset && msg.parent_id == id_to_look_for }
-      break if !number_of_responses && res.length >= number_of_responses
+      break if !number_of_responses.nil? && res.length >= number_of_responses
       sleep(0.1)
     end
     res
@@ -119,13 +119,13 @@ module TestsHelper
   #   about using Protogen or not.
   # @api public
   def self.wait_for_messages_injected_to_cloud(number_of_responses = 1, timeout = 5)
-    if !number_of_responses && number_of_responses <= 0
+    if !number_of_responses.nil? && number_of_responses <= 0
       raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
     end
     start_time = Time.now.to_f
     while Time.now.to_f - start_time < timeout
       res = @@messages_injected
-      break if !number_of_responses && res.length >= number_of_responses
+      break !number_of_responses.nil? && res.length >= number_of_responses
       sleep(0.1)
     end
     res
@@ -142,13 +142,13 @@ module TestsHelper
   #   about using Protogen or not.
   # @api public
   def self.wait_for_tracks_injected_to_cloud(number_of_responses = 1, timeout = 5)
-    if !number_of_responses && number_of_responses <= 0
+    if !number_of_responses.nil? && number_of_responses <= 0
       raise ArgumentError.new("You must wait for at least 1 response message (given: #{number_of_responses})")
     end
     start_time = Time.now.to_f
     while Time.now.to_f - start_time < timeout
       res = @@tracks_injected
-      break if !number_of_responses && res.length >= number_of_responses
+      break !number_of_responses.nil? && res.length >= number_of_responses
       sleep(0.1)
     end
     res

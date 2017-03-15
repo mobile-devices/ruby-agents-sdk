@@ -399,6 +399,11 @@ module TestsHelper
       )
     end
 
+    # Saves Tags for dynamic filtering
+    def tags=tags
+      @msg["meta"]["tags"] = tags
+    end
+
     # Send this message to the server.
     def send_to_server
       send("/message", @msg.to_hash.to_json)
@@ -436,6 +441,11 @@ module TestsHelper
           'asset' => asset,
           'id' => id
         })
+    end
+
+    # Saves Tags for dynamic filtering
+    def tags=tags
+      @msg["meta"]["tags"] = tags
     end
 
     # Send this presence to the server.
@@ -482,6 +492,12 @@ module TestsHelper
         "payload" => payload,
         )
     end
+
+    # Saves Tags for dynamic filtering
+    def tags=tags
+      @msg["meta"]["tags"] = tags
+    end
+
 
     # Send this track to the server.
     def send_to_server
@@ -581,6 +597,11 @@ module TestsHelper
           "payload" => content
         }
         )
+    end
+
+    # Saves Tags for dynamic filtering
+    def tags=tags
+      @msg["meta"]["tags"] = tags
     end
 
     # Send this poke to the agents.

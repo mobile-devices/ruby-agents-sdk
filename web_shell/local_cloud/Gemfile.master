@@ -12,7 +12,7 @@ gem 'i18n'
 ### vm-sdk ######################################################
 
 # tests
-gem 'rack-test', require: 'rack/test'
+gem 'rack-test', '~> 0.7.0', require: 'rack/test'
 gem 'rspec', '~> 2.14'
 
 # http

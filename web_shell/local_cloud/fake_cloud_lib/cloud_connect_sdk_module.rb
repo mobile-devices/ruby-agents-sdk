@@ -25,6 +25,10 @@ module CloudConnectSDK
     def self.request_http_cloud_api(account, service)
       nil
     end
+
+    def self.request_http_cloud_api_put(account, service, payload)
+      true
+    end
   end
 
   module NavServer

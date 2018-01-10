@@ -34,6 +34,10 @@ class Agent_XX_CLEAN_PROJECT_NAME
       CCSI.user_class_presence_subscriber.subscribe(self)
       CC.logger.info("#{self.agent_name} subscribe to presences")
     end
+    if SDK.API::config_internal['subscribe_asset_config']
+      CCSI.user_class_asset_config_subscriber.subscribe(self)
+      CC.logger.info("#{self.agent_name} subscribe to asset configs")
+    end
     if SDK.API::config_internal['subscribe_message']
       CCSI.user_class_message_subscriber.subscribe(self)
       CC.logger.info("#{self.agent_name} subscribe to messages")
@@ -45,6 +49,30 @@ class Agent_XX_CLEAN_PROJECT_NAME
   end
 
   ######### Messages delivered for the agent ###########################
+  def handle_asset_config(asset_config)
+    begin
+      time_start_asset_config = Time.now
+
+      PUNK.start('asset_config')
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['received'][6] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_received'] += 1
+      CC.logger.info("Agent 'XX_PROJECT_NAME' receive ASSET CONFIG:\n#{asset_config.inspect}")
+      PUNK.end('asset_config','ok','in',"AGENT:XX_PROJECT_NAMETNEGA <- ASSET_CONFIG '#{asset_config.asset}'")
+      PUNK.start('handle', 'handling asset_config ...')
+      CC.logger.info("Server: handle_asset_config: pushing asset_config of imei='#{asset_config.asset}' to agent 'XX_PROJECT_NAME'")
+      new_asset_config(asset_config)
+
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['process_time'][0] += (Time.now - time_start_asset_config)
+      PUNK.end('handle','ok','process',"AGENT:XX_PROJECT_NAMETNEGA callback ASSET CONFIG '#{asset_config.asset}'")
+    rescue => e
+      CC.logger.error('Server: /asset_config error on agent XX_PROJECT_NAME while handle_asset_config')
+      CCS.print_ruby_exception(e)
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['err_while_process'][6] += 1
+      SDK_STATS.stats['agents']['XX_PROJECT_NAME']['total_error'] += 1
+      PUNK.end('handle','ko','process',"AGENT:XX_PROJECT_NAMETNEGA callback ASSET CONFIG fail")
+    end
+  end
+
   def handle_presence(presence)
     begin
       time_start_presence = Time.now

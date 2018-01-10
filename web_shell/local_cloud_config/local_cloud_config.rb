@@ -232,6 +232,8 @@ post '/agents/:agent_name/set_configuration' do
     params["io_input|#{i}|msg_channels"] = "" if params["io_input|#{i}|msg_channels"] == nil
     params["io_input|#{i}|track_fields"] = "" if params["io_input|#{i}|track_fields"] == nil
     params["io_input|#{i}|col_names"] = "" if params["io_input|#{i}|col_names"] == nil
+    params["io_input|#{i}|other_broadcast"] = "" if params["io_input|#{i}|other_broadcast"] == nil
+    params["io_input|#{i}|other_shared"] = "" if params["io_input|#{i}|other_shared"] == nil
 
     io_cfg['input_filters'] << {
       'id' => params["io_input|#{i}|id"],
@@ -242,7 +244,9 @@ post '/agents/:agent_name/set_configuration' do
       'allowed_collection_definition_names' => params["io_input|#{i}|col_names"].split("\r\n"),
       'track_hide_location' => (params["io_input|#{i}|hide_location"] != nil),
       'track_hide_time' => (params["io_input|#{i}|hide_time"] != nil),
-      'track_fields_cached' => (params["io_input|#{i}|fields_cached"] != nil)
+      'track_fields_cached' => (params["io_input|#{i}|fields_cached"] != nil),
+      'other_broadcast' => params["io_input|#{i}|other_broadcast"].split("\r\n"),
+      'other_shared' => params["io_input|#{i}|other_shared"].split("\r\n")
     }
   end
   input_count = params['output_count'].to_i
@@ -432,6 +436,7 @@ get '/gen_main_display' do
     erb :gen_agents_table, layout: false
   end
 end
+
 
 #=========================================================================================
 

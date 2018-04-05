@@ -106,7 +106,7 @@ module CloudConnectSDK
   end
 
   def self.mongoClient
-    @mongoClient ||= Mongo::MongoClient.new
+    @mongoClient ||= Mongo::Client.new(['localhost:27017'])
   end
 
   def self.instance

@@ -3,6 +3,7 @@ require 'rspec'
 require 'thread'
 require 'monitor'
 require 'timeout'
+require 'webmock'
 
 require_relative 'formatter'
 require_relative 'tests_helper'
@@ -95,6 +96,7 @@ module Tests
                 RSpec.configure do |c|
                   c.instance_variable_set(:@reporter, reporter)
                   c.instance_variable_set(:@formatters, [@formatters[agent_name]])
+		              c.before(:all) { |_| WebMock.allow_net_connect!)
                   c.around(:each) do |example|
                     env = {
                       'env' => 'tests',

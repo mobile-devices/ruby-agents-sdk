@@ -35,5 +35,16 @@ sudo mount -o bind /home/vagrant/ruby_workspace/file_storage /home/vagrant/ruby-
 mkdir -p /home/vagrant/ruby_workspace/cloud_configuration
 sudo mount -o bind /home/vagrant/ruby_workspace/cloud_configuration /home/vagrant/ruby-agents-sdk/cloud_configuration
 
+echo ""
+echo "Removing previous link to agents sources..."
+cd /home/vagrant/ruby-agents-sdk/web_shell/local_cloud/ragent_bay/agents_project_source && rm *
+echo "Searching for agents sources:"
+for filename in `ls /home/vagrant/ruby_workspace`; do
+    if [[ "$filename" =~ _agent ]] && [ -d /home/vagrant/ruby_workspace/$filename ]; then
+        echo "Agent dir found: $filename, creating link"
+        ln -s /home/vagrant/ruby_workspace/$filename /home/vagrant/ruby-agents-sdk/web_shell/local_cloud/ragent_bay/agents_project_source/$filename
+    fi
+done
+
 # copy default track field mapping if not exists
 cp -n /home/vagrant/ruby-agents-sdk/web_shell/local_cloud/ragent_bay/ragent_api/default_tracks_field_info.json /home/vagrant/ruby-agents-sdk/cloud_configuration/default_tracks_field_info.json

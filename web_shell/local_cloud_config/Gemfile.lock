@@ -5,7 +5,7 @@ GEM
     eventmachine (1.0.4)
     github-markup (0.7.5)
     json (1.8.2)
-    rack (1.5.2)
+    rack (1.6.12)
     rack-flash3 (1.0.3)
       rack
     rack-protection (1.5.0)

@@ -4,7 +4,7 @@ GEM
     daemons (1.1.9)
     eventmachine (1.0.4)
     github-markup (0.7.5)
-    json (1.8.2)
+    json (2.3.0)
     rack (1.5.2)
     rack-flash3 (1.0.3)
       rack
